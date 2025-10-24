@@ -156,6 +156,8 @@ export const insertUserSchema = createInsertSchema(users).omit({
 }).extend({
   phone: z.string().regex(/^\+244\d{9}$/, "Número de telefone deve estar no formato +244XXXXXXXXX"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+  username: z.string().optional(),
+  email: z.string().email().optional().nullable(),
 });
 
 export const loginSchema = z.object({

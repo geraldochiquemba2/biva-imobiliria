@@ -79,10 +79,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Hash password
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       
-      // Create user
+      // Generate username from phone (remove +244 prefix and use as username)
+      const username = userData.phone.replace('+244', 'user_');
+      
+      // Create user with all required fields
       const user = await storage.createUser({
-        ...userData,
-        password: hashedPassword
+        fullName: userData.fullName,
+        phone: userData.phone,
+        userType: userData.userType,
+        password: hashedPassword,
+        username,
+        email: null,
       });
       
       // Set session
