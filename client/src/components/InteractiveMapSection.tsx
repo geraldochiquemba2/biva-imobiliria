@@ -12,7 +12,7 @@ export default function InteractiveMapSection() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${mapBgImage})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/85" />
+      <div className="absolute inset-0 bg-gradient-to-br from-background/70 via-background/60 to-background/70" />
       
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl" />
