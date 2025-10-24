@@ -38,7 +38,7 @@ export default function IntroSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative h-[500px] overflow-hidden"
           >
-            <div className="absolute top-0 left-0 w-[45%] h-[55%] rounded-2xl overflow-hidden shadow-2xl z-30 transform -rotate-3">
+            <div className="absolute top-0 left-0 w-[45%] h-[55%] rounded-2xl overflow-hidden shadow-2xl z-10 transform -rotate-3">
               <img
                 src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80"
                 alt="Edifício moderno"
@@ -46,7 +46,7 @@ export default function IntroSection() {
               />
             </div>
             
-            <div className="absolute top-[15%] right-0 w-[55%] h-[50%] rounded-2xl overflow-hidden shadow-2xl z-40 transform rotate-2">
+            <div className="absolute top-[15%] right-0 w-[55%] h-[50%] rounded-2xl overflow-hidden shadow-2xl z-20 transform rotate-2">
               <img
                 src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=700&q=80"
                 alt="Piscina de luxo"
@@ -54,7 +54,7 @@ export default function IntroSection() {
               />
             </div>
             
-            <div className="absolute bottom-0 left-[20%] w-[50%] h-[55%] rounded-2xl overflow-hidden shadow-2xl z-50 transform rotate-1">
+            <div className="absolute bottom-0 left-[20%] w-[50%] h-[55%] rounded-2xl overflow-hidden shadow-2xl z-30 transform rotate-1">
               <img
                 src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80"
                 alt="Interior luxuoso"
