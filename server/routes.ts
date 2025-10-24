@@ -12,14 +12,8 @@ import {
   insertPaymentSchema
 } from "@shared/schema";
 import { z } from "zod";
-import { seedDatabase } from "./seed";
 import bcrypt from "bcrypt";
 import session from "express-session";
-
-// Seed database on startup in development
-if (process.env.NODE_ENV === "development") {
-  seedDatabase().catch(console.error);
-}
 
 // Extend Express session type
 declare module 'express-session' {
