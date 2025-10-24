@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Home, Bed } from "lucide-react";
+import { Search, MapPin, Home, Bed, RotateCcw } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface SearchBarProps {
@@ -36,6 +36,27 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       onSearch({ type: propertyType, location, category, bedrooms, minPrice, maxPrice });
     }
   };
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    if (value === 'Terreno' || value === 'Comercial') {
+      setBedrooms('');
+    }
+  };
+
+  const resetFilters = () => {
+    setLocation('');
+    setCategory('');
+    setBedrooms('');
+    setMinPrice('');
+    setMaxPrice('');
+    if (onSearch) {
+      onSearch({ type: propertyType, location: '', category: '', bedrooms: '', minPrice: '', maxPrice: '' });
+    }
+  };
+
+  const hasActiveFilters = location || category || bedrooms || minPrice || maxPrice;
+  const showBedroomFilter = category !== 'Terreno' && category !== 'Comercial';
 
   return (
     <motion.div
@@ -68,7 +89,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
             <Input
-              placeholder="Bairro, Município, Província"
+              placeholder="Localização"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className="pl-10 transition-all duration-200"
@@ -76,7 +97,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             />
           </div>
 
-          <Select value={category} onValueChange={setCategory}>
+          <Select value={category} onValueChange={handleCategoryChange}>
             <SelectTrigger className="transition-all duration-200" data-testid="select-category">
               <Home className="h-5 w-5 mr-2 text-muted-foreground" />
               <SelectValue placeholder="Tipo de Imóvel" />
@@ -89,21 +110,23 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             </SelectContent>
           </Select>
 
-          <Select value={bedrooms} onValueChange={setBedrooms}>
-            <SelectTrigger className="transition-all duration-200" data-testid="select-bedrooms">
-              <Bed className="h-5 w-5 mr-2 text-muted-foreground" />
-              <SelectValue placeholder="Quartos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="0">Estúdio</SelectItem>
-              <SelectItem value="1">1 Quarto</SelectItem>
-              <SelectItem value="2">2 Quartos</SelectItem>
-              <SelectItem value="3">3 Quartos</SelectItem>
-              <SelectItem value="4">4+ Quartos</SelectItem>
-            </SelectContent>
-          </Select>
+          {showBedroomFilter && (
+            <Select value={bedrooms} onValueChange={setBedrooms}>
+              <SelectTrigger className="transition-all duration-200" data-testid="select-bedrooms">
+                <Bed className="h-5 w-5 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="Quartos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Estúdio</SelectItem>
+                <SelectItem value="1">1 Quarto</SelectItem>
+                <SelectItem value="2">2 Quartos</SelectItem>
+                <SelectItem value="3">3 Quartos</SelectItem>
+                <SelectItem value="4">4+ Quartos</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
 
-          <div className="flex gap-2">
+          <div className={showBedroomFilter ? "flex gap-2" : "flex gap-2 lg:col-span-2"}>
             <Input
               placeholder="Preço mín (Kz)"
               type="number"
@@ -133,8 +156,23 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
           </Button>
         </div>
 
-        <div className="text-sm text-muted-foreground text-center">
-          Pesquise entre milhares de imóveis em toda Angola
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            Pesquise entre milhares de imóveis em toda Angola
+          </div>
+          
+          {hasActiveFilters && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={resetFilters}
+              className="text-muted-foreground hover-elevate"
+              data-testid="button-reset-filters"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Redefinir Filtros
+            </Button>
+          )}
         </div>
       </Card>
     </motion.div>
