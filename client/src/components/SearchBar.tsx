@@ -26,7 +26,7 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
-  const [propertyType, setPropertyType] = useState<'Arrendar' | 'Vender'>('Arrendar');
+  const [propertyType, setPropertyType] = useState<'Arrendar' | 'Vender' | ''>('');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
   const [bedrooms, setBedrooms] = useState('');
@@ -36,8 +36,8 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   const [maxPrice, setMaxPrice] = useState('');
 
   const handleSearch = () => {
-    if (onSearch) {
-      onSearch({ type: propertyType, location, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
+    if (onSearch && propertyType) {
+      onSearch({ type: propertyType as 'Arrendar' | 'Vender', location, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
     }
   };
 
@@ -51,6 +51,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   };
 
   const resetFilters = () => {
+    setPropertyType('');
     setLocation('');
     setCategory('');
     setBedrooms('');
@@ -59,11 +60,11 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     setMinPrice('');
     setMaxPrice('');
     if (onSearch) {
-      onSearch({ type: propertyType, location: '', category: '', bedrooms: '', livingRooms: '', kitchens: '', minPrice: '', maxPrice: '' });
+      onSearch({ type: 'Arrendar', location: '', category: '', bedrooms: '', livingRooms: '', kitchens: '', minPrice: '', maxPrice: '' });
     }
   };
 
-  const hasActiveFilters = location || category || bedrooms || livingRooms || kitchens || minPrice || maxPrice;
+  const hasActiveFilters = propertyType || location || category || bedrooms || livingRooms || kitchens || minPrice || maxPrice;
   const showRoomFilters = category === 'Casa' || category === 'Apartamento';
 
   return (
