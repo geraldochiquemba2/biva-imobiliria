@@ -5,8 +5,35 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
 import bgImage from '@assets/stock_images/contact_us_customer__7ca08ad4.jpg';
+import phoneImg from '@assets/stock_images/phone_call_customer__d0afec8c.jpg';
+import emailImg from '@assets/stock_images/email_envelope_messa_22f5584e.jpg';
+import locationImg from '@assets/stock_images/office_building_loca_47ac5ee4.jpg';
 
 export default function Contacto() {
+  const contacts = [
+    {
+      icon: Phone,
+      title: "Telefone",
+      info: "+244 923 456 789",
+      description: "Seg - Sex, 8h às 18h",
+      image: phoneImg
+    },
+    {
+      icon: Mail,
+      title: "Email",
+      info: "contacto@biva.ao",
+      description: "Respondemos em 24h",
+      image: emailImg
+    },
+    {
+      icon: MapPin,
+      title: "Localização",
+      info: "Luanda, Angola",
+      description: "Talatona, Rua Principal",
+      image: locationImg
+    }
+  ];
+
   return (
     <div className="min-h-screen pt-24">
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
@@ -36,26 +63,7 @@ export default function Contacto() {
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-8 mb-12">
-            {[
-              {
-                icon: Phone,
-                title: "Telefone",
-                info: "+244 923 456 789",
-                description: "Seg - Sex, 8h às 18h"
-              },
-              {
-                icon: Mail,
-                title: "Email",
-                info: "contacto@biva.ao",
-                description: "Respondemos em 24h"
-              },
-              {
-                icon: MapPin,
-                title: "Localização",
-                info: "Luanda, Angola",
-                description: "Talatona, Rua Principal"
-              }
-            ].map((contact, index) => (
+            {contacts.map((contact, index) => (
               <motion.div
                 key={contact.title}
                 initial={{ opacity: 0, y: 30 }}
@@ -63,14 +71,20 @@ export default function Contacto() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card className="p-6 h-full hover-elevate transition-all duration-300">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <contact.icon className="h-7 w-7 text-primary" />
+                <Card className="relative p-6 h-full hover-elevate transition-all duration-300 overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${contact.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/75" />
+                  
+                  <div className="relative z-10 flex flex-col items-center text-center">
+                    <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-white/20">
+                      <contact.icon className="h-7 w-7 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{contact.title}</h3>
-                    <p className="font-medium mb-1">{contact.info}</p>
-                    <p className="text-sm text-muted-foreground">{contact.description}</p>
+                    <h3 className="text-xl font-semibold mb-2 text-white">{contact.title}</h3>
+                    <p className="font-medium mb-1 text-white">{contact.info}</p>
+                    <p className="text-sm text-white/80">{contact.description}</p>
                   </div>
                 </Card>
               </motion.div>

@@ -2,8 +2,39 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Target, Eye, Award, Users } from "lucide-react";
 import bgImage from '@assets/stock_images/business_team_office_7840ab22.jpg';
+import targetImg from '@assets/stock_images/target_goal_achievem_fa0f4f86.jpg';
+import visionImg from '@assets/stock_images/vision_future_telesc_51bb093f.jpg';
+import awardImg from '@assets/stock_images/award_trophy_excelle_5cd7a8dd.jpg';
+import teamImg from '@assets/stock_images/business_team_collab_38b88751.jpg';
 
 export default function Sobre() {
+  const values = [
+    {
+      icon: Target,
+      title: "Missão",
+      description: "Simplificar e modernizar o mercado imobiliário em Angola através de tecnologia inovadora",
+      image: targetImg
+    },
+    {
+      icon: Eye,
+      title: "Visão",
+      description: "Ser a plataforma imobiliária de referência em Angola e expandir para toda a África Austral",
+      image: visionImg
+    },
+    {
+      icon: Award,
+      title: "Valores",
+      description: "Transparência, inovação, confiança e compromisso com a excelência",
+      image: awardImg
+    },
+    {
+      icon: Users,
+      title: "Equipe",
+      description: "Profissionais experientes dedicados a transformar o setor imobiliário",
+      image: teamImg
+    }
+  ];
+
   return (
     <div className="min-h-screen pt-24">
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
@@ -50,28 +81,7 @@ export default function Sobre() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-16">
-            {[
-              {
-                icon: Target,
-                title: "Missão",
-                description: "Simplificar e modernizar o mercado imobiliário em Angola através de tecnologia inovadora"
-              },
-              {
-                icon: Eye,
-                title: "Visão",
-                description: "Ser a plataforma imobiliária de referência em Angola e expandir para toda a África Austral"
-              },
-              {
-                icon: Award,
-                title: "Valores",
-                description: "Transparência, inovação, confiança e compromisso com a excelência"
-              },
-              {
-                icon: Users,
-                title: "Equipe",
-                description: "Profissionais experientes dedicados a transformar o setor imobiliário"
-              }
-            ].map((item, index) => (
+            {values.map((item, index) => (
               <motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 30 }}
@@ -79,13 +89,19 @@ export default function Sobre() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card className="p-6 h-full hover-elevate transition-all duration-300">
-                  <div className="flex flex-col">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <item.icon className="h-7 w-7 text-primary" />
+                <Card className="relative p-6 h-full hover-elevate transition-all duration-300 overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${item.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/75" />
+                  
+                  <div className="relative z-10 flex flex-col">
+                    <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-white/20">
+                      <item.icon className="h-7 w-7 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                    <p className="text-muted-foreground">{item.description}</p>
+                    <h3 className="text-xl font-semibold mb-2 text-white">{item.title}</h3>
+                    <p className="text-white/90">{item.description}</p>
                   </div>
                 </Card>
               </motion.div>

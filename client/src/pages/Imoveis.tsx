@@ -3,8 +3,32 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Home, Building2, MapPin, Search } from "lucide-react";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
+import residentialImg from '@assets/stock_images/modern_residential_a_a908ff8e.jpg';
+import commercialImg from '@assets/stock_images/commercial_office_sp_93bcd7db.jpg';
+import landImg from '@assets/stock_images/empty_land_plot_cons_30bc54d4.jpg';
 
 export default function Imoveis() {
+  const categories = [
+    {
+      icon: Home,
+      title: "Residencial",
+      description: "Apartamentos e casas para viver com conforto e segurança",
+      image: residentialImg
+    },
+    {
+      icon: Building2,
+      title: "Comercial",
+      description: "Espaços comerciais e escritórios em localizações estratégicas",
+      image: commercialImg
+    },
+    {
+      icon: MapPin,
+      title: "Terrenos",
+      description: "Terrenos prontos para construção em diversas regiões",
+      image: landImg
+    }
+  ];
+
   return (
     <div className="min-h-screen pt-24">
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
@@ -39,23 +63,7 @@ export default function Imoveis() {
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Home,
-                title: "Residencial",
-                description: "Apartamentos e casas para viver com conforto e segurança"
-              },
-              {
-                icon: Building2,
-                title: "Comercial",
-                description: "Espaços comerciais e escritórios em localizações estratégicas"
-              },
-              {
-                icon: MapPin,
-                title: "Terrenos",
-                description: "Terrenos prontos para construção em diversas regiões"
-              }
-            ].map((category, index) => (
+            {categories.map((category, index) => (
               <motion.div
                 key={category.title}
                 initial={{ opacity: 0, y: 30 }}
@@ -63,13 +71,19 @@ export default function Imoveis() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card className="p-6 h-full hover-elevate transition-all duration-300">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                      <category.icon className="h-8 w-8 text-primary" />
+                <Card className="relative p-6 h-full hover-elevate transition-all duration-300 overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${category.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/75" />
+                  
+                  <div className="relative z-10 flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-white/20">
+                      <category.icon className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">{category.title}</h3>
-                    <p className="text-muted-foreground">{category.description}</p>
+                    <h3 className="text-xl font-bold mb-2 text-white">{category.title}</h3>
+                    <p className="text-white/90">{category.description}</p>
                   </div>
                 </Card>
               </motion.div>

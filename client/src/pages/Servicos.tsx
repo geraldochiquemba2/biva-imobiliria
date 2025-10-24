@@ -2,37 +2,49 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { FileText, Users, Key, Calculator, Shield, Briefcase } from "lucide-react";
 import bgImage from '@assets/stock_images/professional_real_es_55b8b0d5.jpg';
+import contractImg from '@assets/stock_images/legal_contract_docum_6462e5a6.jpg';
+import consultingImg from '@assets/stock_images/business_consulting__24e49a72.jpg';
+import handshakeImg from '@assets/stock_images/handshake_business_d_735d487f.jpg';
+import valuationImg from '@assets/stock_images/house_valuation_appr_1a6c58da.jpg';
+import legalImg from '@assets/stock_images/lawyer_legal_advice__8d38885f.jpg';
+import managementImg from '@assets/stock_images/property_management__eb571a95.jpg';
 
 const services = [
   {
     icon: FileText,
     title: "Gestão de Contratos",
-    description: "Elaboração e gestão completa de contratos de compra, venda e arrendamento"
+    description: "Elaboração e gestão completa de contratos de compra, venda e arrendamento",
+    image: contractImg
   },
   {
     icon: Users,
     title: "Consultoria Imobiliária",
-    description: "Orientação especializada para compra, venda e investimento em imóveis"
+    description: "Orientação especializada para compra, venda e investimento em imóveis",
+    image: consultingImg
   },
   {
     icon: Key,
     title: "Intermediação",
-    description: "Conectamos compradores e vendedores com total segurança e transparência"
+    description: "Conectamos compradores e vendedores com total segurança e transparência",
+    image: handshakeImg
   },
   {
     icon: Calculator,
     title: "Avaliação de Imóveis",
-    description: "Avaliação profissional para determinar o valor justo do seu imóvel"
+    description: "Avaliação profissional para determinar o valor justo do seu imóvel",
+    image: valuationImg
   },
   {
     icon: Shield,
     title: "Assessoria Jurídica",
-    description: "Suporte jurídico completo em todas as transações imobiliárias"
+    description: "Suporte jurídico completo em todas as transações imobiliárias",
+    image: legalImg
   },
   {
     icon: Briefcase,
     title: "Gestão de Propriedades",
-    description: "Administração completa de imóveis para proprietários e investidores"
+    description: "Administração completa de imóveis para proprietários e investidores",
+    image: managementImg
   }
 ];
 
@@ -88,13 +100,19 @@ export default function Servicos() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card className="p-6 h-full hover-elevate transition-all duration-300">
-                  <div className="flex flex-col">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <service.icon className="h-7 w-7 text-primary" />
+                <Card className="relative p-6 h-full hover-elevate transition-all duration-300 overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${service.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/75" />
+                  
+                  <div className="relative z-10 flex flex-col">
+                    <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-white/20">
+                      <service.icon className="h-7 w-7 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                    <p className="text-muted-foreground">{service.description}</p>
+                    <h3 className="text-xl font-semibold mb-2 text-white">{service.title}</h3>
+                    <p className="text-white/90">{service.description}</p>
                   </div>
                 </Card>
               </motion.div>
