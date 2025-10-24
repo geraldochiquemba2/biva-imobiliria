@@ -27,27 +27,27 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-24">
-          <Link href="/">
-            <a className="flex items-center" data-testid="link-logo">
+          <Link href="/" data-testid="link-logo">
+            <div className="flex items-center cursor-pointer">
               <img 
                 src={logoImage} 
                 alt="BIVA Imobiliária" 
                 className="h-20 w-auto dark:brightness-0 dark:invert transition-all"
               />
-            </a>
+            </div>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <Link key={item.path} href={item.path}>
-                <a
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    location === item.path ? 'text-primary' : 'text-muted-foreground'
-                  }`}
-                  data-testid={`link-${item.label.toLowerCase()}`}
-                >
-                  {item.label}
-                </a>
+              <Link 
+                key={item.path} 
+                href={item.path}
+                className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                  location === item.path ? 'text-primary' : 'text-muted-foreground'
+                }`}
+                data-testid={`link-${item.label.toLowerCase()}`}
+              >
+                {item.label}
               </Link>
             ))}
           </nav>
@@ -101,16 +101,16 @@ export default function Header() {
           <div className="md:hidden py-4 border-t">
             <nav className="flex flex-col gap-4">
               {navItems.map((item) => (
-                <Link key={item.path} href={item.path}>
-                  <a
-                    className={`text-sm font-medium transition-colors hover:text-primary ${
-                      location === item.path ? 'text-primary' : 'text-muted-foreground'
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    data-testid={`link-mobile-${item.label.toLowerCase()}`}
-                  >
-                    {item.label}
-                  </a>
+                <Link 
+                  key={item.path} 
+                  href={item.path}
+                  className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                    location === item.path ? 'text-primary' : 'text-muted-foreground'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  data-testid={`link-mobile-${item.label.toLowerCase()}`}
+                >
+                  {item.label}
                 </Link>
               ))}
             </nav>
