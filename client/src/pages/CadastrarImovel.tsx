@@ -89,7 +89,7 @@ export default function CadastrarImovel() {
       const images = [data.image1, data.image2, data.image3, data.image4]
         .filter(url => url && url.trim() !== '');
       
-      const propertyData = {
+      const propertyData: any = {
         title: data.title,
         description: data.description,
         type: data.type,
@@ -103,11 +103,15 @@ export default function CadastrarImovel() {
         bathrooms: data.bathrooms || 0,
         livingRooms: 1,
         kitchens: 1,
-        images: images.length > 0 ? images : null,
         featured: false,
         status: 'disponivel',
         ownerId: currentUser!.id,
       };
+      
+      if (images.length > 0) {
+        propertyData.images = images;
+      }
+      
       const res = await apiRequest('POST', '/api/properties', propertyData);
       return await res.json();
     },
