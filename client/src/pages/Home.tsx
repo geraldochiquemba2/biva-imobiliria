@@ -55,6 +55,7 @@ export default function Home() {
     minPrice?: string;
     maxPrice?: string;
   }>({});
+  const [showAll, setShowAll] = useState(false);
 
   // Build query string from search params
   const queryString = Object.entries(searchParams)
@@ -110,6 +111,10 @@ export default function Home() {
     image: getPropertyImage(property, index),
   }));
 
+  // Limit to 10 properties initially
+  const displayedProperties = showAll ? propertiesWithImages : propertiesWithImages.slice(0, 10);
+  const hasMore = propertiesWithImages.length > 10;
+
   return (
     <div className="min-h-screen">
       <HeroSection />
@@ -149,11 +154,37 @@ export default function Home() {
               Nenhum imóvel encontrado
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {propertiesWithImages.map((property, index) => (
-                <PropertyCard key={property.id} property={property} index={index} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {displayedProperties.map((property, index) => (
+                  <PropertyCard key={property.id} property={property} index={index} />
+                ))}
+              </div>
+              
+              {!showAll && hasMore && (
+                <motion.div
+                  className="flex justify-center mt-12"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <button
+                    onClick={() => {
+                      setShowAll(true);
+                      setTimeout(() => {
+                        const section = document.querySelector('section');
+                        section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }, 100);
+                    }}
+                    className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
+                    data-testid="button-ver-mais"
+                  >
+                    Ver Mais
+                  </button>
+                </motion.div>
+              )}
+            </>
           )}
         </div>
       </section>
