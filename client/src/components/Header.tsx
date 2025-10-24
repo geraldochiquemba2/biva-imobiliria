@@ -72,16 +72,18 @@ export default function Header() {
             <Button
               variant="outline"
               size="sm"
+              asChild
               data-testid="button-login"
             >
-              Entrar
+              <Link href="/login">Entrar</Link>
             </Button>
 
             <Button
               size="sm"
+              asChild
               data-testid="button-register"
             >
-              Cadastro
+              <Link href="/cadastro">Cadastro</Link>
             </Button>
 
             <Button
@@ -116,6 +118,29 @@ export default function Header() {
                   {item.label}
                 </Link>
               ))}
+              <div className="flex flex-col gap-2 pt-2 border-t">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  asChild
+                  data-testid="button-mobile-login"
+                >
+                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                    Entrar
+                  </Link>
+                </Button>
+                <Button
+                  size="sm"
+                  className="w-full"
+                  asChild
+                  data-testid="button-mobile-register"
+                >
+                  <Link href="/cadastro" onClick={() => setMobileMenuOpen(false)}>
+                    Cadastro
+                  </Link>
+                </Button>
+              </div>
             </nav>
           </div>
         )}
