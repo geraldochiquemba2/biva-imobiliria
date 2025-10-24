@@ -21,57 +21,57 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
         className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer"
         data-testid={`card-property-${property.id}`}
       >
-        <div className="relative aspect-[16/10] overflow-hidden">
+        <div className="relative aspect-square overflow-hidden">
           <img
             src={property.image || ''}
             alt={property.title}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
           />
-          <div className="absolute top-2 left-2">
-            <Badge variant={property.type === 'Arrendar' ? 'default' : 'secondary'} className="text-xs">
+          <div className="absolute top-1.5 left-1.5">
+            <Badge variant={property.type === 'Arrendar' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0.5">
               {property.type}
             </Badge>
           </div>
           {property.featured && (
-            <div className="absolute top-2 right-2">
-              <Badge className="bg-yellow-500 text-yellow-950 border-yellow-600 text-xs">
+            <div className="absolute top-1.5 right-1.5">
+              <Badge className="bg-yellow-500 text-yellow-950 border-yellow-600 text-[10px] px-1.5 py-0.5">
                 Destaque
               </Badge>
             </div>
           )}
         </div>
         
-        <CardContent className="p-4">
-          <div className="mb-2">
-            <h3 className="text-base font-semibold mb-1 line-clamp-1" data-testid={`text-title-${property.id}`}>
+        <CardContent className="p-3">
+          <div className="mb-1.5">
+            <h3 className="text-sm font-semibold mb-0.5 line-clamp-1" data-testid={`text-title-${property.id}`}>
               {property.title}
             </h3>
-            <div className="flex items-center text-muted-foreground text-xs mb-2">
-              <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+            <div className="flex items-center text-muted-foreground text-[11px] mb-1.5">
+              <MapPin className="h-2.5 w-2.5 mr-0.5 flex-shrink-0" />
               <span className="line-clamp-1" data-testid={`text-location-${property.id}`}>
                 {property.bairro}, {property.municipio}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between mb-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Bed className="h-3 w-3" />
+          <div className="flex items-center justify-between mb-2 text-[11px] text-muted-foreground">
+            <div className="flex items-center gap-0.5">
+              <Bed className="h-2.5 w-2.5" />
               <span>{property.bedrooms}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Bath className="h-3 w-3" />
+            <div className="flex items-center gap-0.5">
+              <Bath className="h-2.5 w-2.5" />
               <span>{property.bathrooms}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Maximize className="h-3 w-3" />
+            <div className="flex items-center gap-0.5">
+              <Maximize className="h-2.5 w-2.5" />
               <span>{property.area}m²</span>
             </div>
           </div>
 
-          <div className="text-lg font-bold text-primary" data-testid={`text-price-${property.id}`}>
+          <div className="text-base font-bold text-primary" data-testid={`text-price-${property.id}`}>
             {parseFloat(property.price).toLocaleString('pt-AO')} Kz
-            {property.type === 'Arrendar' && <span className="text-sm font-normal text-muted-foreground">/mês</span>}
+            {property.type === 'Arrendar' && <span className="text-xs font-normal text-muted-foreground">/mês</span>}
           </div>
         </CardContent>
       </Card>
