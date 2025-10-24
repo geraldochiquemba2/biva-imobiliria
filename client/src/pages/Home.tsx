@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import HeroSection from "@/components/HeroSection";
+import IntroSection from "@/components/IntroSection";
 import SearchBar from "@/components/SearchBar";
 import PropertyCard from "@/components/PropertyCard";
 import UserProfileCard from "@/components/UserProfileCard";
@@ -129,6 +130,8 @@ export default function Home() {
   return (
     <div className="min-h-screen pt-20">
       <HeroSection />
+      
+      <IntroSection />
       
       <SearchBar onSearch={handleSearch} />
 
