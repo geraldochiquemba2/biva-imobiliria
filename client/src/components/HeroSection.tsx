@@ -1,6 +1,17 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import heroBackground from '@assets/generated_images/Luanda_cityscape_sunset_view_a6e51c79.png';
+import useEmblaCarousel from 'embla-carousel-react';
+
+import img1 from '@assets/stock_images/luanda_angola_citysc_aec45cde.jpg';
+import img2 from '@assets/stock_images/luanda_angola_citysc_a8f88487.jpg';
+import img3 from '@assets/stock_images/luanda_angola_citysc_b817267d.jpg';
+import img4 from '@assets/stock_images/luanda_angola_citysc_c24fc28d.jpg';
+import img5 from '@assets/stock_images/luanda_angola_citysc_a6349193.jpg';
+import img6 from '@assets/stock_images/luxury_modern_apartm_6ccf2c5c.jpg';
+import img7 from '@assets/stock_images/luxury_modern_apartm_4005877c.jpg';
+import img8 from '@assets/stock_images/luxury_modern_apartm_ad76face.jpg';
+import img9 from '@assets/stock_images/beautiful_residentia_88154250.jpg';
+import img10 from '@assets/stock_images/beautiful_residentia_1c7cb456.jpg';
 
 interface AngolaMapPoint {
   x: number;
@@ -8,7 +19,10 @@ interface AngolaMapPoint {
   delay: number;
 }
 
+const carouselImages = [img1, img2, img3, img4, img5, img6, img7, img8, img9, img10];
+
 export default function HeroSection() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [mapPoints] = useState<AngolaMapPoint[]>([
     { x: 45, y: 35, delay: 0.2 },
     { x: 52, y: 42, delay: 0.4 },
@@ -19,12 +33,28 @@ export default function HeroSection() {
     { x: 50, y: 60, delay: 1.4 },
   ]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBackground})` }}
-      />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentImageIndex}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${carouselImages[currentImageIndex]})` }}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 1.5, ease: "easeInOut" }}
+        />
+      </AnimatePresence>
+      
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
       
       <div className="absolute inset-0 opacity-10">
@@ -74,6 +104,22 @@ export default function HeroSection() {
         </svg>
       </div>
 
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2" data-testid="carousel-indicators">
+        {carouselImages.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentImageIndex(index)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              index === currentImageIndex 
+                ? 'bg-white w-8' 
+                : 'bg-white/50 hover:bg-white/70'
+            }`}
+            data-testid={`carousel-indicator-${index}`}
+            aria-label={`Ir para imagem ${index + 1}`}
+          />
+        ))}
+      </div>
+
       <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -113,10 +159,16 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9 }}
           >
-            <button className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all">
+            <button 
+              className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
+              data-testid="button-explore-properties"
+            >
               Explorar Imóveis
             </button>
-            <button className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all">
+            <button 
+              className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
+              data-testid="button-advertise-property"
+            >
               Anunciar Imóvel
             </button>
           </motion.div>
