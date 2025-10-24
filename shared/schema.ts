@@ -6,11 +6,11 @@ import { z } from "zod";
 // Users table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
+  username: text("username"),
   password: text("password").notNull(),
-  email: text("email").notNull().unique(),
+  email: text("email"),
   fullName: text("full_name").notNull(),
-  phone: text("phone"),
+  phone: text("phone").notNull().unique(),
   userType: text("user_type").notNull(), // 'proprietario', 'cliente', 'corretor'
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -153,10 +153,13 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
+}).extend({
+  phone: z.string().regex(/^\+244\d{9}$/, "Número de telefone deve estar no formato +244XXXXXXXXX"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  phone: z.string().regex(/^\+244\d{9}$/, "Número de telefone deve estar no formato +244XXXXXXXXX"),
   password: z.string().min(6),
 });
 

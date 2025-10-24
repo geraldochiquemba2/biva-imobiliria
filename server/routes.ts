@@ -70,15 +70,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userData = insertUserSchema.parse(req.body);
       
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(userData.email);
+      // Check if user already exists by phone
+      const existingUser = await storage.getUserByPhone(userData.phone);
       if (existingUser) {
-        return res.status(400).json({ error: "Email já cadastrado" });
-      }
-      
-      const existingUsername = await storage.getUserByUsername(userData.username);
-      if (existingUsername) {
-        return res.status(400).json({ error: "Nome de usuário já existe" });
+        return res.status(400).json({ error: "Número de telefone já cadastrado" });
       }
       
       // Hash password
@@ -111,16 +106,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const credentials = loginSchema.parse(req.body);
       
-      // Find user by email
-      const user = await storage.getUserByEmail(credentials.email);
+      // Find user by phone
+      const user = await storage.getUserByPhone(credentials.phone);
       if (!user) {
-        return res.status(401).json({ error: "Email ou senha incorretos" });
+        return res.status(401).json({ error: "Número de telefone ou senha incorretos" });
       }
       
       // Verify password
       const validPassword = await bcrypt.compare(credentials.password, user.password);
       if (!validPassword) {
-        return res.status(401).json({ error: "Email ou senha incorretos" });
+        return res.status(401).json({ error: "Número de telefone ou senha incorretos" });
       }
       
       // Set session

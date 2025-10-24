@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import useEmblaCarousel from 'embla-carousel-react';
+import { Link } from "wouter";
 
 import img1 from '@assets/stock_images/luanda_angola_citysc_aec45cde.jpg';
 import img2 from '@assets/stock_images/luanda_angola_citysc_a8f88487.jpg';
@@ -159,18 +160,22 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9 }}
           >
-            <button 
-              className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
-              data-testid="button-explore-properties"
-            >
-              Explorar Imóveis
-            </button>
-            <button 
-              className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
-              data-testid="button-advertise-property"
-            >
-              Anunciar Imóvel
-            </button>
+            <Link href="/imoveis">
+              <button 
+                className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
+                data-testid="button-explore-properties"
+              >
+                Explorar Imóveis
+              </button>
+            </Link>
+            <Link href="/cadastro">
+              <button 
+                className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
+                data-testid="button-advertise-property"
+              >
+                Anunciar Imóvel
+              </button>
+            </Link>
           </motion.div>
         </motion.div>
       </div>

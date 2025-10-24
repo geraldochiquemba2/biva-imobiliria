@@ -10,6 +10,8 @@ import Imoveis from "@/pages/Imoveis";
 import Servicos from "@/pages/Servicos";
 import Sobre from "@/pages/Sobre";
 import Contacto from "@/pages/Contacto";
+import Login from "@/pages/Login";
+import Cadastro from "@/pages/Cadastro";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -32,6 +34,8 @@ function Router() {
         <Route path="/servicos" component={Servicos} />
         <Route path="/sobre" component={Sobre} />
         <Route path="/contacto" component={Contacto} />
+        <Route path="/login" component={Login} />
+        <Route path="/cadastro" component={Cadastro} />
         <Route component={NotFound} />
       </Switch>
     </>
