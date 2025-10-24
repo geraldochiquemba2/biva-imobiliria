@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X } from "lucide-react";
+import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
 
 export default function Header() {
   const [location] = useLocation();
@@ -27,8 +28,12 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           <Link href="/">
-            <a className="text-2xl font-bold font-serif" data-testid="link-logo">
-              BIVA
+            <a className="flex items-center" data-testid="link-logo">
+              <img 
+                src={logoImage} 
+                alt="BIVA Imobiliária" 
+                className="h-12 w-auto dark:brightness-0 dark:invert transition-all"
+              />
             </a>
           </Link>
 
