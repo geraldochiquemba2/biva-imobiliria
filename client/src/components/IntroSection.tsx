@@ -36,39 +36,30 @@ export default function IntroSection() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="grid grid-cols-2 gap-4"
+            className="relative h-[500px]"
           >
-            <div className="space-y-4">
-              <div className="aspect-[4/3] rounded-lg overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=500&q=80"
-                  alt="Edifício moderno"
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-              <div className="aspect-[4/3] rounded-lg overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&q=80"
-                  alt="Interior luxuoso"
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                />
-              </div>
+            <div className="absolute top-0 left-0 w-[45%] h-[55%] rounded-2xl overflow-hidden shadow-2xl z-30 transform -rotate-3">
+              <img
+                src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80"
+                alt="Edifício moderno"
+                className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+              />
             </div>
-            <div className="space-y-4 pt-8">
-              <div className="aspect-[4/3] rounded-lg overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500&q=80"
-                  alt="Casa moderna"
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-              <div className="aspect-[4/3] rounded-lg overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&q=80"
-                  alt="Piscina de luxo"
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                />
-              </div>
+            
+            <div className="absolute top-[15%] right-0 w-[55%] h-[50%] rounded-2xl overflow-hidden shadow-2xl z-40 transform rotate-2">
+              <img
+                src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=700&q=80"
+                alt="Piscina de luxo"
+                className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+              />
+            </div>
+            
+            <div className="absolute bottom-0 left-[20%] w-[50%] h-[55%] rounded-2xl overflow-hidden shadow-2xl z-50 transform rotate-1">
+              <img
+                src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80"
+                alt="Interior luxuoso"
+                className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+              />
             </div>
           </motion.div>
         </div>
