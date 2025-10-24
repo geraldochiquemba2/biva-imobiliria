@@ -28,7 +28,10 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-24">
           <Link href="/" data-testid="link-logo">
-            <div className="flex items-center cursor-pointer">
+            <div 
+              className="flex items-center cursor-pointer"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
               <img 
                 src={logoImage} 
                 alt="BIVA Imobiliária" 
