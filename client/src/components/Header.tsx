@@ -143,6 +143,12 @@ export default function Header() {
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/perfil" data-testid="link-profile">
+                        <User className="h-4 w-4 mr-2" />
+                        Perfil
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout} data-testid="button-logout">
                       <LogOut className="h-4 w-4 mr-2" />
                       Sair

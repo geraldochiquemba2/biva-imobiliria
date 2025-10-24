@@ -4,7 +4,7 @@ import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { User, Property } from "@shared/schema";
+import type { User, Property, Contract, Visit } from "@shared/schema";
 import { Building2, Calendar, FileText, Plus, Home } from "lucide-react";
 
 export default function Dashboard() {
@@ -24,6 +24,52 @@ export default function Dashboard() {
     }
   }, [currentUser, userLoading, setLocation]);
 
+  const userProperties = currentUser?.userType === 'admin' || currentUser?.userType === 'corretor' 
+    ? properties 
+    : properties.filter(p => p.ownerId === (currentUser?.id || ''));
+
+  const { data: userContracts = [] } = useQuery<Contract[]>({
+    queryKey: [`/api/users/${currentUser?.id}/contracts`],
+    enabled: !!currentUser?.id && (currentUser?.userType === 'cliente' || currentUser?.userType === 'proprietario'),
+  });
+
+  const { data: allContracts = [] } = useQuery<Contract[]>({
+    queryKey: ['/api/contracts'],
+    enabled: !!currentUser?.id && (currentUser?.userType === 'admin' || currentUser?.userType === 'corretor'),
+  });
+
+  const contracts = currentUser?.userType === 'admin' || currentUser?.userType === 'corretor' 
+    ? allContracts 
+    : userContracts;
+
+  const { data: clientVisits = [] } = useQuery<Visit[]>({
+    queryKey: [`/api/users/${currentUser?.id}/visits`],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${currentUser?.id}/visits`);
+      if (!response.ok) throw new Error('Failed to fetch visits');
+      return response.json();
+    },
+    enabled: !!currentUser?.id && currentUser?.userType === 'cliente',
+  });
+
+  const { data: propertyVisits = [] } = useQuery<Visit[]>({
+    queryKey: [`/api/properties/visits`, userProperties.map(p => p.id)],
+    queryFn: async () => {
+      const allVisits: Visit[] = [];
+      for (const property of userProperties) {
+        const response = await fetch(`/api/properties/${property.id}/visits`);
+        if (response.ok) {
+          const visits = await response.json();
+          allVisits.push(...visits);
+        }
+      }
+      return allVisits;
+    },
+    enabled: !!currentUser?.id && (currentUser?.userType === 'proprietario' || currentUser?.userType === 'corretor' || currentUser?.userType === 'admin') && userProperties.length > 0,
+  });
+
+  const visits = currentUser?.userType === 'cliente' ? clientVisits : propertyVisits;
+
   if (userLoading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
@@ -40,9 +86,11 @@ export default function Dashboard() {
     proprietario: 'Proprietário',
     cliente: 'Cliente',
     corretor: 'Corretor',
+    admin: 'Administrador',
   };
 
-  const userProperties = properties.filter(p => p.ownerId === currentUser.id);
+  const activeContracts = contracts.filter(c => c.status === 'ativo');
+  const scheduledVisits = visits.filter(v => v.status === 'agendada');
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -89,7 +137,9 @@ export default function Dashboard() {
                     <FileText className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                      {activeContracts.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       Em andamento
                     </p>
@@ -104,7 +154,9 @@ export default function Dashboard() {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold" data-testid="text-visits-count">
+                      {scheduledVisits.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       Próximas visitas
                     </p>
@@ -123,7 +175,9 @@ export default function Dashboard() {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold" data-testid="text-visits-count">
+                      {scheduledVisits.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       Próximas visitas
                     </p>
@@ -133,14 +187,16 @@ export default function Dashboard() {
                 <Card className="hover-elevate">
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Propostas Enviadas
+                      Contratos Ativos
                     </CardTitle>
                     <FileText className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                      {activeContracts.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Aguardando resposta
+                      Em andamento
                     </p>
                   </CardContent>
                 </Card>
@@ -148,14 +204,16 @@ export default function Dashboard() {
                 <Card className="hover-elevate">
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Favoritos
+                      Imóveis Disponíveis
                     </CardTitle>
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold" data-testid="text-properties-count">
+                      {propertiesLoading ? '...' : properties.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Imóveis salvos
+                      Para explorar
                     </p>
                   </CardContent>
                 </Card>
@@ -172,7 +230,9 @@ export default function Dashboard() {
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold" data-testid="text-properties-count">
+                      {propertiesLoading ? '...' : userProperties.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       Total de imóveis
                     </p>
@@ -182,14 +242,16 @@ export default function Dashboard() {
                 <Card className="hover-elevate">
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Clientes Ativos
+                      Contratos Ativos
                     </CardTitle>
                     <FileText className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                      {activeContracts.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Em atendimento
+                      Em andamento
                     </p>
                   </CardContent>
                 </Card>
@@ -202,9 +264,66 @@ export default function Dashboard() {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">0</div>
+                    <div className="text-2xl font-bold" data-testid="text-visits-count">
+                      {scheduledVisits.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       Este mês
+                    </p>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+
+            {currentUser.userType === 'admin' && (
+              <>
+                <Card className="hover-elevate">
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Total de Imóveis
+                    </CardTitle>
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold" data-testid="text-properties-count">
+                      {propertiesLoading ? '...' : userProperties.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      No sistema
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover-elevate">
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Contratos Ativos
+                    </CardTitle>
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                      {activeContracts.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Em andamento
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover-elevate">
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Visitas Agendadas
+                    </CardTitle>
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold" data-testid="text-visits-count">
+                      {scheduledVisits.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Total agendadas
                     </p>
                   </CardContent>
                 </Card>

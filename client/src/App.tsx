@@ -14,6 +14,7 @@ import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
 import Dashboard from "@/pages/Dashboard";
 import CadastrarImovel from "@/pages/CadastrarImovel";
+import Profile from "@/pages/Profile";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -40,6 +41,7 @@ function Router() {
         <Route path="/cadastro" component={Cadastro} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/cadastrar-imovel" component={CadastrarImovel} />
+        <Route path="/perfil" component={Profile} />
         <Route component={NotFound} />
       </Switch>
     </>

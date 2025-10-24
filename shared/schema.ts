@@ -11,7 +11,11 @@ export const users = pgTable("users", {
   email: text("email"),
   fullName: text("full_name").notNull(),
   phone: text("phone").notNull().unique(),
-  userType: text("user_type").notNull(), // 'proprietario', 'cliente', 'corretor'
+  sms: text("sms"),
+  userType: text("user_type").notNull(), // 'proprietario', 'cliente', 'corretor', 'admin'
+  address: text("address"),
+  bi: text("bi"),
+  profileImage: text("profile_image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -28,8 +32,10 @@ export const properties = pgTable("properties", {
   provincia: text("provincia").notNull(),
   bedrooms: integer("bedrooms").notNull().default(0),
   bathrooms: integer("bathrooms").notNull().default(0),
+  livingRooms: integer("living_rooms").notNull().default(0),
+  kitchens: integer("kitchens").notNull().default(0),
   area: integer("area").notNull(), // in square meters
-  image: text("image"),
+  images: text("images").array(),
   featured: boolean("featured").default(false),
   status: text("status").notNull().default('disponivel'), // 'disponivel', 'arrendado', 'vendido', 'indisponivel'
   ownerId: varchar("owner_id").notNull().references(() => users.id),
@@ -154,14 +160,18 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
 }).extend({
-  phone: z.string().regex(/^\+244\d{9}$/, "Número de telefone deve estar no formato +244XXXXXXXXX"),
+  phone: z.string().min(9, "Número de telefone inválido"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   username: z.string().optional(),
   email: z.string().email().optional().nullable(),
+  sms: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+  bi: z.string().optional().nullable(),
+  profileImage: z.string().optional().nullable(),
 });
 
 export const loginSchema = z.object({
-  phone: z.string().regex(/^\+244\d{9}$/, "Número de telefone deve estar no formato +244XXXXXXXXX"),
+  phone: z.string().min(9, "Número de telefone inválido"),
   password: z.string().min(6),
 });
 

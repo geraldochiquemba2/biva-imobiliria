@@ -4,14 +4,18 @@ import bcrypt from "bcrypt";
 
 export async function seedDatabase() {
   try {
-    // Create admin corretor with fixed credentials
-    const adminCorretor: InsertUser = {
+    // Create admin with fixed credentials
+    const adminUser: InsertUser = {
       username: "admin",
-      email: "admin@gmail.com",
+      email: "admin@biva.ao",
       password: await bcrypt.hash("123456789", 10),
       fullName: "Administrador BIVA",
-      phone: "+244 900 000 000",
-      userType: "corretor",
+      phone: "912345678",
+      userType: "admin",
+      sms: null,
+      address: null,
+      bi: null,
+      profileImage: null,
     };
 
     // Create demo proprietário
@@ -20,8 +24,12 @@ export async function seedDatabase() {
       email: "proprietario@biva.ao",
       password: await bcrypt.hash("demo123", 10),
       fullName: "João Silva",
-      phone: "+244 912 345 678",
+      phone: "923456789",
       userType: "proprietario",
+      sms: null,
+      address: null,
+      bi: null,
+      profileImage: null,
     };
 
     // Create demo client
@@ -30,23 +38,27 @@ export async function seedDatabase() {
       email: "cliente@biva.ao",
       password: await bcrypt.hash("demo123", 10),
       fullName: "Maria Santos",
-      phone: "+244 923 456 789",
+      phone: "934567890",
       userType: "cliente",
+      sms: null,
+      address: null,
+      bi: null,
+      profileImage: null,
     };
 
     // Check if users already exist
-    const existingAdmin = await storage.getUserByEmail(adminCorretor.email);
-    const existingProprietario = await storage.getUserByEmail(demoProprietario.email);
-    const existingCliente = await storage.getUserByEmail(demoCliente.email);
+    const existingAdmin = await storage.getUserByPhone(adminUser.phone);
+    const existingProprietario = await storage.getUserByPhone(demoProprietario.phone);
+    const existingCliente = await storage.getUserByPhone(demoCliente.phone);
 
-    const admin = existingAdmin || await storage.createUser(adminCorretor);
+    const admin = existingAdmin || await storage.createUser(adminUser);
     const proprietario = existingProprietario || await storage.createUser(demoProprietario);
     const cliente = existingCliente || await storage.createUser(demoCliente);
 
     console.log("✓ Demo users created");
-    console.log(`  - Admin Corretor: ${admin.email} / 123456789`);
-    console.log(`  - Proprietário: ${proprietario.email} / demo123`);
-    console.log(`  - Cliente: ${cliente.email} / demo123`);
+    console.log(`  - Admin: ${admin.phone} / 123456789`);
+    console.log(`  - Proprietário: ${proprietario.phone} / demo123`);
+    console.log(`  - Cliente: ${cliente.phone} / demo123`);
 
     // Create demo properties
     const demoProperties: InsertProperty[] = [
@@ -61,8 +73,10 @@ export async function seedDatabase() {
         provincia: "Luanda",
         bedrooms: 3,
         bathrooms: 2,
+        livingRooms: 1,
+        kitchens: 1,
         area: 145,
-        image: null,
+        images: null,
         featured: true,
         status: "disponivel",
         ownerId: proprietario.id,
@@ -78,8 +92,10 @@ export async function seedDatabase() {
         provincia: "Luanda",
         bedrooms: 4,
         bathrooms: 3,
+        livingRooms: 2,
+        kitchens: 1,
         area: 280,
-        image: null,
+        images: null,
         featured: false,
         status: "disponivel",
         ownerId: proprietario.id,
@@ -95,8 +111,10 @@ export async function seedDatabase() {
         provincia: "Luanda",
         bedrooms: 0,
         bathrooms: 4,
+        livingRooms: 0,
+        kitchens: 0,
         area: 850,
-        image: null,
+        images: null,
         featured: true,
         status: "disponivel",
         ownerId: proprietario.id,
@@ -112,8 +130,10 @@ export async function seedDatabase() {
         provincia: "Luanda",
         bedrooms: 4,
         bathrooms: 3,
+        livingRooms: 1,
+        kitchens: 1,
         area: 220,
-        image: null,
+        images: null,
         featured: false,
         status: "disponivel",
         ownerId: proprietario.id,
@@ -129,8 +149,10 @@ export async function seedDatabase() {
         provincia: "Luanda",
         bedrooms: 5,
         bathrooms: 3,
+        livingRooms: 2,
+        kitchens: 1,
         area: 320,
-        image: null,
+        images: null,
         featured: false,
         status: "disponivel",
         ownerId: proprietario.id,
@@ -146,8 +168,10 @@ export async function seedDatabase() {
         provincia: "Luanda",
         bedrooms: 2,
         bathrooms: 1,
+        livingRooms: 1,
+        kitchens: 1,
         area: 85,
-        image: null,
+        images: null,
         featured: false,
         status: "disponivel",
         ownerId: proprietario.id,
@@ -163,8 +187,10 @@ export async function seedDatabase() {
         provincia: "Luanda",
         bedrooms: 0,
         bathrooms: 0,
+        livingRooms: 0,
+        kitchens: 0,
         area: 2500,
-        image: null,
+        images: null,
         featured: true,
         status: "disponivel",
         ownerId: proprietario.id,
@@ -180,8 +206,10 @@ export async function seedDatabase() {
         provincia: "Luanda",
         bedrooms: 0,
         bathrooms: 2,
+        livingRooms: 0,
+        kitchens: 0,
         area: 150,
-        image: null,
+        images: null,
         featured: false,
         status: "disponivel",
         ownerId: proprietario.id,

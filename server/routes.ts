@@ -161,6 +161,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user profile
+  app.patch("/api/auth/profile", requireAuth, async (req, res) => {
+    try {
+      const updates = req.body;
+      
+      // Don't allow changing userType or password through this endpoint
+      delete updates.userType;
+      delete updates.password;
+      delete updates.id;
+      
+      const user = await storage.updateUser(req.session.userId!, updates);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      res.status(500).json({ error: "Falha ao atualizar perfil" });
+    }
+  });
+
+  // Get all users (admin only)
+  app.get("/api/users", requireRole('admin'), async (req, res) => {
+    try {
+      const users = await storage.listUsers();
+      const usersWithoutPasswords = users.map(({ password, ...user }) => user);
+      res.json(usersWithoutPasswords);
+    } catch (error) {
+      console.error('Error listing users:', error);
+      res.status(500).json({ error: "Falha ao buscar usuários" });
+    }
+  });
+
   // Property Routes
   
   // Get all properties with optional filters
