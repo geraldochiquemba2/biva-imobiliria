@@ -52,13 +52,12 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
               data-testid="button-theme-toggle"
-              className="hidden md:flex"
             >
               {theme === 'light' ? (
                 <Moon className="h-5 w-5" />
@@ -68,10 +67,18 @@ export default function Header() {
             </Button>
 
             <Button
-              className="hidden md:flex"
-              data-testid="button-contact"
+              variant="outline"
+              size="sm"
+              data-testid="button-login"
             >
-              Contacte-nos
+              Entrar
+            </Button>
+
+            <Button
+              size="sm"
+              data-testid="button-register"
+            >
+              Cadastro
             </Button>
 
             <Button
@@ -106,9 +113,6 @@ export default function Header() {
                   </a>
                 </Link>
               ))}
-              <Button className="w-full mt-2" data-testid="button-mobile-contact">
-                Contacte-nos
-              </Button>
             </nav>
           </div>
         )}
