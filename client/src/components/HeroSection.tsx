@@ -80,15 +80,22 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
+          <motion.p 
+            className="text-sm md:text-base text-white/80 mb-4 uppercase tracking-wide drop-shadow-md"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            Plataforma Imobiliária de Angola
+          </motion.p>
+          
           <motion.h1 
             className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-white drop-shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            Simplificando a Gestão
-            <br />
-            Imobiliária em Angola
+            Encontre o Imóvel Perfeito
           </motion.h1>
           
           <motion.p 
@@ -97,8 +104,22 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
           >
-            Soluções digitais para o arrendamento e a venda de imóveis
+            Conectamos proprietários, inquilinos, compradores e corretores em uma plataforma digital moderna e segura
           </motion.p>
+          
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.9 }}
+          >
+            <button className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all">
+              Explorar Imóveis
+            </button>
+            <button className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all">
+              Anunciar Imóvel
+            </button>
+          </motion.div>
         </motion.div>
       </div>
 
