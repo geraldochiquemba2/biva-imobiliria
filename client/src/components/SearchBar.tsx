@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Home, Bed, RotateCcw } from "lucide-react";
+import { Search, MapPin, Home, Bed, RotateCcw, Sofa, UtensilsCrossed } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface SearchBarProps {
@@ -18,6 +18,8 @@ interface SearchBarProps {
     location: string;
     category: string;
     bedrooms: string;
+    livingRooms: string;
+    kitchens: string;
     minPrice: string;
     maxPrice: string;
   }) => void;
@@ -28,12 +30,14 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
   const [bedrooms, setBedrooms] = useState('');
+  const [livingRooms, setLivingRooms] = useState('');
+  const [kitchens, setKitchens] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
   const handleSearch = () => {
     if (onSearch) {
-      onSearch({ type: propertyType, location, category, bedrooms, minPrice, maxPrice });
+      onSearch({ type: propertyType, location, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
     }
   };
 
@@ -41,6 +45,8 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     setCategory(value);
     if (value === 'Terreno' || value === 'Comercial') {
       setBedrooms('');
+      setLivingRooms('');
+      setKitchens('');
     }
   };
 
@@ -48,15 +54,17 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     setLocation('');
     setCategory('');
     setBedrooms('');
+    setLivingRooms('');
+    setKitchens('');
     setMinPrice('');
     setMaxPrice('');
     if (onSearch) {
-      onSearch({ type: propertyType, location: '', category: '', bedrooms: '', minPrice: '', maxPrice: '' });
+      onSearch({ type: propertyType, location: '', category: '', bedrooms: '', livingRooms: '', kitchens: '', minPrice: '', maxPrice: '' });
     }
   };
 
-  const hasActiveFilters = location || category || bedrooms || minPrice || maxPrice;
-  const showBedroomFilter = category !== 'Terreno' && category !== 'Comercial';
+  const hasActiveFilters = location || category || bedrooms || livingRooms || kitchens || minPrice || maxPrice;
+  const showRoomFilters = category === 'Casa' || category === 'Apartamento';
 
   return (
     <motion.div
@@ -85,65 +93,93 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Localização"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="pl-10 transition-all duration-200"
-              data-testid="input-location"
-            />
-          </div>
+        <div className="space-y-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Localização"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="pl-10 transition-all duration-200"
+                data-testid="input-location"
+              />
+            </div>
 
-          <Select value={category} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="transition-all duration-200" data-testid="select-category">
-              <Home className="h-5 w-5 mr-2 text-muted-foreground" />
-              <SelectValue placeholder="Tipo de Imóvel" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Apartamento">Apartamento</SelectItem>
-              <SelectItem value="Casa">Casa</SelectItem>
-              <SelectItem value="Comercial">Comercial</SelectItem>
-              <SelectItem value="Terreno">Terreno</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {showBedroomFilter && (
-            <Select value={bedrooms} onValueChange={setBedrooms}>
-              <SelectTrigger className="transition-all duration-200" data-testid="select-bedrooms">
-                <Bed className="h-5 w-5 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Quartos" />
+            <Select value={category} onValueChange={handleCategoryChange}>
+              <SelectTrigger className="transition-all duration-200" data-testid="select-category">
+                <Home className="h-5 w-5 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="Tipo de Imóvel" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="0">Estúdio</SelectItem>
-                <SelectItem value="1">1 Quarto</SelectItem>
-                <SelectItem value="2">2 Quartos</SelectItem>
-                <SelectItem value="3">3 Quartos</SelectItem>
-                <SelectItem value="4">4+ Quartos</SelectItem>
+                <SelectItem value="Apartamento">Apartamento</SelectItem>
+                <SelectItem value="Casa">Casa</SelectItem>
+                <SelectItem value="Comercial">Comercial</SelectItem>
+                <SelectItem value="Terreno">Terreno</SelectItem>
               </SelectContent>
             </Select>
-          )}
 
-          <div className={showBedroomFilter ? "flex gap-2" : "flex gap-2 lg:col-span-2"}>
-            <Input
-              placeholder="Preço mín (Kz)"
-              type="number"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              className="transition-all duration-200"
-              data-testid="input-min-price"
-            />
-            <Input
-              placeholder="Preço máx (Kz)"
-              type="number"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              className="transition-all duration-200"
-              data-testid="input-max-price"
-            />
+            <div className="flex gap-2">
+              <Input
+                placeholder="Preço mín (Kz)"
+                type="number"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="transition-all duration-200"
+                data-testid="input-min-price"
+              />
+              <Input
+                placeholder="Preço máx (Kz)"
+                type="number"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="transition-all duration-200"
+                data-testid="input-max-price"
+              />
+            </div>
           </div>
+
+          {showRoomFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Select value={bedrooms} onValueChange={setBedrooms}>
+                <SelectTrigger className="transition-all duration-200" data-testid="select-bedrooms">
+                  <Bed className="h-5 w-5 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Quartos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Estúdio</SelectItem>
+                  <SelectItem value="1">1 Quarto</SelectItem>
+                  <SelectItem value="2">2 Quartos</SelectItem>
+                  <SelectItem value="3">3 Quartos</SelectItem>
+                  <SelectItem value="4">4+ Quartos</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={livingRooms} onValueChange={setLivingRooms}>
+                <SelectTrigger className="transition-all duration-200" data-testid="select-living-rooms">
+                  <Sofa className="h-5 w-5 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Salas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 Sala</SelectItem>
+                  <SelectItem value="2">2 Salas</SelectItem>
+                  <SelectItem value="3">3+ Salas</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={kitchens} onValueChange={setKitchens}>
+                <SelectTrigger className="transition-all duration-200" data-testid="select-kitchens">
+                  <UtensilsCrossed className="h-5 w-5 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Cozinhas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 Cozinha</SelectItem>
+                  <SelectItem value="2">2 Cozinhas</SelectItem>
+                  <SelectItem value="3">3+ Cozinhas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <Button 
             onClick={handleSearch} 

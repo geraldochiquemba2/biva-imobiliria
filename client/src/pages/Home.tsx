@@ -52,6 +52,8 @@ export default function Home() {
     location?: string;
     category?: string;
     bedrooms?: string;
+    livingRooms?: string;
+    kitchens?: string;
     minPrice?: string;
     maxPrice?: string;
   }>({});
@@ -81,6 +83,8 @@ export default function Home() {
     location: string;
     category: string;
     bedrooms: string;
+    livingRooms: string;
+    kitchens: string;
     minPrice: string;
     maxPrice: string;
   }) => {
@@ -94,6 +98,12 @@ export default function Home() {
     }
     if (params.bedrooms) {
       newParams.bedrooms = params.bedrooms;
+    }
+    if (params.livingRooms) {
+      newParams.livingRooms = params.livingRooms;
+    }
+    if (params.kitchens) {
+      newParams.kitchens = params.kitchens;
     }
     if (params.minPrice) {
       newParams.minPrice = params.minPrice;
