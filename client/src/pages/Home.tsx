@@ -126,7 +126,7 @@ export default function Home() {
   const hasMore = propertiesWithImages.length > 10;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pt-20">
       <HeroSection />
       
       <SearchBar onSearch={handleSearch} />
