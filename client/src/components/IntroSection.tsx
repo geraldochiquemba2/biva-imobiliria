@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function IntroSection() {
   return (
-    <section className="py-16 px-6 bg-muted/30">
+    <section className="py-16 px-6 bg-muted/30 overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
@@ -36,7 +36,7 @@ export default function IntroSection() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative h-[500px]"
+            className="relative h-[500px] overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-[45%] h-[55%] rounded-2xl overflow-hidden shadow-2xl z-30 transform -rotate-3">
               <img
