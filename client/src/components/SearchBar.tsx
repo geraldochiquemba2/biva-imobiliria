@@ -72,7 +72,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.9 }}
-      className="relative z-20 -mt-24 px-6"
+      className="relative z-20 px-6 py-12"
     >
       <Card className="max-w-5xl mx-auto p-8 shadow-2xl">
         <div className="flex gap-3 mb-6">
