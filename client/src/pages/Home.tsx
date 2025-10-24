@@ -5,7 +5,7 @@ import HeroSection from "@/components/HeroSection";
 import IntroSection from "@/components/IntroSection";
 import SearchBar from "@/components/SearchBar";
 import PropertyCard from "@/components/PropertyCard";
-import UserProfileCard from "@/components/UserProfileCard";
+import FeaturesSection from "@/components/FeaturesSection";
 import InteractiveMapSection from "@/components/InteractiveMapSection";
 import CTASection from "@/components/CTASection";
 import type { Property } from "@shared/schema";
@@ -203,36 +203,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Nossos Usuários
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Soluções personalizadas para cada perfil na plataforma BIVA
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {userProfiles.map((profile, index) => (
-              <UserProfileCard
-                key={profile.iconType}
-                title={profile.title}
-                description={profile.description}
-                iconType={profile.iconType}
-                index={index}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeaturesSection />
 
       <InteractiveMapSection />
 
