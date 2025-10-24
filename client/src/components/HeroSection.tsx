@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import heroBackground from '@assets/generated_images/Luanda_cityscape_sunset_view_a6e51c79.png';
 
 interface AngolaMapPoint {
   x: number;
@@ -19,8 +20,14 @@ export default function HeroSection() {
   ]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/10">
-      <div className="absolute inset-0 opacity-20">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroBackground})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+      
+      <div className="absolute inset-0 opacity-10">
         <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
           <defs>
             <linearGradient id="mapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -74,7 +81,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.3 }}
         >
           <motion.h1 
-            className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
+            className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-white drop-shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
@@ -85,7 +92,7 @@ export default function HeroSection() {
           </motion.h1>
           
           <motion.p 
-            className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto"
+            className="text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto drop-shadow-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
@@ -95,7 +102,7 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-10" />
     </section>
   );
 }
