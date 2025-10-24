@@ -1,18 +1,59 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
 
 export default function Header() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { toast } = useToast();
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['/api/auth/me'],
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest('POST', '/api/auth/logout', {});
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      toast({
+        title: "Logout realizado com sucesso",
+        description: "Até breve!",
+      });
+      setLocation('/');
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao fazer logout",
+        variant: "destructive",
+      });
+    },
+  });
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     document.documentElement.classList.toggle('dark');
+  };
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
 
   const navItems = [
@@ -69,22 +110,65 @@ export default function Header() {
               )}
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              data-testid="button-login"
-            >
-              <Link href="/login">Entrar</Link>
-            </Button>
+            {currentUser ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="hidden md:flex"
+                  data-testid="button-dashboard"
+                >
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Link>
+                </Button>
 
-            <Button
-              size="sm"
-              asChild
-              data-testid="button-register"
-            >
-              <Link href="/cadastro">Cadastro</Link>
-            </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" data-testid="button-user-menu">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel data-testid="text-user-name">
+                      {currentUser.fullName}
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild className="md:hidden">
+                      <Link href="/dashboard" data-testid="link-mobile-dashboard">
+                        <LayoutDashboard className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} data-testid="button-logout">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sair
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  data-testid="button-login"
+                >
+                  <Link href="/login">Entrar</Link>
+                </Button>
+
+                <Button
+                  size="sm"
+                  asChild
+                  data-testid="button-register"
+                >
+                  <Link href="/cadastro">Cadastro</Link>
+                </Button>
+              </>
+            )}
 
             <Button
               variant="ghost"
@@ -119,27 +203,59 @@ export default function Header() {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-2 border-t">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  asChild
-                  data-testid="button-mobile-login"
-                >
-                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    Entrar
-                  </Link>
-                </Button>
-                <Button
-                  size="sm"
-                  className="w-full"
-                  asChild
-                  data-testid="button-mobile-register"
-                >
-                  <Link href="/cadastro" onClick={() => setMobileMenuOpen(false)}>
-                    Cadastro
-                  </Link>
-                </Button>
+                {currentUser ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      asChild
+                      data-testid="button-mobile-dashboard-nav"
+                    >
+                      <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                        <LayoutDashboard className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        handleLogout();
+                        setMobileMenuOpen(false);
+                      }}
+                      data-testid="button-mobile-logout"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sair
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      asChild
+                      data-testid="button-mobile-login"
+                    >
+                      <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                        Entrar
+                      </Link>
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      asChild
+                      data-testid="button-mobile-register"
+                    >
+                      <Link href="/cadastro" onClick={() => setMobileMenuOpen(false)}>
+                        Cadastro
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>
