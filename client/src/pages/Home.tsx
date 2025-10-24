@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import HeroSection from "@/components/HeroSection";
 import SearchBar from "@/components/SearchBar";
 import PropertyCard from "@/components/PropertyCard";
@@ -7,64 +9,19 @@ import InteractiveMapSection from "@/components/InteractiveMapSection";
 import CTASection from "@/components/CTASection";
 import type { Property } from "@shared/schema";
 
-// todo: remove mock functionality - replace with real API data
+// Images for properties without images
 import property1 from '@assets/generated_images/Luxury_apartment_in_Luanda_10ff3219.png';
 import property2 from '@assets/generated_images/Modern_villa_in_Angola_584197c4.png';
 import property3 from '@assets/generated_images/Commercial_office_building_2bf3374e.png';
 import property4 from '@assets/generated_images/Penthouse_with_city_view_c36d8f06.png';
 
-const mockProperties: Property[] = [
-  {
-    id: '1',
-    title: 'Apartamento Luxuoso em Talatona',
-    type: 'Arrendar',
-    category: 'Apartamento',
-    price: 350000,
-    location: { bairro: 'Talatona', municipio: 'Belas', provincia: 'Luanda' },
-    bedrooms: 3,
-    bathrooms: 2,
-    area: 145,
-    image: property1,
-    featured: true
-  },
-  {
-    id: '2',
-    title: 'Villa Moderna com Jardim',
-    type: 'Vender',
-    category: 'Casa',
-    price: 45000000,
-    location: { bairro: 'Miramar', municipio: 'Luanda', provincia: 'Luanda' },
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 280,
-    image: property2
-  },
-  {
-    id: '3',
-    title: 'Edifício Comercial Centro',
-    type: 'Vender',
-    category: 'Comercial',
-    price: 120000000,
-    location: { bairro: 'Maianga', municipio: 'Luanda', provincia: 'Luanda' },
-    bedrooms: 0,
-    bathrooms: 4,
-    area: 850,
-    image: property3,
-    featured: true
-  },
-  {
-    id: '4',
-    title: 'Penthouse Vista Panorâmica',
-    type: 'Arrendar',
-    category: 'Apartamento',
-    price: 500000,
-    location: { bairro: 'Ilha de Luanda', municipio: 'Luanda', provincia: 'Luanda' },
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 220,
-    image: property4
-  }
-];
+// Fallback images for properties without images
+const fallbackImages = [property1, property2, property3, property4];
+
+function getPropertyImage(property: Property, index: number): string {
+  if (property.image) return property.image;
+  return fallbackImages[index % fallbackImages.length];
+}
 
 const userProfiles = [
   {
@@ -90,11 +47,74 @@ const userProfiles = [
 ];
 
 export default function Home() {
+  const [searchParams, setSearchParams] = useState<{
+    type?: 'Arrendar' | 'Vender';
+    location?: string;
+    category?: string;
+    bedrooms?: string;
+    minPrice?: string;
+    maxPrice?: string;
+  }>({});
+
+  // Build query string from search params
+  const queryString = Object.entries(searchParams)
+    .filter(([_, value]) => value)
+    .map(([key, value]) => `${key}=${encodeURIComponent(value!)}`)
+    .join('&');
+
+  const { data: properties = [], isLoading, error } = useQuery<Property[]>({
+    queryKey: ['/api/properties', queryString],
+    queryFn: async () => {
+      const url = queryString ? `/api/properties?${queryString}` : '/api/properties';
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to fetch properties');
+      }
+      return response.json();
+    }
+  });
+
+  const handleSearch = (params: {
+    type: 'Arrendar' | 'Vender';
+    location: string;
+    category: string;
+    bedrooms: string;
+    minPrice: string;
+    maxPrice: string;
+  }) => {
+    const newParams: any = { type: params.type };
+    
+    if (params.location) {
+      newParams.municipio = params.location;
+    }
+    if (params.category) {
+      newParams.category = params.category;
+    }
+    if (params.bedrooms) {
+      newParams.bedrooms = params.bedrooms;
+    }
+    if (params.minPrice) {
+      newParams.minPrice = params.minPrice;
+    }
+    if (params.maxPrice) {
+      newParams.maxPrice = params.maxPrice;
+    }
+    
+    setSearchParams(newParams);
+  };
+
+  // Add images to properties that don't have them
+  const propertiesWithImages = properties.map((property, index) => ({
+    ...property,
+    image: getPropertyImage(property, index),
+  }));
+
   return (
     <div className="min-h-screen">
       <HeroSection />
       
-      <SearchBar />
+      <SearchBar onSearch={handleSearch} />
 
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
@@ -113,11 +133,28 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {mockProperties.map((property, index) => (
-              <PropertyCard key={property.id} property={property} index={index} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-destructive mb-2">Erro ao carregar imóveis</p>
+              <p className="text-sm text-muted-foreground">
+                {error instanceof Error ? error.message : 'Tente novamente mais tarde'}
+              </p>
+            </div>
+          ) : propertiesWithImages.length === 0 ? (
+            <div className="text-center py-20 text-muted-foreground">
+              Nenhum imóvel encontrado
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {propertiesWithImages.map((property, index) => (
+                <PropertyCard key={property.id} property={property} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

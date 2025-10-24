@@ -23,7 +23,7 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
       >
         <div className="relative aspect-[4/3] overflow-hidden">
           <img
-            src={property.image}
+            src={property.image || ''}
             alt={property.title}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
           />
@@ -49,7 +49,7 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
             <div className="flex items-center text-muted-foreground text-sm mb-3">
               <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
               <span className="line-clamp-1" data-testid={`text-location-${property.id}`}>
-                {property.location.bairro}, {property.location.municipio}
+                {property.bairro}, {property.municipio}
               </span>
             </div>
           </div>
@@ -70,7 +70,7 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
           </div>
 
           <div className="text-2xl font-bold text-primary" data-testid={`text-price-${property.id}`}>
-            {property.price.toLocaleString('pt-AO')} Kz
+            {parseFloat(property.price).toLocaleString('pt-AO')} Kz
             {property.type === 'Arrendar' && <span className="text-base font-normal text-muted-foreground">/mês</span>}
           </div>
         </CardContent>

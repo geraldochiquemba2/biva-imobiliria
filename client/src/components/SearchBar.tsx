@@ -9,17 +9,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Home, DollarSign, Bed } from "lucide-react";
+import { Search, MapPin, Home, Bed } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-export default function SearchBar() {
+interface SearchBarProps {
+  onSearch?: (params: {
+    type: 'Arrendar' | 'Vender';
+    location: string;
+    category: string;
+    bedrooms: string;
+    minPrice: string;
+    maxPrice: string;
+  }) => void;
+}
+
+export default function SearchBar({ onSearch }: SearchBarProps) {
   const [propertyType, setPropertyType] = useState<'Arrendar' | 'Vender'>('Arrendar');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
   const [bedrooms, setBedrooms] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
 
   const handleSearch = () => {
-    console.log('Search triggered:', { propertyType, location, category, bedrooms });
+    if (onSearch) {
+      onSearch({ type: propertyType, location, category, bedrooms, minPrice, maxPrice });
+    }
   };
 
   return (
@@ -49,7 +64,7 @@ export default function SearchBar() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
             <Input
@@ -67,10 +82,10 @@ export default function SearchBar() {
               <SelectValue placeholder="Tipo de Imóvel" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="apartamento">Apartamento</SelectItem>
-              <SelectItem value="casa">Casa</SelectItem>
-              <SelectItem value="comercial">Comercial</SelectItem>
-              <SelectItem value="terreno">Terreno</SelectItem>
+              <SelectItem value="Apartamento">Apartamento</SelectItem>
+              <SelectItem value="Casa">Casa</SelectItem>
+              <SelectItem value="Comercial">Comercial</SelectItem>
+              <SelectItem value="Terreno">Terreno</SelectItem>
             </SelectContent>
           </Select>
 
@@ -87,6 +102,25 @@ export default function SearchBar() {
               <SelectItem value="4">4+ Quartos</SelectItem>
             </SelectContent>
           </Select>
+
+          <div className="flex gap-2">
+            <Input
+              placeholder="Preço mín (Kz)"
+              type="number"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="transition-all duration-200"
+              data-testid="input-min-price"
+            />
+            <Input
+              placeholder="Preço máx (Kz)"
+              type="number"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="transition-all duration-200"
+              data-testid="input-max-price"
+            />
+          </div>
 
           <Button 
             onClick={handleSearch} 
