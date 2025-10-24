@@ -2,36 +2,49 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Home, Map, Calendar, MessageCircle, BarChart3 } from "lucide-react";
 
+import searchImage from '@assets/stock_images/person_searching_pro_c3d099ba.jpg';
+import managementImage from '@assets/stock_images/property_management__d061f3de.jpg';
+import mapImage from '@assets/stock_images/map_location_pin_rea_97f48c1d.jpg';
+import calendarImage from '@assets/stock_images/calendar_schedule_ap_ae4a660c.jpg';
+import chatImage from '@assets/stock_images/business_communicati_60b959cc.jpg';
+import statsImage from '@assets/stock_images/analytics_statistics_239d5caa.jpg';
+
 const features = [
   {
     icon: Search,
     title: "Busca Avançada",
-    description: "Encontre imóveis por localização, preço, tipo e características específicas."
+    description: "Encontre imóveis por localização, preço, tipo e características específicas.",
+    image: searchImage
   },
   {
     icon: Home,
     title: "Gestão de Imóveis",
-    description: "Adicione e gerencie seus imóveis de forma simples e eficiente."
+    description: "Adicione e gerencie seus imóveis de forma simples e eficiente.",
+    image: managementImage
   },
   {
     icon: Map,
     title: "Mapas Interativos",
-    description: "Visualize a localização exata dos imóveis em mapas interativos."
+    description: "Visualize a localização exata dos imóveis em mapas interativos.",
+    image: mapImage
   },
   {
     icon: Calendar,
     title: "Agendamento de Visitas",
-    description: "Agende visitas aos imóveis diretamente pela plataforma."
+    description: "Agende visitas aos imóveis diretamente pela plataforma.",
+    image: calendarImage
   },
   {
     icon: MessageCircle,
     title: "Comunicação Direta",
-    description: "Entre em contato direto com proprietários e corretores."
+    description: "Entre em contato direto com proprietários e corretores.",
+    image: chatImage
   },
   {
     icon: BarChart3,
     title: "Estatísticas",
-    description: "Acompanhe visualizações e interesse nos seus imóveis."
+    description: "Acompanhe visualizações e interesse nos seus imóveis.",
+    image: statsImage
   }
 ];
 
@@ -63,16 +76,22 @@ export default function FeaturesSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="h-full hover-elevate transition-all duration-300">
-                <CardContent className="p-6">
+              <Card className="relative h-full hover-elevate transition-all duration-300 overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${feature.image})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/75" />
+                
+                <CardContent className="relative z-10 p-6">
                   <div className="flex flex-col items-center text-center">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <feature.icon className="h-7 w-7 text-primary" />
+                    <div className="w-14 h-14 rounded-full bg-primary/30 backdrop-blur-sm flex items-center justify-center mb-4 border border-white/20">
+                      <feature.icon className="h-7 w-7 text-white" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">
+                    <h3 className="text-lg font-semibold mb-2 text-white">
                       {feature.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-white/90">
                       {feature.description}
                     </p>
                   </div>
