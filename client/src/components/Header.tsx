@@ -26,13 +26,13 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24">
           <Link href="/">
             <a className="flex items-center" data-testid="link-logo">
               <img 
                 src={logoImage} 
                 alt="BIVA Imobiliária" 
-                className="h-16 w-auto dark:brightness-0 dark:invert transition-all"
+                className="h-20 w-auto dark:brightness-0 dark:invert transition-all"
               />
             </a>
           </Link>
