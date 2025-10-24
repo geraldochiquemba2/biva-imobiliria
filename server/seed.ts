@@ -60,6 +60,13 @@ export async function seedDatabase() {
     console.log(`  - Proprietário: ${proprietario.phone} / demo123`);
     console.log(`  - Cliente: ${cliente.phone} / demo123`);
 
+    // Check if demo properties already exist
+    const existingProperties = await storage.listProperties();
+    if (existingProperties.length > 0) {
+      console.log(`✓ Demo properties already exist (${existingProperties.length} properties)`);
+      return;
+    }
+
     // Create demo properties
     const demoProperties: InsertProperty[] = [
       {
