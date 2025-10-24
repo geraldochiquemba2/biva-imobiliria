@@ -8,6 +8,7 @@ import UserProfileCard from "@/components/UserProfileCard";
 import InteractiveMapSection from "@/components/InteractiveMapSection";
 import CTASection from "@/components/CTASection";
 import type { Property } from "@shared/schema";
+import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
 
 // Images for properties without images
 import property1 from '@assets/generated_images/Luxury_apartment_in_Luanda_10ff3219.png';
@@ -238,7 +239,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="text-2xl font-bold mb-4">BIVA</h3>
+              <img 
+                src={logoImage} 
+                alt="BIVA Imobiliária" 
+                className="h-16 w-auto mb-4 dark:brightness-0 dark:invert transition-all"
+              />
               <p className="text-muted-foreground">
                 Simplificando a gestão imobiliária em Angola
               </p>
