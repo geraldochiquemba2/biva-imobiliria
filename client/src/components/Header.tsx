@@ -32,7 +32,7 @@ export default function Header() {
               <img 
                 src={logoImage} 
                 alt="BIVA Imobiliária" 
-                className="h-12 w-auto dark:brightness-0 dark:invert transition-all"
+                className="h-16 w-auto dark:brightness-0 dark:invert transition-all"
               />
             </a>
           </Link>
