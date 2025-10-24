@@ -7,40 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Home, Building2, MapPin, Search, Bed, Bath, Maximize2, X } from "lucide-react";
+import { Home, MapPin, Search, Bed, Bath, Maximize2, RotateCcw, Sofa, UtensilsCrossed } from "lucide-react";
 import type { Property, SearchPropertyParams } from "@shared/schema";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
-import residentialImg from '@assets/stock_images/modern_residential_a_a908ff8e.jpg';
-import commercialImg from '@assets/stock_images/commercial_office_sp_93bcd7db.jpg';
-import landImg from '@assets/stock_images/empty_land_plot_cons_30bc54d4.jpg';
 
 export default function Imoveis() {
   const [filters, setFilters] = useState<SearchPropertyParams>({});
-  const [showFilters, setShowFilters] = useState(false);
-
-  const categories = [
-    {
-      icon: Home,
-      title: "Residencial",
-      description: "Apartamentos e casas para viver com conforto e segurança",
-      image: residentialImg,
-      value: "Casa" as const
-    },
-    {
-      icon: Building2,
-      title: "Comercial",
-      description: "Espaços comerciais e escritórios em localizações estratégicas",
-      image: commercialImg,
-      value: "Comercial" as const
-    },
-    {
-      icon: MapPin,
-      title: "Terrenos",
-      description: "Terrenos prontos para construção em diversas regiões",
-      image: landImg,
-      value: "Terreno" as const
-    }
-  ];
+  const [location, setLocation] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
 
   const { data: properties, isLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties', filters],
@@ -68,18 +43,35 @@ export default function Imoveis() {
     },
   });
 
-  const handleFilterChange = (key: keyof SearchPropertyParams, value: any) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value === "all" ? undefined : value
-    }));
+  const handleSearch = () => {
+    const newFilters: SearchPropertyParams = {};
+    
+    if (filters.type) newFilters.type = filters.type;
+    if (filters.category) newFilters.category = filters.category;
+    if (location) newFilters.municipio = location;
+    if (filters.bedrooms !== undefined) newFilters.bedrooms = filters.bedrooms;
+    if (minPrice) newFilters.minPrice = Number(minPrice);
+    if (maxPrice) newFilters.maxPrice = Number(maxPrice);
+    
+    setFilters(newFilters);
   };
 
   const clearFilters = () => {
     setFilters({});
+    setLocation('');
+    setMinPrice('');
+    setMaxPrice('');
   };
 
-  const hasActiveFilters = Object.keys(filters).length > 0;
+  const handleCategoryChange = (value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      category: value as any
+    }));
+  };
+
+  const hasActiveFilters = filters.type || filters.category || location || filters.bedrooms !== undefined || minPrice || maxPrice;
+  const showRoomFilters = filters.category === 'Casa' || filters.category === 'Apartamento';
 
   return (
     <div className="min-h-screen pt-24">
@@ -103,187 +95,161 @@ export default function Imoveis() {
             <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
               Encontre o imóvel perfeito em Angola. Apartamentos, casas, terrenos e espaços comerciais.
             </p>
-            
-            <Button 
-              size="lg" 
-              className="bg-primary border-primary" 
-              data-testid="button-search-properties"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Search className="h-5 w-5 mr-2" />
-              {showFilters ? 'Ocultar Filtros' : 'Buscar Imóveis'}
-            </Button>
           </motion.div>
         </div>
       </section>
 
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            {categories.map((category, index) => (
-              <motion.div
-                key={category.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card 
-                  className="relative p-6 h-full hover-elevate active-elevate-2 transition-all duration-300 overflow-hidden cursor-pointer"
-                  onClick={() => handleFilterChange('category', category.value)}
-                  data-testid={`card-category-${category.value.toLowerCase()}`}
-                >
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${category.image})` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/75" />
-                  
-                  <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-white/20">
-                      <category.icon className="h-8 w-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2 text-white">{category.title}</h3>
-                    <p className="text-white/90">{category.description}</p>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="relative z-20 px-6 -mt-20"
+      >
+        <Card className="max-w-5xl mx-auto p-8 shadow-2xl">
+          <div className="flex gap-3 mb-6">
+            <Button
+              variant={filters.type === 'Arrendar' ? 'default' : 'outline'}
+              onClick={() => setFilters(prev => ({ ...prev, type: 'Arrendar' }))}
+              className="flex-1 transition-all duration-300"
+              data-testid="button-arrendar"
+            >
+              Arrendar
+            </Button>
+            <Button
+              variant={filters.type === 'Vender' ? 'default' : 'outline'}
+              onClick={() => setFilters(prev => ({ ...prev, type: 'Vender' }))}
+              className="flex-1 transition-all duration-300"
+              data-testid="button-vender"
+            >
+              Vender
+            </Button>
           </div>
 
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-12"
+          <div className="space-y-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Localização"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="pl-10 transition-all duration-200"
+                  data-testid="input-location"
+                />
+              </div>
+
+              <Select value={filters.category || ""} onValueChange={handleCategoryChange}>
+                <SelectTrigger className="transition-all duration-200" data-testid="select-category">
+                  <Home className="h-5 w-5 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Tipo de Imóvel" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Apartamento">Apartamento</SelectItem>
+                  <SelectItem value="Casa">Casa</SelectItem>
+                  <SelectItem value="Comercial">Comercial</SelectItem>
+                  <SelectItem value="Terreno">Terreno</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Preço mín (Kz)"
+                  type="number"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className="transition-all duration-200"
+                  data-testid="input-min-price"
+                />
+                <Input
+                  placeholder="Preço máx (Kz)"
+                  type="number"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="transition-all duration-200"
+                  data-testid="input-max-price"
+                />
+              </div>
+            </div>
+
+            {showRoomFilters && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Select 
+                  value={filters.bedrooms?.toString() || ""} 
+                  onValueChange={(value) => setFilters(prev => ({ ...prev, bedrooms: Number(value) }))}
+                >
+                  <SelectTrigger className="transition-all duration-200" data-testid="select-bedrooms">
+                    <Bed className="h-5 w-5 mr-2 text-muted-foreground" />
+                    <SelectValue placeholder="Quartos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Estúdio</SelectItem>
+                    <SelectItem value="1">1 Quarto</SelectItem>
+                    <SelectItem value="2">2 Quartos</SelectItem>
+                    <SelectItem value="3">3 Quartos</SelectItem>
+                    <SelectItem value="4">4+ Quartos</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select>
+                  <SelectTrigger className="transition-all duration-200" data-testid="select-living-rooms">
+                    <Sofa className="h-5 w-5 mr-2 text-muted-foreground" />
+                    <SelectValue placeholder="Salas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Sala</SelectItem>
+                    <SelectItem value="2">2 Salas</SelectItem>
+                    <SelectItem value="3">3+ Salas</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select>
+                  <SelectTrigger className="transition-all duration-200" data-testid="select-kitchens">
+                    <UtensilsCrossed className="h-5 w-5 mr-2 text-muted-foreground" />
+                    <SelectValue placeholder="Cozinhas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Cozinha</SelectItem>
+                    <SelectItem value="2">2 Cozinhas</SelectItem>
+                    <SelectItem value="3">3+ Cozinhas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <Button 
+              onClick={handleSearch} 
+              className="w-full" 
+              size="default"
+              data-testid="button-search"
             >
-              <Card className="p-6">
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                  <h2 className="text-2xl font-bold">Filtrar Imóveis</h2>
-                  {hasActiveFilters && (
-                    <Button 
-                      variant="outline" 
-                      onClick={clearFilters}
-                      data-testid="button-clear-filters"
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Limpar Filtros
-                    </Button>
-                  )}
-                </div>
-                
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Tipo</label>
-                    <Select 
-                      value={filters.type || "all"}
-                      onValueChange={(value) => handleFilterChange('type', value)}
-                    >
-                      <SelectTrigger data-testid="select-type">
-                        <SelectValue placeholder="Todos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos</SelectItem>
-                        <SelectItem value="Vender">Vender</SelectItem>
-                        <SelectItem value="Arrendar">Arrendar</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <Search className="h-5 w-5 mr-2" />
+              Pesquisar
+            </Button>
+          </div>
 
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Categoria</label>
-                    <Select 
-                      value={filters.category || "all"}
-                      onValueChange={(value) => handleFilterChange('category', value)}
-                    >
-                      <SelectTrigger data-testid="select-category">
-                        <SelectValue placeholder="Todas" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todas</SelectItem>
-                        <SelectItem value="Apartamento">Apartamento</SelectItem>
-                        <SelectItem value="Casa">Casa</SelectItem>
-                        <SelectItem value="Comercial">Comercial</SelectItem>
-                        <SelectItem value="Terreno">Terreno</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Pesquise entre milhares de imóveis em toda Angola
+            </div>
+            
+            {hasActiveFilters && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={clearFilters}
+                className="text-muted-foreground hover-elevate"
+                data-testid="button-reset-filters"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Redefinir Filtros
+              </Button>
+            )}
+          </div>
+        </Card>
+      </motion.div>
 
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Província</label>
-                    <Input 
-                      placeholder="Ex: Luanda"
-                      value={filters.provincia || ""}
-                      onChange={(e) => handleFilterChange('provincia', e.target.value || undefined)}
-                      data-testid="input-provincia"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Município</label>
-                    <Input 
-                      placeholder="Ex: Talatona"
-                      value={filters.municipio || ""}
-                      onChange={(e) => handleFilterChange('municipio', e.target.value || undefined)}
-                      data-testid="input-municipio"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Bairro</label>
-                    <Input 
-                      placeholder="Ex: Camama"
-                      value={filters.bairro || ""}
-                      onChange={(e) => handleFilterChange('bairro', e.target.value || undefined)}
-                      data-testid="input-bairro"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Quartos</label>
-                    <Select 
-                      value={filters.bedrooms?.toString() || "all"}
-                      onValueChange={(value) => handleFilterChange('bedrooms', value === "all" ? undefined : Number(value))}
-                    >
-                      <SelectTrigger data-testid="select-bedrooms">
-                        <SelectValue placeholder="Todos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Todos</SelectItem>
-                        <SelectItem value="1">1+</SelectItem>
-                        <SelectItem value="2">2+</SelectItem>
-                        <SelectItem value="3">3+</SelectItem>
-                        <SelectItem value="4">4+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Preço Mínimo (AOA)</label>
-                    <Input 
-                      type="number"
-                      placeholder="0"
-                      value={filters.minPrice || ""}
-                      onChange={(e) => handleFilterChange('minPrice', e.target.value ? Number(e.target.value) : undefined)}
-                      data-testid="input-min-price"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Preço Máximo (AOA)</label>
-                    <Input 
-                      type="number"
-                      placeholder="Sem limite"
-                      value={filters.maxPrice || ""}
-                      onChange={(e) => handleFilterChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)}
-                      data-testid="input-max-price"
-                    />
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-          )}
+      <section className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
 
           <div className="mb-6">
             <h2 className="text-3xl font-bold mb-2">Imóveis Disponíveis</h2>
