@@ -12,6 +12,7 @@ import Sobre from "@/pages/Sobre";
 import Contacto from "@/pages/Contacto";
 import Login from "@/pages/Login";
 import Cadastro from "@/pages/Cadastro";
+import Dashboard from "@/pages/Dashboard";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -36,6 +37,7 @@ function Router() {
         <Route path="/contacto" component={Contacto} />
         <Route path="/login" component={Login} />
         <Route path="/cadastro" component={Cadastro} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route component={NotFound} />
       </Switch>
     </>
