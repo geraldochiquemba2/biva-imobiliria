@@ -1,36 +1,52 @@
 import { storage } from "./storage";
 import type { InsertProperty, InsertUser } from "@shared/schema";
-
-// Simple password hashing for demo (in production, use bcrypt)
-async function hashPassword(password: string): Promise<string> {
-  return password; // TODO: Replace with proper bcrypt hashing
-}
+import bcrypt from "bcrypt";
 
 export async function seedDatabase() {
   try {
-    // Create demo users
-    const demoOwner1: InsertUser = {
-      username: "proprietario_demo",
-      email: "proprietario@biva.ao",
-      password: await hashPassword("demo123"),
-      userType: "proprietario",
-    };
-
-    const demoOwner2: InsertUser = {
-      username: "corretor_demo",
-      email: "corretor@biva.ao",
-      password: await hashPassword("demo123"),
+    // Create admin corretor with fixed credentials
+    const adminCorretor: InsertUser = {
+      username: "admin",
+      email: "admin@gmail.com",
+      password: await bcrypt.hash("123456789", 10),
+      fullName: "Administrador BIVA",
+      phone: "+244 900 000 000",
       userType: "corretor",
     };
 
-    // Check if users already exist
-    const existingUser1 = await storage.getUserByEmail(demoOwner1.email);
-    const existingUser2 = await storage.getUserByEmail(demoOwner2.email);
+    // Create demo proprietário
+    const demoProprietario: InsertUser = {
+      username: "proprietario_demo",
+      email: "proprietario@biva.ao",
+      password: await bcrypt.hash("demo123", 10),
+      fullName: "João Silva",
+      phone: "+244 912 345 678",
+      userType: "proprietario",
+    };
 
-    const owner1 = existingUser1 || await storage.createUser(demoOwner1);
-    const owner2 = existingUser2 || await storage.createUser(demoOwner2);
+    // Create demo client
+    const demoCliente: InsertUser = {
+      username: "cliente_demo",
+      email: "cliente@biva.ao",
+      password: await bcrypt.hash("demo123", 10),
+      fullName: "Maria Santos",
+      phone: "+244 923 456 789",
+      userType: "cliente",
+    };
+
+    // Check if users already exist
+    const existingAdmin = await storage.getUserByEmail(adminCorretor.email);
+    const existingProprietario = await storage.getUserByEmail(demoProprietario.email);
+    const existingCliente = await storage.getUserByEmail(demoCliente.email);
+
+    const admin = existingAdmin || await storage.createUser(adminCorretor);
+    const proprietario = existingProprietario || await storage.createUser(demoProprietario);
+    const cliente = existingCliente || await storage.createUser(demoCliente);
 
     console.log("✓ Demo users created");
+    console.log(`  - Admin Corretor: ${admin.email} / 123456789`);
+    console.log(`  - Proprietário: ${proprietario.email} / demo123`);
+    console.log(`  - Cliente: ${cliente.email} / demo123`);
 
     // Create demo properties
     const demoProperties: InsertProperty[] = [
@@ -48,7 +64,8 @@ export async function seedDatabase() {
         area: 145,
         image: null,
         featured: true,
-        ownerId: owner1.id,
+        status: "disponivel",
+        ownerId: proprietario.id,
       },
       {
         title: "Villa Moderna com Jardim",
@@ -64,7 +81,8 @@ export async function seedDatabase() {
         area: 280,
         image: null,
         featured: false,
-        ownerId: owner1.id,
+        status: "disponivel",
+        ownerId: proprietario.id,
       },
       {
         title: "Edifício Comercial Centro",
@@ -80,7 +98,8 @@ export async function seedDatabase() {
         area: 850,
         image: null,
         featured: true,
-        ownerId: owner2.id,
+        status: "disponivel",
+        ownerId: proprietario.id,
       },
       {
         title: "Penthouse Vista Panorâmica",
@@ -96,7 +115,8 @@ export async function seedDatabase() {
         area: 220,
         image: null,
         featured: false,
-        ownerId: owner2.id,
+        status: "disponivel",
+        ownerId: proprietario.id,
       },
       {
         title: "Casa Familiar em Viana",
@@ -112,7 +132,8 @@ export async function seedDatabase() {
         area: 320,
         image: null,
         featured: false,
-        ownerId: owner1.id,
+        status: "disponivel",
+        ownerId: proprietario.id,
       },
       {
         title: "Apartamento T2 Centralizado",
@@ -128,7 +149,8 @@ export async function seedDatabase() {
         area: 85,
         image: null,
         featured: false,
-        ownerId: owner2.id,
+        status: "disponivel",
+        ownerId: proprietario.id,
       },
       {
         title: "Terreno Comercial Via Expressa",
@@ -144,7 +166,8 @@ export async function seedDatabase() {
         area: 2500,
         image: null,
         featured: true,
-        ownerId: owner1.id,
+        status: "disponivel",
+        ownerId: proprietario.id,
       },
       {
         title: "Loja Comercial Shopping",
@@ -160,7 +183,8 @@ export async function seedDatabase() {
         area: 150,
         image: null,
         featured: false,
-        ownerId: owner2.id,
+        status: "disponivel",
+        ownerId: proprietario.id,
       },
     ];
 
@@ -172,6 +196,5 @@ export async function seedDatabase() {
     console.log(`Seeded ${demoProperties.length} properties successfully!`);
   } catch (error) {
     console.error("Error seeding database:", error);
-    throw error;
   }
 }
