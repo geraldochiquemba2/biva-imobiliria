@@ -1,0 +1,101 @@
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+
+interface AngolaMapPoint {
+  x: number;
+  y: number;
+  delay: number;
+}
+
+export default function HeroSection() {
+  const [mapPoints] = useState<AngolaMapPoint[]>([
+    { x: 45, y: 35, delay: 0.2 },
+    { x: 52, y: 42, delay: 0.4 },
+    { x: 48, y: 50, delay: 0.6 },
+    { x: 55, y: 45, delay: 0.8 },
+    { x: 42, y: 55, delay: 1.0 },
+    { x: 60, y: 38, delay: 1.2 },
+    { x: 50, y: 60, delay: 1.4 },
+  ]);
+
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/10">
+      <div className="absolute inset-0 opacity-20">
+        <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="mapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+          <motion.path
+            d="M 40 30 L 60 30 L 65 45 L 60 65 L 45 70 L 35 55 L 38 40 Z"
+            fill="url(#mapGradient)"
+            stroke="hsl(var(--primary))"
+            strokeWidth="0.2"
+            initial={{ opacity: 0, pathLength: 0 }}
+            animate={{ opacity: 1, pathLength: 1 }}
+            transition={{ duration: 2, ease: "easeInOut" }}
+          />
+          {mapPoints.map((point, index) => (
+            <motion.circle
+              key={index}
+              cx={point.x}
+              cy={point.y}
+              r="0.8"
+              fill="hsl(var(--primary))"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ 
+                opacity: [0, 1, 0.8],
+                scale: [0, 1.2, 1]
+              }}
+              transition={{
+                delay: point.delay,
+                duration: 0.8,
+                ease: "easeOut"
+              }}
+            >
+              <animate
+                attributeName="opacity"
+                values="0.8;1;0.8"
+                dur="2s"
+                repeatCount="indefinite"
+                begin={`${point.delay}s`}
+              />
+            </motion.circle>
+          ))}
+        </svg>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+        >
+          <motion.h1 
+            className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+          >
+            Simplificando a Gestão
+            <br />
+            Imobiliária em Angola
+          </motion.h1>
+          
+          <motion.p 
+            className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+          >
+            Soluções digitais para o arrendamento e a venda de imóveis
+          </motion.p>
+        </motion.div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+    </section>
+  );
+}
