@@ -1,0 +1,33 @@
+Website Moderno e com Animações (BIVA - Plataforma Imobiliária)
+
+"Crie o design de uma página inicial (Homepage) de alto impacto e moderna para a BIVA, uma startup angolana de tecnologia imobiliária. O design deve ser minimalista, elegante e focado na usabilidade intuitiva (Requisito Não Funcional - Usabilidade).
+
+Foco Visual e de Animação:
+
+Estilo: Design moderno, limpo, sofisticado, com um toque futurista (inspirado em startups de tecnologia de ponta). Utilizar a paleta de cores da marca (se houver, senão, sugerir uma paleta profissional de azul, branco e tons neutros).
+
+Animações: Incorporar micro-interações suaves e animações CSS/JavaScript fluidas (ex: Lottie animations).
+
+Hero Section: Animação sutil de um mapa de Angola que se ilumina gradualmente com pontos representando imóveis, sincronizada com o carregamento do cabeçalho principal: 'Simplificando a Gestão Imobiliária em Angola'.
+
+Filtros de Busca: Efeitos de hover e transições rápidas nos botões de filtro (Arrendar, Vender) e na barra de pesquisa que prioriza 'bairro, município e província'.
+
+Cards de Imóveis: Animação de entrada e carregamento (fade-in ou slide-up) nos cards de listagem, com um efeito suave de zoom ou sombra ao passar o mouse.
+
+Elementos Essenciais (Conteúdo):
+
+Hero Section (Acima da Dobra): Título chamativo + Subtítulo focando na missão: 'Soluções digitais para o arrendamento e a venda de imóveis'.
+
+Barra de Pesquisa Centralizada: Formulário de busca avançada com os filtros de 'Tipo de Imóvel', 'Localização' (Bairro/Município/Província), 'Faixa de Preço (Kz)' e 'Número de Quartos'.
+
+Seção 'Nossos Usuários': Exibir de forma animada e em carrossel os 4 perfis de usuários que a plataforma atende (Proprietários, Clientes/Inquilinos/Compradores, Corretores e Gestores de Imóveis). Cada card deve ter um pequeno ícone e uma descrição concisa da funcionalidade que a BIVA lhes oferece (ex: 'Gerenciar contratos' para Proprietários).
+
+Recurso de Destaque: Apresentar a funcionalidade de Mapa Interativo com uma visualização de fundo de um mapa responsivo e animado, destacando a integração com Google Maps ou Mapbox.
+
+Call to Action (CTA) Secundário: Botão claro para 'Cadastre-se como Proprietário/Corretor' e outro para 'Encontre seu Imóvel'.
+
+Requisitos Técnicos (Para o Modelo de Geração):
+
+Design totalmente responsivo para dispositivos móveis.
+
+Tempo de carregamento e resposta otimizado (abaixo de 2 segundos)."
