@@ -235,7 +235,7 @@ export default function Dashboard() {
                       Comece cadastrando seu primeiro imóvel para arrendar ou vender
                     </p>
                     <Button asChild data-testid="button-add-property">
-                      <Link href="/imoveis">
+                      <Link href="/cadastrar-imovel">
                         <Plus className="h-4 w-4 mr-2" />
                         Cadastrar Imóvel
                       </Link>
