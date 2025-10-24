@@ -12,12 +12,7 @@ export default function InteractiveMapSection() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${mapBgImage})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-background/70 via-background/60 to-background/70" />
-      
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary rounded-full blur-3xl" />
-      </div>
+      <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/75" />
 
       <div className="relative max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -27,16 +22,16 @@ export default function InteractiveMapSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full mb-6 border border-white/20">
               <Map className="h-5 w-5" />
               <span className="text-sm font-medium">Mapa Interativo</span>
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
               Explore Imóveis no Mapa
             </h2>
             
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-xl text-white/90 mb-8">
               Visualize todos os imóveis disponíveis em Angola com nossa integração de mapa interativo. 
               Navegue por bairros, municípios e províncias com facilidade.
             </p>
@@ -56,15 +51,15 @@ export default function InteractiveMapSection() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <MapPin className="h-4 w-4 text-primary" />
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                    <MapPin className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-muted-foreground">{feature}</span>
+                  <span className="text-white/90">{feature}</span>
                 </motion.li>
               ))}
             </ul>
 
-            <Button size="lg" data-testid="button-explore-map">
+            <Button size="lg" className="bg-primary border-primary" data-testid="button-explore-map">
               <Navigation className="h-5 w-5 mr-2" />
               Explorar Mapa
             </Button>
