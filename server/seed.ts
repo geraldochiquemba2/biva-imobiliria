@@ -60,14 +60,7 @@ export async function seedDatabase() {
     console.log(`  - Proprietário: ${proprietario.phone} / demo123`);
     console.log(`  - Cliente: ${cliente.phone} / demo123`);
 
-    // Check if demo properties already exist
-    const existingProperties = await storage.listProperties();
-    if (existingProperties.length > 0) {
-      console.log(`✓ Demo properties already exist (${existingProperties.length} properties)`);
-      return;
-    }
-
-    // Create demo properties
+    // Define demo properties with stable titles
     const demoProperties: InsertProperty[] = [
       {
         title: "Apartamento Luxuoso em Talatona",
@@ -223,12 +216,23 @@ export async function seedDatabase() {
       },
     ];
 
+    // Check and create each demo property individually
+    const existingProperties = await storage.listProperties();
+    const existingTitles = new Set(existingProperties.map(p => p.title));
+    
+    let createdCount = 0;
     for (const property of demoProperties) {
-      await storage.createProperty(property);
+      if (!existingTitles.has(property.title)) {
+        await storage.createProperty(property);
+        createdCount++;
+      }
     }
 
-    console.log("✓ Demo properties created");
-    console.log(`Seeded ${demoProperties.length} properties successfully!`);
+    if (createdCount > 0) {
+      console.log(`✓ Demo properties created (${createdCount} new properties)`);
+    } else {
+      console.log(`✓ Demo properties already exist (${demoProperties.length} properties)`);
+    }
   } catch (error) {
     console.error("Error seeding database:", error);
   }
