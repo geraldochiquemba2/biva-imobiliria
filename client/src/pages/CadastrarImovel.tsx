@@ -32,7 +32,10 @@ const propertyFormSchema = z.object({
   bedrooms: z.coerce.number().min(0, "Número inválido").optional(),
   bathrooms: z.coerce.number().min(0, "Número inválido").optional(),
   area: z.coerce.number().positive("Área deve ser maior que zero"),
-  image: z.string().url("URL inválida").optional().or(z.literal('')),
+  image1: z.string().url("URL inválida").optional().or(z.literal('')),
+  image2: z.string().url("URL inválida").optional().or(z.literal('')),
+  image3: z.string().url("URL inválida").optional().or(z.literal('')),
+  image4: z.string().url("URL inválida").optional().or(z.literal('')),
 });
 
 type PropertyFormData = z.infer<typeof propertyFormSchema>;
@@ -83,6 +86,9 @@ export default function CadastrarImovel() {
 
   const createPropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
+      const images = [data.image1, data.image2, data.image3, data.image4]
+        .filter(url => url && url.trim() !== '');
+      
       const propertyData = {
         title: data.title,
         description: data.description,
@@ -95,7 +101,9 @@ export default function CadastrarImovel() {
         area: data.area,
         bedrooms: data.bedrooms || 0,
         bathrooms: data.bathrooms || 0,
-        image: data.image || null,
+        livingRooms: 1,
+        kitchens: 1,
+        images: images.length > 0 ? images : null,
         featured: false,
         status: 'disponivel',
         ownerId: currentUser!.id,
@@ -354,18 +362,61 @@ export default function CadastrarImovel() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="image">URL da Imagem (opcional)</Label>
-                    <Input
-                      id="image"
-                      type="url"
-                      placeholder="https://exemplo.com/imagem.jpg"
-                      {...register("image")}
-                      data-testid="input-image"
-                    />
-                    {errors.image && (
-                      <p className="text-sm text-destructive">{errors.image.message}</p>
-                    )}
+                  <div className="space-y-4">
+                    <Label>URLs das Imagens (opcional)</Label>
+                    <div className="space-y-3">
+                      <div>
+                        <Input
+                          id="image1"
+                          type="url"
+                          placeholder="URL da imagem 1"
+                          {...register("image1")}
+                          data-testid="input-image1"
+                        />
+                        {errors.image1 && (
+                          <p className="text-sm text-destructive mt-1">{errors.image1.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Input
+                          id="image2"
+                          type="url"
+                          placeholder="URL da imagem 2"
+                          {...register("image2")}
+                          data-testid="input-image2"
+                        />
+                        {errors.image2 && (
+                          <p className="text-sm text-destructive mt-1">{errors.image2.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Input
+                          id="image3"
+                          type="url"
+                          placeholder="URL da imagem 3"
+                          {...register("image3")}
+                          data-testid="input-image3"
+                        />
+                        {errors.image3 && (
+                          <p className="text-sm text-destructive mt-1">{errors.image3.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Input
+                          id="image4"
+                          type="url"
+                          placeholder="URL da imagem 4"
+                          {...register("image4")}
+                          data-testid="input-image4"
+                        />
+                        {errors.image4 && (
+                          <p className="text-sm text-destructive mt-1">{errors.image4.message}</p>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Adicione até 4 URLs de imagens do imóvel
+                    </p>
                   </div>
                 </div>
 
