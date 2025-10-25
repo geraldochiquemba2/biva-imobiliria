@@ -40,6 +40,7 @@ export const properties = pgTable("properties", {
   latitude: decimal("latitude", { precision: 10, scale: 7 }),
   longitude: decimal("longitude", { precision: 10, scale: 7 }),
   images: text("images").array(),
+  amenities: text("amenities").array(),
   featured: boolean("featured").default(false),
   status: text("status").notNull().default('disponivel'), // 'disponivel', 'arrendado', 'vendido', 'indisponivel'
   ownerId: varchar("owner_id").notNull().references(() => users.id),

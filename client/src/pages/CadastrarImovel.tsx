@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Building2, DollarSign, Upload, X, Star } from "lucide-react";
 import type { User } from "@shared/schema";
 import { z } from "zod";
@@ -260,6 +261,30 @@ const LOCATION_COORDINATES: Record<string, { lat: number; lon: number }> = {
   "Tomboco": { lat: -6.4667, lon: 14.2167 },
 };
 
+// Comodidades disponíveis
+const AVAILABLE_AMENITIES = [
+  "Ar Condicionado",
+  "Aquecimento",
+  "Piscina",
+  "Ginásio",
+  "Jardim",
+  "Varanda",
+  "Terraço",
+  "Garagem",
+  "Parqueamento",
+  "Segurança 24h",
+  "Portão Eletrônico",
+  "Elevador",
+  "Gerador",
+  "Sistema Solar",
+  "Internet/Wi-Fi",
+  "TV por Cabo",
+  "Área de Lazer",
+  "Churrasqueira",
+  "Despensa",
+  "Armários Embutidos",
+];
+
 const propertyFormSchema = z.object({
   title: z.string().min(5, "Título deve ter no mínimo 5 caracteres"),
   description: z.string().min(20, "Descrição deve ter no mínimo 20 caracteres"),
@@ -278,6 +303,7 @@ const propertyFormSchema = z.object({
   livingRooms: z.coerce.number().min(0, "Número inválido").optional(),
   kitchens: z.coerce.number().min(0, "Número inválido").optional(),
   area: z.coerce.number().positive("Área deve ser maior que zero"),
+  amenities: z.array(z.string()).optional(),
 });
 
 type PropertyFormData = z.infer<typeof propertyFormSchema>;
@@ -293,6 +319,7 @@ export default function CadastrarImovel() {
   const [isUploading, setIsUploading] = useState(false);
   const [mapLatitude, setMapLatitude] = useState<number>(-8.8383);
   const [mapLongitude, setMapLongitude] = useState<number>(13.2344);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -418,6 +445,14 @@ export default function CadastrarImovel() {
     setCoverImageIndex(index);
   };
 
+  const toggleAmenity = (amenity: string) => {
+    setSelectedAmenities(prev => 
+      prev.includes(amenity)
+        ? prev.filter(a => a !== amenity)
+        : [...prev, amenity]
+    );
+  };
+
   const createPropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
       setIsUploading(true);
@@ -485,6 +520,10 @@ export default function CadastrarImovel() {
       
       if (imageUrls.length > 0) {
         propertyData.images = imageUrls;
+      }
+      
+      if (selectedAmenities.length > 0) {
+        propertyData.amenities = selectedAmenities;
       }
       
       const res = await apiRequest('POST', '/api/properties', propertyData);
@@ -953,6 +992,34 @@ export default function CadastrarImovel() {
                       </div>
                     </div>
                   )}
+
+                  {/* Amenities Section */}
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Comodidades</Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Selecione as comodidades disponíveis no imóvel
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {AVAILABLE_AMENITIES.map((amenity) => (
+                        <div key={amenity} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`amenity-${amenity}`}
+                            checked={selectedAmenities.includes(amenity)}
+                            onCheckedChange={() => toggleAmenity(amenity)}
+                            data-testid={`checkbox-${amenity.toLowerCase().replace(/\s+/g, '-')}`}
+                          />
+                          <label
+                            htmlFor={`amenity-${amenity}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {amenity}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* Image upload section */}
                   <div className="space-y-4">
