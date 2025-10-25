@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +11,13 @@ import {
 } from "@/components/ui/select";
 import { Search, MapPin, Home, Bed, RotateCcw, Sofa, UtensilsCrossed } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { angolaProvinces } from "@shared/angola-locations";
 
 interface SearchBarProps {
   onSearch?: (params: {
     type: 'Arrendar' | 'Vender';
-    location: string;
+    provincia: string;
+    municipio: string;
     category: string;
     bedrooms: string;
     livingRooms: string;
@@ -27,7 +29,8 @@ interface SearchBarProps {
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
   const [propertyType, setPropertyType] = useState<'Arrendar' | 'Vender' | ''>('');
-  const [location, setLocation] = useState('');
+  const [provincia, setProvincia] = useState('');
+  const [municipio, setMunicipio] = useState('');
   const [category, setCategory] = useState('');
   const [bedrooms, setBedrooms] = useState('');
   const [livingRooms, setLivingRooms] = useState('');
@@ -35,9 +38,15 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
+  const availableMunicipios = useMemo(() => {
+    if (!provincia) return [];
+    const selectedProvince = angolaProvinces.find(p => p.name === provincia);
+    return selectedProvince?.municipalities || [];
+  }, [provincia]);
+
   const handleSearch = () => {
     if (onSearch && propertyType) {
-      onSearch({ type: propertyType as 'Arrendar' | 'Vender', location, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
+      onSearch({ type: propertyType as 'Arrendar' | 'Vender', provincia, municipio, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
     }
   };
 
@@ -50,9 +59,15 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     }
   };
 
+  const handleProvinciaChange = (value: string) => {
+    setProvincia(value);
+    setMunicipio('');
+  };
+
   const resetFilters = () => {
     setPropertyType('');
-    setLocation('');
+    setProvincia('');
+    setMunicipio('');
     setCategory('');
     setBedrooms('');
     setLivingRooms('');
@@ -60,18 +75,18 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     setMinPrice('');
     setMaxPrice('');
     if (onSearch) {
-      onSearch({ type: 'Arrendar', location: '', category: '', bedrooms: '', livingRooms: '', kitchens: '', minPrice: '', maxPrice: '' });
+      onSearch({ type: 'Arrendar', provincia: '', municipio: '', category: '', bedrooms: '', livingRooms: '', kitchens: '', minPrice: '', maxPrice: '' });
     }
   };
 
-  const hasActiveFilters = propertyType || location || category || bedrooms || livingRooms || kitchens || minPrice || maxPrice;
+  const hasActiveFilters = propertyType || provincia || municipio || category || bedrooms || livingRooms || kitchens || minPrice || maxPrice;
   const showRoomFilters = category === 'Casa' || category === 'Apartamento';
 
   useEffect(() => {
     if (propertyType && onSearch) {
-      onSearch({ type: propertyType as 'Arrendar' | 'Vender', location, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
+      onSearch({ type: propertyType as 'Arrendar' | 'Vender', provincia, municipio, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
     }
-  }, [propertyType, category, location]);
+  }, [propertyType, category, provincia, municipio]);
 
   return (
     <motion.div
@@ -101,17 +116,34 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         </div>
 
         <div className="space-y-4 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
-              <Input
-                placeholder="Localização"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="pl-10 transition-all duration-200"
-                data-testid="input-location"
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Select value={provincia} onValueChange={handleProvinciaChange}>
+              <SelectTrigger className="transition-all duration-200" data-testid="select-provincia">
+                <MapPin className="h-5 w-5 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="Província" />
+              </SelectTrigger>
+              <SelectContent>
+                {angolaProvinces.map((prov) => (
+                  <SelectItem key={prov.name} value={prov.name}>
+                    {prov.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={municipio} onValueChange={setMunicipio} disabled={!provincia}>
+              <SelectTrigger className="transition-all duration-200" data-testid="select-municipio">
+                <MapPin className="h-5 w-5 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="Município" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableMunicipios.map((mun) => (
+                  <SelectItem key={mun.name} value={mun.name}>
+                    {mun.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             <Select value={category} onValueChange={handleCategoryChange}>
               <SelectTrigger className="transition-all duration-200" data-testid="select-category">

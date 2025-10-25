@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,19 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Home, MapPin, Search, Bed, Bath, Maximize2, RotateCcw, Sofa, UtensilsCrossed } from "lucide-react";
 import type { Property, SearchPropertyParams } from "@shared/schema";
+import { angolaProvinces } from "@shared/angola-locations";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 export default function Imoveis() {
   const [filters, setFilters] = useState<SearchPropertyParams>({});
-  const [location, setLocation] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+
+  const availableMunicipios = useMemo(() => {
+    if (!filters.provincia) return [];
+    const selectedProvince = angolaProvinces.find(p => p.name === filters.provincia);
+    return selectedProvince?.municipalities || [];
+  }, [filters.provincia]);
 
   const { data: properties, isLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties', filters],
@@ -50,7 +56,8 @@ export default function Imoveis() {
     
     if (filters.type) newFilters.type = filters.type;
     if (filters.category) newFilters.category = filters.category;
-    if (location) newFilters.location = location;
+    if (filters.provincia) newFilters.provincia = filters.provincia;
+    if (filters.municipio) newFilters.municipio = filters.municipio;
     if (filters.bedrooms !== undefined) newFilters.bedrooms = filters.bedrooms;
     if (minPrice) newFilters.minPrice = Number(minPrice);
     if (maxPrice) newFilters.maxPrice = Number(maxPrice);
@@ -60,7 +67,6 @@ export default function Imoveis() {
 
   const clearFilters = () => {
     setFilters({});
-    setLocation('');
     setMinPrice('');
     setMaxPrice('');
   };
@@ -72,7 +78,15 @@ export default function Imoveis() {
     }));
   };
 
-  const hasActiveFilters = filters.type || filters.category || location || filters.bedrooms !== undefined || minPrice || maxPrice;
+  const handleProvinciaChange = (value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      provincia: value,
+      municipio: ''
+    }));
+  };
+
+  const hasActiveFilters = filters.type || filters.category || filters.provincia || filters.municipio || filters.bedrooms !== undefined || minPrice || maxPrice;
   const showRoomFilters = filters.category === 'Casa' || filters.category === 'Apartamento';
 
   return (
@@ -128,17 +142,38 @@ export default function Imoveis() {
           </div>
 
           <div className="space-y-4 mb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
-                <Input
-                  placeholder="Localização"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="pl-10 transition-all duration-200"
-                  data-testid="input-location"
-                />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Select value={filters.provincia || ""} onValueChange={handleProvinciaChange}>
+                <SelectTrigger className="transition-all duration-200" data-testid="select-provincia">
+                  <MapPin className="h-5 w-5 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Província" />
+                </SelectTrigger>
+                <SelectContent>
+                  {angolaProvinces.map((prov) => (
+                    <SelectItem key={prov.name} value={prov.name}>
+                      {prov.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select 
+                value={filters.municipio || ""} 
+                onValueChange={(value) => setFilters(prev => ({ ...prev, municipio: value }))}
+                disabled={!filters.provincia}
+              >
+                <SelectTrigger className="transition-all duration-200" data-testid="select-municipio">
+                  <MapPin className="h-5 w-5 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Município" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableMunicipios.map((mun) => (
+                    <SelectItem key={mun.name} value={mun.name}>
+                      {mun.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
               <Select value={filters.category || ""} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="transition-all duration-200" data-testid="select-category">
