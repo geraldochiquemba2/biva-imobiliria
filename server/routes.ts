@@ -78,7 +78,7 @@ const upload = multer({
   storage: storage_multer,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5 MB max
-    files: 4 // max 4 files
+    files: 10 // max 10 files
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
@@ -298,7 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload property images (proprietarios and corretores only)
-  app.post("/api/properties/upload", requireRole('proprietario', 'corretor'), upload.array('images', 4), async (req, res) => {
+  app.post("/api/properties/upload", requireRole('proprietario', 'corretor'), upload.array('images', 10), async (req, res) => {
     try {
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
         return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
@@ -324,7 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ error: "Arquivo muito grande. Tamanho máximo: 5 MB" });
         }
         if (error.code === 'LIMIT_FILE_COUNT') {
-          return res.status(400).json({ error: "Número máximo de arquivos: 4" });
+          return res.status(400).json({ error: "Número máximo de arquivos: 10" });
         }
       }
       res.status(500).json({ error: "Falha ao fazer upload das imagens" });

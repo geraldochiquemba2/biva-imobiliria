@@ -32,7 +32,9 @@ export default function Header() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+      queryClient.setQueryData(['/api/auth/me'], null);
+      queryClient.removeQueries({ queryKey: ['/api/auth/me'] });
+      queryClient.clear();
       toast({
         title: "Logout realizado com sucesso",
         description: "Até breve!",
