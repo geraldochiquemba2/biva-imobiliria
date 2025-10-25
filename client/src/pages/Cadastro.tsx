@@ -27,7 +27,6 @@ const registerFormSchema = z.object({
   address: z.string().min(5, "Endereço deve ter no mínimo 5 caracteres"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   confirmPassword: z.string(),
-  userTypes: z.array(z.enum(['proprietario', 'cliente', 'corretor'])).min(1, "Selecione pelo menos um tipo de conta"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
   path: ["confirmPassword"],
@@ -67,14 +66,17 @@ export default function Cadastro() {
       address: "",
       password: "",
       confirmPassword: "",
-      userTypes: [],
     },
   });
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
       const { confirmPassword, ...registerData } = data;
-      const res = await apiRequest('POST', '/api/auth/register', registerData);
+      const dataWithUserTypes = {
+        ...registerData,
+        userTypes: ['proprietario', 'cliente', 'corretor']
+      };
+      const res = await apiRequest('POST', '/api/auth/register', dataWithUserTypes);
       return await res.json();
     },
     onSuccess: () => {
@@ -256,105 +258,6 @@ export default function Cadastro() {
                   {errors.address && (
                     <p className="text-sm text-destructive" data-testid="error-address">
                       {errors.address.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Tipo de Conta (selecione um ou mais)</Label>
-                  <div className="space-y-3 rounded-md border p-4">
-                    <Controller
-                      name="userTypes"
-                      control={control}
-                      render={({ field }) => (
-                        <>
-                          <div className="flex items-start space-x-3">
-                            <Checkbox
-                              id="type-proprietario"
-                              checked={field.value?.includes('proprietario')}
-                              onCheckedChange={(checked) => {
-                                const current = field.value || [];
-                                if (checked) {
-                                  field.onChange([...current, 'proprietario']);
-                                } else {
-                                  field.onChange(current.filter(t => t !== 'proprietario'));
-                                }
-                              }}
-                              data-testid="checkbox-proprietario"
-                            />
-                            <div className="grid gap-1.5 leading-none">
-                              <label
-                                htmlFor="type-proprietario"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                              >
-                                Proprietário
-                              </label>
-                              <p className="text-sm text-muted-foreground">
-                                Tenho imóveis para alugar/vender
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-start space-x-3">
-                            <Checkbox
-                              id="type-cliente"
-                              checked={field.value?.includes('cliente')}
-                              onCheckedChange={(checked) => {
-                                const current = field.value || [];
-                                if (checked) {
-                                  field.onChange([...current, 'cliente']);
-                                } else {
-                                  field.onChange(current.filter(t => t !== 'cliente'));
-                                }
-                              }}
-                              data-testid="checkbox-cliente"
-                            />
-                            <div className="grid gap-1.5 leading-none">
-                              <label
-                                htmlFor="type-cliente"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                              >
-                                Cliente
-                              </label>
-                              <p className="text-sm text-muted-foreground">
-                                Procuro imóveis
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-start space-x-3">
-                            <Checkbox
-                              id="type-corretor"
-                              checked={field.value?.includes('corretor')}
-                              onCheckedChange={(checked) => {
-                                const current = field.value || [];
-                                if (checked) {
-                                  field.onChange([...current, 'corretor']);
-                                } else {
-                                  field.onChange(current.filter(t => t !== 'corretor'));
-                                }
-                              }}
-                              data-testid="checkbox-corretor"
-                            />
-                            <div className="grid gap-1.5 leading-none">
-                              <label
-                                htmlFor="type-corretor"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                              >
-                                Corretor
-                              </label>
-                              <p className="text-sm text-muted-foreground">
-                                Trabalho com imóveis
-                              </p>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    />
-                  </div>
-                  {errors.userTypes && (
-                    <p className="text-sm text-destructive" data-testid="error-usertypes">
-                      {errors.userTypes.message}
                     </p>
                   )}
                 </div>
