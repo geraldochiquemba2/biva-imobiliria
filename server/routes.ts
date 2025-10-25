@@ -99,6 +99,11 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for keep-alive
+  app.get("/api/health", (_req, res) => {
+    res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
   // Serve uploaded images statically
   const express = await import('express');
   app.use('/uploads', express.default.static(path.join(process.cwd(), 'uploads')));

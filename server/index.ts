@@ -5,6 +5,39 @@ import { seedDatabase } from "./seed";
 
 const app = express();
 
+// Keep-alive system for Render.com
+let keepAliveInterval: NodeJS.Timeout | null = null;
+
+function setupKeepAlive(port: number) {
+  // Only enable in production
+  if (process.env.NODE_ENV === 'production') {
+    const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
+    
+    if (RENDER_EXTERNAL_URL) {
+      log('Setting up keep-alive for Render...');
+      
+      // Ping every 14 minutes to prevent hibernation (Render sleeps after 15 minutes of inactivity)
+      keepAliveInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`${RENDER_EXTERNAL_URL}/api/health`);
+          if (response.ok) {
+            log('Keep-alive ping successful');
+          }
+        } catch (error) {
+          log('Keep-alive ping failed:', (error as Error).message || 'Unknown error');
+        }
+      }, 14 * 60 * 1000); // 14 minutes
+    }
+  }
+}
+
+function stopKeepAlive() {
+  if (keepAliveInterval) {
+    clearInterval(keepAliveInterval);
+    keepAliveInterval = null;
+  }
+}
+
 declare module 'http' {
   interface IncomingMessage {
     rawBody: unknown
@@ -80,5 +113,16 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    setupKeepAlive(port);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    log('SIGTERM received, shutting down gracefully...');
+    stopKeepAlive();
+    server.close(() => {
+      log('Server closed');
+      process.exit(0);
+    });
   });
 })();
