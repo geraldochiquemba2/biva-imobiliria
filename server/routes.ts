@@ -133,7 +133,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userType: userData.userType,
         password: hashedPassword,
         username,
-        email: null,
+        email: userData.email,
+        sms: userData.sms || null,
+        bi: userData.bi,
+        address: userData.address,
+        profileImage: userData.profileImage || null,
       });
       
       // Set session

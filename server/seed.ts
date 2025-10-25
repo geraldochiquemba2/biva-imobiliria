@@ -13,52 +13,18 @@ export async function seedDatabase() {
       phone: "+244912345678",
       userType: "admin",
       sms: null,
-      address: null,
-      bi: null,
+      address: "Luanda, Angola",
+      bi: "000000000LA000",
       profileImage: null,
     };
 
-    // Create demo proprietário
-    const demoProprietario: InsertUser = {
-      username: "proprietario_demo",
-      email: "proprietario@biva.ao",
-      password: await bcrypt.hash("demo123", 10),
-      fullName: "João Silva",
-      phone: "+244923456789",
-      userType: "proprietario",
-      sms: null,
-      address: null,
-      bi: null,
-      profileImage: null,
-    };
-
-    // Create demo client
-    const demoCliente: InsertUser = {
-      username: "cliente_demo",
-      email: "cliente@biva.ao",
-      password: await bcrypt.hash("demo123", 10),
-      fullName: "Maria Santos",
-      phone: "+244934567890",
-      userType: "cliente",
-      sms: null,
-      address: null,
-      bi: null,
-      profileImage: null,
-    };
-
-    // Check if users already exist
+    // Check if admin exists
     const existingAdmin = await storage.getUserByPhone(adminUser.phone);
-    const existingProprietario = await storage.getUserByPhone(demoProprietario.phone);
-    const existingCliente = await storage.getUserByPhone(demoCliente.phone);
 
     const admin = existingAdmin || await storage.createUser(adminUser);
-    const proprietario = existingProprietario || await storage.createUser(demoProprietario);
-    const cliente = existingCliente || await storage.createUser(demoCliente);
 
-    console.log("✓ Demo users created");
+    console.log("✓ Admin user ready");
     console.log(`  - Admin: ${admin.phone} / 123456789`);
-    console.log(`  - Proprietário: ${proprietario.phone} / demo123`);
-    console.log(`  - Cliente: ${cliente.phone} / demo123`);
 
     // Define demo properties with stable titles
     // Commented out to remove demo data from production

@@ -165,10 +165,10 @@ export const insertUserSchema = createInsertSchema(users).omit({
   phone: z.string().min(9, "Número de telefone inválido"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   username: z.string().optional(),
-  email: z.string().email().optional().nullable(),
+  email: z.string().email("Email inválido"),
   sms: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  bi: z.string().optional().nullable(),
+  address: z.string().min(5, "Endereço deve ter no mínimo 5 caracteres"),
+  bi: z.string().min(1, "BI ou Passaporte é obrigatório"),
   profileImage: z.string().optional().nullable(),
 });
 
