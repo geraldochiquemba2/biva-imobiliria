@@ -673,7 +673,7 @@ export default function CadastrarImovel() {
       className="min-h-screen pt-24 pb-12 bg-cover bg-center bg-fixed relative"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <div className="absolute inset-0 bg-background/95" />
+      <div className="absolute inset-0 bg-background/80" />
       <div className="max-w-3xl mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
