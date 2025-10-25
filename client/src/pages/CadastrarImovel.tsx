@@ -20,7 +20,7 @@ import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
 
 // Províncias e Municípios de Angola
 const PROVINCIAS_MUNICIPIOS: Record<string, string[]> = {
-  "Luanda": ["Luanda", "Belas", "Cacuaco", "Cazenga", "Icolo e Bengo", "Quiçama", "Viana"],
+  "Luanda": ["Luanda", "Belas", "Cacuaco", "Cazenga", "Icolo e Bengo", "Kilamba Kiaxi", "Quiçama", "Talatona", "Viana"],
   "Bengo": ["Ambriz", "Bula Atumba", "Dande", "Dembos", "Nambuangongo", "Pango Aluquém"],
   "Benguela": ["Benguela", "Baía Farta", "Balombo", "Bocoio", "Caimbambo", "Catumbela", "Chongorói", "Cubal", "Ganda", "Lobito"],
   "Bié": ["Kuito", "Andulo", "Camacupa", "Catabola", "Chinguar", "Chitembo", "Cuemba", "Cunhinga", "Nharea"],
@@ -67,9 +67,10 @@ const LOCATION_COORDINATES: Record<string, { lat: number; lon: number }> = {
   "Cacuaco": { lat: -8.7833, lon: 13.3667 },
   "Cazenga": { lat: -8.8500, lon: 13.2800 },
   "Icolo e Bengo": { lat: -9.0667, lon: 13.5000 },
+  "Kilamba Kiaxi": { lat: -8.8800, lon: 13.2500 },
   "Quiçama": { lat: -9.6833, lon: 13.6167 },
-  "Viana": { lat: -8.8889, lon: 13.3767 },
   "Talatona": { lat: -8.9167, lon: 13.1667 },
+  "Viana": { lat: -8.8889, lon: 13.3767 },
   
   // Municípios de Bengo
   "Ambriz": { lat: -7.8667, lon: 13.1167 },
