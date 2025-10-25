@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Building2, DollarSign, Upload, X, Star } from "lucide-react";
 import type { User } from "@shared/schema";
 import { z } from "zod";
+import backgroundImage from "@assets/stock_images/modern_house_buildin_4843f20c.jpg";
 
 // Províncias e Municípios de Angola
 const PROVINCIAS_MUNICIPIOS: Record<string, string[]> = {
@@ -305,8 +306,12 @@ export default function CadastrarImovel() {
   const availableMunicipios = selectedProvince ? PROVINCIAS_MUNICIPIOS[selectedProvince] || [] : [];
 
   return (
-    <div className="min-h-screen pt-24 pb-12">
-      <div className="max-w-3xl mx-auto px-6">
+    <div 
+      className="min-h-screen pt-24 pb-12 bg-cover bg-center bg-fixed relative"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
+      <div className="absolute inset-0 bg-background/95" />
+      <div className="max-w-3xl mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
