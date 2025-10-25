@@ -333,7 +333,6 @@ export default function MeusImoveis() {
                                     </CardDescription>
                                   </div>
                                   <div className="flex gap-2 flex-shrink-0">
-                                    <Badge data-testid={`badge-type-${property.id}`}>{property.type}</Badge>
                                     <Badge variant="outline" data-testid={`badge-category-${property.id}`}>
                                       {property.category}
                                     </Badge>
