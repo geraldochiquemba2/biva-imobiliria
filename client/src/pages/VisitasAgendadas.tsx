@@ -134,7 +134,7 @@ export default function VisitasAgendadas() {
                           </span>
                         </div>
 
-                        {currentUser?.userType !== 'cliente' && visit.cliente && (
+                        {!currentUser?.userTypes?.includes('cliente') && visit.cliente && (
                           <div className="flex items-center gap-2 text-sm">
                             <User className="h-4 w-4 text-muted-foreground" />
                             <span className="font-medium">Cliente:</span>

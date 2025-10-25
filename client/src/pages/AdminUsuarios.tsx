@@ -46,7 +46,7 @@ export default function AdminUsuarios() {
 
   const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ['/api/users'],
-    enabled: currentUser?.userType === 'admin',
+    enabled: currentUser?.userTypes?.includes('admin'),
   });
 
   const { data: selectedUserProperties = [] } = useQuery<Property[]>({
@@ -83,7 +83,7 @@ export default function AdminUsuarios() {
   useEffect(() => {
     if (!userLoading && !currentUser) {
       setLocation('/login');
-    } else if (currentUser && currentUser.userType !== 'admin') {
+    } else if (currentUser && !currentUser.userTypes?.includes('admin')) {
       setLocation('/dashboard');
     }
   }, [currentUser, userLoading, setLocation]);
@@ -96,7 +96,7 @@ export default function AdminUsuarios() {
     );
   }
 
-  if (!currentUser || currentUser.userType !== 'admin') {
+  if (!currentUser || !currentUser.userTypes?.includes('admin')) {
     return null;
   }
 
@@ -111,10 +111,10 @@ export default function AdminUsuarios() {
   };
 
   const usersByType = {
-    admin: users.filter(u => u.userType === 'admin'),
-    corretor: users.filter(u => u.userType === 'corretor'),
-    proprietario: users.filter(u => u.userType === 'proprietario'),
-    cliente: users.filter(u => u.userType === 'cliente'),
+    admin: users.filter(u => u.userTypes?.includes('admin')),
+    corretor: users.filter(u => u.userTypes?.includes('corretor')),
+    proprietario: users.filter(u => u.userTypes?.includes('proprietario')),
+    cliente: users.filter(u => u.userTypes?.includes('cliente')),
   };
 
   // Filter users based on search term
@@ -279,11 +279,13 @@ export default function AdminUsuarios() {
                                     {user.fullName}
                                   </h3>
                                   <div className="flex flex-wrap gap-2 mt-1">
-                                    <Badge variant="secondary" className="text-xs">
-                                      {user.userType === 'proprietario' ? 'Proprietário' :
-                                       user.userType === 'corretor' ? 'Corretor' :
-                                       user.userType === 'admin' ? 'Administrador' : 'Cliente'}
-                                    </Badge>
+                                    {user.userTypes?.map(type => (
+                                      <Badge key={type} variant="secondary" className="text-xs">
+                                        {type === 'proprietario' ? 'Proprietário' :
+                                         type === 'corretor' ? 'Corretor' :
+                                         type === 'admin' ? 'Administrador' : 'Cliente'}
+                                      </Badge>
+                                    ))}
                                     <Badge
                                       variant={user.status === 'ativo' ? 'default' : 'destructive'}
                                       className="text-xs"
@@ -317,7 +319,7 @@ export default function AdminUsuarios() {
                               </div>
 
                               <div className="flex flex-wrap gap-2">
-                                {(user.userType === 'proprietario' || user.userType === 'corretor') && (
+                                {(user.userTypes?.includes('proprietario') || user.userTypes?.includes('corretor')) && (
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -398,11 +400,13 @@ export default function AdminUsuarios() {
                                     {user.fullName}
                                   </h3>
                                   <div className="flex flex-wrap gap-2 mt-1">
-                                    <Badge variant="secondary" className="text-xs">
-                                      {user.userType === 'proprietario' ? 'Proprietário' :
-                                       user.userType === 'corretor' ? 'Corretor' :
-                                       user.userType === 'admin' ? 'Administrador' : 'Cliente'}
-                                    </Badge>
+                                    {user.userTypes?.map(type => (
+                                      <Badge key={type} variant="secondary" className="text-xs">
+                                        {type === 'proprietario' ? 'Proprietário' :
+                                         type === 'corretor' ? 'Corretor' :
+                                         type === 'admin' ? 'Administrador' : 'Cliente'}
+                                      </Badge>
+                                    ))}
                                     <Badge
                                       variant="destructive"
                                       className="text-xs"
@@ -436,7 +440,7 @@ export default function AdminUsuarios() {
                               </div>
 
                               <div className="flex flex-wrap gap-2">
-                                {(user.userType === 'proprietario' || user.userType === 'corretor') && (
+                                {(user.userTypes?.includes('proprietario') || user.userTypes?.includes('corretor')) && (
                                   <Button
                                     variant="outline"
                                     size="sm"

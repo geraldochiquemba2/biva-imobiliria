@@ -30,7 +30,7 @@ export default function AdminImoveis() {
   useEffect(() => {
     if (!userLoading && !currentUser) {
       setLocation('/login');
-    } else if (currentUser && currentUser.userType !== 'admin') {
+    } else if (currentUser && !currentUser.userTypes?.includes('admin')) {
       setLocation('/dashboard');
     }
   }, [currentUser, userLoading, setLocation]);
@@ -43,7 +43,7 @@ export default function AdminImoveis() {
     );
   }
 
-  if (!currentUser || currentUser.userType !== 'admin') {
+  if (!currentUser || !currentUser.userTypes?.includes('admin')) {
     return null;
   }
 

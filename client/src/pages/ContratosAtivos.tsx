@@ -153,7 +153,7 @@ export default function ContratosAtivos() {
                         </div>
 
                         <div className="space-y-3">
-                          {currentUser?.userType !== 'cliente' && contract.cliente && (
+                          {!currentUser?.userTypes?.includes('cliente') && contract.cliente && (
                             <div className="flex items-center gap-2 text-sm">
                               <User className="h-4 w-4 text-muted-foreground" />
                               <span className="font-medium">Cliente:</span>
@@ -163,7 +163,7 @@ export default function ContratosAtivos() {
                             </div>
                           )}
 
-                          {currentUser?.userType === 'cliente' && contract.proprietario && (
+                          {currentUser?.userTypes?.includes('cliente') && contract.proprietario && (
                             <div className="flex items-center gap-2 text-sm">
                               <User className="h-4 w-4 text-muted-foreground" />
                               <span className="font-medium">Proprietário:</span>

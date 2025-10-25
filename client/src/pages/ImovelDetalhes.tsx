@@ -394,9 +394,9 @@ export default function ImovelDetalhes() {
                               {property.owner.fullName}
                             </p>
                             <p className="text-xs text-muted-foreground capitalize">
-                              {property.owner.userType === 'proprietario' ? 'Proprietário' : 
-                               property.owner.userType === 'corretor' ? 'Corretor' : 
-                               property.owner.userType}
+                              {property.owner.userTypes?.includes('proprietario') ? 'Proprietário' : 
+                               property.owner.userTypes?.includes('corretor') ? 'Corretor' : 
+                               property.owner.userTypes?.join(' • ')}
                             </p>
                           </div>
                           <div className="space-y-1.5 text-sm">

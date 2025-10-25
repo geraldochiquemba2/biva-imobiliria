@@ -77,13 +77,16 @@ export default function CadastrarImovel() {
   useEffect(() => {
     if (!userLoading && !currentUser) {
       setLocation('/login');
-    } else if (!userLoading && currentUser && currentUser.userType !== 'proprietario' && currentUser.userType !== 'corretor') {
-      setLocation('/dashboard');
-      toast({
-        title: "Acesso negado",
-        description: "Apenas proprietários e corretores podem cadastrar imóveis",
-        variant: "destructive",
-      });
+    } else if (!userLoading && currentUser) {
+      const hasAccess = currentUser.userTypes?.includes('proprietario') || currentUser.userTypes?.includes('corretor');
+      if (!hasAccess) {
+        setLocation('/dashboard');
+        toast({
+          title: "Acesso negado",
+          description: "Apenas proprietários e corretores podem cadastrar imóveis",
+          variant: "destructive",
+        });
+      }
     }
   }, [currentUser, userLoading, setLocation, toast]);
 
@@ -293,7 +296,8 @@ export default function CadastrarImovel() {
     );
   }
 
-  if (!currentUser || (currentUser.userType !== 'proprietario' && currentUser.userType !== 'corretor')) {
+  const hasAccess = currentUser?.userTypes?.includes('proprietario') || currentUser?.userTypes?.includes('corretor');
+  if (!currentUser || !hasAccess) {
     return null;
   }
 

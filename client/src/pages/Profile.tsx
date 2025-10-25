@@ -82,6 +82,8 @@ export default function Profile() {
     corretor: 'Corretor',
     admin: 'Administrador',
   };
+  
+  const userRolesText = currentUser.userTypes?.map(type => userTypeLabels[type]).join(' • ') || '';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,7 +135,7 @@ export default function Profile() {
                 <div>
                   <CardTitle className="text-2xl">{currentUser.fullName}</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    {userTypeLabels[currentUser.userType]}
+                    {userRolesText}
                   </p>
                 </div>
               </div>
