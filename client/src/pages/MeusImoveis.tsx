@@ -100,7 +100,7 @@ export default function MeusImoveis() {
           <Button
             variant="ghost"
             asChild
-            className="mb-6"
+            className="mb-6 text-white hover:text-white"
             data-testid="button-back"
           >
             <Link href="/dashboard">
