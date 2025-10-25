@@ -10,6 +10,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { User } from "@shared/schema";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User as UserIcon, Mail, Phone, MessageSquare, MapPin, CreditCard } from "lucide-react";
+import usersImg from '@assets/stock_images/team_business_profes_5f1b3f15.jpg';
 
 export default function Profile() {
   const [, setLocation] = useLocation();
@@ -123,8 +124,13 @@ export default function Profile() {
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
+        <Card className="relative overflow-hidden">
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-20"
+            style={{ backgroundImage: `url(${usersImg})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+          <CardHeader className="relative z-10">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <Avatar className="h-20 w-20">
@@ -149,7 +155,7 @@ export default function Profile() {
               )}
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
