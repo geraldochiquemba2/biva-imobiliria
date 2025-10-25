@@ -32,6 +32,10 @@ export default function ImovelDetalhes() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [showRoute, setShowRoute] = useState(false);
+  const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
+  const [loadingLocation, setLoadingLocation] = useState(false);
 
   const { data: currentUser } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -114,29 +118,32 @@ export default function ImovelDetalhes() {
     }
 
     if (!navigator.geolocation) {
-      window.open(
-        `https://www.google.com/maps/dir/?api=1&destination=${property.latitude},${property.longitude}`,
-        '_blank'
-      );
+      toast({
+        title: "Geolocalização não suportada",
+        description: "Seu navegador não suporta geolocalização",
+        variant: "destructive",
+      });
       return;
     }
 
+    setLoadingLocation(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        window.open(
-          `https://www.google.com/maps/dir/?api=1&origin=${latitude},${longitude}&destination=${property.latitude},${property.longitude}`,
-          '_blank'
-        );
-      },
-      () => {
-        window.open(
-          `https://www.google.com/maps/dir/?api=1&destination=${property.latitude},${property.longitude}`,
-          '_blank'
-        );
+        setUserLocation({ lat: latitude, lng: longitude });
+        setShowRoute(true);
+        setLoadingLocation(false);
         toast({
-          title: "Geolocalização não disponível",
-          description: "Abrindo rota sem origem definida",
+          title: "Rota calculada!",
+          description: "A rota foi traçada no mapa",
+        });
+      },
+      (error) => {
+        setLoadingLocation(false);
+        toast({
+          title: "Erro ao obter localização",
+          description: "Não foi possível acessar sua localização. Verifique as permissões do navegador.",
+          variant: "destructive",
         });
       }
     );
@@ -343,15 +350,27 @@ export default function ImovelDetalhes() {
                           latitude={parseFloat(property.latitude)}
                           longitude={parseFloat(property.longitude)}
                           title={property.title}
+                          userLocation={showRoute ? userLocation : null}
+                          onRouteInfo={(distance, duration) => setRouteInfo({ distance, duration })}
                         />
+                        {routeInfo && showRoute && (
+                          <div className="flex items-center justify-between p-3 bg-primary/10 rounded-md border border-primary/20">
+                            <div className="flex items-center gap-2">
+                              <Navigation className="h-4 w-4 text-primary" />
+                              <span className="text-sm font-medium">Distância: {routeInfo.distance}</span>
+                            </div>
+                            <span className="text-sm font-medium">Tempo: {routeInfo.duration}</span>
+                          </div>
+                        )}
                         <Button
                           variant="outline"
                           className="w-full"
                           onClick={handleGetDirections}
+                          disabled={loadingLocation}
                           data-testid="button-get-directions"
                         >
                           <Navigation className="h-4 w-4 mr-2" />
-                          Ver Rota no Google Maps
+                          {loadingLocation ? "Obtendo localização..." : showRoute ? "Atualizar Rota" : "Ver Rota da Minha Localização"}
                         </Button>
                       </div>
                     )}
