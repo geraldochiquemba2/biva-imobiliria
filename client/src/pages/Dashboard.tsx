@@ -6,6 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import type { User, Property, Contract, Visit } from "@shared/schema";
 import { Building2, Calendar, FileText, Plus, Home, Users } from "lucide-react";
+import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
+import calendarImg from '@assets/stock_images/calendar_schedule_pl_ee22d3c7.jpg';
+import contractImg from '@assets/stock_images/contract_document_bu_dc6f6b53.jpg';
+import houseImg from '@assets/stock_images/real_estate_house_pr_f8d266a1.jpg';
+import usersImg from '@assets/stock_images/team_business_profes_5f1b3f15.jpg';
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -116,14 +121,19 @@ export default function Dashboard() {
           <div className={`grid grid-cols-1 md:grid-cols-2 ${hasRole('admin') ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mb-8`}>
             {hasRole('proprietario') && (
               <>
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                <Card className="hover-elevate relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${buildingImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                     <CardTitle className="text-sm font-medium">
                       Meus Imóveis
                     </CardTitle>
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="relative z-10">
                     <div className="text-2xl font-bold" data-testid="text-properties-count">
                       {propertiesLoading ? '...' : userProperties.length}
                     </div>
@@ -134,14 +144,19 @@ export default function Dashboard() {
                 </Card>
 
                 <Link href="/contratos-ativos">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${contractImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Contratos Ativos
                       </CardTitle>
                       <FileText className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-contracts-count">
                         {activeContracts.length}
                       </div>
@@ -153,14 +168,19 @@ export default function Dashboard() {
                 </Link>
 
                 <Link href="/visitas-agendadas">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${calendarImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Visitas Agendadas
                       </CardTitle>
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-visits-count">
                         {scheduledVisits.length}
                       </div>
@@ -176,14 +196,19 @@ export default function Dashboard() {
             {hasRole('cliente') && (
               <>
                 <Link href="/visitas-agendadas">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${calendarImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Visitas Agendadas
                       </CardTitle>
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-visits-count">
                         {scheduledVisits.length}
                       </div>
@@ -195,14 +220,19 @@ export default function Dashboard() {
                 </Link>
 
                 <Link href="/contratos-ativos">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${contractImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Contratos Ativos
                       </CardTitle>
                       <FileText className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-contracts-count">
                         {activeContracts.length}
                       </div>
@@ -213,14 +243,19 @@ export default function Dashboard() {
                   </Card>
                 </Link>
 
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                <Card className="hover-elevate relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${houseImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                     <CardTitle className="text-sm font-medium">
                       Imóveis Disponíveis
                     </CardTitle>
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="relative z-10">
                     <div className="text-2xl font-bold" data-testid="text-properties-count">
                       {propertiesLoading ? '...' : properties.length}
                     </div>
@@ -234,14 +269,19 @@ export default function Dashboard() {
 
             {hasRole('corretor') && (
               <>
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                <Card className="hover-elevate relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${buildingImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                     <CardTitle className="text-sm font-medium">
                       Imóveis Gerenciados
                     </CardTitle>
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="relative z-10">
                     <div className="text-2xl font-bold" data-testid="text-properties-count">
                       {propertiesLoading ? '...' : userProperties.length}
                     </div>
@@ -252,14 +292,19 @@ export default function Dashboard() {
                 </Card>
 
                 <Link href="/contratos-ativos">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${contractImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Contratos Ativos
                       </CardTitle>
                       <FileText className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-contracts-count">
                         {activeContracts.length}
                       </div>
@@ -271,14 +316,19 @@ export default function Dashboard() {
                 </Link>
 
                 <Link href="/visitas-agendadas">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${calendarImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Visitas Agendadas
                       </CardTitle>
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-visits-count">
                         {scheduledVisits.length}
                       </div>
@@ -294,14 +344,19 @@ export default function Dashboard() {
             {hasRole('admin') && (
               <>
                 <Link href="/admin/imoveis">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${buildingImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Total de Imóveis
                       </CardTitle>
                       <Building2 className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-properties-count">
                         {propertiesLoading ? '...' : userProperties.length}
                       </div>
@@ -313,14 +368,19 @@ export default function Dashboard() {
                 </Link>
 
                 <Link href="/contratos-ativos">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${contractImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Contratos Ativos
                       </CardTitle>
                       <FileText className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-contracts-count">
                         {activeContracts.length}
                       </div>
@@ -332,14 +392,19 @@ export default function Dashboard() {
                 </Link>
 
                 <Link href="/visitas-agendadas">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${calendarImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Visitas Agendadas
                       </CardTitle>
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-visits-count">
                         {scheduledVisits.length}
                       </div>
@@ -351,16 +416,20 @@ export default function Dashboard() {
                 </Link>
 
                 <Link href="/admin/usuarios">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2">
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${usersImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
                         Gerenciar Usuários
                       </CardTitle>
                       <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-users-count">
-                        {/* Users count will be shown dynamically */}
                         •••
                       </div>
                       <p className="text-xs text-muted-foreground">
