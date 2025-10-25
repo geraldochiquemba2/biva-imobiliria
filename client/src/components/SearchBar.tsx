@@ -28,7 +28,7 @@ export default function SearchBar() {
             data-testid="button-search"
           >
             <Search className="h-5 w-5 mr-2" />
-            Pesquisar
+            Pesquisar Imóveis
           </Button>
 
           <div className="text-sm text-muted-foreground text-center">
