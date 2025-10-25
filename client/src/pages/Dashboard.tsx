@@ -322,14 +322,19 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {(hasRole('proprietario') || hasRole('corretor')) && (
-              <Card>
-                <CardHeader>
+              <Card className="relative overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-20"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                <CardHeader className="relative z-10">
                   <CardTitle>Meus Imóveis</CardTitle>
                   <CardDescription>
                     Gerencie seus imóveis cadastrados na plataforma
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="relative z-10">
                   {propertiesLoading ? (
                     <div className="flex justify-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -382,14 +387,19 @@ export default function Dashboard() {
             )}
 
             {hasRole('cliente') && (
-              <Card>
-                <CardHeader>
+              <Card className="relative overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-20"
+                  style={{ backgroundImage: `url(${houseImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                <CardHeader className="relative z-10">
                   <CardTitle>Encontre seu Imóvel Ideal</CardTitle>
                   <CardDescription>
                     Explore nossa seleção de imóveis disponíveis
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="text-center py-8">
+                <CardContent className="text-center py-8 relative z-10">
                   <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground mb-6">
                     Navegue pelos imóveis disponíveis para encontrar o perfeito para você
