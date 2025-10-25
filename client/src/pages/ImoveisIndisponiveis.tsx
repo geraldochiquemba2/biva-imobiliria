@@ -5,14 +5,24 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import type { User, Property } from "@shared/schema";
 import { 
   ArrowLeft, 
   MapPin, 
   Home,
   Eye,
-  Check,
-  Trash2
+  MoreVertical,
+  Trash2,
+  CheckCircle,
+  HandCoins,
+  ShoppingCart
 } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
 import { useToast } from "@/hooks/use-toast";
@@ -30,21 +40,27 @@ export default function ImoveisIndisponiveis() {
     queryKey: ['/api/properties'],
   });
 
-  const markAsAvailableMutation = useMutation({
-    mutationFn: async (propertyId: string) => {
-      return await apiRequest('PATCH', `/api/properties/${propertyId}`, { status: 'disponivel' });
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ propertyId, status }: { propertyId: string; status: string }) => {
+      return await apiRequest('PATCH', `/api/properties/${propertyId}`, { status });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      const statusMessages: Record<string, string> = {
+        'disponivel': 'disponível',
+        'indisponivel': 'indisponível',
+        'arrendado': 'arrendado',
+        'vendido': 'vendido',
+      };
       toast({
         title: "Sucesso",
-        description: "Imóvel marcado como disponível",
+        description: `Imóvel marcado como ${statusMessages[variables.status]}`,
       });
     },
     onError: () => {
       toast({
         title: "Erro",
-        description: "Erro ao marcar imóvel como disponível",
+        description: "Erro ao atualizar status do imóvel",
         variant: "destructive",
       });
     }
@@ -286,35 +302,54 @@ export default function ImoveisIndisponiveis() {
                               })}
                             </p>
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            onClick={() => markAsAvailableMutation.mutate(property.id)}
-                            disabled={markAsAvailableMutation.isPending}
-                            data-testid={`button-mark-available-${property.id}`}
-                            title="Marcar como disponível"
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            onClick={() => {
-                              if (confirm("Tem certeza que deseja eliminar este imóvel?")) {
-                                deletePropertyMutation.mutate(property.id);
-                              }
-                            }}
-                            disabled={deletePropertyMutation.isPending}
-                            data-testid={`button-delete-${property.id}`}
-                            title="Eliminar imóvel"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
                           <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
                             <Link href={`/imoveis/${property.id}`}>
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="icon" data-testid={`button-actions-${property.id}`}>
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'disponivel' })}
+                                data-testid={`action-available-${property.id}`}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Marcar como Disponível
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'arrendado' })}
+                                data-testid={`action-rented-${property.id}`}
+                              >
+                                <HandCoins className="h-4 w-4 mr-2" />
+                                Marcar como Arrendado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'vendido' })}
+                                data-testid={`action-sold-${property.id}`}
+                              >
+                                <ShoppingCart className="h-4 w-4 mr-2" />
+                                Marcar como Vendido
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  if (confirm("Tem certeza que deseja eliminar este imóvel?")) {
+                                    deletePropertyMutation.mutate(property.id);
+                                  }
+                                }}
+                                className="text-destructive focus:text-destructive"
+                                data-testid={`action-delete-${property.id}`}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
                     </div>
