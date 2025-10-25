@@ -86,16 +86,23 @@ export default function ExplorarMapa() {
 
         mapRef.current = map;
 
-        // Force map to recalculate size
-        requestAnimationFrame(() => {
+        // Force map to recalculate size multiple times
+        const invalidateSize = () => {
           if (mapRef.current) {
             mapRef.current.invalidateSize();
           }
+        };
+
+        requestAnimationFrame(() => {
+          invalidateSize();
+          setTimeout(invalidateSize, 100);
+          setTimeout(invalidateSize, 300);
+          setTimeout(invalidateSize, 500);
         });
       } catch (error) {
         console.error('Error initializing map:', error);
       }
-    }, 250);
+    }, 100);
 
     return () => {
       clearTimeout(timer);
