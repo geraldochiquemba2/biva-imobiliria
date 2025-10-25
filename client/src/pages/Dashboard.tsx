@@ -24,21 +24,23 @@ export default function Dashboard() {
     }
   }, [currentUser, userLoading, setLocation]);
 
-  const userProperties = currentUser?.userType === 'admin' || currentUser?.userType === 'corretor' 
+  const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
+  
+  const userProperties = hasRole('admin') || hasRole('corretor')
     ? properties 
     : properties.filter(p => p.ownerId === (currentUser?.id || ''));
 
   const { data: userContracts = [] } = useQuery<Contract[]>({
     queryKey: [`/api/users/${currentUser?.id}/contracts`],
-    enabled: !!currentUser?.id && (currentUser?.userType === 'cliente' || currentUser?.userType === 'proprietario'),
+    enabled: !!currentUser?.id && (hasRole('cliente') || hasRole('proprietario')),
   });
 
   const { data: allContracts = [] } = useQuery<Contract[]>({
     queryKey: ['/api/contracts'],
-    enabled: !!currentUser?.id && (currentUser?.userType === 'admin' || currentUser?.userType === 'corretor'),
+    enabled: !!currentUser?.id && (hasRole('admin') || hasRole('corretor')),
   });
 
-  const contracts = currentUser?.userType === 'admin' || currentUser?.userType === 'corretor' 
+  const contracts = hasRole('admin') || hasRole('corretor')
     ? allContracts 
     : userContracts;
 
@@ -49,7 +51,7 @@ export default function Dashboard() {
       if (!response.ok) throw new Error('Failed to fetch visits');
       return response.json();
     },
-    enabled: !!currentUser?.id && currentUser?.userType === 'cliente',
+    enabled: !!currentUser?.id && hasRole('cliente'),
   });
 
   const { data: propertyVisits = [] } = useQuery<Visit[]>({
@@ -65,10 +67,10 @@ export default function Dashboard() {
       }
       return allVisits;
     },
-    enabled: !!currentUser?.id && (currentUser?.userType === 'proprietario' || currentUser?.userType === 'corretor' || currentUser?.userType === 'admin') && userProperties.length > 0,
+    enabled: !!currentUser?.id && (hasRole('proprietario') || hasRole('corretor') || hasRole('admin')) && userProperties.length > 0,
   });
 
-  const visits = currentUser?.userType === 'cliente' ? clientVisits : propertyVisits;
+  const allVisits = [...clientVisits, ...propertyVisits];
 
   if (userLoading) {
     return (
@@ -88,9 +90,11 @@ export default function Dashboard() {
     corretor: 'Corretor',
     admin: 'Administrador',
   };
+  
+  const userRolesText = currentUser.userTypes?.map(type => userTypeLabels[type]).join(' • ') || '';
 
   const activeContracts = contracts.filter(c => c.status === 'ativo');
-  const scheduledVisits = visits.filter(v => v.status === 'agendada');
+  const scheduledVisits = allVisits.filter(v => v.status === 'agendada');
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -105,12 +109,12 @@ export default function Dashboard() {
               Bem-vindo, {currentUser.fullName}
             </h1>
             <p className="text-muted-foreground" data-testid="text-user-type">
-              {userTypeLabels[currentUser.userType]}
+              {userRolesText}
             </p>
           </div>
 
-          <div className={`grid grid-cols-1 md:grid-cols-2 ${currentUser.userType === 'admin' ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mb-8`}>
-            {currentUser.userType === 'proprietario' && (
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${hasRole('admin') ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mb-8`}>
+            {hasRole('proprietario') && (
               <>
                 <Card className="hover-elevate">
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
@@ -169,7 +173,7 @@ export default function Dashboard() {
               </>
             )}
 
-            {currentUser.userType === 'cliente' && (
+            {hasRole('cliente') && (
               <>
                 <Link href="/visitas-agendadas">
                   <Card className="hover-elevate cursor-pointer active-elevate-2">
@@ -228,7 +232,7 @@ export default function Dashboard() {
               </>
             )}
 
-            {currentUser.userType === 'corretor' && (
+            {hasRole('corretor') && (
               <>
                 <Card className="hover-elevate">
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
@@ -287,7 +291,7 @@ export default function Dashboard() {
               </>
             )}
 
-            {currentUser.userType === 'admin' && (
+            {hasRole('admin') && (
               <>
                 <Link href="/admin/imoveis">
                   <Card className="hover-elevate cursor-pointer active-elevate-2">
@@ -369,7 +373,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          {currentUser.userType === 'proprietario' && (
+          {hasRole('proprietario') && (
             <Card>
               <CardHeader>
                 <CardTitle>Meus Imóveis</CardTitle>
@@ -429,7 +433,7 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {currentUser.userType === 'cliente' && (
+          {hasRole('cliente') && (
             <Card>
               <CardHeader>
                 <CardTitle>Encontre seu Imóvel Ideal</CardTitle>
@@ -451,7 +455,7 @@ export default function Dashboard() {
             </Card>
           )}
 
-          {currentUser.userType === 'corretor' && (
+          {hasRole('corretor') && (
             <Card>
               <CardHeader>
                 <CardTitle>Painel do Corretor</CardTitle>
