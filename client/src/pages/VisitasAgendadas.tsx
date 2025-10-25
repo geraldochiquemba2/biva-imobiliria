@@ -6,6 +6,7 @@ import { Building2, Calendar, Clock, MapPin, User } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
+import emptyStateImage from "@assets/stock_images/empty_calendar_sched_60cbbdfd.jpg";
 
 interface Visit {
   id: string;
@@ -65,14 +66,20 @@ export default function VisitasAgendadas() {
           </div>
 
           {scheduledVisits.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Calendar className="h-16 w-16 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhuma visita agendada</h3>
-                <p className="text-muted-foreground text-center max-w-md">
-                  Você ainda não possui visitas agendadas. Quando você agendar uma visita a um imóvel, ela aparecerá aqui.
-                </p>
-              </CardContent>
+            <Card className="overflow-hidden">
+              <div 
+                className="relative bg-cover bg-center"
+                style={{ backgroundImage: `url(${emptyStateImage})` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/50" />
+                <CardContent className="relative flex flex-col items-center justify-center py-16 text-white">
+                  <Calendar className="h-16 w-16 mb-4 opacity-90" />
+                  <h3 className="text-lg font-semibold mb-2">Nenhuma visita agendada</h3>
+                  <p className="text-white/90 text-center max-w-md">
+                    Você ainda não possui visitas agendadas. Quando você agendar uma visita a um imóvel, ela aparecerá aqui.
+                  </p>
+                </CardContent>
+              </div>
             </Card>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
