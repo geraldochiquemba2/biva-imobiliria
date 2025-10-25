@@ -163,6 +163,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "Número de telefone ou senha incorretos" });
       }
       
+      // Check if user is blocked
+      if (user.status === 'bloqueado') {
+        return res.status(403).json({ error: "Sua conta foi bloqueada. Entre em contato com o administrador." });
+      }
+      
       // Verify password
       const validPassword = await bcrypt.compare(credentials.password, user.password);
       if (!validPassword) {
@@ -201,6 +206,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(req.session.userId!);
       if (!user) {
         return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      // Check if user is blocked
+      if (user.status === 'bloqueado') {
+        // Destroy session for blocked users
+        req.session.destroy(() => {});
+        return res.status(403).json({ error: "Sua conta foi bloqueada. Entre em contato com o administrador." });
       }
       
       const { password, ...userWithoutPassword } = user;
