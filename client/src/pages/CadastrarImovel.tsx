@@ -588,19 +588,18 @@ export default function CadastrarImovel() {
   const findClosestLocation = (lat: number, lng: number) => {
     let closestProvince = '';
     let closestMunicipio = '';
-    let minDistance = Infinity;
+    let minDistanceOverall = Infinity;
 
-    // Check all locations in LOCATION_COORDINATES
+    // First, find the closest municipality
     Object.entries(LOCATION_COORDINATES).forEach(([name, coords]) => {
       const distance = calculateDistance(lat, lng, coords.lat, coords.lon);
       
-      if (distance < minDistance) {
-        minDistance = distance;
+      if (distance < minDistanceOverall) {
+        minDistanceOverall = distance;
         
         // Check if this is a province
         if (PROVINCIAS_MUNICIPIOS[name]) {
           closestProvince = name;
-          closestMunicipio = ''; // Reset municipality if we found a closer province
         } else {
           // It's a municipality, find which province it belongs to
           for (const [provincia, municipios] of Object.entries(PROVINCIAS_MUNICIPIOS)) {
@@ -613,6 +612,29 @@ export default function CadastrarImovel() {
         }
       }
     });
+
+    // If we only found a province (not a specific municipality), find the closest municipality within that province
+    if (closestProvince && !closestMunicipio) {
+      let minMunicipioDistance = Infinity;
+      const municipios = PROVINCIAS_MUNICIPIOS[closestProvince] || [];
+      
+      municipios.forEach((municipio) => {
+        if (LOCATION_COORDINATES[municipio]) {
+          const coords = LOCATION_COORDINATES[municipio];
+          const distance = calculateDistance(lat, lng, coords.lat, coords.lon);
+          
+          if (distance < minMunicipioDistance) {
+            minMunicipioDistance = distance;
+            closestMunicipio = municipio;
+          }
+        }
+      });
+      
+      // If no municipality was found, use the first one from the province
+      if (!closestMunicipio && municipios.length > 0) {
+        closestMunicipio = municipios[0];
+      }
+    }
 
     return { provincia: closestProvince, municipio: closestMunicipio };
   };
@@ -629,13 +651,17 @@ export default function CadastrarImovel() {
         setValue('provincia', provincia);
         setSelectedProvince(provincia);
         
+        // Always set municipality along with province
         if (municipio) {
-          setValue('municipio', municipio);
+          // Need to wait for the province to update before setting municipality
+          setTimeout(() => {
+            setValue('municipio', municipio);
+          }, 0);
         }
         
         toast({
           title: "Localização detectada",
-          description: `${municipio || provincia}, Angola`,
+          description: `${municipio}, ${provincia}`,
         });
       }
     }
