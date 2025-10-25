@@ -78,8 +78,11 @@ export default function Home() {
     minPrice: string;
     maxPrice: string;
   }) => {
-    const newParams: any = { type: params.type };
+    const newParams: any = {};
     
+    if (params.type) {
+      newParams.type = params.type;
+    }
     if (params.provincia) {
       newParams.provincia = params.provincia;
     }

@@ -52,48 +52,16 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
   const handleCategoryChange = (value: string) => {
     setCategory(value);
-    const newBedrooms = (value === 'Terreno' || value === 'Comercial') ? '' : bedrooms;
-    const newLivingRooms = (value === 'Terreno' || value === 'Comercial') ? '' : livingRooms;
-    const newKitchens = (value === 'Terreno' || value === 'Comercial') ? '' : kitchens;
-    
     if (value === 'Terreno' || value === 'Comercial') {
       setBedrooms('');
       setLivingRooms('');
       setKitchens('');
-    }
-    
-    if (onSearch && propertyType) {
-      onSearch({ 
-        type: propertyType as 'Arrendar' | 'Vender', 
-        provincia, 
-        municipio, 
-        category: value, 
-        bedrooms: newBedrooms, 
-        livingRooms: newLivingRooms, 
-        kitchens: newKitchens, 
-        minPrice, 
-        maxPrice 
-      });
     }
   };
 
   const handleProvinciaChange = (value: string) => {
     setProvincia(value);
     setMunicipio('');
-    
-    if (onSearch && propertyType) {
-      onSearch({ 
-        type: propertyType as 'Arrendar' | 'Vender', 
-        provincia: value, 
-        municipio: '', 
-        category, 
-        bedrooms, 
-        livingRooms, 
-        kitchens, 
-        minPrice, 
-        maxPrice 
-      });
-    }
   };
 
   const resetFilters = () => {
@@ -114,11 +82,6 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   const hasActiveFilters = propertyType || provincia || municipio || category || bedrooms || livingRooms || kitchens || minPrice || maxPrice;
   const showRoomFilters = category === 'Casa' || category === 'Apartamento';
 
-  useEffect(() => {
-    if (propertyType && onSearch) {
-      onSearch({ type: propertyType as 'Arrendar' | 'Vender', provincia, municipio, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
-    }
-  }, [propertyType]);
 
   return (
     <motion.div
