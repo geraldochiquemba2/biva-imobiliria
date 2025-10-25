@@ -234,3 +234,7 @@ export type Proposal = typeof proposals.$inferSelect;
 
 export type InsertPayment = z.infer<typeof insertPaymentSchema>;
 export type Payment = typeof payments.$inferSelect;
+
+export type PropertyWithOwner = Property & {
+  owner: Omit<User, 'password'>;
+};

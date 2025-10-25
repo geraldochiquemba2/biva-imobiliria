@@ -33,7 +33,7 @@ export interface IStorage {
   listUsers(): Promise<User[]>;
   
   // Property methods
-  getProperty(id: string): Promise<Property | undefined>;
+  getProperty(id: string): Promise<any | undefined>;
   listProperties(params?: SearchPropertyParams): Promise<Property[]>;
   createProperty(property: InsertProperty): Promise<Property>;
   updateProperty(id: string, property: Partial<InsertProperty>): Promise<Property | undefined>;
@@ -118,9 +118,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Property methods
-  async getProperty(id: string): Promise<Property | undefined> {
-    const [property] = await db.select().from(properties).where(eq(properties.id, id));
-    return property || undefined;
+  async getProperty(id: string): Promise<any | undefined> {
+    const result = await db.query.properties.findFirst({
+      where: eq(properties.id, id),
+      with: {
+        owner: true,
+      },
+    });
+    return result || undefined;
   }
 
   async listProperties(params?: SearchPropertyParams): Promise<Property[]> {

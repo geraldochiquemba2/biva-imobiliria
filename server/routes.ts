@@ -290,7 +290,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!property) {
         return res.status(404).json({ error: "Imóvel não encontrado" });
       }
-      res.json(property);
+      
+      if (property.owner) {
+        const { password, ...ownerWithoutPassword } = property.owner;
+        res.json({ ...property, owner: ownerWithoutPassword });
+      } else {
+        res.json(property);
+      }
     } catch (error) {
       console.error('Error getting property:', error);
       res.status(500).json({ error: "Falha ao buscar imóvel" });

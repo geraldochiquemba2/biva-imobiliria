@@ -6,9 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Property, User } from "@shared/schema";
+import type { PropertyWithOwner, User } from "@shared/schema";
 import {
   ArrowLeft,
   MapPin,
@@ -21,6 +22,7 @@ import {
   Phone,
   Mail,
   Share2,
+  User as UserIcon,
 } from "lucide-react";
 
 export default function ImovelDetalhes() {
@@ -33,7 +35,7 @@ export default function ImovelDetalhes() {
     queryKey: ['/api/auth/me'],
   });
 
-  const { data: property, isLoading, error } = useQuery<Property>({
+  const { data: property, isLoading, error } = useQuery<PropertyWithOwner>({
     queryKey: ['/api/properties', params?.id],
     queryFn: async () => {
       const response = await fetch(`/api/properties/${params?.id}`);
@@ -357,7 +359,7 @@ export default function ImovelDetalhes() {
                       asChild
                       data-testid="button-contact"
                     >
-                      <a href={`tel:+244`}>
+                      <a href={`tel:${property.owner?.phone || ''}`}>
                         <Phone className="h-5 w-5 mr-2" />
                         Ligar Agora
                       </a>
@@ -376,16 +378,43 @@ export default function ImovelDetalhes() {
 
                   <Separator />
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Mail className="h-4 w-4" />
-                      <span>contato@biva.ao</span>
+                  {property.owner && (
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium">Publicado por</p>
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={property.owner.profileImage || undefined} />
+                          <AvatarFallback>
+                            {property.owner.fullName.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div>
+                            <p className="font-medium text-sm" data-testid="text-owner-name">
+                              {property.owner.fullName}
+                            </p>
+                            <p className="text-xs text-muted-foreground capitalize">
+                              {property.owner.userType === 'proprietario' ? 'Proprietário' : 
+                               property.owner.userType === 'corretor' ? 'Corretor' : 
+                               property.owner.userType}
+                            </p>
+                          </div>
+                          <div className="space-y-1.5 text-sm">
+                            {property.owner.email && (
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                                <span className="truncate" data-testid="text-owner-email">{property.owner.email}</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                              <span data-testid="text-owner-phone">{property.owner.phone}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Phone className="h-4 w-4" />
-                      <span>+244 xxx xxx xxx</span>
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
