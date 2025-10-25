@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
@@ -10,12 +10,17 @@ import {
   ArrowLeft, 
   MapPin, 
   Home,
-  Eye
+  Eye,
+  Check,
+  Trash2
 } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function ImoveisIndisponiveis() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -23,6 +28,52 @@ export default function ImoveisIndisponiveis() {
 
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
+  });
+
+  const markAsAvailableMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      return await apiRequest(`/api/properties/${propertyId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'disponivel' }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Sucesso",
+        description: "Imóvel marcado como disponível",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Erro ao marcar imóvel como disponível",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      return await apiRequest(`/api/properties/${propertyId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Sucesso",
+        description: "Imóvel eliminado com sucesso",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Erro ao eliminar imóvel",
+        variant: "destructive",
+      });
+    }
   });
 
   useEffect(() => {
@@ -241,6 +292,30 @@ export default function ImoveisIndisponiveis() {
                               })}
                             </p>
                           </div>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            onClick={() => markAsAvailableMutation.mutate(property.id)}
+                            disabled={markAsAvailableMutation.isPending}
+                            data-testid={`button-mark-available-${property.id}`}
+                            title="Marcar como disponível"
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            onClick={() => {
+                              if (confirm("Tem certeza que deseja eliminar este imóvel?")) {
+                                deletePropertyMutation.mutate(property.id);
+                              }
+                            }}
+                            disabled={deletePropertyMutation.isPending}
+                            data-testid={`button-delete-${property.id}`}
+                            title="Eliminar imóvel"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                           <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
                             <Link href={`/imoveis/${property.id}`}>
                               <Eye className="h-4 w-4" />
