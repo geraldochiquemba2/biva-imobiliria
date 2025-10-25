@@ -213,7 +213,7 @@ export default function ExplorarMapa() {
   };
 
   // Show route to a property
-  const showRoute = (property: Property) => {
+  const showRoute = async (property: Property) => {
     if (!userLocation || !property.latitude || !property.longitude || !mapRef.current) {
       toast({
         title: "Impossível mostrar rota",
@@ -232,32 +232,69 @@ export default function ExplorarMapa() {
       parseFloat(property.longitude)
     ];
 
-    // Draw a line between user and property
-    const route = L.polyline([userLocation, propertyLocation], {
-      color: '#2563eb',
-      weight: 4,
-      opacity: 0.7,
-      dashArray: '10, 10',
-    }).addTo(mapRef.current);
+    try {
+      // Fetch real route from OSRM API
+      const response = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${userLocation[1]},${userLocation[0]};${propertyLocation[1]},${propertyLocation[0]}?overview=full&geometries=geojson`
+      );
+      
+      if (!response.ok) throw new Error('Erro ao buscar rota');
+      
+      const data = await response.json();
+      
+      if (data.routes && data.routes.length > 0) {
+        const routeData = data.routes[0];
+        const coordinates = routeData.geometry.coordinates.map((coord: number[]) => [coord[1], coord[0]]);
+        
+        // Draw the real route with curves
+        const route = L.polyline(coordinates, {
+          color: '#2563eb',
+          weight: 4,
+          opacity: 0.7,
+        }).addTo(mapRef.current!);
 
-    routeLayersRef.current.push(route);
+        routeLayersRef.current.push(route);
 
-    // Fit bounds to show both points
-    mapRef.current.fitBounds([userLocation, propertyLocation], { padding: [50, 50] });
+        // Fit bounds to show both points and the route
+        mapRef.current!.fitBounds(route.getBounds(), { padding: [50, 50] });
 
-    setSelectedProperty(property);
-    
-    const distance = calculateDistance(
-      userLocation[0],
-      userLocation[1],
-      parseFloat(property.latitude),
-      parseFloat(property.longitude)
-    );
+        setSelectedProperty(property);
+        
+        const distanceKm = (routeData.distance / 1000).toFixed(2);
+        const durationMin = Math.round(routeData.duration / 60);
 
-    toast({
-      title: "Rota traçada",
-      description: `Distância aproximada: ${distance.toFixed(2)} km`,
-    });
+        toast({
+          title: "Rota calculada",
+          description: `${distanceKm} km • ${durationMin} min de viagem`,
+        });
+      } else {
+        throw new Error('Nenhuma rota encontrada');
+      }
+    } catch (error) {
+      // Fallback to straight line if route calculation fails
+      const route = L.polyline([userLocation, propertyLocation], {
+        color: '#2563eb',
+        weight: 4,
+        opacity: 0.7,
+        dashArray: '10, 10',
+      }).addTo(mapRef.current!);
+
+      routeLayersRef.current.push(route);
+      mapRef.current!.fitBounds([userLocation, propertyLocation], { padding: [50, 50] });
+      setSelectedProperty(property);
+      
+      const distance = calculateDistance(
+        userLocation[0],
+        userLocation[1],
+        parseFloat(property.latitude),
+        parseFloat(property.longitude)
+      );
+
+      toast({
+        title: "Rota aproximada",
+        description: `Distância em linha reta: ${distance.toFixed(2)} km`,
+      });
+    }
   };
 
   const clearRoutes = () => {
