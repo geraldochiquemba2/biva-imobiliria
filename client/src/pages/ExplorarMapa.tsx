@@ -96,10 +96,15 @@ export default function ExplorarMapa() {
           iconAnchor: [15, 30],
         });
 
+        const imageHtml = property.images && property.images.length > 0 
+          ? `<img src="${property.images[0]}" alt="${property.title}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;" />`
+          : '';
+
         const marker = L.marker([lat, lng], { icon: customIcon })
           .addTo(mapRef.current!)
           .bindPopup(`
-            <div style="min-width: 200px;">
+            <div style="min-width: 220px; max-width: 250px;">
+              ${imageHtml}
               <h3 style="margin: 0 0 8px 0; font-weight: bold; font-size: 14px;">${property.title}</h3>
               <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">${property.bairro}, ${property.municipio}</p>
               <p style="margin: 0 0 8px 0; font-weight: bold; color: ${iconColor};">${formatAOA(property.price)}</p>
