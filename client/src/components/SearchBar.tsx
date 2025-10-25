@@ -71,7 +71,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     if (propertyType && onSearch) {
       onSearch({ type: propertyType as 'Arrendar' | 'Vender', location, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
     }
-  }, [propertyType]);
+  }, [propertyType, category, location]);
 
   return (
     <motion.div
