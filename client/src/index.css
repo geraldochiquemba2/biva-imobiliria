@@ -358,9 +358,11 @@
 
   /* Leaflet map styles */
   .leaflet-container {
-    height: 100%;
-    width: 100%;
+    height: 100% !important;
+    width: 100% !important;
+    position: relative !important;
     z-index: 1;
+    background: #f0f0f0;
   }
 
   .leaflet-pane {
@@ -401,5 +403,13 @@
 
   .leaflet-tile {
     filter: brightness(0.95);
+  }
+
+  .leaflet-tile-container {
+    z-index: 1;
+  }
+
+  .leaflet-control-container {
+    z-index: 800;
   }
 }

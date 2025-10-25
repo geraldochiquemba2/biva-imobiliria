@@ -420,10 +420,11 @@ export default function ExplorarMapa() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   <div 
                     ref={mapContainerRef} 
-                    className="w-full h-[450px] rounded-md overflow-hidden border"
+                    className="w-full h-[450px] rounded-md border"
+                    style={{ minHeight: '450px', position: 'relative' }}
                     data-testid="map-container"
                   />
                   
