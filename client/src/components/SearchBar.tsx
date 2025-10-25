@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,6 +66,12 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
   const hasActiveFilters = propertyType || location || category || bedrooms || livingRooms || kitchens || minPrice || maxPrice;
   const showRoomFilters = category === 'Casa' || category === 'Apartamento';
+
+  useEffect(() => {
+    if (propertyType && onSearch) {
+      onSearch({ type: propertyType as 'Arrendar' | 'Vender', location, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
+    }
+  }, [propertyType]);
 
   return (
     <motion.div
