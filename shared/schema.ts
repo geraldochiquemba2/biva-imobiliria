@@ -12,7 +12,7 @@ export const users = pgTable("users", {
   fullName: text("full_name").notNull(),
   phone: text("phone").notNull().unique(),
   sms: text("sms"),
-  userType: text("user_type").notNull(), // 'proprietario', 'cliente', 'corretor', 'admin'
+  userTypes: text("user_types").array().notNull(), // ['proprietario', 'cliente', 'corretor', 'admin']
   status: text("status").notNull().default('ativo'), // 'ativo', 'bloqueado'
   address: text("address"),
   bi: text("bi"),
@@ -165,11 +165,12 @@ export const insertUserSchema = createInsertSchema(users).omit({
   phone: z.string().min(9, "Número de telefone inválido"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   username: z.string().optional(),
-  email: z.string().email("Email inválido"),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
   sms: z.string().optional().nullable(),
   address: z.string().min(5, "Endereço deve ter no mínimo 5 caracteres"),
   bi: z.string().min(1, "BI ou Passaporte é obrigatório"),
   profileImage: z.string().optional().nullable(),
+  userTypes: z.array(z.enum(['proprietario', 'cliente', 'corretor', 'admin'])).min(1, "Selecione pelo menos um tipo de conta"),
 });
 
 export const loginSchema = z.object({
