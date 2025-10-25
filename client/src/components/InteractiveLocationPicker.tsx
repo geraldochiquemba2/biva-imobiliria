@@ -32,13 +32,17 @@ export default function InteractiveLocationPicker({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const map = L.map(mapContainerRef.current).setView([latitude, longitude], 13);
+    // Ensure valid coordinates
+    const lat = latitude || -8.8383;
+    const lng = longitude || 13.2344;
+
+    const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    const marker = L.marker([latitude, longitude]).addTo(map);
+    const marker = L.marker([lat, lng]).addTo(map);
     
     map.on('click', (e: L.LeafletMouseEvent) => {
       const { lat, lng } = e.latlng;
@@ -57,7 +61,7 @@ export default function InteractiveLocationPicker({
   }, []);
 
   useEffect(() => {
-    if (markerRef.current && mapRef.current) {
+    if (markerRef.current && mapRef.current && latitude && longitude) {
       markerRef.current.setLatLng([latitude, longitude]);
       mapRef.current.setView([latitude, longitude], mapRef.current.getZoom());
     }
@@ -144,7 +148,7 @@ export default function InteractiveLocationPicker({
       />
       
       <p className="text-xs text-muted-foreground" data-testid="text-coordinates">
-        Coordenadas: {latitude.toFixed(6)}, {longitude.toFixed(6)}
+        Coordenadas: {(latitude || 0).toFixed(6)}, {(longitude || 0).toFixed(6)}
       </p>
     </div>
   );
