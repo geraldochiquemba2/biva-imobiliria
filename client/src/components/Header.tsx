@@ -80,7 +80,8 @@ export default function Header() {
               <img 
                 src={logoImage} 
                 alt="BIVA Imobiliária" 
-                className="h-20 w-auto dark:brightness-0 dark:invert transition-all"
+                className="h-16 sm:h-20 w-auto object-contain dark:brightness-0 dark:invert transition-all"
+                style={{ aspectRatio: 'auto' }}
               />
             </div>
           </Link>
