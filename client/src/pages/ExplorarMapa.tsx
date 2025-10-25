@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Navigation, MapPin, Home, Ruler, DollarSign, X } from "lucide-react";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import type { Property } from "@shared/schema";
 import { formatAOA } from "@/lib/currency";
 import { Link } from "wouter";
