@@ -72,8 +72,6 @@ export default function Cadastro() {
     },
   });
 
-  const phoneValue = watch("phone");
-
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
       const { confirmPassword, ...registerData } = data;
@@ -99,15 +97,6 @@ export default function Cadastro() {
 
   const onSubmit = (data: RegisterFormData) => {
     registerMutation.mutate(data);
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    
-    const numbers = value.replace(/\D/g, '');
-    const limitedNumbers = numbers.slice(0, 9);
-    
-    setValue("phone", "+244" + limitedNumbers);
   };
 
   if (currentUser) {
@@ -180,18 +169,28 @@ export default function Cadastro() {
 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Número de Telemóvel</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="923456789"
-                      className="pl-10"
-                      onChange={handlePhoneChange}
-                      value={phoneValue?.slice(4) || ""}
-                      data-testid="input-phone"
-                    />
-                  </div>
+                  <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="923456789"
+                          className="pl-10"
+                          onChange={(e) => {
+                            const numbers = e.target.value.replace(/\D/g, '');
+                            const limitedNumbers = numbers.slice(0, 9);
+                            field.onChange("+244" + limitedNumbers);
+                          }}
+                          value={field.value?.slice(4) || ""}
+                          data-testid="input-phone"
+                        />
+                      </div>
+                    )}
+                  />
                   {errors.phone && (
                     <p className="text-sm text-destructive" data-testid="error-phone">
                       {errors.phone.message}

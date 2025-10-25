@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -41,9 +41,8 @@ export default function Login() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
-    setValue,
-    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -51,8 +50,6 @@ export default function Login() {
       password: "",
     },
   });
-
-  const phoneValue = watch("phone");
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
@@ -78,15 +75,6 @@ export default function Login() {
 
   const onSubmit = (data: LoginFormData) => {
     loginMutation.mutate(data);
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    
-    const numbers = value.replace(/\D/g, '');
-    const limitedNumbers = numbers.slice(0, 9);
-    
-    setValue("phone", "+244" + limitedNumbers);
   };
 
   if (currentUser) {
@@ -119,18 +107,28 @@ export default function Login() {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Número de Telemóvel</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="923456789"
-                      className="pl-10"
-                      onChange={handlePhoneChange}
-                      value={phoneValue?.slice(4) || ""}
-                      data-testid="input-phone"
-                    />
-                  </div>
+                  <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="923456789"
+                          className="pl-10"
+                          onChange={(e) => {
+                            const numbers = e.target.value.replace(/\D/g, '');
+                            const limitedNumbers = numbers.slice(0, 9);
+                            field.onChange("+244" + limitedNumbers);
+                          }}
+                          value={field.value?.slice(4) || ""}
+                          data-testid="input-phone"
+                        />
+                      </div>
+                    )}
+                  />
                   {errors.phone && (
                     <p className="text-sm text-destructive" data-testid="error-phone">
                       {errors.phone.message}
