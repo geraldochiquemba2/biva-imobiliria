@@ -126,7 +126,6 @@ export default function Login() {
                       type="tel"
                       placeholder="923456789"
                       className="pl-10"
-                      {...register("phone")}
                       onChange={handlePhoneChange}
                       value={phoneValue?.slice(4) || ""}
                       data-testid="input-phone"
