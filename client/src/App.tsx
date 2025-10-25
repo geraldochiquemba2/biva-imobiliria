@@ -21,6 +21,7 @@ import ImovelDetalhes from "@/pages/ImovelDetalhes";
 import AdminImoveis from "@/pages/AdminImoveis";
 import AdminUsuarios from "@/pages/AdminUsuarios";
 import MeusImoveis from "@/pages/MeusImoveis";
+import EditarImovel from "@/pages/EditarImovel";
 import ImoveisDisponiveis from "@/pages/ImoveisDisponiveis";
 import ImoveisArrendados from "@/pages/ImoveisArrendados";
 import ImoveisVendidos from "@/pages/ImoveisVendidos";
@@ -58,6 +59,7 @@ function Router() {
         <Route path="/contratos-ativos" component={ContratosAtivos} />
         <Route path="/visitas-agendadas" component={VisitasAgendadas} />
         <Route path="/meus-imoveis" component={MeusImoveis} />
+        <Route path="/editar-imovel/:id" component={EditarImovel} />
         <Route path="/imoveis-disponiveis" component={ImoveisDisponiveis} />
         <Route path="/imoveis-arrendados" component={ImoveisArrendados} />
         <Route path="/imoveis-vendidos" component={ImoveisVendidos} />

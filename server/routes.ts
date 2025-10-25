@@ -444,6 +444,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const updates = req.body;
+      
+      // Prevent changing ownership
+      delete updates.ownerId;
+      
+      // If images are being updated, delete old images from disk
+      if (updates.images && Array.isArray(updates.images) && existingProperty.images) {
+        const oldImages = existingProperty.images;
+        const newImages = updates.images;
+        
+        // Validate that all new images are in the allowed directory and prevent path traversal
+        const allowedPrefix = '/uploads/properties/';
+        const expectedDir = path.resolve(process.cwd(), 'uploads/properties');
+        
+        for (const imgUrl of newImages) {
+          if (!imgUrl.startsWith(allowedPrefix)) {
+            return res.status(400).json({ error: "URLs de imagens inválidas" });
+          }
+          
+          // Additional validation: resolve and check for traversal
+          const relativePath = imgUrl.replace(/^\//, '');
+          const fullPath = path.resolve(process.cwd(), relativePath);
+          const relativeToExpected = path.relative(expectedDir, fullPath);
+          
+          // Reject if path escapes the expected directory or is absolute
+          if (relativeToExpected.startsWith('..') || path.isAbsolute(relativeToExpected)) {
+            return res.status(400).json({ error: "URLs de imagens contêm caracteres inválidos" });
+          }
+        }
+        
+        // Find images that are being removed
+        const imagesToDelete = oldImages.filter((oldImg: string) => !newImages.includes(oldImg));
+        
+        // Delete the old image files from disk
+        for (const imageUrl of imagesToDelete) {
+          try {
+            // Ensure the path starts with the allowed prefix
+            if (!imageUrl.startsWith(allowedPrefix)) {
+              console.warn(`Skipping deletion of suspicious path: ${imageUrl}`);
+              continue;
+            }
+            
+            // Build the full path and resolve it to prevent path traversal
+            const relativePath = imageUrl.replace(/^\//, '');
+            const fullPath = path.resolve(process.cwd(), relativePath);
+            const relativeToExpected = path.relative(expectedDir, fullPath);
+            
+            // Ensure the resolved path is within the expected directory
+            if (relativeToExpected.startsWith('..') || path.isAbsolute(relativeToExpected)) {
+              console.warn(`Path traversal attempt blocked: ${imageUrl}`);
+              continue;
+            }
+            
+            if (existsSync(fullPath)) {
+              await fs.unlink(fullPath);
+              console.log(`Deleted old image: ${fullPath}`);
+            }
+          } catch (err) {
+            console.error(`Error deleting image file ${imageUrl}:`, err);
+            // Continue even if deletion fails
+          }
+        }
+      }
+      
       const property = await storage.updateProperty(req.params.id, updates);
       res.json(property);
     } catch (error) {

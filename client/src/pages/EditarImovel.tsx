@@ -1,0 +1,626 @@
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useLocation, useRoute, Link } from "wouter";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, Building2, Upload, X, Save } from "lucide-react";
+import type { User, Property } from "@shared/schema";
+import { z } from "zod";
+import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
+
+const AMENITIES = [
+  "Piscina",
+  "Academia",
+  "Garagem",
+  "Jardim",
+  "Varanda",
+  "Ar Condicionado",
+  "Aquecimento",
+  "Segurança 24h",
+  "Elevador",
+  "Churrasqueira",
+];
+
+const STATUS_OPTIONS = [
+  { value: "disponivel", label: "Disponível" },
+  { value: "arrendado", label: "Arrendado" },
+  { value: "vendido", label: "Vendido" },
+  { value: "indisponivel", label: "Indisponível" },
+];
+
+const propertySchema = z.object({
+  title: z.string().min(5, "Título deve ter no mínimo 5 caracteres"),
+  description: z.string().min(20, "Descrição deve ter no mínimo 20 caracteres"),
+  type: z.enum(["Arrendar", "Vender"]),
+  category: z.enum(["Apartamento", "Casa", "Comercial", "Terreno"]),
+  price: z.string().min(1, "Preço é obrigatório"),
+  provincia: z.string().min(1, "Província é obrigatória"),
+  municipio: z.string().min(1, "Município é obrigatório"),
+  bairro: z.string().min(1, "Bairro é obrigatório"),
+  bedrooms: z.number().min(0),
+  bathrooms: z.number().min(0),
+  livingRooms: z.number().min(0),
+  kitchens: z.number().min(0),
+  area: z.number().min(1, "Área é obrigatória"),
+  latitude: z.number(),
+  longitude: z.number(),
+  amenities: z.array(z.string()),
+  status: z.enum(["disponivel", "arrendado", "vendido", "indisponivel"]),
+});
+
+type PropertyFormData = z.infer<typeof propertySchema>;
+
+export default function EditarImovel() {
+  const [, navigate] = useLocation();
+  const [, params] = useRoute("/editar-imovel/:id");
+  const { toast } = useToast();
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+
+  const { data: currentUser, isLoading: userLoading } = useQuery<User>({
+    queryKey: ['/api/auth/me'],
+  });
+
+  const { data: property, isLoading: propertyLoading } = useQuery<Property>({
+    queryKey: ['/api/properties', params?.id],
+    queryFn: async () => {
+      const response = await fetch(`/api/properties/${params?.id}`);
+      if (!response.ok) throw new Error('Imóvel não encontrado');
+      return response.json();
+    },
+    enabled: !!params?.id,
+  });
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<PropertyFormData>({
+    resolver: zodResolver(propertySchema),
+    defaultValues: {
+      bedrooms: 0,
+      bathrooms: 0,
+      livingRooms: 0,
+      kitchens: 0,
+      amenities: [],
+    },
+  });
+
+  // Populate form when property data loads
+  useEffect(() => {
+    if (property) {
+      setValue("title", property.title);
+      setValue("description", property.description || "");
+      setValue("type", property.type as "Arrendar" | "Vender");
+      setValue("category", property.category as any);
+      setValue("price", property.price.toString());
+      setValue("provincia", property.provincia);
+      setValue("municipio", property.municipio);
+      setValue("bairro", property.bairro);
+      setValue("bedrooms", property.bedrooms);
+      setValue("bathrooms", property.bathrooms);
+      setValue("livingRooms", property.livingRooms);
+      setValue("kitchens", property.kitchens);
+      setValue("area", property.area);
+      setValue("latitude", property.latitude ? parseFloat(property.latitude) : -8.8383);
+      setValue("longitude", property.longitude ? parseFloat(property.longitude) : 13.2344);
+      setValue("amenities", property.amenities || []);
+      setValue("status", property.status as any);
+      setExistingImages(property.images || []);
+    }
+  }, [property, setValue]);
+
+  useEffect(() => {
+    if (!userLoading && !currentUser) {
+      navigate('/login');
+    }
+  }, [currentUser, userLoading, navigate]);
+
+  const selectedAmenities = watch("amenities") || [];
+  const latitude = watch("latitude");
+  const longitude = watch("longitude");
+
+  const updatePropertyMutation = useMutation({
+    mutationFn: async (data: PropertyFormData) => {
+      let finalImageUrls = [...existingImages];
+
+      // Upload new images if any
+      if (newImages.length > 0) {
+        setUploadingImages(true);
+        const formData = new FormData();
+        newImages.forEach((file) => {
+          formData.append('images', file);
+        });
+
+        const uploadRes = await apiRequest('POST', '/api/properties/upload', formData);
+        const uploadData = await uploadRes.json();
+        
+        finalImageUrls = [...existingImages, ...uploadData.urls];
+        setUploadingImages(false);
+      }
+
+      const propertyData = {
+        ...data,
+        price: data.price.toString(),
+        latitude: data.latitude.toString(),
+        longitude: data.longitude.toString(),
+        images: finalImageUrls,
+        // Don't include ownerId - preserve original owner
+      };
+
+      const res = await apiRequest('PATCH', `/api/properties/${params!.id}`, propertyData);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Imóvel atualizado!",
+        description: "As alterações foram salvas com sucesso.",
+      });
+      navigate('/meus-imoveis');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao atualizar imóvel",
+        description: error.message || "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length + existingImages.length + newImages.length > 10) {
+      toast({
+        title: "Limite de imagens excedido",
+        description: "Você pode adicionar no máximo 10 imagens",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setNewImages([...newImages, ...files]);
+    
+    const urls = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls([...previewUrls, ...urls]);
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages(existingImages.filter((_, i) => i !== index));
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewImages(newImages.filter((_, i) => i !== index));
+    setPreviewUrls(previewUrls.filter((_, i) => i !== index));
+  };
+
+  const onSubmit = (data: PropertyFormData) => {
+    if (existingImages.length === 0 && newImages.length === 0) {
+      toast({
+        title: "Imagens necessárias",
+        description: "Adicione pelo menos uma imagem do imóvel",
+        variant: "destructive",
+      });
+      return;
+    }
+    updatePropertyMutation.mutate(data);
+  };
+
+  if (userLoading || propertyLoading) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!currentUser || !property) {
+    return null;
+  }
+
+  const totalImages = existingImages.length + newImages.length;
+
+  return (
+    <div className="min-h-screen pt-24 pb-12">
+      <div className="max-w-5xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Button
+            variant="ghost"
+            asChild
+            className="mb-6"
+            data-testid="button-back"
+          >
+            <Link href="/meus-imoveis">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar para Meus Imóveis
+            </Link>
+          </Button>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-6 w-6" />
+                Editar Imóvel
+              </CardTitle>
+              <CardDescription>
+                Atualize as informações do seu imóvel
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Informações Básicas</h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Título *</Label>
+                      <Input
+                        id="title"
+                        {...register("title")}
+                        data-testid="input-title"
+                      />
+                      {errors.title && (
+                        <p className="text-sm text-destructive">{errors.title.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Status *</Label>
+                      <Controller
+                        name="status"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger data-testid="select-status">
+                              <SelectValue placeholder="Selecione o status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {STATUS_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Descrição *</Label>
+                    <Textarea
+                      id="description"
+                      rows={4}
+                      {...register("description")}
+                      data-testid="input-description"
+                    />
+                    {errors.description && (
+                      <p className="text-sm text-destructive">{errors.description.message}</p>
+                    )}
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="type">Tipo *</Label>
+                      <Controller
+                        name="type"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger data-testid="select-type">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Arrendar">Arrendar</SelectItem>
+                              <SelectItem value="Vender">Vender</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Categoria *</Label>
+                      <Controller
+                        name="category"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger data-testid="select-category">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Apartamento">Apartamento</SelectItem>
+                              <SelectItem value="Casa">Casa</SelectItem>
+                              <SelectItem value="Comercial">Comercial</SelectItem>
+                              <SelectItem value="Terreno">Terreno</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="price">Preço (Kz) *</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        {...register("price")}
+                        data-testid="input-price"
+                      />
+                      {errors.price && (
+                        <p className="text-sm text-destructive">{errors.price.message}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Localização</h3>
+                  
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="provincia">Província *</Label>
+                      <Input
+                        id="provincia"
+                        {...register("provincia")}
+                        data-testid="input-provincia"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="municipio">Município *</Label>
+                      <Input
+                        id="municipio"
+                        {...register("municipio")}
+                        data-testid="input-municipio"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="bairro">Bairro *</Label>
+                      <Input
+                        id="bairro"
+                        {...register("bairro")}
+                        data-testid="input-bairro"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Localização no Mapa</Label>
+                    <InteractiveLocationPicker
+                      latitude={latitude}
+                      longitude={longitude}
+                      onLocationChange={(lat, lng) => {
+                        setValue("latitude", lat);
+                        setValue("longitude", lng);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Detalhes do Imóvel</h3>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="bedrooms">Quartos</Label>
+                      <Input
+                        id="bedrooms"
+                        type="number"
+                        min="0"
+                        {...register("bedrooms", { valueAsNumber: true })}
+                        data-testid="input-bedrooms"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="bathrooms">Casas de Banho</Label>
+                      <Input
+                        id="bathrooms"
+                        type="number"
+                        min="0"
+                        {...register("bathrooms", { valueAsNumber: true })}
+                        data-testid="input-bathrooms"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="livingRooms">Salas</Label>
+                      <Input
+                        id="livingRooms"
+                        type="number"
+                        min="0"
+                        {...register("livingRooms", { valueAsNumber: true })}
+                        data-testid="input-livingrooms"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="kitchens">Cozinhas</Label>
+                      <Input
+                        id="kitchens"
+                        type="number"
+                        min="0"
+                        {...register("kitchens", { valueAsNumber: true })}
+                        data-testid="input-kitchens"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="area">Área (m²) *</Label>
+                      <Input
+                        id="area"
+                        type="number"
+                        min="1"
+                        {...register("area", { valueAsNumber: true })}
+                        data-testid="input-area"
+                      />
+                      {errors.area && (
+                        <p className="text-sm text-destructive">{errors.area.message}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Amenities */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Comodidades</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {AMENITIES.map((amenity) => (
+                      <div key={amenity} className="flex items-center space-x-2">
+                        <Controller
+                          name="amenities"
+                          control={control}
+                          render={({ field }) => (
+                            <Checkbox
+                              checked={field.value?.includes(amenity)}
+                              onCheckedChange={(checked) => {
+                                const current = field.value || [];
+                                field.onChange(
+                                  checked
+                                    ? [...current, amenity]
+                                    : current.filter((a) => a !== amenity)
+                                );
+                              }}
+                              data-testid={`checkbox-${amenity.toLowerCase().replace(/\s+/g, '-')}`}
+                            />
+                          )}
+                        />
+                        <Label className="text-sm">{amenity}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Images */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Imagens ({totalImages}/10)</h3>
+                  
+                  {/* Existing Images */}
+                  {existingImages.length > 0 && (
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-2">Imagens atuais</p>
+                      <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                        {existingImages.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Imagem ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-md"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeExistingImage(index)}
+                              className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              data-testid={`button-remove-existing-${index}`}
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* New Images */}
+                  {previewUrls.length > 0 && (
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-2">Novas imagens</p>
+                      <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                        {previewUrls.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Nova imagem ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-md"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeNewImage(index)}
+                              className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              data-testid={`button-remove-new-${index}`}
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {totalImages < 10 && (
+                    <div>
+                      <Label
+                        htmlFor="images"
+                        className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed rounded-md hover-elevate"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Adicionar Mais Imagens
+                      </Label>
+                      <input
+                        type="file"
+                        id="images"
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                        data-testid="input-images"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-4">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={updatePropertyMutation.isPending || uploadingImages}
+                    className="flex-1"
+                    data-testid="button-save"
+                  >
+                    <Save className="h-5 w-5 mr-2" />
+                    {updatePropertyMutation.isPending || uploadingImages ? "Salvando..." : "Salvar Alterações"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    asChild
+                    data-testid="button-cancel"
+                  >
+                    <Link href="/meus-imoveis">Cancelar</Link>
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+}

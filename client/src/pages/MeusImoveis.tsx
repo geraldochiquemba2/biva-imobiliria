@@ -12,7 +12,8 @@ import {
   MapPin, 
   Plus,
   Home,
-  Eye
+  Eye,
+  Edit
 } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
 
@@ -270,11 +271,18 @@ export default function MeusImoveis() {
                                     })}
                                   </p>
                                 </div>
-                                <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
-                                  <Link href={`/imoveis/${property.id}`}>
-                                    <Eye className="h-4 w-4" />
-                                  </Link>
-                                </Button>
+                                <div className="flex gap-2">
+                                  <Button variant="outline" size="icon" asChild data-testid={`button-edit-${property.id}`}>
+                                    <Link href={`/editar-imovel/${property.id}`}>
+                                      <Edit className="h-4 w-4" />
+                                    </Link>
+                                  </Button>
+                                  <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
+                                    <Link href={`/imoveis/${property.id}`}>
+                                      <Eye className="h-4 w-4" />
+                                    </Link>
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           </CardContent>
