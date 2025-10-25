@@ -118,227 +118,105 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className={`grid grid-cols-1 md:grid-cols-2 ${hasRole('admin') ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mb-8`}>
-            {hasRole('proprietario') && (
-              <>
-                <Card className="hover-elevate relative overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {(hasRole('proprietario') || hasRole('corretor')) && (
+              <Card className="hover-elevate relative overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-20"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">
+                    Meus Imóveis
+                  </CardTitle>
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold" data-testid="text-properties-count">
+                    {propertiesLoading ? '...' : userProperties.length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Imóveis cadastrados
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {(hasRole('proprietario') || hasRole('cliente') || hasRole('corretor')) && (
+              <Link href="/contratos-ativos">
+                <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
-                    style={{ backgroundImage: `url(${buildingImg})` }}
+                    style={{ backgroundImage: `url(${contractImg})` }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                     <CardTitle className="text-sm font-medium">
-                      Meus Imóveis
+                      Contratos Ativos
                     </CardTitle>
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <FileText className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent className="relative z-10">
-                    <div className="text-2xl font-bold" data-testid="text-properties-count">
-                      {propertiesLoading ? '...' : userProperties.length}
+                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                      {activeContracts.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Imóveis cadastrados
+                      Em andamento
                     </p>
                   </CardContent>
                 </Card>
+              </Link>
+            )}
 
-                <Link href="/contratos-ativos">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center opacity-20"
-                      style={{ backgroundImage: `url(${contractImg})` }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                      <CardTitle className="text-sm font-medium">
-                        Contratos Ativos
-                      </CardTitle>
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                        {activeContracts.length}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Em andamento
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-
-                <Link href="/visitas-agendadas">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center opacity-20"
-                      style={{ backgroundImage: `url(${calendarImg})` }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                      <CardTitle className="text-sm font-medium">
-                        Visitas Agendadas
-                      </CardTitle>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <div className="text-2xl font-bold" data-testid="text-visits-count">
-                        {scheduledVisits.length}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Próximas visitas
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </>
+            {(hasRole('proprietario') || hasRole('cliente') || hasRole('corretor')) && (
+              <Link href="/visitas-agendadas">
+                <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${calendarImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                    <CardTitle className="text-sm font-medium">
+                      Visitas Agendadas
+                    </CardTitle>
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <div className="text-2xl font-bold" data-testid="text-visits-count">
+                      {scheduledVisits.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Próximas visitas
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             )}
 
             {hasRole('cliente') && (
-              <>
-                <Link href="/visitas-agendadas">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center opacity-20"
-                      style={{ backgroundImage: `url(${calendarImg})` }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                      <CardTitle className="text-sm font-medium">
-                        Visitas Agendadas
-                      </CardTitle>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <div className="text-2xl font-bold" data-testid="text-visits-count">
-                        {scheduledVisits.length}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Próximas visitas
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-
-                <Link href="/contratos-ativos">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center opacity-20"
-                      style={{ backgroundImage: `url(${contractImg})` }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                      <CardTitle className="text-sm font-medium">
-                        Contratos Ativos
-                      </CardTitle>
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                        {activeContracts.length}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Em andamento
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-
-                <Card className="hover-elevate relative overflow-hidden">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-20"
-                    style={{ backgroundImage: `url(${houseImg})` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                    <CardTitle className="text-sm font-medium">
-                      Imóveis Disponíveis
-                    </CardTitle>
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="text-2xl font-bold" data-testid="text-properties-count">
-                      {propertiesLoading ? '...' : properties.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Para explorar
-                    </p>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-
-            {hasRole('corretor') && (
-              <>
-                <Card className="hover-elevate relative overflow-hidden">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-20"
-                    style={{ backgroundImage: `url(${buildingImg})` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                    <CardTitle className="text-sm font-medium">
-                      Imóveis Gerenciados
-                    </CardTitle>
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="text-2xl font-bold" data-testid="text-properties-count">
-                      {propertiesLoading ? '...' : userProperties.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Total de imóveis
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Link href="/contratos-ativos">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center opacity-20"
-                      style={{ backgroundImage: `url(${contractImg})` }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                      <CardTitle className="text-sm font-medium">
-                        Contratos Ativos
-                      </CardTitle>
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                        {activeContracts.length}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Em andamento
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-
-                <Link href="/visitas-agendadas">
-                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center opacity-20"
-                      style={{ backgroundImage: `url(${calendarImg})` }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                      <CardTitle className="text-sm font-medium">
-                        Visitas Agendadas
-                      </CardTitle>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <div className="text-2xl font-bold" data-testid="text-visits-count">
-                        {scheduledVisits.length}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Este mês
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </>
+              <Card className="hover-elevate relative overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-20"
+                  style={{ backgroundImage: `url(${houseImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">
+                    Imóveis Disponíveis
+                  </CardTitle>
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold" data-testid="text-properties-count">
+                    {propertiesLoading ? '...' : properties.length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Para explorar
+                  </p>
+                </CardContent>
+              </Card>
             )}
 
             {hasRole('admin') && (
@@ -442,7 +320,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          {hasRole('proprietario') && (
+          {(hasRole('proprietario') || hasRole('corretor')) && (
             <Card>
               <CardHeader>
                 <CardTitle>Meus Imóveis</CardTitle>
@@ -518,28 +396,6 @@ export default function Dashboard() {
                 <Button asChild data-testid="button-browse-properties">
                   <Link href="/imoveis">
                     Ver Imóveis Disponíveis
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {hasRole('corretor') && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Painel do Corretor</CardTitle>
-                <CardDescription>
-                  Gerencie seus clientes e imóveis
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center py-8">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground mb-6">
-                  Ferramentas de gestão de imóveis e clientes em desenvolvimento
-                </p>
-                <Button asChild variant="outline" data-testid="button-view-all-properties">
-                  <Link href="/imoveis">
-                    Ver Todos os Imóveis
                   </Link>
                 </Button>
               </CardContent>
