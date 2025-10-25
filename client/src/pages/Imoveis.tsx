@@ -25,6 +25,7 @@ export default function Imoveis() {
       
       if (filters.type) params.append('type', filters.type);
       if (filters.category) params.append('category', filters.category);
+      if (filters.location) params.append('location', filters.location);
       if (filters.bairro) params.append('bairro', filters.bairro);
       if (filters.municipio) params.append('municipio', filters.municipio);
       if (filters.provincia) params.append('provincia', filters.provincia);
@@ -49,7 +50,7 @@ export default function Imoveis() {
     
     if (filters.type) newFilters.type = filters.type;
     if (filters.category) newFilters.category = filters.category;
-    if (location) newFilters.municipio = location;
+    if (location) newFilters.location = location;
     if (filters.bedrooms !== undefined) newFilters.bedrooms = filters.bedrooms;
     if (minPrice) newFilters.minPrice = Number(minPrice);
     if (maxPrice) newFilters.maxPrice = Number(maxPrice);
