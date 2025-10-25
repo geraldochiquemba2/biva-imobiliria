@@ -2,11 +2,13 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Calendar, Clock, MapPin, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Building2, Calendar, Clock, MapPin, User, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
 import emptyStateImage from "@assets/stock_images/empty_calendar_sched_60cbbdfd.jpg";
+import { useLocation } from "wouter";
 
 interface Visit {
   id: string;
@@ -30,6 +32,8 @@ interface Visit {
 }
 
 export default function VisitasAgendadas() {
+  const [, setLocation] = useLocation();
+  
   const { data: currentUser } = useQuery<UserType>({
     queryKey: ['/api/auth/me'],
   });
@@ -40,6 +44,10 @@ export default function VisitasAgendadas() {
   });
 
   const scheduledVisits = visits?.filter(v => v.status === 'agendada') || [];
+  
+  const handleGoBack = () => {
+    window.history.length > 1 ? window.history.back() : setLocation('/');
+  };
 
   if (isLoading) {
     return (
@@ -59,7 +67,19 @@ export default function VisitasAgendadas() {
           className="space-y-6"
         >
           <div>
-            <h1 className="text-4xl font-bold mb-2">Visitas Agendadas</h1>
+            <div className="flex items-center gap-4 mb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleGoBack}
+                data-testid="button-back"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-4xl font-bold">Visitas Agendadas</h1>
+              </div>
+            </div>
             <p className="text-muted-foreground">
               Acompanhe suas visitas programadas aos imóveis
             </p>
