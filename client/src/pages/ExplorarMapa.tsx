@@ -64,13 +64,22 @@ export default function ExplorarMapa() {
       mapRef.current = null;
     }
 
-    // Small delay to ensure container is rendered
-    const timer = setTimeout(() => {
+    // Wait for container to be fully rendered and have dimensions
+    const initializeMap = () => {
       if (!mapContainerRef.current) return;
+      
+      const container = mapContainerRef.current;
+      const rect = container.getBoundingClientRect();
+      
+      // Only initialize if container has dimensions
+      if (rect.width === 0 || rect.height === 0) {
+        setTimeout(initializeMap, 50);
+        return;
+      }
 
       try {
         // Center map on Angola (Luanda)
-        const map = L.map(mapContainerRef.current, {
+        const map = L.map(container, {
           center: [-8.8383, 13.2344],
           zoom: 11,
           zoomControl: true,
@@ -86,26 +95,29 @@ export default function ExplorarMapa() {
 
         mapRef.current = map;
 
-        // Force map to recalculate size multiple times
+        // Force map to recalculate size multiple times with longer delays
         const invalidateSize = () => {
           if (mapRef.current) {
             mapRef.current.invalidateSize();
           }
         };
 
-        requestAnimationFrame(() => {
-          invalidateSize();
-          setTimeout(invalidateSize, 100);
-          setTimeout(invalidateSize, 300);
-          setTimeout(invalidateSize, 500);
-        });
+        // Initial invalidation
+        setTimeout(invalidateSize, 100);
+        setTimeout(invalidateSize, 250);
+        setTimeout(invalidateSize, 500);
+        setTimeout(invalidateSize, 1000);
       } catch (error) {
         console.error('Error initializing map:', error);
       }
-    }, 100);
+    };
+
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      setTimeout(initializeMap, 100);
+    });
 
     return () => {
-      clearTimeout(timer);
       if (mapRef.current) {
         try {
           mapRef.current.off();
