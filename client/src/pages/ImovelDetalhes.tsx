@@ -176,6 +176,7 @@ export default function ImovelDetalhes() {
 
   const images = property.images || [];
   const hasImages = images.length > 0;
+  const isOwner = currentUser && property.ownerId === currentUser.id;
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -419,80 +420,122 @@ export default function ImovelDetalhes() {
 
                   <Separator />
 
-                  <div className="space-y-3">
-                    <Button
-                      className="w-full"
-                      size="lg"
-                      onClick={handleScheduleVisit}
-                      disabled={createVisitMutation.isPending}
-                      data-testid="button-schedule-visit"
-                    >
-                      <Calendar className="h-5 w-5 mr-2" />
-                      {createVisitMutation.isPending ? "Agendando..." : "Agendar Visita"}
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      size="lg"
-                      asChild
-                      data-testid="button-contact"
-                    >
-                      <a href={`tel:${property.owner?.phone || ''}`}>
-                        <Phone className="h-5 w-5 mr-2" />
-                        Ligar Agora
-                      </a>
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={handleShare}
-                      data-testid="button-share"
-                    >
-                      <Share2 className="h-5 w-5 mr-2" />
-                      Compartilhar
-                    </Button>
-                  </div>
-
-                  <Separator />
-
-                  {property.owner && (
-                    <div className="space-y-3">
-                      <p className="text-sm font-medium">Publicado por</p>
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={property.owner.profileImage || undefined} />
-                          <AvatarFallback>
-                            {property.owner.fullName.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0 space-y-2">
+                  {isOwner ? (
+                    <div className="space-y-4">
+                      <div className="p-4 bg-primary/10 border border-primary/20 rounded-md">
+                        <div className="flex items-start gap-3">
+                          <div className="h-10 w-10 rounded-md bg-primary/20 flex items-center justify-center flex-shrink-0">
+                            <Home className="h-5 w-5 text-primary" />
+                          </div>
                           <div>
-                            <p className="font-medium text-sm" data-testid="text-owner-name">
-                              {property.owner.fullName}
+                            <p className="font-semibold text-primary mb-1" data-testid="text-owner-message">
+                              Este imóvel é seu
                             </p>
-                            <p className="text-xs text-muted-foreground capitalize">
-                              {property.owner.userTypes?.includes('proprietario') ? 'Proprietário' : 
-                               property.owner.userTypes?.includes('corretor') ? 'Corretor' : 
-                               property.owner.userTypes?.join(' • ')}
+                            <p className="text-sm text-muted-foreground">
+                              Você é o proprietário deste imóvel
                             </p>
                           </div>
-                          <div className="space-y-1.5 text-sm">
-                            {property.owner.email && (
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleShare}
+                        data-testid="button-share"
+                      >
+                        <Share2 className="h-5 w-5 mr-2" />
+                        Compartilhar
+                      </Button>
+
+                      <Button
+                        variant="default"
+                        className="w-full"
+                        asChild
+                        data-testid="button-edit-property"
+                      >
+                        <Link href={`/editar-imovel/${property.id}`}>
+                          Editar Imóvel
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Button
+                        className="w-full"
+                        size="lg"
+                        onClick={handleScheduleVisit}
+                        disabled={createVisitMutation.isPending}
+                        data-testid="button-schedule-visit"
+                      >
+                        <Calendar className="h-5 w-5 mr-2" />
+                        {createVisitMutation.isPending ? "Agendando..." : "Agendar Visita"}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        size="lg"
+                        asChild
+                        data-testid="button-contact"
+                      >
+                        <a href={`tel:${property.owner?.phone || ''}`}>
+                          <Phone className="h-5 w-5 mr-2" />
+                          Ligar Agora
+                        </a>
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleShare}
+                        data-testid="button-share"
+                      >
+                        <Share2 className="h-5 w-5 mr-2" />
+                        Compartilhar
+                      </Button>
+                    </div>
+                  )}
+
+                  {!isOwner && property.owner && (
+                    <>
+                      <Separator />
+                      <div className="space-y-3">
+                        <p className="text-sm font-medium">Publicado por</p>
+                        <div className="flex items-start gap-3">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={property.owner.profileImage || undefined} />
+                            <AvatarFallback>
+                              {property.owner.fullName.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div>
+                              <p className="font-medium text-sm" data-testid="text-owner-name">
+                                {property.owner.fullName}
+                              </p>
+                              <p className="text-xs text-muted-foreground capitalize">
+                                {property.owner.userTypes?.includes('proprietario') ? 'Proprietário' : 
+                                 property.owner.userTypes?.includes('corretor') ? 'Corretor' : 
+                                 property.owner.userTypes?.join(' • ')}
+                              </p>
+                            </div>
+                            <div className="space-y-1.5 text-sm">
+                              {property.owner.email && (
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                  <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span className="truncate" data-testid="text-owner-email">{property.owner.email}</span>
+                                </div>
+                              )}
                               <div className="flex items-center gap-2 text-muted-foreground">
-                                <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                                <span className="truncate" data-testid="text-owner-email">{property.owner.email}</span>
+                                <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                <span data-testid="text-owner-phone">{property.owner.phone}</span>
                               </div>
-                            )}
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span data-testid="text-owner-phone">{property.owner.phone}</span>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
