@@ -120,27 +120,29 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {(hasRole('proprietario') || hasRole('corretor')) && (
-              <Card className="hover-elevate relative overflow-hidden">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center opacity-20"
-                  style={{ backgroundImage: `url(${buildingImg})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                  <CardTitle className="text-sm font-medium">
-                    Meus Imóveis
-                  </CardTitle>
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="text-2xl font-bold" data-testid="text-properties-count">
-                    {propertiesLoading ? '...' : userProperties.length}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Imóveis cadastrados
-                  </p>
-                </CardContent>
-              </Card>
+              <Link href="/meus-imoveis">
+                <Card className="hover-elevate active-elevate-2 cursor-pointer relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${buildingImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                    <CardTitle className="text-sm font-medium">
+                      Meus Imóveis
+                    </CardTitle>
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <div className="text-2xl font-bold" data-testid="text-properties-count">
+                      {propertiesLoading ? '...' : userProperties.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Imóveis cadastrados
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             )}
 
             {(hasRole('proprietario') || hasRole('cliente') || hasRole('corretor')) && (
