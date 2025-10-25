@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 
 export default function IntroSection() {
   return (
@@ -26,9 +27,11 @@ export default function IntroSection() {
               Encontre o imóvel ideal ou anuncie sua propriedade de forma rápida, 
               segura e totalmente digital.
             </p>
-            <Button size="lg" className="group" data-testid="button-view-properties">
-              Ver Imóveis
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            <Button size="lg" className="group" data-testid="button-view-properties" asChild>
+              <Link href="/imoveis">
+                Ver Imóveis
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </Button>
           </motion.div>
 
