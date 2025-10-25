@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
@@ -10,12 +10,17 @@ import {
   ArrowLeft, 
   MapPin, 
   Home,
-  Eye
+  Eye,
+  X,
+  Trash2
 } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function ImoveisDisponiveis() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -23,6 +28,46 @@ export default function ImoveisDisponiveis() {
 
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
+  });
+
+  const markAsUnavailableMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      return await apiRequest('PATCH', `/api/properties/${propertyId}`, { status: 'indisponivel' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Sucesso",
+        description: "Imóvel marcado como indisponível",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Erro ao marcar imóvel como indisponível",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      return await apiRequest('DELETE', `/api/properties/${propertyId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Sucesso",
+        description: "Imóvel eliminado com sucesso",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro",
+        description: "Erro ao eliminar imóvel",
+        variant: "destructive",
+      });
+    }
   });
 
   useEffect(() => {
@@ -196,61 +241,84 @@ export default function ImoveisDisponiveis() {
           ) : (
             <div className="grid gap-4">
               {availableProperties.map((property) => (
-                <Card key={property.id} className="hover-elevate relative overflow-hidden">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-5"
-                    style={{ backgroundImage: `url(${buildingImg})` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent" />
-                  <CardHeader className="relative z-10">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <CardTitle className="text-xl mb-1" data-testid={`text-title-${property.id}`}>
-                          {property.title}
-                        </CardTitle>
-                        <CardDescription className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {property.bairro}, {property.municipio}
-                        </CardDescription>
-                      </div>
-                      <div className="flex gap-2">
-                        <Badge className="bg-green-600" data-testid={`badge-status-${property.id}`}>Disponível</Badge>
-                        <Badge data-testid={`badge-type-${property.id}`}>{property.type}</Badge>
-                        <Badge variant="outline" data-testid={`badge-category-${property.id}`}>
-                          {property.category}
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-6 text-sm text-muted-foreground">
-                        {property.bedrooms > 0 && (
-                          <div>{property.bedrooms} quartos</div>
-                        )}
-                        {property.bathrooms > 0 && (
-                          <div>{property.bathrooms} casas de banho</div>
-                        )}
-                        <div>{property.area}m²</div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="text-sm text-muted-foreground">Preço</p>
-                          <p className="text-xl font-bold" data-testid={`text-price-${property.id}`}>
-                            {Number(property.price).toLocaleString('pt-AO', {
-                              style: 'currency',
-                              currency: 'AOA',
-                            })}
-                          </p>
+                <Card key={property.id} className="hover-elevate overflow-hidden">
+                  <div className="flex gap-4">
+                    <div 
+                      className="w-32 h-32 bg-cover bg-center flex-shrink-0"
+                      style={{ backgroundImage: `url(${property.images && property.images.length > 0 ? property.images[0] : buildingImg})` }}
+                    />
+                    <div className="flex-1 py-4 pr-4">
+                      <div className="flex items-start justify-between gap-4 mb-4">
+                        <div className="flex-1">
+                          <CardTitle className="text-xl mb-1" data-testid={`text-title-${property.id}`}>
+                            {property.title}
+                          </CardTitle>
+                          <CardDescription className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {property.bairro}, {property.municipio}
+                          </CardDescription>
                         </div>
-                        <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
-                          <Link href={`/imoveis/${property.id}`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                        <div className="flex gap-2">
+                          <Badge className="bg-green-600" data-testid={`badge-status-${property.id}`}>Disponível</Badge>
+                          <Badge data-testid={`badge-type-${property.id}`}>{property.type}</Badge>
+                          <Badge variant="outline" data-testid={`badge-category-${property.id}`}>
+                            {property.category}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-6 text-sm text-muted-foreground">
+                          {property.bedrooms > 0 && (
+                            <div>{property.bedrooms} quartos</div>
+                          )}
+                          {property.bathrooms > 0 && (
+                            <div>{property.bathrooms} casas de banho</div>
+                          )}
+                          <div>{property.area}m²</div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-sm text-muted-foreground">Preço</p>
+                            <p className="text-xl font-bold" data-testid={`text-price-${property.id}`}>
+                              {Number(property.price).toLocaleString('pt-AO', {
+                                style: 'currency',
+                                currency: 'AOA',
+                              })}
+                            </p>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            onClick={() => markAsUnavailableMutation.mutate(property.id)}
+                            disabled={markAsUnavailableMutation.isPending}
+                            data-testid={`button-mark-unavailable-${property.id}`}
+                            title="Marcar como indisponível"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            onClick={() => {
+                              if (confirm("Tem certeza que deseja eliminar este imóvel?")) {
+                                deletePropertyMutation.mutate(property.id);
+                              }
+                            }}
+                            disabled={deletePropertyMutation.isPending}
+                            data-testid={`button-delete-${property.id}`}
+                            title="Eliminar imóvel"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
+                            <Link href={`/imoveis/${property.id}`}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
+                  </div>
                 </Card>
               ))}
             </div>
