@@ -57,7 +57,7 @@ export default function ExplorarMapa() {
     if (!mapContainerRef.current || mapRef.current || !properties) return;
 
     // Center map on Angola
-    const map = L.map(mapContainerRef.current).setView([-8.8383, 13.2344], 12);
+    const map = L.map(mapContainerRef.current).setView([-8.8383, 13.2344], 11);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -118,7 +118,7 @@ export default function ExplorarMapa() {
     // Fit map to show all properties
     if (markersRef.current.length > 0) {
       const group = L.featureGroup(markersRef.current);
-      mapRef.current.fitBounds(group.getBounds().pad(0.1));
+      mapRef.current.fitBounds(group.getBounds().pad(0.2), { maxZoom: 13 });
     }
   }, [properties]);
 
