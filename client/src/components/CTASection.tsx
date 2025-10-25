@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Building, Search, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 
 import brokerImage from '@assets/stock_images/real_estate_agent_br_95364baa.jpg';
 import clientImage from '@assets/stock_images/happy_family_couple__8a6ad2d5.jpg';
@@ -52,9 +53,11 @@ export default function CTASection() {
                   Cadastre suas propriedades, gerencie contratos e alcance milhares de potenciais clientes
                 </p>
 
-                <Button size="lg" className="w-full group bg-primary border-primary" data-testid="button-register-owner">
-                  Cadastre-se Agora
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <Button size="lg" className="w-full group bg-primary border-primary" data-testid="button-register-owner" asChild>
+                  <Link href="/cadastro">
+                    Cadastre-se Agora
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </Button>
               </div>
             </Card>
@@ -86,9 +89,11 @@ export default function CTASection() {
                   Encontre o imóvel dos seus sonhos com nossa plataforma intuitiva e busca avançada
                 </p>
 
-                <Button size="lg" variant="outline" className="w-full group bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20" data-testid="button-find-property">
-                  Encontre seu Imóvel
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <Button size="lg" variant="outline" className="w-full group bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20" data-testid="button-find-property" asChild>
+                  <Link href="/imoveis">
+                    Encontre seu Imóvel
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </Button>
               </div>
             </Card>
