@@ -335,7 +335,7 @@ export default function ExplorarMapa() {
                 <CardContent>
                   <div 
                     ref={mapContainerRef} 
-                    className="w-full h-[600px] rounded-md overflow-hidden border"
+                    className="w-full h-[450px] rounded-md overflow-hidden border"
                     data-testid="map-container"
                   />
                   
