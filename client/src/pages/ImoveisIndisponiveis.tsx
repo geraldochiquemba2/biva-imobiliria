@@ -200,7 +200,7 @@ export default function ImoveisIndisponiveis() {
                   <div className="flex gap-4">
                     <div 
                       className="w-32 h-32 bg-cover bg-center flex-shrink-0"
-                      style={{ backgroundImage: `url(${buildingImg})` }}
+                      style={{ backgroundImage: `url(${property.images && property.images.length > 0 ? property.images[0] : buildingImg})` }}
                     />
                     <div className="flex-1 py-4 pr-4">
                       <div className="flex items-start justify-between gap-4 mb-4">
