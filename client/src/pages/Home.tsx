@@ -79,7 +79,7 @@ export default function Home() {
     const newParams: any = { type: params.type };
     
     if (params.location) {
-      newParams.municipio = params.location;
+      newParams.location = params.location;
     }
     if (params.category) {
       newParams.category = params.category;
