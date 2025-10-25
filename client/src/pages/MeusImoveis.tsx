@@ -322,7 +322,7 @@ export default function MeusImoveis() {
                             
                             <div className="flex-1 flex flex-col min-w-0">
                               <CardHeader className="pb-3">
-                                <div className="flex items-start justify-between gap-4">
+                                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
                                   <div className="flex-1 min-w-0">
                                     <CardTitle className="text-xl mb-1" data-testid={`text-title-${property.id}`}>
                                       {property.title}
@@ -332,7 +332,7 @@ export default function MeusImoveis() {
                                       {property.bairro}, {property.municipio}
                                     </CardDescription>
                                   </div>
-                                  <div className="flex gap-2 flex-shrink-0">
+                                  <div className="flex gap-2 flex-wrap">
                                     <Badge data-testid={`badge-type-${property.id}`}>{property.type}</Badge>
                                     <Badge variant="outline" data-testid={`badge-category-${property.id}`}>
                                       {property.category}
