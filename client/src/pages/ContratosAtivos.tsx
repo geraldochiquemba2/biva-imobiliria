@@ -2,10 +2,13 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Calendar, DollarSign, FileText, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Building2, Calendar, DollarSign, FileText, User, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
+import emptyStateImage from "@assets/stock_images/contract_document_si_a2777db9.jpg";
+import { useLocation } from "wouter";
 
 interface Contract {
   id: string;
@@ -35,6 +38,8 @@ interface Contract {
 }
 
 export default function ContratosAtivos() {
+  const [, setLocation] = useLocation();
+  
   const { data: currentUser } = useQuery<UserType>({
     queryKey: ['/api/auth/me'],
   });
@@ -45,6 +50,10 @@ export default function ContratosAtivos() {
   });
 
   const activeContracts = contracts?.filter(c => c.status === 'ativo') || [];
+  
+  const handleGoBack = () => {
+    window.history.length > 1 ? window.history.back() : setLocation('/');
+  };
 
   if (isLoading) {
     return (
@@ -64,21 +73,39 @@ export default function ContratosAtivos() {
           className="space-y-6"
         >
           <div>
-            <h1 className="text-4xl font-bold mb-2">Contratos Ativos</h1>
+            <div className="flex items-center gap-4 mb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleGoBack}
+                data-testid="button-back"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-4xl font-bold">Contratos Ativos</h1>
+              </div>
+            </div>
             <p className="text-muted-foreground">
               Gerencie seus contratos de arrendamento e venda em andamento
             </p>
           </div>
 
           {activeContracts.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <FileText className="h-16 w-16 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhum contrato ativo</h3>
-                <p className="text-muted-foreground text-center max-w-md">
-                  Você ainda não possui contratos ativos. Quando um contrato for criado, ele aparecerá aqui.
-                </p>
-              </CardContent>
+            <Card className="overflow-hidden">
+              <div 
+                className="relative bg-cover bg-center"
+                style={{ backgroundImage: `url(${emptyStateImage})` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/50" />
+                <CardContent className="relative flex flex-col items-center justify-center py-16 text-white">
+                  <FileText className="h-16 w-16 mb-4 opacity-90" />
+                  <h3 className="text-lg font-semibold mb-2">Nenhum contrato ativo</h3>
+                  <p className="text-white/90 text-center max-w-md">
+                    Você ainda não possui contratos ativos. Quando um contrato for criado, ele aparecerá aqui.
+                  </p>
+                </CardContent>
+              </div>
             </Card>
           ) : (
             <div className="grid grid-cols-1 gap-6">
