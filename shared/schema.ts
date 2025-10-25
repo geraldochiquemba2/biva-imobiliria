@@ -13,6 +13,7 @@ export const users = pgTable("users", {
   phone: text("phone").notNull().unique(),
   sms: text("sms"),
   userType: text("user_type").notNull(), // 'proprietario', 'cliente', 'corretor', 'admin'
+  status: text("status").notNull().default('ativo'), // 'ativo', 'bloqueado'
   address: text("address"),
   bi: text("bi"),
   profileImage: text("profile_image"),
