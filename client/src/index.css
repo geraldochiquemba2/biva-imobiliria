@@ -355,4 +355,51 @@
   h1, h2, h3, h4, h5, h6, .font-serif {
     font-family: var(--font-serif);
   }
+
+  /* Leaflet map styles */
+  .leaflet-container {
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+  }
+
+  .leaflet-pane {
+    z-index: 400;
+  }
+
+  .leaflet-tile-pane {
+    z-index: 200;
+  }
+
+  .leaflet-overlay-pane {
+    z-index: 400;
+  }
+
+  .leaflet-shadow-pane {
+    z-index: 500;
+  }
+
+  .leaflet-marker-pane {
+    z-index: 600;
+  }
+
+  .leaflet-tooltip-pane {
+    z-index: 650;
+  }
+
+  .leaflet-popup-pane {
+    z-index: 700;
+  }
+
+  .leaflet-map-pane canvas {
+    z-index: 100;
+  }
+
+  .leaflet-map-pane svg {
+    z-index: 200;
+  }
+
+  .leaflet-tile {
+    filter: brightness(0.95);
+  }
 }

@@ -59,14 +59,28 @@ export default function ExplorarMapa() {
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    // Center map on Angola
-    const map = L.map(mapContainerRef.current).setView([-8.8383, 13.2344], 11);
+    // Center map on Angola (Luanda)
+    const map = L.map(mapContainerRef.current, {
+      center: [-8.8383, 13.2344],
+      zoom: 11,
+      zoomControl: true,
+      scrollWheelZoom: true,
+    });
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+      minZoom: 3,
     }).addTo(map);
 
     mapRef.current = map;
+
+    // Force map to recalculate size after initialization
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 100);
 
     return () => {
       if (mapRef.current) {
