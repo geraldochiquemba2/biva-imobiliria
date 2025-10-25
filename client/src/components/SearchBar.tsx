@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +29,7 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
+  const [, setLocation] = useLocation();
   const [propertyType, setPropertyType] = useState<'Arrendar' | 'Vender' | ''>('');
   const [provincia, setProvincia] = useState('');
   const [municipio, setMunicipio] = useState('');
@@ -45,9 +47,20 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   }, [provincia]);
 
   const handleSearch = () => {
-    if (onSearch && propertyType) {
-      onSearch({ type: propertyType as 'Arrendar' | 'Vender', provincia, municipio, category, bedrooms, livingRooms, kitchens, minPrice, maxPrice });
-    }
+    const params = new URLSearchParams();
+    
+    if (propertyType) params.append('type', propertyType);
+    if (provincia) params.append('provincia', provincia);
+    if (municipio) params.append('municipio', municipio);
+    if (category) params.append('category', category);
+    if (bedrooms) params.append('bedrooms', bedrooms);
+    if (livingRooms) params.append('livingRooms', livingRooms);
+    if (kitchens) params.append('kitchens', kitchens);
+    if (minPrice) params.append('minPrice', minPrice);
+    if (maxPrice) params.append('maxPrice', maxPrice);
+    
+    const queryString = params.toString();
+    setLocation(`/imoveis${queryString ? `?${queryString}` : ''}`);
   };
 
   const handleCategoryChange = (value: string) => {

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,9 +14,36 @@ import { angolaProvinces } from "@shared/angola-locations";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 export default function Imoveis() {
+  const [location] = useLocation();
   const [filters, setFilters] = useState<SearchPropertyParams>({});
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+
+  // Load filters from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.split('?')[1] || '');
+    const urlFilters: SearchPropertyParams = {};
+    
+    if (params.get('type')) urlFilters.type = params.get('type') as any;
+    if (params.get('provincia')) urlFilters.provincia = params.get('provincia')!;
+    if (params.get('municipio')) urlFilters.municipio = params.get('municipio')!;
+    if (params.get('category')) urlFilters.category = params.get('category') as any;
+    if (params.get('bedrooms')) urlFilters.bedrooms = Number(params.get('bedrooms'));
+    if (params.get('livingRooms')) urlFilters.livingRooms = Number(params.get('livingRooms'));
+    if (params.get('kitchens')) urlFilters.kitchens = Number(params.get('kitchens'));
+    if (params.get('minPrice')) {
+      urlFilters.minPrice = Number(params.get('minPrice'));
+      setMinPrice(params.get('minPrice')!);
+    }
+    if (params.get('maxPrice')) {
+      urlFilters.maxPrice = Number(params.get('maxPrice'));
+      setMaxPrice(params.get('maxPrice')!);
+    }
+    
+    if (Object.keys(urlFilters).length > 0) {
+      setFilters(urlFilters);
+    }
+  }, []);
 
   const availableMunicipios = useMemo(() => {
     if (!filters.provincia) return [];
