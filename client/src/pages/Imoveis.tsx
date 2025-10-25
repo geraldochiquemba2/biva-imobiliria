@@ -51,7 +51,7 @@ export default function Imoveis() {
     return selectedProvince?.municipalities || [];
   }, [filters.provincia]);
 
-  const { data: properties, isLoading } = useQuery<Property[]>({
+  const { data: allProperties, isLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties', filters],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -77,6 +77,9 @@ export default function Imoveis() {
       return res.json();
     },
   });
+
+  // Filtrar apenas imóveis disponíveis para páginas públicas
+  const properties = allProperties?.filter(property => property.status === 'disponivel') || [];
 
   const handleSearch = () => {
     const newFilters: SearchPropertyParams = {};

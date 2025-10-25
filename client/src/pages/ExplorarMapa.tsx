@@ -35,9 +35,12 @@ export default function ExplorarMapa() {
   const [nearbyProperties, setNearbyProperties] = useState<PropertyWithDistance[]>([]);
   const [showNearby, setShowNearby] = useState(false);
 
-  const { data: properties, isLoading } = useQuery<Property[]>({
+  const { data: allProperties, isLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
   });
+
+  // Filtrar apenas imóveis disponíveis para páginas públicas
+  const properties = allProperties?.filter(property => property.status === 'disponivel') || [];
 
   // Calculate distance between two points using Haversine formula
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {

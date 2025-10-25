@@ -54,7 +54,7 @@ export default function Home() {
     .map(([key, value]) => `${key}=${encodeURIComponent(value!)}`)
     .join('&');
 
-  const { data: properties = [], isLoading, error } = useQuery<Property[]>({
+  const { data: allProperties = [], isLoading, error } = useQuery<Property[]>({
     queryKey: ['/api/properties', queryString],
     queryFn: async () => {
       const url = queryString ? `/api/properties?${queryString}` : '/api/properties';
@@ -66,6 +66,9 @@ export default function Home() {
       return response.json();
     }
   });
+
+  // Filtrar apenas imóveis disponíveis para páginas públicas
+  const properties = allProperties.filter(property => property.status === 'disponivel');
 
   const handleSearch = (params: {
     type: 'Arrendar' | 'Vender';

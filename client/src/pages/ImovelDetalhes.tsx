@@ -53,6 +53,18 @@ export default function ImovelDetalhes() {
     enabled: !!params?.id,
   });
 
+  // Verificar se usuário não autenticado está tentando ver imóvel indisponível
+  useEffect(() => {
+    if (property && !currentUser && property.status !== 'disponivel') {
+      setLocation('/imoveis');
+      toast({
+        title: "Imóvel indisponível",
+        description: "Este imóvel não está disponível para visualização pública",
+        variant: "destructive",
+      });
+    }
+  }, [property, currentUser, setLocation, toast]);
+
   const createVisitMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest('POST', '/api/visits', {
