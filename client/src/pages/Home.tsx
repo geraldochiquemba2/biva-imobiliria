@@ -216,28 +216,49 @@ export default function Home() {
             
             <div>
               <h4 className="font-semibold mb-4">Plataforma</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>Sobre Nós</li>
-                <li>Como Funciona</li>
-                <li>Preços</li>
+              <ul className="space-y-2">
+                <li>
+                  <a href="/sobre" className="text-muted-foreground hover:text-primary transition-colors">
+                    Sobre Nós
+                  </a>
+                </li>
+                <li>
+                  <a href="/servicos" className="text-muted-foreground hover:text-primary transition-colors">
+                    Como Funciona
+                  </a>
+                </li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Recursos</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>Blog</li>
-                <li>Guias</li>
-                <li>FAQ</li>
+              <ul className="space-y-2">
+                <li>
+                  <span className="text-muted-foreground cursor-not-allowed opacity-50">Blog</span>
+                </li>
+                <li>
+                  <span className="text-muted-foreground cursor-not-allowed opacity-50">Guias</span>
+                </li>
+                <li>
+                  <span className="text-muted-foreground cursor-not-allowed opacity-50">FAQ</span>
+                </li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Contato</h4>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>Suporte</li>
-                <li>Parcerias</li>
-                <li>Carreiras</li>
+              <ul className="space-y-2">
+                <li>
+                  <a href="/contacto" className="text-muted-foreground hover:text-primary transition-colors">
+                    Suporte
+                  </a>
+                </li>
+                <li>
+                  <span className="text-muted-foreground cursor-not-allowed opacity-50">Parcerias</span>
+                </li>
+                <li>
+                  <span className="text-muted-foreground cursor-not-allowed opacity-50">Carreiras</span>
+                </li>
               </ul>
             </div>
           </div>
