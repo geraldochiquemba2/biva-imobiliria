@@ -341,8 +341,8 @@ export default function MeusImoveis() {
                                 </div>
                               </CardHeader>
                               <CardContent>
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                  <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-muted-foreground">
+                                <div className="space-y-3">
+                                  <div className="flex flex-wrap gap-3 text-xs sm:text-sm text-muted-foreground">
                                     {property.bedrooms > 0 && (
                                       <div>{property.bedrooms} quartos</div>
                                     )}
@@ -351,31 +351,31 @@ export default function MeusImoveis() {
                                     )}
                                     <div>{property.area}m²</div>
                                   </div>
-                                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
-                                    <div className="text-right">
-                                      <p className="text-xs sm:text-sm text-muted-foreground">Preço</p>
-                                      <p className="text-base sm:text-xl font-bold whitespace-nowrap" data-testid={`text-price-${property.id}`}>
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="min-w-0 flex-1">
+                                      <p className="text-xs text-muted-foreground">Preço</p>
+                                      <p className="text-sm sm:text-lg font-bold truncate" data-testid={`text-price-${property.id}`}>
                                         {Number(property.price).toLocaleString('pt-AO', {
                                           style: 'currency',
                                           currency: 'AOA',
                                         })}
                                       </p>
                                     </div>
-                                    <div className="flex gap-2 flex-shrink-0">
-                                      <Button variant="outline" size="icon" asChild data-testid={`button-edit-${property.id}`}>
+                                    <div className="flex gap-1 flex-shrink-0">
+                                      <Button variant="outline" size="icon" className="h-8 w-8" asChild data-testid={`button-edit-${property.id}`}>
                                         <Link href={`/editar-imovel/${property.id}`}>
-                                          <Edit className="h-4 w-4" />
+                                          <Edit className="h-3 w-3" />
                                         </Link>
                                       </Button>
-                                      <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
+                                      <Button variant="outline" size="icon" className="h-8 w-8" asChild data-testid={`button-view-${property.id}`}>
                                         <Link href={`/imoveis/${property.id}`}>
-                                          <Eye className="h-4 w-4" />
+                                          <Eye className="h-3 w-3" />
                                         </Link>
                                       </Button>
                                       <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                          <Button variant="outline" size="icon" data-testid={`button-actions-${property.id}`}>
-                                            <MoreVertical className="h-4 w-4" />
+                                          <Button variant="outline" size="icon" className="h-8 w-8" data-testid={`button-actions-${property.id}`}>
+                                            <MoreVertical className="h-3 w-3" />
                                           </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
