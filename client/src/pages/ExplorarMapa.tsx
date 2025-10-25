@@ -339,7 +339,7 @@ export default function ExplorarMapa() {
                     data-testid="map-container"
                   />
                   
-                  <div className="mt-4 flex gap-4 text-sm">
+                  <div className="mt-4 flex gap-4 flex-wrap text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full bg-red-600 border-2 border-white"></div>
                       <span>Venda</span>
@@ -351,6 +351,10 @@ export default function ExplorarMapa() {
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full bg-green-600 border-2 border-white"></div>
                       <span>Sua Localização</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-1 bg-blue-600 rounded-full"></div>
+                      <span>Rota</span>
                     </div>
                   </div>
                 </CardContent>
