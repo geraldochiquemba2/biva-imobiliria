@@ -37,6 +37,8 @@ export const properties = pgTable("properties", {
   livingRooms: integer("living_rooms").notNull().default(0),
   kitchens: integer("kitchens").notNull().default(0),
   area: integer("area").notNull(), // in square meters
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
   images: text("images").array(),
   featured: boolean("featured").default(false),
   status: text("status").notNull().default('disponivel'), // 'disponivel', 'arrendado', 'vendido', 'indisponivel'

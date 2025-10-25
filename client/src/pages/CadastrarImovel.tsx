@@ -16,6 +16,7 @@ import { ArrowLeft, Building2, DollarSign, Upload, X, Star } from "lucide-react"
 import type { User } from "@shared/schema";
 import { z } from "zod";
 import backgroundImage from "@assets/stock_images/modern_house_buildin_4843f20c.jpg";
+import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
 
 // Províncias e Municípios de Angola
 const PROVINCIAS_MUNICIPIOS: Record<string, string[]> = {
@@ -289,6 +290,8 @@ export default function CadastrarImovel() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [mapLatitude, setMapLatitude] = useState<number>(-8.8383);
+  const [mapLongitude, setMapLongitude] = useState<number>(13.2344);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -468,6 +471,8 @@ export default function CadastrarImovel() {
         municipio: data.municipio,
         provincia: data.provincia,
         area: data.area,
+        latitude: mapLatitude.toString(),
+        longitude: mapLongitude.toString(),
         bedrooms: data.bedrooms || 0,
         bathrooms: data.bathrooms || 0,
         livingRooms: data.livingRooms || 0,
@@ -558,6 +563,17 @@ export default function CadastrarImovel() {
     const maxLon = coords.lon + delta;
     const maxLat = coords.lat + delta;
     return `${minLon},${minLat},${maxLon},${maxLat}`;
+  };
+
+  useEffect(() => {
+    const coords = getCoordinates();
+    setMapLatitude(coords.lat);
+    setMapLongitude(coords.lon);
+  }, [selectedProvince, selectedMunicipio, bairro]);
+
+  const handleLocationChange = (lat: number, lng: number) => {
+    setMapLatitude(lat);
+    setMapLongitude(lng);
   };
 
   return (
@@ -764,19 +780,11 @@ export default function CadastrarImovel() {
                   {(selectedProvince || selectedMunicipio || bairro) && (
                     <div className="space-y-2">
                       <Label>Localização no Mapa</Label>
-                      <div className="w-full h-64 rounded-md overflow-hidden border">
-                        <iframe
-                          width="100%"
-                          height="100%"
-                          style={{ border: 0 }}
-                          loading="lazy"
-                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${getMapBounds()}&layer=mapnik&marker=${getMapCenter()}`}
-                          title="Mapa da localização"
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Localização aproximada baseada em: {[bairro, selectedMunicipio, selectedProvince].filter(Boolean).join(', ')}, Angola
-                      </p>
+                      <InteractiveLocationPicker
+                        latitude={mapLatitude}
+                        longitude={mapLongitude}
+                        onLocationChange={handleLocationChange}
+                      />
                     </div>
                   )}
 
