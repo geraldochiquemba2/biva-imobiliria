@@ -206,122 +206,123 @@ export default function AdminUsuarios() {
             </Card>
           </div>
 
-          {/* Active Users Section */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Usuários Ativos</CardTitle>
-              <CardDescription>
-                {activeUsers.length} {activeUsers.length === 1 ? 'usuário ativo' : 'usuários ativos'}
-                {searchTerm && ` (filtrado de ${users.filter(u => u.status === 'ativo').length})`}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {activeUsers.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold mb-2">
-                    {searchTerm ? 'Nenhum usuário ativo encontrado' : 'Nenhum usuário ativo'}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {searchTerm ? 'Tente ajustar os termos de pesquisa' : 'Ainda não há usuários ativos no sistema'}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {activeUsers.map((user) => (
-                    <Card key={user.id} className="hover-elevate" data-testid={`user-card-${user.id}`}>
-                      <CardContent className="pt-6">
-                        <div className="flex items-start gap-4">
-                          <Avatar className="h-14 w-14">
-                            <AvatarImage src={user.profileImage || undefined} />
-                            <AvatarFallback>
-                              {user.fullName.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-4 mb-2">
-                              <div>
-                                <h3 className="font-semibold text-base" data-testid={`user-name-${user.id}`}>
-                                  {user.fullName}
-                                </h3>
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                  <Badge variant="secondary" className="text-xs">
-                                    {user.userType === 'proprietario' ? 'Proprietário' :
-                                     user.userType === 'corretor' ? 'Corretor' :
-                                     user.userType === 'admin' ? 'Administrador' : 'Cliente'}
-                                  </Badge>
-                                  <Badge
-                                    variant={user.status === 'ativo' ? 'default' : 'destructive'}
-                                    className="text-xs"
-                                    data-testid={`user-status-${user.id}`}
-                                  >
-                                    {user.status === 'ativo' ? 'Ativo' : 'Bloqueado'}
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
+          {/* Users Sections - Side by Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Active Users Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Usuários Ativos</CardTitle>
+                <CardDescription>
+                  {activeUsers.length} {activeUsers.length === 1 ? 'usuário ativo' : 'usuários ativos'}
+                  {searchTerm && ` (filtrado de ${users.filter(u => u.status === 'ativo').length})`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {activeUsers.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      {searchTerm ? 'Nenhum usuário ativo encontrado' : 'Nenhum usuário ativo'}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {searchTerm ? 'Tente ajustar os termos de pesquisa' : 'Ainda não há usuários ativos no sistema'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {activeUsers.map((user) => (
+                      <Card key={user.id} className="hover-elevate" data-testid={`user-card-${user.id}`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-start gap-4">
+                            <Avatar className="h-14 w-14">
+                              <AvatarImage src={user.profileImage || undefined} />
+                              <AvatarFallback>
+                                {user.fullName.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground mb-4">
-                              <div className="flex items-center gap-2">
-                                <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                                <span>{user.phone}</span>
-                              </div>
-                              {user.email && (
-                                <div className="flex items-center gap-2">
-                                  <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                                  <span className="truncate">{user.email}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-4 mb-2">
+                                <div>
+                                  <h3 className="font-semibold text-base" data-testid={`user-name-${user.id}`}>
+                                    {user.fullName}
+                                  </h3>
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    <Badge variant="secondary" className="text-xs">
+                                      {user.userType === 'proprietario' ? 'Proprietário' :
+                                       user.userType === 'corretor' ? 'Corretor' :
+                                       user.userType === 'admin' ? 'Administrador' : 'Cliente'}
+                                    </Badge>
+                                    <Badge
+                                      variant={user.status === 'ativo' ? 'default' : 'destructive'}
+                                      className="text-xs"
+                                      data-testid={`user-status-${user.id}`}
+                                    >
+                                      {user.status === 'ativo' ? 'Ativo' : 'Bloqueado'}
+                                    </Badge>
+                                  </div>
                                 </div>
-                              )}
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
-                              {(user.userType === 'proprietario' || user.userType === 'corretor') && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleViewProperties(user)}
-                                  data-testid={`button-view-properties-${user.id}`}
-                                >
-                                  <Building2 className="h-4 w-4 mr-2" />
-                                  Ver Propriedades
-                                </Button>
-                              )}
+                              </div>
                               
-                              {user.id !== currentUser.id && (
-                                <Button
-                                  variant={user.status === 'ativo' ? 'destructive' : 'default'}
-                                  size="sm"
-                                  onClick={() => handleToggleStatus(user)}
-                                  disabled={toggleStatusMutation.isPending}
-                                  data-testid={`button-toggle-status-${user.id}`}
-                                >
-                                  {user.status === 'ativo' ? (
-                                    <>
-                                      <Lock className="h-4 w-4 mr-2" />
-                                      Bloquear
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Unlock className="h-4 w-4 mr-2" />
-                                      Desbloquear
-                                    </>
-                                  )}
-                                </Button>
-                              )}
+                              <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground mb-4">
+                                <div className="flex items-center gap-2">
+                                  <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span>{user.phone}</span>
+                                </div>
+                                {user.email && (
+                                  <div className="flex items-center gap-2">
+                                    <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                                    <span className="truncate">{user.email}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                {(user.userType === 'proprietario' || user.userType === 'corretor') && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleViewProperties(user)}
+                                    data-testid={`button-view-properties-${user.id}`}
+                                  >
+                                    <Building2 className="h-4 w-4 mr-2" />
+                                    Ver Propriedades
+                                  </Button>
+                                )}
+                                
+                                {user.id !== currentUser.id && (
+                                  <Button
+                                    variant={user.status === 'ativo' ? 'destructive' : 'default'}
+                                    size="sm"
+                                    onClick={() => handleToggleStatus(user)}
+                                    disabled={toggleStatusMutation.isPending}
+                                    data-testid={`button-toggle-status-${user.id}`}
+                                  >
+                                    {user.status === 'ativo' ? (
+                                      <>
+                                        <Lock className="h-4 w-4 mr-2" />
+                                        Bloquear
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Unlock className="h-4 w-4 mr-2" />
+                                        Desbloquear
+                                      </>
+                                    )}
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-          {/* Blocked Users Section */}
-          {blockedUsers.length > 0 && (
+            {/* Blocked Users Section */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-destructive">Usuários Bloqueados</CardTitle>
@@ -331,89 +332,101 @@ export default function AdminUsuarios() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {blockedUsers.map((user) => (
-                    <Card key={user.id} className="hover-elevate border-destructive/20" data-testid={`user-card-${user.id}`}>
-                      <CardContent className="pt-6">
-                        <div className="flex items-start gap-4">
-                          <Avatar className="h-14 w-14 opacity-60">
-                            <AvatarImage src={user.profileImage || undefined} />
-                            <AvatarFallback>
-                              {user.fullName.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-4 mb-2">
-                              <div>
-                                <h3 className="font-semibold text-base" data-testid={`user-name-${user.id}`}>
-                                  {user.fullName}
-                                </h3>
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                  <Badge variant="secondary" className="text-xs">
-                                    {user.userType === 'proprietario' ? 'Proprietário' :
-                                     user.userType === 'corretor' ? 'Corretor' :
-                                     user.userType === 'admin' ? 'Administrador' : 'Cliente'}
-                                  </Badge>
-                                  <Badge
-                                    variant="destructive"
-                                    className="text-xs"
-                                    data-testid={`user-status-${user.id}`}
-                                  >
-                                    Bloqueado
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
+                {blockedUsers.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      {searchTerm ? 'Nenhum usuário bloqueado encontrado' : 'Nenhum usuário bloqueado'}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {searchTerm ? 'Tente ajustar os termos de pesquisa' : 'Não há usuários bloqueados no momento'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {blockedUsers.map((user) => (
+                      <Card key={user.id} className="hover-elevate border-destructive/20" data-testid={`user-card-${user.id}`}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-start gap-4">
+                            <Avatar className="h-14 w-14 opacity-60">
+                              <AvatarImage src={user.profileImage || undefined} />
+                              <AvatarFallback>
+                                {user.fullName.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground mb-4">
-                              <div className="flex items-center gap-2">
-                                <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                                <span>{user.phone}</span>
-                              </div>
-                              {user.email && (
-                                <div className="flex items-center gap-2">
-                                  <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                                  <span className="truncate">{user.email}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-4 mb-2">
+                                <div>
+                                  <h3 className="font-semibold text-base" data-testid={`user-name-${user.id}`}>
+                                    {user.fullName}
+                                  </h3>
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    <Badge variant="secondary" className="text-xs">
+                                      {user.userType === 'proprietario' ? 'Proprietário' :
+                                       user.userType === 'corretor' ? 'Corretor' :
+                                       user.userType === 'admin' ? 'Administrador' : 'Cliente'}
+                                    </Badge>
+                                    <Badge
+                                      variant="destructive"
+                                      className="text-xs"
+                                      data-testid={`user-status-${user.id}`}
+                                    >
+                                      Bloqueado
+                                    </Badge>
+                                  </div>
                                 </div>
-                              )}
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
-                              {(user.userType === 'proprietario' || user.userType === 'corretor') && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleViewProperties(user)}
-                                  data-testid={`button-view-properties-${user.id}`}
-                                >
-                                  <Building2 className="h-4 w-4 mr-2" />
-                                  Ver Propriedades
-                                </Button>
-                              )}
+                              </div>
                               
-                              {user.id !== currentUser.id && (
-                                <Button
-                                  variant="default"
-                                  size="sm"
-                                  onClick={() => handleToggleStatus(user)}
-                                  disabled={toggleStatusMutation.isPending}
-                                  data-testid={`button-toggle-status-${user.id}`}
-                                >
-                                  <Unlock className="h-4 w-4 mr-2" />
-                                  Desbloquear
-                                </Button>
-                              )}
+                              <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground mb-4">
+                                <div className="flex items-center gap-2">
+                                  <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span>{user.phone}</span>
+                                </div>
+                                {user.email && (
+                                  <div className="flex items-center gap-2">
+                                    <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                                    <span className="truncate">{user.email}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                {(user.userType === 'proprietario' || user.userType === 'corretor') && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleViewProperties(user)}
+                                    data-testid={`button-view-properties-${user.id}`}
+                                  >
+                                    <Building2 className="h-4 w-4 mr-2" />
+                                    Ver Propriedades
+                                  </Button>
+                                )}
+                                
+                                {user.id !== currentUser.id && (
+                                  <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => handleToggleStatus(user)}
+                                    disabled={toggleStatusMutation.isPending}
+                                    data-testid={`button-toggle-status-${user.id}`}
+                                  >
+                                    <Unlock className="h-4 w-4 mr-2" />
+                                    Desbloquear
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
-          )}
+          </div>
         </motion.div>
       </div>
 
