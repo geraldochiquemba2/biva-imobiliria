@@ -167,19 +167,6 @@ export default function ExplorarMapa() {
 
   // Get user's current location
   const getUserLocation = () => {
-    // Verificar se o site está em HTTPS (necessário para geolocalização em móveis)
-    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
-    if (!isSecure) {
-      toast({
-        title: "HTTPS necessário",
-        description: "A geolocalização requer uma conexão segura (HTTPS). Acesse o site via HTTPS.",
-        variant: "destructive",
-        duration: 8000,
-      });
-      return;
-    }
-
     if (!navigator.geolocation) {
       toast({
         title: "Geolocalização não suportada",
@@ -191,15 +178,21 @@ export default function ExplorarMapa() {
 
     toast({
       title: "Obtendo localização...",
-      description: "Por favor, permita o acesso à sua localização quando solicitado",
+      description: "Por favor, permita o acesso à sua localização",
       duration: 3000,
     });
 
-    // Tentar obter localização diretamente (mais compatível com mobile)
-    requestUserLocation();
+    // Tentar primeiro com baixa precisão (mais rápido e funciona melhor em móveis)
+    requestUserLocation(false);
   };
 
-  const requestUserLocation = () => {
+  const requestUserLocation = (highAccuracy: boolean = false) => {
+    const options = {
+      enableHighAccuracy: highAccuracy,
+      timeout: highAccuracy ? 10000 : 5000,
+      maximumAge: highAccuracy ? 0 : 60000,
+    };
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
@@ -251,21 +244,30 @@ export default function ExplorarMapa() {
         }
       },
       (error) => {
-        let errorMessage = "Não foi possível obter sua localização";
+        console.error('Erro de geolocalização:', error.code, error.message);
+        
+        // Se falhou com alta precisão, tentar sem
+        if (highAccuracy) {
+          console.log('Tentando novamente sem alta precisão...');
+          requestUserLocation(false);
+          return;
+        }
+        
+        let errorMessage = "Não foi possível obter sua localização.";
         let errorTitle = "Erro ao obter localização";
         
-        console.error('Erro de geolocalização:', error);
-        
         switch (error.code) {
-          case error.PERMISSION_DENIED:
+          case 1: // PERMISSION_DENIED
             errorTitle = "Permissão negada";
-            errorMessage = "Você negou o acesso à localização. Para habilitar:\n• Chrome/Edge: Toque no cadeado > Permissões > Localização\n• Safari: Ajustes do iPhone > Safari > Localização";
+            errorMessage = "Por favor, permita o acesso à localização nas configurações do navegador e atualize a página.";
             break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = "GPS indisponível. Verifique se:\n• O GPS está ativado no dispositivo\n• Você está em um local com sinal GPS\n• O navegador tem permissão para acessar localização";
+          case 2: // POSITION_UNAVAILABLE
+            errorTitle = "Posição indisponível";
+            errorMessage = "Não foi possível determinar sua localização. Verifique se o GPS está ativado.";
             break;
-          case error.TIMEOUT:
-            errorMessage = "Tempo limite excedido. Tente novamente em um local com melhor sinal GPS.";
+          case 3: // TIMEOUT
+            errorTitle = "Tempo esgotado";
+            errorMessage = "A solicitação demorou muito. Tente novamente.";
             break;
         }
         
@@ -273,14 +275,10 @@ export default function ExplorarMapa() {
           title: errorTitle,
           description: errorMessage,
           variant: "destructive",
-          duration: 10000,
+          duration: 8000,
         });
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 30000,
-      }
+      options
     );
   };
 
