@@ -23,7 +23,7 @@ const registerFormSchema = z.object({
     "Por favor, digite os 9 dígitos do seu número"
   ),
   sms: z.string().optional(),
-  bi: z.string().min(1, "BI ou Passaporte é obrigatório"),
+  bi: z.string().optional(),
   address: z.string().min(5, "Endereço deve ter no mínimo 5 caracteres"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   confirmPassword: z.string(),
@@ -221,7 +221,7 @@ export default function Cadastro() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bi">BI / Passaporte</Label>
+                  <Label htmlFor="bi">BI / Passaporte (Opcional)</Label>
                   <div className="relative">
                     <CreditCard className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input

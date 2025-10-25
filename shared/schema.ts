@@ -168,7 +168,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
   email: z.string().email("Email inválido").optional().or(z.literal("")),
   sms: z.string().optional().nullable(),
   address: z.string().min(5, "Endereço deve ter no mínimo 5 caracteres"),
-  bi: z.string().min(1, "BI ou Passaporte é obrigatório"),
+  bi: z.string().optional().nullable(),
   profileImage: z.string().optional().nullable(),
   userTypes: z.array(z.enum(['proprietario', 'cliente', 'corretor', 'admin'])).min(1, "Selecione pelo menos um tipo de conta"),
 });
