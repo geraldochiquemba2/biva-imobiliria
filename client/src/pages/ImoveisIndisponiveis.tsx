@@ -50,6 +50,13 @@ export default function ImoveisIndisponiveis() {
     : properties.filter(p => p.ownerId === currentUser.id);
 
   const unavailableProperties = userProperties.filter(p => p.status === 'indisponivel');
+  
+  const propertiesByStatus = {
+    disponivel: userProperties.filter(p => p.status === 'disponivel'),
+    arrendado: userProperties.filter(p => p.status === 'arrendado'),
+    vendido: userProperties.filter(p => p.status === 'vendido'),
+    indisponivel: userProperties.filter(p => p.status === 'indisponivel'),
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -94,6 +101,80 @@ export default function ImoveisIndisponiveis() {
               Voltar
             </Link>
           </Button>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <Link href="/imoveis-disponiveis">
+              <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-10"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent" />
+                <CardHeader className="pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">Disponíveis</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold text-green-600">
+                    {propertiesByStatus.disponivel.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/imoveis-arrendados">
+              <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-10"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
+                <CardHeader className="pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">Arrendados</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {propertiesByStatus.arrendado.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/imoveis-vendidos">
+              <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-10"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
+                <CardHeader className="pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">Vendidos</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {propertiesByStatus.vendido.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/imoveis-indisponiveis">
+              <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer border-2 border-gray-500">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-10"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-500/10 to-transparent" />
+                <CardHeader className="pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">Indisponíveis</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold text-gray-600">
+                    {unavailableProperties.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
 
           {unavailableProperties.length === 0 ? (
             <Card className="relative overflow-hidden">
