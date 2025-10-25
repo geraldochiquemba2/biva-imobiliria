@@ -24,6 +24,7 @@ import {
   Mail,
   Share2,
   User as UserIcon,
+  Navigation,
 } from "lucide-react";
 
 export default function ImovelDetalhes() {
@@ -100,6 +101,45 @@ export default function ImovelDetalhes() {
         description: "O link do imóvel foi copiado para a área de transferência",
       });
     }
+  };
+
+  const handleGetDirections = () => {
+    if (!property?.latitude || !property?.longitude) {
+      toast({
+        title: "Localização indisponível",
+        description: "Este imóvel não possui coordenadas cadastradas",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      window.open(
+        `https://www.google.com/maps/dir/?api=1&destination=${property.latitude},${property.longitude}`,
+        '_blank'
+      );
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        window.open(
+          `https://www.google.com/maps/dir/?api=1&origin=${latitude},${longitude}&destination=${property.latitude},${property.longitude}`,
+          '_blank'
+        );
+      },
+      () => {
+        window.open(
+          `https://www.google.com/maps/dir/?api=1&destination=${property.latitude},${property.longitude}`,
+          '_blank'
+        );
+        toast({
+          title: "Geolocalização não disponível",
+          description: "Abrindo rota sem origem definida",
+        });
+      }
+    );
   };
 
   if (isLoading) {
@@ -298,12 +338,21 @@ export default function ImovelDetalhes() {
                     </div>
                     
                     {property.latitude && property.longitude && (
-                      <div className="mt-4">
+                      <div className="mt-4 space-y-3">
                         <MapView
                           latitude={parseFloat(property.latitude)}
                           longitude={parseFloat(property.longitude)}
                           title={property.title}
                         />
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={handleGetDirections}
+                          data-testid="button-get-directions"
+                        >
+                          <Navigation className="h-4 w-4 mr-2" />
+                          Ver Rota no Google Maps
+                        </Button>
                       </div>
                     )}
                   </div>
