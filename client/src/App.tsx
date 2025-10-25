@@ -18,6 +18,8 @@ import Profile from "@/pages/Profile";
 import ContratosAtivos from "@/pages/ContratosAtivos";
 import VisitasAgendadas from "@/pages/VisitasAgendadas";
 import ImovelDetalhes from "@/pages/ImovelDetalhes";
+import AdminImoveis from "@/pages/AdminImoveis";
+import AdminUsuarios from "@/pages/AdminUsuarios";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -48,6 +50,8 @@ function Router() {
         <Route path="/perfil" component={Profile} />
         <Route path="/contratos-ativos" component={ContratosAtivos} />
         <Route path="/visitas-agendadas" component={VisitasAgendadas} />
+        <Route path="/admin/imoveis" component={AdminImoveis} />
+        <Route path="/admin/usuarios" component={AdminUsuarios} />
         <Route component={NotFound} />
       </Switch>
     </>

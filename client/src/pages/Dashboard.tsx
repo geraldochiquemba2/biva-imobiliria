@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { User, Property, Contract, Visit } from "@shared/schema";
-import { Building2, Calendar, FileText, Plus, Home } from "lucide-react";
+import { Building2, Calendar, FileText, Plus, Home, Users } from "lucide-react";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -109,7 +109,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${currentUser.userType === 'admin' ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mb-8`}>
             {currentUser.userType === 'proprietario' && (
               <>
                 <Card className="hover-elevate">
@@ -289,56 +289,82 @@ export default function Dashboard() {
 
             {currentUser.userType === 'admin' && (
               <>
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Total de Imóveis
-                    </CardTitle>
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-properties-count">
-                      {propertiesLoading ? '...' : userProperties.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      No sistema
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/admin/imoveis">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Total de Imóveis
+                      </CardTitle>
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-properties-count">
+                        {propertiesLoading ? '...' : userProperties.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        No sistema
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
 
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Contratos Ativos
-                    </CardTitle>
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                      {activeContracts.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Em andamento
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/contratos-ativos">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Contratos Ativos
+                      </CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                        {activeContracts.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Em andamento
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
 
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Visitas Agendadas
-                    </CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-visits-count">
-                      {scheduledVisits.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Total agendadas
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/visitas-agendadas">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Visitas Agendadas
+                      </CardTitle>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-visits-count">
+                        {scheduledVisits.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Total agendadas
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
+
+                <Link href="/admin/usuarios">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Gerenciar Usuários
+                      </CardTitle>
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-users-count">
+                        {/* Users count will be shown dynamically */}
+                        •••
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Acessar gerenciamento
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
               </>
             )}
           </div>
