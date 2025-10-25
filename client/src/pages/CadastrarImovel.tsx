@@ -869,16 +869,14 @@ export default function CadastrarImovel() {
                   </div>
 
                   {/* Map Section */}
-                  {(selectedProvince || selectedMunicipio || bairro) && (
-                    <div className="space-y-2">
-                      <Label>Localização no Mapa</Label>
-                      <InteractiveLocationPicker
-                        latitude={mapLatitude}
-                        longitude={mapLongitude}
-                        onLocationChange={handleLocationChange}
-                      />
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Label>Localização no Mapa</Label>
+                    <InteractiveLocationPicker
+                      latitude={mapLatitude}
+                      longitude={mapLongitude}
+                      onLocationChange={handleLocationChange}
+                    />
+                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
