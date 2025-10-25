@@ -71,8 +71,17 @@ O Render vai criar automaticamente:
    **Environment Variables:**
    - `NODE_ENV` = `production`
    - `DATABASE_URL` = (Cole a Internal Database URL copiada)
+   - `SESSION_SECRET` = (Gere uma string aleatória segura, ex: `openssl rand -base64 32`)
+   - `RENDER_EXTERNAL_URL` = (Deixe vazio por agora, você vai adicionar depois)
 
 5. Clique em **"Create Web Service"**
+
+6. **Após o primeiro deploy**, copie a URL do seu site (ex: `https://biva-imobiliaria.onrender.com`)
+
+7. Volte para **"Environment"** e adicione/edite:
+   - `RENDER_EXTERNAL_URL` = (Cole a URL completa do seu site)
+   
+8. Clique em **"Save Changes"** - Isso vai fazer redeploy automático
 
 ### 3. Migrar o Schema da Base de Dados
 
@@ -92,13 +101,19 @@ npm run db:push
 Se quiser continuar usando a base de dados Neon que já tem configurada:
 
 1. No Render, crie apenas o **Web Service** (pule a criação da base de dados)
-2. Configure a variável de ambiente:
+2. Configure as variáveis de ambiente:
+   - `NODE_ENV` = `production`
    - `DATABASE_URL` = `postgresql://neondb_owner:npg_3uFLaT5ZiCXv@ep-green-art-a4f06x8d-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require`
+   - `SESSION_SECRET` = (Gere uma string aleatória: `openssl rand -base64 32`)
+
+3. **Após o primeiro deploy**, adicione:
+   - `RENDER_EXTERNAL_URL` = (URL do seu site, ex: `https://biva-imobiliaria.onrender.com`)
 
 **Vantagens:**
-- ✅ Seus dados existentes já estão lá
+- ✅ Seus dados existentes já estão lá (incluindo o usuário admin)
 - ✅ Não precisa migrar dados
 - ✅ Continua usando o plano que já tem
+- ✅ Melhor plano free que o PostgreSQL do Render
 
 ---
 
