@@ -39,6 +39,35 @@ const PROVINCIAS_MUNICIPIOS: Record<string, string[]> = {
   "Zaire": ["M'banza Kongo", "Cuimba", "Nóqui", "Nzeto", "Soio", "Tomboco"]
 };
 
+// Coordenadas aproximadas das províncias e principais municípios de Angola
+const LOCATION_COORDINATES: Record<string, { lat: number; lon: number }> = {
+  // Províncias
+  "Luanda": { lat: -8.8383, lon: 13.2344 },
+  "Bengo": { lat: -9.0667, lon: 13.7500 },
+  "Benguela": { lat: -12.5763, lon: 13.4055 },
+  "Bié": { lat: -12.3889, lon: 17.5500 },
+  "Cabinda": { lat: -5.5550, lon: 12.2000 },
+  "Cuando Cubango": { lat: -14.6667, lon: 17.7333 },
+  "Cuanza Norte": { lat: -9.3044, lon: 14.9111 },
+  "Cuanza Sul": { lat: -11.2058, lon: 14.9147 },
+  "Cunene": { lat: -16.6667, lon: 16.2500 },
+  "Huambo": { lat: -12.7760, lon: 15.7390 },
+  "Huíla": { lat: -14.9167, lon: 13.4833 },
+  "Lunda Norte": { lat: -7.3667, lon: 20.8333 },
+  "Lunda Sul": { lat: -9.6667, lon: 20.3833 },
+  "Malanje": { lat: -9.5402, lon: 16.3410 },
+  "Moxico": { lat: -11.7881, lon: 19.9069 },
+  "Namibe": { lat: -15.1961, lon: 12.1522 },
+  "Uíge": { lat: -7.6073, lon: 15.0611 },
+  "Zaire": { lat: -6.2658, lon: 14.2450 },
+  // Municípios principais
+  "Belas": { lat: -9.0500, lon: 13.1500 },
+  "Cacuaco": { lat: -8.7833, lon: 13.3667 },
+  "Viana": { lat: -8.8889, lon: 13.3767 },
+  "Lobito": { lat: -12.3644, lon: 13.5487 },
+  "Talatona": { lat: -8.9167, lon: 13.1667 },
+};
+
 const propertyFormSchema = z.object({
   title: z.string().min(5, "Título deve ter no mínimo 5 caracteres"),
   description: z.string().min(20, "Descrição deve ter no mínimo 20 caracteres"),
@@ -304,6 +333,42 @@ export default function CadastrarImovel() {
 
   const showRoomFields = category === 'Casa' || category === 'Apartamento';
   const availableMunicipios = selectedProvince ? PROVINCIAS_MUNICIPIOS[selectedProvince] || [] : [];
+  
+  // Get watched values for map
+  const selectedMunicipio = watch("municipio");
+  const bairro = watch("bairro");
+
+  // Get coordinates for the current location
+  const getCoordinates = () => {
+    // Priority: bairro > municipio > provincia
+    if (bairro && LOCATION_COORDINATES[bairro]) {
+      return LOCATION_COORDINATES[bairro];
+    }
+    if (selectedMunicipio && LOCATION_COORDINATES[selectedMunicipio]) {
+      return LOCATION_COORDINATES[selectedMunicipio];
+    }
+    if (selectedProvince && LOCATION_COORDINATES[selectedProvince]) {
+      return LOCATION_COORDINATES[selectedProvince];
+    }
+    // Default to Luanda
+    return { lat: -8.8383, lon: 13.2344 };
+  };
+
+  const getMapCenter = () => {
+    const coords = getCoordinates();
+    return `${coords.lat},${coords.lon}`;
+  };
+
+  const getMapBounds = () => {
+    const coords = getCoordinates();
+    // Calculate bounding box (approximately 0.1 degrees around the center)
+    const delta = 0.05;
+    const minLon = coords.lon - delta;
+    const minLat = coords.lat - delta;
+    const maxLon = coords.lon + delta;
+    const maxLat = coords.lat + delta;
+    return `${minLon},${minLat},${maxLon},${maxLat}`;
+  };
 
   return (
     <div 
@@ -504,6 +569,26 @@ export default function CadastrarImovel() {
                       )}
                     </div>
                   </div>
+
+                  {/* Map Section */}
+                  {(selectedProvince || selectedMunicipio || bairro) && (
+                    <div className="space-y-2">
+                      <Label>Localização no Mapa</Label>
+                      <div className="w-full h-64 rounded-md overflow-hidden border">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${getMapBounds()}&layer=mapnik&marker=${getMapCenter()}`}
+                          title="Mapa da localização"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Localização aproximada baseada em: {[bairro, selectedMunicipio, selectedProvince].filter(Boolean).join(', ')}, Angola
+                      </p>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
