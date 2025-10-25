@@ -67,14 +67,14 @@ export default function AdminUsuarios() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
       toast({
-        title: data.status === 'ativo' ? "Usuário desbloqueado" : "Usuário bloqueado",
-        description: `${data.fullName} foi ${data.status === 'ativo' ? 'desbloqueado' : 'bloqueado'} com sucesso`,
+        title: data.status === 'ativo' ? "Desbloqueado" : "Bloqueado",
+        description: data.fullName,
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Erro ao atualizar status",
-        description: error.message || "Tente novamente mais tarde",
+        title: "Erro",
+        description: error.message || "Tente novamente",
         variant: "destructive",
       });
     },
@@ -152,10 +152,10 @@ export default function AdminUsuarios() {
               </Link>
             </Button>
             <h1 className="text-4xl font-bold mb-2" data-testid="text-page-title">
-              Gerenciar Usuários
+              Usuários
             </h1>
             <p className="text-muted-foreground mb-6">
-              Visualize e gerencie todos os usuários do sistema
+              Gerencie os usuários da plataforma
             </p>
             
             <div className="relative max-w-md">
@@ -225,11 +225,8 @@ export default function AdminUsuarios() {
                   <div className="text-center py-12">
                     <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <h3 className="text-lg font-semibold mb-2">
-                      {searchTerm ? 'Nenhum usuário ativo encontrado' : 'Nenhum usuário ativo'}
+                      {searchTerm ? 'Nenhum resultado' : 'Sem usuários ativos'}
                     </h3>
-                    <p className="text-muted-foreground">
-                      {searchTerm ? 'Tente ajustar os termos de pesquisa' : 'Ainda não há usuários ativos no sistema'}
-                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -347,11 +344,8 @@ export default function AdminUsuarios() {
                   <div className="text-center py-12">
                     <Lock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <h3 className="text-lg font-semibold mb-2">
-                      {searchTerm ? 'Nenhum usuário bloqueado encontrado' : 'Nenhum usuário bloqueado'}
+                      {searchTerm ? 'Nenhum resultado' : 'Sem bloqueados'}
                     </h3>
-                    <p className="text-muted-foreground">
-                      {searchTerm ? 'Tente ajustar os termos de pesquisa' : 'Não há usuários bloqueados no momento'}
-                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -463,7 +457,7 @@ export default function AdminUsuarios() {
               <div className="text-center py-8">
                 <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground">
-                  Este usuário ainda não possui imóveis cadastrados
+                  Sem imóveis cadastrados
                 </p>
               </div>
             ) : (
