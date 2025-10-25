@@ -320,25 +320,32 @@ export default function ImoveisIndisponiveis() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem
                                 onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'disponivel' })}
+                                disabled={updateStatusMutation.isPending}
                                 data-testid={`action-available-${property.id}`}
                               >
                                 <CheckCircle className="h-4 w-4 mr-2" />
-                                Marcar como Disponível
+                                {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Disponível'}
                               </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'arrendado' })}
-                                data-testid={`action-rented-${property.id}`}
-                              >
-                                <HandCoins className="h-4 w-4 mr-2" />
-                                Marcar como Arrendado
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'vendido' })}
-                                data-testid={`action-sold-${property.id}`}
-                              >
-                                <ShoppingCart className="h-4 w-4 mr-2" />
-                                Marcar como Vendido
-                              </DropdownMenuItem>
+                              {property.type === 'Arrendar' && (
+                                <DropdownMenuItem
+                                  onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'arrendado' })}
+                                  disabled={updateStatusMutation.isPending}
+                                  data-testid={`action-rented-${property.id}`}
+                                >
+                                  <HandCoins className="h-4 w-4 mr-2" />
+                                  {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Arrendado'}
+                                </DropdownMenuItem>
+                              )}
+                              {property.type === 'Vender' && (
+                                <DropdownMenuItem
+                                  onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'vendido' })}
+                                  disabled={updateStatusMutation.isPending}
+                                  data-testid={`action-sold-${property.id}`}
+                                >
+                                  <ShoppingCart className="h-4 w-4 mr-2" />
+                                  {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Vendido'}
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => {
@@ -346,11 +353,12 @@ export default function ImoveisIndisponiveis() {
                                     deletePropertyMutation.mutate(property.id);
                                   }
                                 }}
+                                disabled={deletePropertyMutation.isPending}
                                 className="text-destructive focus:text-destructive"
                                 data-testid={`action-delete-${property.id}`}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                Eliminar
+                                {deletePropertyMutation.isPending ? 'Eliminando...' : 'Eliminar'}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

@@ -389,6 +389,26 @@ export default function MeusImoveis() {
                                               {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Disponível'}
                                             </DropdownMenuItem>
                                           )}
+                                          {property.status !== 'arrendado' && property.type === 'Arrendar' && (
+                                            <DropdownMenuItem
+                                              onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'arrendado' })}
+                                              disabled={updateStatusMutation.isPending}
+                                              data-testid={`action-rented-${property.id}`}
+                                            >
+                                              <CheckCircle className="h-4 w-4 mr-2" />
+                                              {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Arrendado'}
+                                            </DropdownMenuItem>
+                                          )}
+                                          {property.status !== 'vendido' && property.type === 'Vender' && (
+                                            <DropdownMenuItem
+                                              onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'vendido' })}
+                                              disabled={updateStatusMutation.isPending}
+                                              data-testid={`action-sold-${property.id}`}
+                                            >
+                                              <CheckCircle className="h-4 w-4 mr-2" />
+                                              {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Vendido'}
+                                            </DropdownMenuItem>
+                                          )}
                                           {property.status !== 'indisponivel' && (
                                             <DropdownMenuItem
                                               onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'indisponivel' })}
