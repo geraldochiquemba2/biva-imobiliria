@@ -12,9 +12,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Building2, DollarSign, Upload, X } from "lucide-react";
+import { ArrowLeft, Building2, DollarSign, Upload, X, Star } from "lucide-react";
 import type { User } from "@shared/schema";
 import { z } from "zod";
+
+// Províncias e Municípios de Angola
+const PROVINCIAS_MUNICIPIOS: Record<string, string[]> = {
+  "Luanda": ["Luanda", "Belas", "Cacuaco", "Cazenga", "Icolo e Bengo", "Quiçama", "Viana"],
+  "Bengo": ["Ambriz", "Bula Atumba", "Dande", "Dembos", "Nambuangongo", "Pango Aluquém"],
+  "Benguela": ["Benguela", "Baía Farta", "Balombo", "Bocoio", "Caimbambo", "Catumbela", "Chongorói", "Cubal", "Ganda", "Lobito"],
+  "Bié": ["Kuito", "Andulo", "Camacupa", "Catabola", "Chinguar", "Chitembo", "Cuemba", "Cunhinga", "Nharea"],
+  "Cabinda": ["Cabinda", "Belize", "Buco-Zau", "Cacongo"],
+  "Cuando Cubango": ["Menongue", "Calai", "Cuangar", "Cuchi", "Cuito Cuanavale", "Dirico", "Mavinga", "Nankova", "Rivungo"],
+  "Cuanza Norte": ["N'dalatando", "Ambaca", "Banga", "Bolongongo", "Cambambe", "Cazengo", "Golungo Alto", "Gonguembo", "Lucala", "Quiculungo", "Samba Caju"],
+  "Cuanza Sul": ["Sumbe", "Amboim", "Cassongue", "Cela", "Conda", "Ebo", "Libolo", "Mussende", "Porto Amboim", "Quibala", "Quilenda", "Seles"],
+  "Cunene": ["Ondjiva", "Cahama", "Cuanhama", "Curoca", "Cuvelai", "Namacunde", "Ombadja"],
+  "Huambo": ["Huambo", "Bailundo", "Cachiungo", "Caála", "Ekunha", "Chinjenje", "Chipindo", "Chicala-Choloanga", "Chiumbo", "Londuimbali", "Longonjo", "Mungo", "Ucuma"],
+  "Huíla": ["Lubango", "Caconda", "Cacula", "Caluquembe", "Chiange", "Chibia", "Chicomba", "Chipindo", "Cuvango", "Humpata", "Jamba", "Matala", "Quilengues", "Quipungo"],
+  "Lunda Norte": ["Dundo", "Cambulo", "Capenda-Camulemba", "Caungula", "Chitato", "Cuango", "Cuílo", "Lóvua", "Lubalo", "Lucapa"],
+  "Lunda Sul": ["Saurimo", "Cacolo", "Dala", "Muconda"],
+  "Malanje": ["Malanje", "Cacuso", "Calandula", "Cambundi-Catembo", "Cangandala", "Caombo", "Cuaba Nzogo", "Cunda-Dia-Baze", "Quirima", "Luquembo", "Massango", "Marimba", "Mucari", "Quela"],
+  "Moxico": ["Luena", "Alto Zambeze", "Bundas", "Camanongue", "Cameia", "Leua", "Luacano", "Luchazes", "Lumeje", "Moxico"],
+  "Namibe": ["Moçâmedes", "Bibala", "Camucuio", "Tômbua", "Virei"],
+  "Uíge": ["Uíge", "Alto Cauale", "Ambuíla", "Bembe", "Buengas", "Bungo", "Damba", "Macocola", "Milunga", "Mucaba", "Negage", "Puri", "Quimbele", "Quitexe", "Sanza Pombo", "Songo"],
+  "Zaire": ["M'banza Kongo", "Cuimba", "Nóqui", "Nzeto", "Soio", "Tomboco"]
+};
 
 const propertyFormSchema = z.object({
   title: z.string().min(5, "Título deve ter no mínimo 5 caracteres"),
@@ -31,6 +53,8 @@ const propertyFormSchema = z.object({
   provincia: z.string().min(2, "Província é obrigatória"),
   bedrooms: z.coerce.number().min(0, "Número inválido").optional(),
   bathrooms: z.coerce.number().min(0, "Número inválido").optional(),
+  livingRooms: z.coerce.number().min(0, "Número inválido").optional(),
+  kitchens: z.coerce.number().min(0, "Número inválido").optional(),
   area: z.coerce.number().positive("Área deve ser maior que zero"),
 });
 
@@ -40,8 +64,10 @@ export default function CadastrarImovel() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [category, setCategory] = useState<string>('');
+  const [selectedProvince, setSelectedProvince] = useState<string>('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [coverImageIndex, setCoverImageIndex] = useState<number>(0);
   const [isUploading, setIsUploading] = useState(false);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
@@ -67,21 +93,32 @@ export default function CadastrarImovel() {
     control,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertyFormSchema),
     defaultValues: {
       bedrooms: 0,
       bathrooms: 0,
+      livingRooms: 0,
+      kitchens: 0,
     },
   });
 
   const watchedCategory = watch("category");
+  const watchedProvince = watch("provincia");
 
   useEffect(() => {
     if (watchedCategory) {
       setCategory(watchedCategory);
     }
   }, [watchedCategory]);
+
+  useEffect(() => {
+    if (watchedProvince && watchedProvince !== selectedProvince) {
+      setSelectedProvince(watchedProvince);
+      setValue("municipio", "");
+    }
+  }, [watchedProvince, selectedProvince, setValue]);
 
   // Cleanup preview URLs on unmount
   useEffect(() => {
@@ -119,12 +156,12 @@ export default function CadastrarImovel() {
       return isValidSize;
     });
 
-    // Limit to 4 files
+    // Limit to 10 files
     const totalFiles = selectedFiles.length + validSizedFiles.length;
-    if (totalFiles > 4) {
+    if (totalFiles > 10) {
       toast({
         title: "Limite de arquivos",
-        description: "Você pode enviar no máximo 4 imagens",
+        description: "Você pode enviar no máximo 10 imagens",
         variant: "destructive",
       });
       return;
@@ -141,6 +178,17 @@ export default function CadastrarImovel() {
     URL.revokeObjectURL(previewUrls[index]);
     setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
     setPreviewUrls(previewUrls.filter((_, i) => i !== index));
+    
+    // Adjust cover image index if necessary
+    if (coverImageIndex === index) {
+      setCoverImageIndex(0);
+    } else if (coverImageIndex > index) {
+      setCoverImageIndex(coverImageIndex - 1);
+    }
+  };
+
+  const setCoverImage = (index: number) => {
+    setCoverImageIndex(index);
   };
 
   const createPropertyMutation = useMutation({
@@ -152,12 +200,20 @@ export default function CadastrarImovel() {
       // Upload images first if any were selected
       if (selectedFiles.length > 0) {
         const formData = new FormData();
-        selectedFiles.forEach(file => {
+        
+        // Reorder files so cover image is first
+        const reorderedFiles = [...selectedFiles];
+        if (coverImageIndex > 0) {
+          const coverFile = reorderedFiles[coverImageIndex];
+          reorderedFiles.splice(coverImageIndex, 1);
+          reorderedFiles.unshift(coverFile);
+        }
+        
+        reorderedFiles.forEach(file => {
           formData.append('images', file);
         });
 
         try {
-          // For FormData, use fetch directly to avoid JSON headers
           const uploadRes = await fetch('/api/properties/upload', {
             method: 'POST',
             body: formData,
@@ -191,8 +247,8 @@ export default function CadastrarImovel() {
         area: data.area,
         bedrooms: data.bedrooms || 0,
         bathrooms: data.bathrooms || 0,
-        livingRooms: 1,
-        kitchens: 1,
+        livingRooms: data.livingRooms || 0,
+        kitchens: data.kitchens || 0,
         featured: false,
         status: 'disponivel',
         ownerId: currentUser!.id,
@@ -242,6 +298,7 @@ export default function CadastrarImovel() {
   }
 
   const showRoomFields = category === 'Casa' || category === 'Apartamento';
+  const availableMunicipios = selectedProvince ? PROVINCIAS_MUNICIPIOS[selectedProvince] || [] : [];
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -373,11 +430,23 @@ export default function CadastrarImovel() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="provincia">Província</Label>
-                      <Input
-                        id="provincia"
-                        placeholder="Luanda"
-                        {...register("provincia")}
-                        data-testid="input-provincia"
+                      <Controller
+                        name="provincia"
+                        control={control}
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger data-testid="select-provincia">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.keys(PROVINCIAS_MUNICIPIOS).sort().map((provincia) => (
+                                <SelectItem key={provincia} value={provincia} data-testid={`option-provincia-${provincia.toLowerCase().replace(/\s+/g, '-')}`}>
+                                  {provincia}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
                       {errors.provincia && (
                         <p className="text-sm text-destructive">{errors.provincia.message}</p>
@@ -386,11 +455,27 @@ export default function CadastrarImovel() {
 
                     <div className="space-y-2">
                       <Label htmlFor="municipio">Município</Label>
-                      <Input
-                        id="municipio"
-                        placeholder="Belas"
-                        {...register("municipio")}
-                        data-testid="input-municipio"
+                      <Controller
+                        name="municipio"
+                        control={control}
+                        render={({ field }) => (
+                          <Select 
+                            onValueChange={field.onChange} 
+                            value={field.value}
+                            disabled={!selectedProvince}
+                          >
+                            <SelectTrigger data-testid="select-municipio">
+                              <SelectValue placeholder={selectedProvince ? "Selecione" : "Selecione província primeiro"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableMunicipios.map((municipio) => (
+                                <SelectItem key={municipio} value={municipio} data-testid={`option-municipio-${municipio.toLowerCase().replace(/\s+/g, '-')}`}>
+                                  {municipio}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
                       {errors.municipio && (
                         <p className="text-sm text-destructive">{errors.municipio.message}</p>
@@ -411,7 +496,7 @@ export default function CadastrarImovel() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="area">Área (m²)</Label>
                       <Input
@@ -425,53 +510,98 @@ export default function CadastrarImovel() {
                         <p className="text-sm text-destructive">{errors.area.message}</p>
                       )}
                     </div>
-
-                    {showRoomFields && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="bedrooms">Quartos</Label>
-                          <Input
-                            id="bedrooms"
-                            type="number"
-                            placeholder="3"
-                            {...register("bedrooms")}
-                            data-testid="input-bedrooms"
-                          />
-                          {errors.bedrooms && (
-                            <p className="text-sm text-destructive">{errors.bedrooms.message}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="bathrooms">Casas de Banho</Label>
-                          <Input
-                            id="bathrooms"
-                            type="number"
-                            placeholder="2"
-                            {...register("bathrooms")}
-                            data-testid="input-bathrooms"
-                          />
-                          {errors.bathrooms && (
-                            <p className="text-sm text-destructive">{errors.bathrooms.message}</p>
-                          )}
-                        </div>
-                      </>
-                    )}
                   </div>
+
+                  {showRoomFields && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="bedrooms">Quartos</Label>
+                        <Input
+                          id="bedrooms"
+                          type="number"
+                          placeholder="3"
+                          {...register("bedrooms")}
+                          data-testid="input-bedrooms"
+                        />
+                        {errors.bedrooms && (
+                          <p className="text-sm text-destructive">{errors.bedrooms.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="livingRooms">Salas</Label>
+                        <Input
+                          id="livingRooms"
+                          type="number"
+                          placeholder="1"
+                          {...register("livingRooms")}
+                          data-testid="input-livingrooms"
+                        />
+                        {errors.livingRooms && (
+                          <p className="text-sm text-destructive">{errors.livingRooms.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="kitchens">Cozinhas</Label>
+                        <Input
+                          id="kitchens"
+                          type="number"
+                          placeholder="1"
+                          {...register("kitchens")}
+                          data-testid="input-kitchens"
+                        />
+                        {errors.kitchens && (
+                          <p className="text-sm text-destructive">{errors.kitchens.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="bathrooms">Casas de Banho</Label>
+                        <Input
+                          id="bathrooms"
+                          type="number"
+                          placeholder="2"
+                          {...register("bathrooms")}
+                          data-testid="input-bathrooms"
+                        />
+                        {errors.bathrooms && (
+                          <p className="text-sm text-destructive">{errors.bathrooms.message}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Image upload section */}
                   <div className="space-y-4">
-                    <Label>Imagens do Imóvel (até 4)</Label>
+                    <div>
+                      <Label>Imagens do Imóvel (até 10)</Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        A primeira imagem será a capa do anúncio. Clique na estrela para mudar a capa.
+                      </p>
+                    </div>
                     
                     {previewUrls.length > 0 && (
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {previewUrls.map((url, index) => (
                           <div key={index} className="relative group">
                             <img 
                               src={url} 
                               alt={`Preview ${index + 1}`}
-                              className="w-full h-32 object-cover rounded-md border"
+                              className={`w-full h-32 object-cover rounded-md border-2 ${
+                                coverImageIndex === index ? 'border-primary' : 'border-border'
+                              }`}
                             />
+                            <Button
+                              type="button"
+                              variant={coverImageIndex === index ? "default" : "secondary"}
+                              size="icon"
+                              className="absolute top-2 left-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => setCoverImage(index)}
+                              data-testid={`button-set-cover-${index}`}
+                            >
+                              <Star className={`h-3 w-3 ${coverImageIndex === index ? 'fill-current' : ''}`} />
+                            </Button>
                             <Button
                               type="button"
                               variant="destructive"
@@ -482,12 +612,17 @@ export default function CadastrarImovel() {
                             >
                               <X className="h-4 w-4" />
                             </Button>
+                            {coverImageIndex === index && (
+                              <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                                Capa
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
                     )}
 
-                    {selectedFiles.length < 4 && (
+                    {selectedFiles.length < 10 && (
                       <div>
                         <Label 
                           htmlFor="images" 
