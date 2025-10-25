@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Building2, MapPin, DollarSign } from "lucide-react";
+import { ArrowLeft, Building2, DollarSign, Upload, X } from "lucide-react";
 import type { User } from "@shared/schema";
 import { z } from "zod";
 
@@ -32,10 +32,6 @@ const propertyFormSchema = z.object({
   bedrooms: z.coerce.number().min(0, "Número inválido").optional(),
   bathrooms: z.coerce.number().min(0, "Número inválido").optional(),
   area: z.coerce.number().positive("Área deve ser maior que zero"),
-  image1: z.string().url("URL inválida").optional().or(z.literal('')),
-  image2: z.string().url("URL inválida").optional().or(z.literal('')),
-  image3: z.string().url("URL inválida").optional().or(z.literal('')),
-  image4: z.string().url("URL inválida").optional().or(z.literal('')),
 });
 
 type PropertyFormData = z.infer<typeof propertyFormSchema>;
@@ -44,6 +40,9 @@ export default function CadastrarImovel() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [category, setCategory] = useState<string>('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -84,10 +83,101 @@ export default function CadastrarImovel() {
     }
   }, [watchedCategory]);
 
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [previewUrls]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Validate file types
+    const validFiles = files.filter(file => {
+      const isValid = file.type.startsWith('image/');
+      if (!isValid) {
+        toast({
+          title: "Arquivo inválido",
+          description: `${file.name} não é uma imagem válida`,
+          variant: "destructive",
+        });
+      }
+      return isValid;
+    });
+
+    // Validate file sizes
+    const validSizedFiles = validFiles.filter(file => {
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5 MB
+      if (!isValidSize) {
+        toast({
+          title: "Arquivo muito grande",
+          description: `${file.name} excede o tamanho máximo de 5 MB`,
+          variant: "destructive",
+        });
+      }
+      return isValidSize;
+    });
+
+    // Limit to 4 files
+    const totalFiles = selectedFiles.length + validSizedFiles.length;
+    if (totalFiles > 4) {
+      toast({
+        title: "Limite de arquivos",
+        description: "Você pode enviar no máximo 4 imagens",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create preview URLs
+    const newPreviewUrls = validSizedFiles.map(file => URL.createObjectURL(file));
+    
+    setSelectedFiles([...selectedFiles, ...validSizedFiles]);
+    setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+  };
+
+  const removeFile = (index: number) => {
+    URL.revokeObjectURL(previewUrls[index]);
+    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+    setPreviewUrls(previewUrls.filter((_, i) => i !== index));
+  };
+
   const createPropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
-      const images = [data.image1, data.image2, data.image3, data.image4]
-        .filter(url => url && url.trim() !== '');
+      setIsUploading(true);
+      
+      let imageUrls: string[] = [];
+      
+      // Upload images first if any were selected
+      if (selectedFiles.length > 0) {
+        const formData = new FormData();
+        selectedFiles.forEach(file => {
+          formData.append('images', file);
+        });
+
+        try {
+          // For FormData, use fetch directly to avoid JSON headers
+          const uploadRes = await fetch('/api/properties/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+          });
+          
+          if (!uploadRes.ok) {
+            throw new Error('Upload failed');
+          }
+          
+          const uploadData = await uploadRes.json();
+          
+          if (uploadData.success && uploadData.urls) {
+            imageUrls = uploadData.urls;
+          }
+        } catch (uploadError) {
+          console.error('Upload error:', uploadError);
+          throw new Error('Falha ao fazer upload das imagens');
+        }
+      }
       
       const propertyData: any = {
         title: data.title,
@@ -108,8 +198,8 @@ export default function CadastrarImovel() {
         ownerId: currentUser!.id,
       };
       
-      if (images.length > 0) {
-        propertyData.images = images;
+      if (imageUrls.length > 0) {
+        propertyData.images = imageUrls;
       }
       
       const res = await apiRequest('POST', '/api/properties', propertyData);
@@ -130,6 +220,9 @@ export default function CadastrarImovel() {
         variant: "destructive",
       });
     },
+    onSettled: () => {
+      setIsUploading(false);
+    }
   });
 
   const onSubmit = (data: PropertyFormData) => {
@@ -366,61 +459,61 @@ export default function CadastrarImovel() {
                     )}
                   </div>
 
+                  {/* Image upload section */}
                   <div className="space-y-4">
-                    <Label>URLs das Imagens (opcional)</Label>
-                    <div className="space-y-3">
-                      <div>
-                        <Input
-                          id="image1"
-                          type="url"
-                          placeholder="URL da imagem 1"
-                          {...register("image1")}
-                          data-testid="input-image1"
-                        />
-                        {errors.image1 && (
-                          <p className="text-sm text-destructive mt-1">{errors.image1.message}</p>
-                        )}
+                    <Label>Imagens do Imóvel (até 4)</Label>
+                    
+                    {previewUrls.length > 0 && (
+                      <div className="grid grid-cols-2 gap-4">
+                        {previewUrls.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <img 
+                              src={url} 
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-md border"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => removeFile(index)}
+                              data-testid={`button-remove-image-${index}`}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
                       </div>
+                    )}
+
+                    {selectedFiles.length < 4 && (
                       <div>
+                        <Label 
+                          htmlFor="images" 
+                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-md cursor-pointer hover-elevate"
+                        >
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">
+                              Clique para selecionar imagens
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              JPEG, PNG ou WebP (máx. 5 MB cada)
+                            </p>
+                          </div>
+                        </Label>
                         <Input
-                          id="image2"
-                          type="url"
-                          placeholder="URL da imagem 2"
-                          {...register("image2")}
-                          data-testid="input-image2"
+                          id="images"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/jpg"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileSelect}
+                          data-testid="input-images"
                         />
-                        {errors.image2 && (
-                          <p className="text-sm text-destructive mt-1">{errors.image2.message}</p>
-                        )}
                       </div>
-                      <div>
-                        <Input
-                          id="image3"
-                          type="url"
-                          placeholder="URL da imagem 3"
-                          {...register("image3")}
-                          data-testid="input-image3"
-                        />
-                        {errors.image3 && (
-                          <p className="text-sm text-destructive mt-1">{errors.image3.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Input
-                          id="image4"
-                          type="url"
-                          placeholder="URL da imagem 4"
-                          {...register("image4")}
-                          data-testid="input-image4"
-                        />
-                        {errors.image4 && (
-                          <p className="text-sm text-destructive mt-1">{errors.image4.message}</p>
-                        )}
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Adicione até 4 URLs de imagens do imóvel
-                    </p>
+                    )}
                   </div>
                 </div>
 
@@ -437,10 +530,10 @@ export default function CadastrarImovel() {
                   <Button
                     type="submit"
                     className="flex-1"
-                    disabled={createPropertyMutation.isPending}
+                    disabled={createPropertyMutation.isPending || isUploading}
                     data-testid="button-submit"
                   >
-                    {createPropertyMutation.isPending ? "Cadastrando..." : "Cadastrar Imóvel"}
+                    {isUploading ? "Enviando imagens..." : createPropertyMutation.isPending ? "Cadastrando..." : "Cadastrar Imóvel"}
                   </Button>
                 </div>
               </form>

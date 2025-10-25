@@ -15,6 +15,8 @@ import Cadastro from "@/pages/Cadastro";
 import Dashboard from "@/pages/Dashboard";
 import CadastrarImovel from "@/pages/CadastrarImovel";
 import Profile from "@/pages/Profile";
+import ContratosAtivos from "@/pages/ContratosAtivos";
+import VisitasAgendadas from "@/pages/VisitasAgendadas";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -42,6 +44,8 @@ function Router() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/cadastrar-imovel" component={CadastrarImovel} />
         <Route path="/perfil" component={Profile} />
+        <Route path="/contratos-ativos" component={ContratosAtivos} />
+        <Route path="/visitas-agendadas" component={VisitasAgendadas} />
         <Route component={NotFound} />
       </Switch>
     </>

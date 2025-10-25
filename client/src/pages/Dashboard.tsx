@@ -129,77 +129,85 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
 
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Contratos Ativos
-                    </CardTitle>
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                      {activeContracts.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Em andamento
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/contratos-ativos">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Contratos Ativos
+                      </CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                        {activeContracts.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Em andamento
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
 
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Visitas Agendadas
-                    </CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-visits-count">
-                      {scheduledVisits.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Próximas visitas
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/visitas-agendadas">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Visitas Agendadas
+                      </CardTitle>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-visits-count">
+                        {scheduledVisits.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Próximas visitas
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
               </>
             )}
 
             {currentUser.userType === 'cliente' && (
               <>
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Visitas Agendadas
-                    </CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-visits-count">
-                      {scheduledVisits.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Próximas visitas
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/visitas-agendadas">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Visitas Agendadas
+                      </CardTitle>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-visits-count">
+                        {scheduledVisits.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Próximas visitas
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
 
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Contratos Ativos
-                    </CardTitle>
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                      {activeContracts.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Em andamento
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/contratos-ativos">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Contratos Ativos
+                      </CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                        {activeContracts.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Em andamento
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
 
                 <Card className="hover-elevate">
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
@@ -239,39 +247,43 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
 
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Contratos Ativos
-                    </CardTitle>
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                      {activeContracts.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Em andamento
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/contratos-ativos">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Contratos Ativos
+                      </CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-contracts-count">
+                        {activeContracts.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Em andamento
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
 
-                <Card className="hover-elevate">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Visitas Agendadas
-                    </CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold" data-testid="text-visits-count">
-                      {scheduledVisits.length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Este mês
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link href="/visitas-agendadas">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2">
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Visitas Agendadas
+                      </CardTitle>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-visits-count">
+                        {scheduledVisits.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Este mês
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
               </>
             )}
 

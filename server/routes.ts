@@ -14,6 +14,10 @@ import {
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import session from "express-session";
+import multer from "multer";
+import path from "path";
+import fs from "fs/promises";
+import { existsSync } from "fs";
 
 // Extend Express session type
 declare module 'express-session' {
@@ -44,7 +48,53 @@ function requireRole(...roles: string[]) {
   };
 }
 
+// Configure upload directory
+const UPLOAD_DIR = path.join(process.cwd(), 'uploads', 'properties');
+
+// Ensure upload directory exists
+async function ensureUploadDir() {
+  if (!existsSync(UPLOAD_DIR)) {
+    await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  }
+}
+
+// Configure Multer for image uploads (disk storage)
+const storage_multer = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    await ensureUploadDir();
+    cb(null, UPLOAD_DIR);
+  },
+  filename: (req, file, cb) => {
+    const userId = (req as any).session?.userId || 'unknown';
+    const timestamp = Date.now();
+    const sanitizedName = file.originalname
+      .replace(/[^a-zA-Z0-9.-]/g, '_')
+      .toLowerCase();
+    cb(null, `${userId}_${timestamp}_${sanitizedName}`);
+  }
+});
+
+const upload = multer({
+  storage: storage_multer,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB max
+    files: 4 // max 4 files
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo de arquivo inválido. Use JPEG, PNG ou WebP.'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded images statically
+  const express = await import('express');
+  app.use('/uploads', express.default.static(path.join(process.cwd(), 'uploads')));
+
   // Configure session middleware
   app.use(session({
     secret: process.env.SESSION_SECRET || 'biva-secret-key-development',
@@ -244,6 +294,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error getting property:', error);
       res.status(500).json({ error: "Falha ao buscar imóvel" });
+    }
+  });
+
+  // Upload property images (proprietarios and corretores only)
+  app.post("/api/properties/upload", requireRole('proprietario', 'corretor'), upload.array('images', 4), async (req, res) => {
+    try {
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
+      }
+
+      const uploadedUrls: string[] = [];
+
+      for (const file of req.files) {
+        // Create URL path for the uploaded file
+        const fileUrl = `/uploads/properties/${file.filename}`;
+        uploadedUrls.push(fileUrl);
+      }
+
+      res.status(200).json({ 
+        success: true, 
+        urls: uploadedUrls,
+        count: uploadedUrls.length
+      });
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      if (error instanceof multer.MulterError) {
+        if (error.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ error: "Arquivo muito grande. Tamanho máximo: 5 MB" });
+        }
+        if (error.code === 'LIMIT_FILE_COUNT') {
+          return res.status(400).json({ error: "Número máximo de arquivos: 4" });
+        }
+      }
+      res.status(500).json({ error: "Falha ao fazer upload das imagens" });
     }
   });
 
