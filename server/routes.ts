@@ -113,6 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     secret: process.env.SESSION_SECRET || 'biva-secret-key-development',
     resave: false,
     saveUninitialized: false,
+    proxy: true, // Trust the Render proxy
     cookie: { 
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
