@@ -174,12 +174,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "Número de telefone ou senha incorretos" });
       }
       
+      // Update last login time
+      await storage.updateUser(user.id, { lastLoginAt: new Date() } as any);
+      
       // Set session
       req.session.userId = user.id;
       req.session.userType = user.userType;
       
-      // Return user without password
-      const { password, ...userWithoutPassword } = user;
+      // Return user without password (with updated lastLoginAt)
+      const updatedUser = { ...user, lastLoginAt: new Date() };
+      const { password, ...userWithoutPassword } = updatedUser;
       res.json(userWithoutPassword);
     } catch (error) {
       console.error('Error logging in:', error);

@@ -18,6 +18,7 @@ export const users = pgTable("users", {
   bi: text("bi"),
   profileImage: text("profile_image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastLoginAt: timestamp("last_login_at"),
 });
 
 // Properties table

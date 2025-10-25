@@ -281,7 +281,9 @@ export default function AdminUsuarios() {
                                 <div className="flex items-center gap-2">
                                   <Clock className="h-3.5 w-3.5 flex-shrink-0" />
                                   <span>
-                                    Na plataforma há {formatDistanceToNow(new Date(user.createdAt), { locale: ptBR, addSuffix: false })}
+                                    {user.lastLoginAt 
+                                      ? `Logado há ${formatDistanceToNow(new Date(user.lastLoginAt), { locale: ptBR, addSuffix: false })}`
+                                      : 'Nunca fez login'}
                                   </span>
                                 </div>
                               </div>
@@ -401,7 +403,9 @@ export default function AdminUsuarios() {
                                 <div className="flex items-center gap-2">
                                   <Clock className="h-3.5 w-3.5 flex-shrink-0" />
                                   <span>
-                                    Na plataforma há {formatDistanceToNow(new Date(user.createdAt), { locale: ptBR, addSuffix: false })}
+                                    {user.lastLoginAt 
+                                      ? `Logado há ${formatDistanceToNow(new Date(user.lastLoginAt), { locale: ptBR, addSuffix: false })}`
+                                      : 'Nunca fez login'}
                                   </span>
                                 </div>
                               </div>
