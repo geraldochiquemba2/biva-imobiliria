@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { PropertyWithOwner, User } from "@shared/schema";
+import MapView from "@/components/MapView";
 import {
   ArrowLeft,
   MapPin,
@@ -277,7 +278,7 @@ export default function ImovelDetalhes() {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold mb-4">Localização</h2>
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <div className="flex items-start gap-2">
                       <MapPin className="h-5 w-5 text-primary mt-0.5" />
                       <div>
@@ -295,6 +296,16 @@ export default function ImovelDetalhes() {
                         </p>
                       </div>
                     </div>
+                    
+                    {property.latitude && property.longitude && (
+                      <div className="mt-4">
+                        <MapView
+                          latitude={parseFloat(property.latitude)}
+                          longitude={parseFloat(property.longitude)}
+                          title={property.title}
+                        />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
