@@ -42,10 +42,10 @@ export interface IStorage {
   
   // Contract methods
   getContract(id: string): Promise<Contract | undefined>;
-  listContracts(): Promise<Contract[]>;
+  listContracts(): Promise<any[]>;
   createContract(contract: InsertContract): Promise<Contract>;
   updateContract(id: string, contract: Partial<InsertContract>): Promise<Contract | undefined>;
-  getContractsByUser(userId: string): Promise<Contract[]>;
+  getContractsByUser(userId: string): Promise<any[]>;
   getContractsByProperty(propertyId: string): Promise<Contract[]>;
   
   // Visit methods
@@ -220,8 +220,32 @@ export class DatabaseStorage implements IStorage {
     return contract || undefined;
   }
 
-  async listContracts(): Promise<Contract[]> {
-    const results = await db.select().from(contracts).orderBy(desc(contracts.createdAt));
+  async listContracts(): Promise<any[]> {
+    const results = await db.query.contracts.findMany({
+      orderBy: [desc(contracts.createdAt)],
+      with: {
+        property: {
+          columns: {
+            title: true,
+            bairro: true,
+            municipio: true,
+            images: true,
+          },
+        },
+        proprietario: {
+          columns: {
+            fullName: true,
+            phone: true,
+          },
+        },
+        cliente: {
+          columns: {
+            fullName: true,
+            phone: true,
+          },
+        },
+      },
+    });
     return results;
   }
 
@@ -242,19 +266,36 @@ export class DatabaseStorage implements IStorage {
     return contract || undefined;
   }
 
-  async getContractsByUser(userId: string): Promise<Contract[]> {
-    const results = await db
-      .select()
-      .from(contracts)
-      .where(
-        and(
-          or(
-            eq(contracts.clienteId, userId),
-            eq(contracts.proprietarioId, userId)
-          )
-        )
-      )
-      .orderBy(desc(contracts.createdAt));
+  async getContractsByUser(userId: string): Promise<any[]> {
+    const results = await db.query.contracts.findMany({
+      where: or(
+        eq(contracts.clienteId, userId),
+        eq(contracts.proprietarioId, userId)
+      ),
+      orderBy: [desc(contracts.createdAt)],
+      with: {
+        property: {
+          columns: {
+            title: true,
+            bairro: true,
+            municipio: true,
+            images: true,
+          },
+        },
+        proprietario: {
+          columns: {
+            fullName: true,
+            phone: true,
+          },
+        },
+        cliente: {
+          columns: {
+            fullName: true,
+            phone: true,
+          },
+        },
+      },
+    });
     return results;
   }
 

@@ -26,6 +26,7 @@ interface Contract {
     title: string;
     bairro: string;
     municipio: string;
+    images?: string[];
   };
   proprietario?: {
     fullName: string;
@@ -117,6 +118,16 @@ export default function ContratosAtivos() {
                   transition={{ duration: 0.4 }}
                 >
                   <Card className="hover-elevate">
+                    {contract.property?.images && contract.property.images.length > 0 && (
+                      <div className="aspect-video overflow-hidden bg-muted">
+                        <img
+                          src={contract.property.images[0]}
+                          alt={contract.property.title}
+                          className="w-full h-full object-cover"
+                          data-testid={`img-property-${contract.id}`}
+                        />
+                      </div>
+                    )}
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
