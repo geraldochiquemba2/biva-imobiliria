@@ -1,10 +1,29 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { User, Property } from "@shared/schema";
 import { 
   Building2, 
@@ -13,12 +32,18 @@ import {
   Plus,
   Home,
   Eye,
-  Edit
+  Edit,
+  MoreVertical,
+  CheckCircle,
+  XCircle,
+  Trash2
 } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
 
 export default function MeusImoveis() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -26,6 +51,53 @@ export default function MeusImoveis() {
 
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const res = await apiRequest('PATCH', `/api/properties/${id}`, { status });
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Status atualizado!",
+        description: "O status do imóvel foi atualizado com sucesso",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao atualizar status",
+        description: "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest('DELETE', `/api/properties/${id}`);
+      if (!res.ok) {
+        throw new Error('Falha ao deletar imóvel');
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Imóvel eliminado!",
+        description: "O imóvel foi eliminado com sucesso",
+      });
+      setDeletePropertyId(null);
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao eliminar imóvel",
+        description: "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+      setDeletePropertyId(null);
+    },
   });
 
   useEffect(() => {
@@ -294,6 +366,42 @@ export default function MeusImoveis() {
                                           <Eye className="h-4 w-4" />
                                         </Link>
                                       </Button>
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button variant="outline" size="icon" data-testid={`button-actions-${property.id}`}>
+                                            <MoreVertical className="h-4 w-4" />
+                                          </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                          {property.status !== 'disponivel' && (
+                                            <DropdownMenuItem
+                                              onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'disponivel' })}
+                                              data-testid={`action-available-${property.id}`}
+                                            >
+                                              <CheckCircle className="h-4 w-4 mr-2" />
+                                              Marcar como Disponível
+                                            </DropdownMenuItem>
+                                          )}
+                                          {property.status !== 'indisponivel' && (
+                                            <DropdownMenuItem
+                                              onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'indisponivel' })}
+                                              data-testid={`action-unavailable-${property.id}`}
+                                            >
+                                              <XCircle className="h-4 w-4 mr-2" />
+                                              Marcar como Indisponível
+                                            </DropdownMenuItem>
+                                          )}
+                                          <DropdownMenuSeparator />
+                                          <DropdownMenuItem
+                                            onClick={() => setDeletePropertyId(property.id)}
+                                            className="text-destructive focus:text-destructive"
+                                            data-testid={`action-delete-${property.id}`}
+                                          >
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            Eliminar
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
                                     </div>
                                   </div>
                                 </div>
@@ -310,6 +418,27 @@ export default function MeusImoveis() {
           )}
         </motion.div>
       </div>
+
+      <AlertDialog open={!!deletePropertyId} onOpenChange={(open) => !open && setDeletePropertyId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza que deseja eliminar este imóvel?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O imóvel será permanentemente eliminado do sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deletePropertyId && deletePropertyMutation.mutate(deletePropertyId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
