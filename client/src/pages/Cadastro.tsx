@@ -17,7 +17,10 @@ import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 const registerFormSchema = z.object({
   fullName: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  phone: z.string().regex(/^\+244\d{9}$/, "Número deve estar no formato +244XXXXXXXXX"),
+  phone: z.string().refine(
+    (val) => val === "+244" || /^\+244\d{9}$/.test(val),
+    "Por favor, digite os 9 dígitos do seu número"
+  ),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   confirmPassword: z.string(),
   userType: z.enum(['proprietario', 'cliente', 'corretor'], {
