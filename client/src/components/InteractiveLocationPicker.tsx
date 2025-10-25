@@ -68,6 +68,17 @@ export default function InteractiveLocationPicker({
   }, [latitude, longitude]);
 
   const getCurrentLocation = () => {
+    // Verificar se o site está em HTTPS (necessário para geolocalização em móveis)
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      toast({
+        title: "HTTPS necessário",
+        description: "A geolocalização requer uma conexão segura (HTTPS). Certifique-se de que o site está hospedado com HTTPS ativado.",
+        variant: "destructive",
+        duration: 8000,
+      });
+      return;
+    }
+
     if (!navigator.geolocation) {
       toast({
         title: "Geolocalização não suportada",
@@ -88,6 +99,7 @@ export default function InteractiveLocationPicker({
             title: "Permissão negada",
             description: "Por favor, vá em Configurações do navegador > Permissões de sites > Localização e permita o acesso.",
             variant: "destructive",
+            duration: 8000,
           });
           isGettingLocationRef.current = false;
           return;

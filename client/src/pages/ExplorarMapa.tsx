@@ -133,6 +133,17 @@ export default function ExplorarMapa() {
 
   // Get user's current location
   const getUserLocation = () => {
+    // Verificar se o site está em HTTPS (necessário para geolocalização em móveis)
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      toast({
+        title: "HTTPS necessário",
+        description: "A geolocalização requer uma conexão segura (HTTPS). Certifique-se de que o site está hospedado com HTTPS ativado no Render.",
+        variant: "destructive",
+        duration: 8000,
+      });
+      return;
+    }
+
     if (!navigator.geolocation) {
       toast({
         title: "Geolocalização não suportada",
@@ -150,7 +161,7 @@ export default function ExplorarMapa() {
             title: "Permissão negada",
             description: "Toque no ícone de cadeado na barra de endereços e ative 'Localização' nas permissões do site.",
             variant: "destructive",
-            duration: 7000,
+            duration: 8000,
           });
           return;
         }
