@@ -79,7 +79,30 @@ export default function InteractiveLocationPicker({
 
     if (isGettingLocationRef.current) return;
     isGettingLocationRef.current = true;
-    
+
+    // Primeiro, tente verificar permissões se a API estiver disponível
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+        if (result.state === 'denied') {
+          toast({
+            title: "Permissão negada",
+            description: "Por favor, vá em Configurações do navegador > Permissões de sites > Localização e permita o acesso.",
+            variant: "destructive",
+          });
+          isGettingLocationRef.current = false;
+          return;
+        }
+        requestLocation();
+      }).catch(() => {
+        // Se a API de permissões não estiver disponível, tente obter localização diretamente
+        requestLocation();
+      });
+    } else {
+      requestLocation();
+    }
+  };
+
+  const requestLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
@@ -88,36 +111,44 @@ export default function InteractiveLocationPicker({
           markerRef.current.setLatLng([latitude, longitude]);
           mapRef.current.setView([latitude, longitude], 15);
           onLocationChange(latitude, longitude, true);
+          
+          toast({
+            title: "Localização obtida",
+            description: "Sua localização foi identificada com sucesso",
+          });
         }
         
         isGettingLocationRef.current = false;
       },
       (error) => {
         let errorMessage = "Não foi possível obter sua localização";
+        let errorTitle = "Erro ao obter localização";
         
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = "Permissão de localização negada. Por favor, habilite nas configurações do navegador.";
+            errorTitle = "Permissão negada";
+            errorMessage = "Para habilitar:\n1. Toque no ícone de cadeado/informações na barra de endereços\n2. Toque em 'Permissões do site'\n3. Ative 'Localização'";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = "Informações de localização não estão disponíveis";
+            errorMessage = "Serviço de localização indisponível. Verifique se o GPS está ativado no seu dispositivo.";
             break;
           case error.TIMEOUT:
-            errorMessage = "Tempo limite excedido ao obter localização";
+            errorMessage = "Tempo limite excedido. Tente novamente.";
             break;
         }
         
         toast({
-          title: "Erro ao obter localização",
+          title: errorTitle,
           description: errorMessage,
           variant: "destructive",
+          duration: 7000,
         });
         isGettingLocationRef.current = false;
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+        enableHighAccuracy: false, // Reduzir para false em dispositivos móveis para maior compatibilidade
+        timeout: 15000, // Aumentar timeout
+        maximumAge: 60000, // Aceitar cache de até 1 minuto
       }
     );
   };

@@ -142,6 +142,28 @@ export default function ExplorarMapa() {
       return;
     }
 
+    // Verificar permissões primeiro, se disponível
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+        if (result.state === 'denied') {
+          toast({
+            title: "Permissão negada",
+            description: "Toque no ícone de cadeado na barra de endereços e ative 'Localização' nas permissões do site.",
+            variant: "destructive",
+            duration: 7000,
+          });
+          return;
+        }
+        requestUserLocation();
+      }).catch(() => {
+        requestUserLocation();
+      });
+    } else {
+      requestUserLocation();
+    }
+  };
+
+  const requestUserLocation = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
@@ -194,29 +216,32 @@ export default function ExplorarMapa() {
       },
       (error) => {
         let errorMessage = "Não foi possível obter sua localização";
+        let errorTitle = "Erro ao obter localização";
         
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = "Permissão de localização negada";
+            errorTitle = "Permissão negada";
+            errorMessage = "Para habilitar:\n1. Toque no ícone de cadeado/informações\n2. Toque em 'Permissões do site'\n3. Ative 'Localização'";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = "Informações de localização não disponíveis";
+            errorMessage = "Serviço de localização indisponível. Verifique se o GPS está ativado.";
             break;
           case error.TIMEOUT:
-            errorMessage = "Tempo limite excedido";
+            errorMessage = "Tempo limite excedido. Tente novamente.";
             break;
         }
         
         toast({
-          title: "Erro ao obter localização",
+          title: errorTitle,
           description: errorMessage,
           variant: "destructive",
+          duration: 7000,
         });
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+        enableHighAccuracy: false,
+        timeout: 15000,
+        maximumAge: 60000,
       }
     );
   };
