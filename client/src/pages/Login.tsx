@@ -80,15 +80,10 @@ export default function Login() {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
     
-    if (!value.startsWith("+244")) {
-      value = "+244";
-    }
-    
     const numbers = value.replace(/\D/g, '');
-    const angolaPart = numbers.slice(3, 12);
-    value = "+244" + angolaPart;
+    const limitedNumbers = numbers.slice(0, 9);
     
-    setValue("phone", value);
+    setValue("phone", "+244" + limitedNumbers);
   };
 
   if (currentUser) {
@@ -123,14 +118,17 @@ export default function Login() {
                   <Label htmlFor="phone">Número de Telemóvel</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <span className="absolute left-10 top-3 text-sm text-muted-foreground pointer-events-none">
+                      +244
+                    </span>
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="+244923456789"
-                      className="pl-10"
+                      placeholder="923456789"
+                      className="pl-[4.5rem]"
                       {...register("phone")}
                       onChange={handlePhoneChange}
-                      value={phoneValue}
+                      value={phoneValue?.slice(4) || ""}
                       data-testid="input-phone"
                     />
                   </div>
@@ -140,7 +138,7 @@ export default function Login() {
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Exemplo: +244923456789
+                    Exemplo: +244 923456789
                   </p>
                 </div>
 
