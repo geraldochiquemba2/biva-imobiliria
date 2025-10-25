@@ -322,95 +322,77 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {(hasRole('proprietario') || hasRole('corretor')) && (
-              <Card className="relative overflow-hidden">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center opacity-20"
-                  style={{ backgroundImage: `url(${buildingImg})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                <CardHeader className="relative z-10">
-                  <CardTitle>Meus Imóveis</CardTitle>
-                  <CardDescription>
-                    Gerencie seus imóveis cadastrados na plataforma
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  {propertiesLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : userProperties.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Home className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-lg font-semibold mb-2">
-                        Nenhum imóvel cadastrado
-                      </h3>
-                      <p className="text-muted-foreground mb-6">
-                        Comece cadastrando seu primeiro imóvel para arrendar ou vender
-                      </p>
-                      <Button asChild data-testid="button-add-property">
-                        <Link href="/cadastrar-imovel">
-                          <Plus className="h-4 w-4 mr-2" />
-                          Cadastrar Imóvel
-                        </Link>
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {userProperties.map((property) => (
-                        <Card key={property.id} className="hover-elevate">
-                          <CardHeader>
-                            <CardTitle className="text-base">{property.title}</CardTitle>
-                            <CardDescription>
-                              {property.category} - {property.type}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="flex items-center justify-between">
-                              <div className="text-sm text-muted-foreground">
-                                {property.bairro}, {property.municipio}
-                              </div>
-                              <div className="text-lg font-bold">
-                                {Number(property.price).toLocaleString('pt-AO', {
-                                  style: 'currency',
-                                  currency: 'AOA',
-                                })}
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <Link href="/meus-imoveis">
+                <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer h-full">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${buildingImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="relative z-10">
+                    <CardTitle>Meus Imóveis</CardTitle>
+                    <CardDescription>
+                      Gerencie seus imóveis cadastrados na plataforma
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    {propertiesLoading ? (
+                      <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      </div>
+                    ) : userProperties.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Home className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                        <h3 className="text-lg font-semibold mb-2">
+                          Nenhum imóvel cadastrado
+                        </h3>
+                        <p className="text-muted-foreground mb-6">
+                          Comece cadastrando seu primeiro imóvel para arrendar ou vender
+                        </p>
+                        <Button asChild data-testid="button-add-property" onClick={(e) => e.stopPropagation()}>
+                          <Link href="/cadastrar-imovel">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Cadastrar Imóvel
+                          </Link>
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <p className="text-center text-muted-foreground">
+                          Clique para ver todos os seus {userProperties.length} {userProperties.length === 1 ? 'imóvel' : 'imóveis'}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
             )}
 
             {hasRole('cliente') && (
-              <Card className="relative overflow-hidden">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center opacity-20"
-                  style={{ backgroundImage: `url(${houseImg})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                <CardHeader className="relative z-10">
-                  <CardTitle>Encontre seu Imóvel Ideal</CardTitle>
-                  <CardDescription>
-                    Explore nossa seleção de imóveis disponíveis
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center py-8 relative z-10">
-                  <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground mb-6">
-                    Navegue pelos imóveis disponíveis para encontrar o perfeito para você
-                  </p>
-                  <Button asChild data-testid="button-browse-properties">
-                    <Link href="/imoveis">
-                      Ver Imóveis Disponíveis
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <Link href="/imoveis">
+                <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer h-full">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${houseImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="relative z-10">
+                    <CardTitle>Encontre seu Imóvel Ideal</CardTitle>
+                    <CardDescription>
+                      Explore nossa seleção de imóveis disponíveis
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-center py-8 relative z-10">
+                    <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-6">
+                      Navegue pelos imóveis disponíveis para encontrar o perfeito para você
+                    </p>
+                    <Button asChild data-testid="button-browse-properties">
+                      <span>Ver Imóveis Disponíveis</span>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
             )}
           </div>
         </motion.div>
