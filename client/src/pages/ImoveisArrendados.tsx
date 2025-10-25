@@ -37,7 +37,13 @@ export default function ImoveisArrendados() {
   });
 
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
-    queryKey: ['/api/properties'],
+    queryKey: ['/api/users', currentUser?.id, 'properties'],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${currentUser?.id}/properties`);
+      if (!response.ok) throw new Error('Failed to fetch properties');
+      return response.json();
+    },
+    enabled: !!currentUser?.id,
   });
 
   const updateStatusMutation = useMutation({
@@ -45,6 +51,7 @@ export default function ImoveisArrendados() {
       return await apiRequest('PATCH', `/api/properties/${propertyId}`, { status });
     },
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       const statusMessages: Record<string, string> = {
         'disponivel': 'disponível',
@@ -71,6 +78,7 @@ export default function ImoveisArrendados() {
       return await apiRequest('DELETE', `/api/properties/${propertyId}`);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
         title: "Sucesso",
@@ -104,11 +112,7 @@ export default function ImoveisArrendados() {
     return null;
   }
 
-  const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
-  
-  const userProperties = hasRole('admin') || hasRole('corretor')
-    ? properties 
-    : properties.filter(p => p.ownerId === currentUser.id);
+  const userProperties = properties;
 
   const rentedProperties = userProperties.filter(p => p.status === 'arrendado');
   

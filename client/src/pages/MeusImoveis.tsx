@@ -50,7 +50,13 @@ export default function MeusImoveis() {
   });
 
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
-    queryKey: ['/api/properties'],
+    queryKey: ['/api/users', currentUser?.id, 'properties'],
+    queryFn: async () => {
+      const response = await fetch(`/api/users/${currentUser?.id}/properties`);
+      if (!response.ok) throw new Error('Failed to fetch properties');
+      return response.json();
+    },
+    enabled: !!currentUser?.id,
   });
 
   const updateStatusMutation = useMutation({
@@ -59,6 +65,7 @@ export default function MeusImoveis() {
       return await res.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
         title: "Status atualizado!",
@@ -80,9 +87,10 @@ export default function MeusImoveis() {
       if (!res.ok) {
         throw new Error('Falha ao deletar imóvel');
       }
-      return await res.json();
+      return id;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
         title: "Imóvel eliminado!",
@@ -120,9 +128,7 @@ export default function MeusImoveis() {
 
   const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
   
-  const userProperties = hasRole('admin') || hasRole('corretor')
-    ? properties 
-    : properties.filter(p => p.ownerId === currentUser.id);
+  const userProperties = properties;
 
   const propertiesByStatus = {
     disponivel: userProperties.filter(p => p.status === 'disponivel'),
@@ -376,24 +382,27 @@ export default function MeusImoveis() {
                                           {property.status !== 'disponivel' && (
                                             <DropdownMenuItem
                                               onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'disponivel' })}
+                                              disabled={updateStatusMutation.isPending}
                                               data-testid={`action-available-${property.id}`}
                                             >
                                               <CheckCircle className="h-4 w-4 mr-2" />
-                                              Marcar como Disponível
+                                              {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Disponível'}
                                             </DropdownMenuItem>
                                           )}
                                           {property.status !== 'indisponivel' && (
                                             <DropdownMenuItem
                                               onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'indisponivel' })}
+                                              disabled={updateStatusMutation.isPending}
                                               data-testid={`action-unavailable-${property.id}`}
                                             >
                                               <XCircle className="h-4 w-4 mr-2" />
-                                              Marcar como Indisponível
+                                              {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Indisponível'}
                                             </DropdownMenuItem>
                                           )}
                                           <DropdownMenuSeparator />
                                           <DropdownMenuItem
                                             onClick={() => setDeletePropertyId(property.id)}
+                                            disabled={deletePropertyMutation.isPending}
                                             className="text-destructive focus:text-destructive"
                                             data-testid={`action-delete-${property.id}`}
                                           >
@@ -428,13 +437,14 @@ export default function MeusImoveis() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={deletePropertyMutation.isPending} data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deletePropertyId && deletePropertyMutation.mutate(deletePropertyId)}
+              disabled={deletePropertyMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-delete"
             >
-              Eliminar
+              {deletePropertyMutation.isPending ? 'Eliminando...' : 'Eliminar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
