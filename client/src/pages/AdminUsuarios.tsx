@@ -27,8 +27,11 @@ import {
   Phone,
   MapPin,
   Eye,
-  Search
+  Search,
+  Clock
 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function AdminUsuarios() {
   const [, setLocation] = useLocation();
@@ -275,6 +278,12 @@ export default function AdminUsuarios() {
                                     <span className="truncate">{user.email}</span>
                                   </div>
                                 )}
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span>
+                                    Na plataforma há {formatDistanceToNow(new Date(user.createdAt), { locale: ptBR, addSuffix: false })}
+                                  </span>
+                                </div>
                               </div>
 
                               <div className="flex flex-wrap gap-2">
@@ -389,6 +398,12 @@ export default function AdminUsuarios() {
                                     <span className="truncate">{user.email}</span>
                                   </div>
                                 )}
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span>
+                                    Na plataforma há {formatDistanceToNow(new Date(user.createdAt), { locale: ptBR, addSuffix: false })}
+                                  </span>
+                                </div>
                               </div>
 
                               <div className="flex flex-wrap gap-2">
