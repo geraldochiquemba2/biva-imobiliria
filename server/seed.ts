@@ -11,7 +11,7 @@ export async function seedDatabase() {
       password: await bcrypt.hash("123456789", 10),
       fullName: "Administrador BIVA",
       phone: "+244912345678",
-      userType: "admin",
+      userTypes: ["admin"],
       sms: null,
       address: "Luanda, Angola",
       bi: "000000000LA000",
