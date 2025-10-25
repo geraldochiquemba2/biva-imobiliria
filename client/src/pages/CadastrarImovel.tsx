@@ -1031,7 +1031,11 @@ export default function CadastrarImovel() {
                     <div>
                       <Label>Imagens do Imóvel (até 10)</Label>
                       <p className="text-xs text-muted-foreground mt-1">
-                        A primeira imagem será a capa do anúncio. Clique na estrela para mudar a capa. As imagens são armazenadas de forma segura no banco de dados.
+                        A primeira imagem será a capa do anúncio. Clique na estrela para mudar a capa.
+                      </p>
+                      <p className="text-xs text-green-600 dark:text-green-500 mt-2 flex items-center gap-1">
+                        <span>✓</span>
+                        <span>Suas imagens são armazenadas de forma segura e permanente no banco de dados PostgreSQL (Neon).</span>
                       </p>
                     </div>
                     

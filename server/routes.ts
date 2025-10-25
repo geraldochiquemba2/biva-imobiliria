@@ -15,9 +15,6 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import multer from "multer";
-import path from "path";
-import fs from "fs/promises";
-import { existsSync } from "fs";
 
 // Extend Express session type
 declare module 'express-session' {
@@ -56,34 +53,9 @@ function requireRole(...roles: string[]) {
   };
 }
 
-// Configure upload directory
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads', 'properties');
-
-// Ensure upload directory exists
-async function ensureUploadDir() {
-  if (!existsSync(UPLOAD_DIR)) {
-    await fs.mkdir(UPLOAD_DIR, { recursive: true });
-  }
-}
-
-// Configure Multer for image uploads (disk storage)
-const storage_multer = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    await ensureUploadDir();
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (req, file, cb) => {
-    const userId = (req as any).session?.userId || 'unknown';
-    const timestamp = Date.now();
-    const sanitizedName = file.originalname
-      .replace(/[^a-zA-Z0-9.-]/g, '_')
-      .toLowerCase();
-    cb(null, `${userId}_${timestamp}_${sanitizedName}`);
-  }
-});
-
+// Configure Multer for image uploads (memory storage - base64)
 const upload = multer({
-  storage: storage_multer,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024, // 5 MB max
     files: 10 // max 10 files
@@ -103,8 +75,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/health", (_req, res) => {
     res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
   });
-
-  // Images are now stored as base64 in the database, no need for static file serving
 
   // Configure session middleware
   app.use(session({
@@ -390,18 +360,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const uploadedBase64: string[] = [];
 
-      for (const file of req.files) {
-        // Read file and convert to base64
-        const fileBuffer = await fs.readFile(file.path);
-        const base64Data = fileBuffer.toString('base64');
+      for (const file of req.files as Express.Multer.File[]) {
+        // Convert buffer to base64 (images are in memory)
+        const base64Data = file.buffer.toString('base64');
         const mimeType = file.mimetype;
         
         // Create data URL format: data:image/jpeg;base64,/9j/4AAQ...
         const dataUrl = `data:${mimeType};base64,${base64Data}`;
         uploadedBase64.push(dataUrl);
-        
-        // Delete temporary file
-        await fs.unlink(file.path);
       }
 
       res.status(200).json({ 

@@ -520,6 +520,10 @@ export default function EditarImovel() {
                 {/* Images */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Imagens ({totalImages}/10)</h3>
+                  <p className="text-xs text-green-600 dark:text-green-500 flex items-center gap-1">
+                    <span>✓</span>
+                    <span>Suas imagens são armazenadas de forma segura e permanente no banco de dados PostgreSQL (Neon).</span>
+                  </p>
 
                   {/* Existing Images */}
                   {existingImages.length > 0 && (
