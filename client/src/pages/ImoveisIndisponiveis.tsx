@@ -32,11 +32,7 @@ export default function ImoveisIndisponiveis() {
 
   const markAsAvailableMutation = useMutation({
     mutationFn: async (propertyId: string) => {
-      return await apiRequest(`/api/properties/${propertyId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status: 'disponivel' }),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return await apiRequest('PATCH', `/api/properties/${propertyId}`, { status: 'disponivel' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
@@ -56,9 +52,7 @@ export default function ImoveisIndisponiveis() {
 
   const deletePropertyMutation = useMutation({
     mutationFn: async (propertyId: string) => {
-      return await apiRequest(`/api/properties/${propertyId}`, {
-        method: 'DELETE',
-      });
+      return await apiRequest('DELETE', `/api/properties/${propertyId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
