@@ -542,8 +542,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get properties by user
   app.get("/api/users/:userId/properties", requireAuth, async (req, res) => {
     try {
-      // Users can only see their own properties, unless they're corretor
-      if (!hasRole(req.session, 'corretor') && req.params.userId !== req.session.userId) {
+      // Users can only see their own properties, unless they're corretor or admin
+      if (!hasRole(req.session, 'corretor') && !hasRole(req.session, 'admin') && req.params.userId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
