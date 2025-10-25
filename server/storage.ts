@@ -176,11 +176,11 @@ export class DatabaseStorage implements IStorage {
           conditions.push(eq(properties.kitchens, params.kitchens));
         }
       }
-      if (params.minPrice !== undefined) {
-        conditions.push(gte(properties.price, params.minPrice.toString()));
+      if (params.minPrice !== undefined && params.minPrice !== null) {
+        conditions.push(gte(properties.price, String(params.minPrice)));
       }
-      if (params.maxPrice !== undefined) {
-        conditions.push(lte(properties.price, params.maxPrice.toString()));
+      if (params.maxPrice !== undefined && params.maxPrice !== null) {
+        conditions.push(lte(properties.price, String(params.maxPrice)));
       }
       if (params.featured !== undefined) {
         conditions.push(eq(properties.featured, params.featured));
