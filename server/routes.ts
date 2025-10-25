@@ -246,6 +246,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get single user (admin only)
+  app.get("/api/users/:id", requireRole('admin'), async (req, res) => {
+    try {
+      const user = await storage.getUser(req.params.id);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Error getting user:', error);
+      res.status(500).json({ error: "Falha ao buscar usuário" });
+    }
+  });
+
+  // Update user status - block/unblock (admin only)
+  app.patch("/api/users/:id/status", requireRole('admin'), async (req, res) => {
+    try {
+      const { status } = req.body;
+      
+      if (!['ativo', 'bloqueado'].includes(status)) {
+        return res.status(400).json({ error: "Status inválido. Use 'ativo' ou 'bloqueado'" });
+      }
+
+      // Don't allow blocking self
+      if (req.params.id === req.session.userId) {
+        return res.status(403).json({ error: "Você não pode bloquear sua própria conta" });
+      }
+      
+      const user = await storage.updateUser(req.params.id, { status });
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      res.status(500).json({ error: "Falha ao atualizar status do usuário" });
+    }
+  });
+
   // Property Routes
   
   // Get all properties with optional filters
