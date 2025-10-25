@@ -85,7 +85,7 @@ export default function VisitasAgendadas() {
                 >
                   <Card className="hover-elevate">
                     {visit.property?.images && visit.property.images.length > 0 && (
-                      <div className="aspect-video overflow-hidden">
+                      <div className="aspect-video overflow-hidden bg-muted">
                         <img
                           src={visit.property.images[0]}
                           alt={visit.property.title}
