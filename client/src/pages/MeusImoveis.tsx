@@ -170,7 +170,7 @@ export default function MeusImoveis() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-6 -mt-12">
+      <div className="max-w-7xl mx-auto px-6 md:-mt-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -179,7 +179,7 @@ export default function MeusImoveis() {
           <Button
             variant="ghost"
             asChild
-            className="mb-6 text-white hover:text-white"
+            className="mb-6 md:text-white md:hover:text-white"
             data-testid="button-back"
           >
             <Link href="/dashboard">
