@@ -140,6 +140,12 @@ export class DatabaseStorage implements IStorage {
       if (params.category) {
         conditions.push(eq(properties.category, params.category));
       }
+      if (params.location) {
+        conditions.push(or(
+          ilike(properties.provincia, `%${params.location}%`),
+          ilike(properties.municipio, `%${params.location}%`)
+        ));
+      }
       if (params.bairro) {
         conditions.push(ilike(properties.bairro, `%${params.bairro}%`));
       }

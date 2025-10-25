@@ -324,6 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const searchParams = searchPropertySchema.parse({
         type: req.query.type,
         category: req.query.category,
+        location: req.query.location,
         bairro: req.query.bairro,
         municipio: req.query.municipio,
         provincia: req.query.provincia,
