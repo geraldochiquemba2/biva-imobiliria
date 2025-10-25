@@ -11,16 +11,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Phone, Lock, User, UserPlus } from "lucide-react";
+import { Phone, Lock, User, UserPlus, Mail, MessageSquare, CreditCard, MapPin } from "lucide-react";
 import { useEffect } from "react";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 const registerFormSchema = z.object({
   fullName: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+  email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
   phone: z.string().refine(
     (val) => val === "+244" || /^\+244\d{9}$/.test(val),
     "Por favor, digite os 9 dígitos do seu número"
   ),
+  sms: z.string().optional(),
+  bi: z.string().min(1, "BI ou Passaporte é obrigatório"),
+  address: z.string().min(5, "Endereço deve ter no mínimo 5 caracteres"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
   confirmPassword: z.string(),
   userType: z.enum(['proprietario', 'cliente', 'corretor'], {
@@ -58,7 +62,11 @@ export default function Cadastro() {
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       fullName: "",
+      email: "",
       phone: "+244",
+      sms: "",
+      bi: "",
+      address: "",
       password: "",
       confirmPassword: "",
     },
@@ -151,6 +159,26 @@ export default function Cadastro() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="seuemail@exemplo.com"
+                      className="pl-10"
+                      {...register("email")}
+                      data-testid="input-email"
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="text-sm text-destructive" data-testid="error-email">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="phone">Número de Telemóvel</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -172,6 +200,66 @@ export default function Cadastro() {
                   <p className="text-xs text-muted-foreground">
                     Exemplo: +244 923456789
                   </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="sms">WhatsApp / SMS (Opcional)</Label>
+                  <div className="relative">
+                    <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="sms"
+                      type="tel"
+                      placeholder="Número para WhatsApp"
+                      className="pl-10"
+                      {...register("sms")}
+                      data-testid="input-sms"
+                    />
+                  </div>
+                  {errors.sms && (
+                    <p className="text-sm text-destructive" data-testid="error-sms">
+                      {errors.sms.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bi">BI / Passaporte</Label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="bi"
+                      type="text"
+                      placeholder="Número do documento"
+                      className="pl-10"
+                      {...register("bi")}
+                      data-testid="input-bi"
+                    />
+                  </div>
+                  {errors.bi && (
+                    <p className="text-sm text-destructive" data-testid="error-bi">
+                      {errors.bi.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="address">Endereço</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="address"
+                      type="text"
+                      placeholder="Seu endereço completo"
+                      className="pl-10"
+                      {...register("address")}
+                      data-testid="input-address"
+                    />
+                  </div>
+                  {errors.address && (
+                    <p className="text-sm text-destructive" data-testid="error-address">
+                      {errors.address.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
