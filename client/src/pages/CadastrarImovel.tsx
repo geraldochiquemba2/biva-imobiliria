@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Building2, DollarSign, Upload, X, Star } from "lucide-react";
 import type { User } from "@shared/schema";
 import { z } from "zod";
-import backgroundImage from "@assets/stock_images/modern_house_buildin_4843f20c.jpg";
+import backgroundImage from "@assets/stock_images/luxury_modern_apartm_ad76face.jpg";
 import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
 
 // Províncias e Municípios de Angola
