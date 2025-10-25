@@ -150,10 +150,10 @@ export class DatabaseStorage implements IStorage {
         conditions.push(ilike(properties.bairro, `%${params.bairro}%`));
       }
       if (params.municipio) {
-        conditions.push(ilike(properties.municipio, `%${params.municipio}%`));
+        conditions.push(eq(properties.municipio, params.municipio));
       }
       if (params.provincia) {
-        conditions.push(ilike(properties.provincia, `%${params.provincia}%`));
+        conditions.push(eq(properties.provincia, params.provincia));
       }
       if (params.bedrooms !== undefined) {
         if (params.bedrooms >= 4) {

@@ -37,7 +37,8 @@ const userProfiles = [
 export default function Home() {
   const [searchParams, setSearchParams] = useState<{
     type?: 'Arrendar' | 'Vender';
-    location?: string;
+    provincia?: string;
+    municipio?: string;
     category?: string;
     bedrooms?: string;
     livingRooms?: string;
@@ -68,7 +69,8 @@ export default function Home() {
 
   const handleSearch = (params: {
     type: 'Arrendar' | 'Vender';
-    location: string;
+    provincia: string;
+    municipio: string;
     category: string;
     bedrooms: string;
     livingRooms: string;
@@ -78,8 +80,11 @@ export default function Home() {
   }) => {
     const newParams: any = { type: params.type };
     
-    if (params.location) {
-      newParams.location = params.location;
+    if (params.provincia) {
+      newParams.provincia = params.provincia;
+    }
+    if (params.municipio) {
+      newParams.municipio = params.municipio;
     }
     if (params.category) {
       newParams.category = params.category;
