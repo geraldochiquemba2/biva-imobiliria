@@ -329,6 +329,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         municipio: req.query.municipio,
         provincia: req.query.provincia,
         bedrooms: req.query.bedrooms ? Number(req.query.bedrooms) : undefined,
+        livingRooms: req.query.livingRooms ? Number(req.query.livingRooms) : undefined,
+        kitchens: req.query.kitchens ? Number(req.query.kitchens) : undefined,
         minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
         maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
         featured: req.query.featured === 'true' ? true : req.query.featured === 'false' ? false : undefined,

@@ -156,7 +156,25 @@ export class DatabaseStorage implements IStorage {
         conditions.push(ilike(properties.provincia, `%${params.provincia}%`));
       }
       if (params.bedrooms !== undefined) {
-        conditions.push(eq(properties.bedrooms, params.bedrooms));
+        if (params.bedrooms >= 4) {
+          conditions.push(gte(properties.bedrooms, params.bedrooms));
+        } else {
+          conditions.push(eq(properties.bedrooms, params.bedrooms));
+        }
+      }
+      if (params.livingRooms !== undefined) {
+        if (params.livingRooms >= 3) {
+          conditions.push(gte(properties.livingRooms, params.livingRooms));
+        } else {
+          conditions.push(eq(properties.livingRooms, params.livingRooms));
+        }
+      }
+      if (params.kitchens !== undefined) {
+        if (params.kitchens >= 3) {
+          conditions.push(gte(properties.kitchens, params.kitchens));
+        } else {
+          conditions.push(eq(properties.kitchens, params.kitchens));
+        }
       }
       if (params.minPrice !== undefined) {
         conditions.push(gte(properties.price, params.minPrice.toString()));

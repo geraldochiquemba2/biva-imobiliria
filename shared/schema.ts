@@ -195,6 +195,8 @@ export const searchPropertySchema = z.object({
   municipio: z.string().optional(),
   provincia: z.string().optional(),
   bedrooms: z.number().optional(),
+  livingRooms: z.number().optional(),
+  kitchens: z.number().optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
   featured: z.boolean().optional(),
