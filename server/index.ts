@@ -12,10 +12,10 @@ function setupKeepAlive(port: number) {
   // Only enable in production
   if (process.env.NODE_ENV === 'production') {
     const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
-    
+
     if (RENDER_EXTERNAL_URL) {
       log('Setting up keep-alive for Render...');
-      
+
       // Ping every 14 minutes to prevent hibernation (Render sleeps after 15 minutes of inactivity)
       keepAliveInterval = setInterval(async () => {
         try {
@@ -46,9 +46,10 @@ declare module 'http' {
 app.use(express.json({
   verify: (req, _res, buf) => {
     req.rawBody = buf;
-  }
+  },
+  limit: '50mb' // Aumentar limite para suportar imagens em base64 (50MB)
 }));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -82,7 +83,7 @@ app.use((req, res, next) => {
 
 (async () => {
   await seedDatabase();
-  
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
