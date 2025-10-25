@@ -123,7 +123,7 @@ export default function MapView({ latitude, longitude, title, userLocation, onRo
   return (
     <div 
       ref={mapContainerRef} 
-      className="w-full h-[400px] rounded-md overflow-hidden border"
+      className="w-full h-[400px] rounded-md overflow-hidden border relative z-0"
       data-testid="map-view"
     />
   );
