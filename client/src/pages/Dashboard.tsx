@@ -348,15 +348,9 @@ export default function Dashboard() {
                         <h3 className="text-lg font-semibold mb-2">
                           Nenhum imóvel cadastrado
                         </h3>
-                        <p className="text-muted-foreground mb-6">
-                          Comece cadastrando seu primeiro imóvel para arrendar ou vender
+                        <p className="text-muted-foreground">
+                          Clique aqui para começar a cadastrar seus imóveis
                         </p>
-                        <Button asChild data-testid="button-add-property" onClick={(e) => e.stopPropagation()}>
-                          <Link href="/cadastrar-imovel">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Cadastrar Imóvel
-                          </Link>
-                        </Button>
                       </div>
                     ) : (
                       <div className="space-y-4">

@@ -110,69 +110,77 @@ export default function MeusImoveis() {
           </Button>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card className="relative overflow-hidden">
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-10"
-                style={{ backgroundImage: `url(${buildingImg})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent" />
-              <CardHeader className="pb-2 relative z-10">
-                <CardTitle className="text-sm font-medium">Disponíveis</CardTitle>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-2xl font-bold text-green-600" data-testid="text-available-count">
-                  {propertiesByStatus.disponivel.length}
-                </div>
-              </CardContent>
-            </Card>
+            <Link href="/imoveis-disponiveis">
+              <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-10"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent" />
+                <CardHeader className="pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">Disponíveis</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold text-green-600" data-testid="text-available-count">
+                    {propertiesByStatus.disponivel.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="relative overflow-hidden">
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-10"
-                style={{ backgroundImage: `url(${buildingImg})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
-              <CardHeader className="pb-2 relative z-10">
-                <CardTitle className="text-sm font-medium">Arrendados</CardTitle>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-2xl font-bold text-blue-600" data-testid="text-rented-count">
-                  {propertiesByStatus.arrendado.length}
-                </div>
-              </CardContent>
-            </Card>
+            <Link href="/imoveis-arrendados">
+              <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-10"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
+                <CardHeader className="pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">Arrendados</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold text-blue-600" data-testid="text-rented-count">
+                    {propertiesByStatus.arrendado.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="relative overflow-hidden">
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-10"
-                style={{ backgroundImage: `url(${buildingImg})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
-              <CardHeader className="pb-2 relative z-10">
-                <CardTitle className="text-sm font-medium">Vendidos</CardTitle>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-2xl font-bold text-purple-600" data-testid="text-sold-count">
-                  {propertiesByStatus.vendido.length}
-                </div>
-              </CardContent>
-            </Card>
+            <Link href="/imoveis-vendidos">
+              <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-10"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
+                <CardHeader className="pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">Vendidos</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold text-purple-600" data-testid="text-sold-count">
+                    {propertiesByStatus.vendido.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="relative overflow-hidden">
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-10"
-                style={{ backgroundImage: `url(${buildingImg})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-500/10 to-transparent" />
-              <CardHeader className="pb-2 relative z-10">
-                <CardTitle className="text-sm font-medium">Indisponíveis</CardTitle>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <div className="text-2xl font-bold text-gray-600" data-testid="text-unavailable-count">
-                  {propertiesByStatus.indisponivel.length}
-                </div>
-              </CardContent>
-            </Card>
+            <Link href="/imoveis-indisponiveis">
+              <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-10"
+                  style={{ backgroundImage: `url(${buildingImg})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-500/10 to-transparent" />
+                <CardHeader className="pb-2 relative z-10">
+                  <CardTitle className="text-sm font-medium">Indisponíveis</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <div className="text-2xl font-bold text-gray-600" data-testid="text-unavailable-count">
+                    {propertiesByStatus.indisponivel.length}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
 
           {userProperties.length === 0 ? (

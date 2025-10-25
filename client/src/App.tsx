@@ -21,6 +21,10 @@ import ImovelDetalhes from "@/pages/ImovelDetalhes";
 import AdminImoveis from "@/pages/AdminImoveis";
 import AdminUsuarios from "@/pages/AdminUsuarios";
 import MeusImoveis from "@/pages/MeusImoveis";
+import ImoveisDisponiveis from "@/pages/ImoveisDisponiveis";
+import ImoveisArrendados from "@/pages/ImoveisArrendados";
+import ImoveisVendidos from "@/pages/ImoveisVendidos";
+import ImoveisIndisponiveis from "@/pages/ImoveisIndisponiveis";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -52,6 +56,10 @@ function Router() {
         <Route path="/contratos-ativos" component={ContratosAtivos} />
         <Route path="/visitas-agendadas" component={VisitasAgendadas} />
         <Route path="/meus-imoveis" component={MeusImoveis} />
+        <Route path="/imoveis-disponiveis" component={ImoveisDisponiveis} />
+        <Route path="/imoveis-arrendados" component={ImoveisArrendados} />
+        <Route path="/imoveis-vendidos" component={ImoveisVendidos} />
+        <Route path="/imoveis-indisponiveis" component={ImoveisIndisponiveis} />
         <Route path="/admin/imoveis" component={AdminImoveis} />
         <Route path="/admin/usuarios" component={AdminUsuarios} />
         <Route component={NotFound} />
