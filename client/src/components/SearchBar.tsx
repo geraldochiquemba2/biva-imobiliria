@@ -1,100 +1,16 @@
-import { useState, useMemo } from "react";
+
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search, MapPin, Home, Bed, RotateCcw, Sofa, UtensilsCrossed } from "lucide-react";
+import { Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { angolaProvinces } from "@shared/angola-locations";
 
-interface SearchBarProps {
-  onSearch?: (params: {
-    type: 'Arrendar' | 'Vender';
-    provincia: string;
-    municipio: string;
-    category: string;
-    bedrooms: string;
-    livingRooms: string;
-    kitchens: string;
-    minPrice: string;
-    maxPrice: string;
-  }) => void;
-}
-
-export default function SearchBar({ onSearch }: SearchBarProps) {
+export default function SearchBar() {
   const [, setLocation] = useLocation();
-  const [propertyType, setPropertyType] = useState<'Arrendar' | 'Vender' | ''>('');
-  const [provincia, setProvincia] = useState('');
-  const [municipio, setMunicipio] = useState('');
-  const [category, setCategory] = useState('');
-  const [bedrooms, setBedrooms] = useState('');
-  const [livingRooms, setLivingRooms] = useState('');
-  const [kitchens, setKitchens] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-
-  const availableMunicipios = useMemo(() => {
-    if (!provincia) return [];
-    const selectedProvince = angolaProvinces.find(p => p.name === provincia);
-    return selectedProvince?.municipalities || [];
-  }, [provincia]);
 
   const handleSearch = () => {
-    const params = new URLSearchParams();
-    
-    if (propertyType) params.append('type', propertyType);
-    if (provincia) params.append('provincia', provincia);
-    if (municipio) params.append('municipio', municipio);
-    if (category) params.append('category', category);
-    if (bedrooms) params.append('bedrooms', bedrooms);
-    if (livingRooms) params.append('livingRooms', livingRooms);
-    if (kitchens) params.append('kitchens', kitchens);
-    if (minPrice) params.append('minPrice', minPrice);
-    if (maxPrice) params.append('maxPrice', maxPrice);
-    
-    const queryString = params.toString();
-    setLocation(`/imoveis${queryString ? `?${queryString}` : ''}`);
+    setLocation('/imoveis');
   };
-
-  const handleCategoryChange = (value: string) => {
-    setCategory(value);
-    if (value === 'Terreno' || value === 'Comercial') {
-      setBedrooms('');
-      setLivingRooms('');
-      setKitchens('');
-    }
-  };
-
-  const handleProvinciaChange = (value: string) => {
-    setProvincia(value);
-    setMunicipio('');
-  };
-
-  const resetFilters = () => {
-    setPropertyType('');
-    setProvincia('');
-    setMunicipio('');
-    setCategory('');
-    setBedrooms('');
-    setLivingRooms('');
-    setKitchens('');
-    setMinPrice('');
-    setMaxPrice('');
-    if (onSearch) {
-      onSearch({ type: 'Arrendar', provincia: '', municipio: '', category: '', bedrooms: '', livingRooms: '', kitchens: '', minPrice: '', maxPrice: '' });
-    }
-  };
-
-  const hasActiveFilters = propertyType || provincia || municipio || category || bedrooms || livingRooms || kitchens || minPrice || maxPrice;
-  const showRoomFilters = category === 'Casa' || category === 'Apartamento';
-
 
   return (
     <motion.div
@@ -104,130 +20,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       className="relative z-20 px-6 py-12"
     >
       <Card className="max-w-5xl mx-auto p-8 shadow-2xl">
-        <div className="flex gap-3 mb-6">
-          <Button
-            variant={propertyType === 'Arrendar' ? 'default' : 'outline'}
-            onClick={() => setPropertyType('Arrendar')}
-            className="flex-1 transition-all duration-300"
-            data-testid="button-arrendar"
-          >
-            Arrendar
-          </Button>
-          <Button
-            variant={propertyType === 'Vender' ? 'default' : 'outline'}
-            onClick={() => setPropertyType('Vender')}
-            className="flex-1 transition-all duration-300"
-            data-testid="button-vender"
-          >
-            Vender
-          </Button>
-        </div>
-
-        <div className="space-y-4 mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Select value={provincia} onValueChange={handleProvinciaChange}>
-              <SelectTrigger className="transition-all duration-200" data-testid="select-provincia">
-                <MapPin className="h-5 w-5 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Província" />
-              </SelectTrigger>
-              <SelectContent>
-                {angolaProvinces.map((prov) => (
-                  <SelectItem key={prov.name} value={prov.name}>
-                    {prov.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={municipio} onValueChange={setMunicipio} disabled={!provincia}>
-              <SelectTrigger className="transition-all duration-200" data-testid="select-municipio">
-                <MapPin className="h-5 w-5 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Município" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableMunicipios.map((mun) => (
-                  <SelectItem key={mun.name} value={mun.name}>
-                    {mun.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={category} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="transition-all duration-200" data-testid="select-category">
-                <Home className="h-5 w-5 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Tipo de Imóvel" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Apartamento">Apartamento</SelectItem>
-                <SelectItem value="Casa">Casa</SelectItem>
-                <SelectItem value="Comercial">Comercial</SelectItem>
-                <SelectItem value="Terreno">Terreno</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="flex gap-2">
-              <Input
-                placeholder="Preço mín (Kz)"
-                type="number"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                className="transition-all duration-200"
-                data-testid="input-min-price"
-              />
-              <Input
-                placeholder="Preço máx (Kz)"
-                type="number"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="transition-all duration-200"
-                data-testid="input-max-price"
-              />
-            </div>
-          </div>
-
-          {showRoomFilters && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Select value={bedrooms} onValueChange={setBedrooms}>
-                <SelectTrigger className="transition-all duration-200" data-testid="select-bedrooms">
-                  <Bed className="h-5 w-5 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Quartos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">Estúdio</SelectItem>
-                  <SelectItem value="1">1 Quarto</SelectItem>
-                  <SelectItem value="2">2 Quartos</SelectItem>
-                  <SelectItem value="3">3 Quartos</SelectItem>
-                  <SelectItem value="4">4+ Quartos</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={livingRooms} onValueChange={setLivingRooms}>
-                <SelectTrigger className="transition-all duration-200" data-testid="select-living-rooms">
-                  <Sofa className="h-5 w-5 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Salas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 Sala</SelectItem>
-                  <SelectItem value="2">2 Salas</SelectItem>
-                  <SelectItem value="3">3+ Salas</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={kitchens} onValueChange={setKitchens}>
-                <SelectTrigger className="transition-all duration-200" data-testid="select-kitchens">
-                  <UtensilsCrossed className="h-5 w-5 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Cozinhas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 Cozinha</SelectItem>
-                  <SelectItem value="2">2 Cozinhas</SelectItem>
-                  <SelectItem value="3">3+ Cozinhas</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
+        <div className="space-y-4">
           <Button 
             onClick={handleSearch} 
             className="w-full" 
@@ -237,25 +30,10 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             <Search className="h-5 w-5 mr-2" />
             Pesquisar
           </Button>
-        </div>
 
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground text-center">
             Pesquise entre milhares de imóveis em toda Angola
           </div>
-          
-          {hasActiveFilters && (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={resetFilters}
-              className="text-muted-foreground hover-elevate"
-              data-testid="button-reset-filters"
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Redefinir Filtros
-            </Button>
-          )}
         </div>
       </Card>
     </motion.div>
