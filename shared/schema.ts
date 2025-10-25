@@ -187,6 +187,7 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
 export const searchPropertySchema = z.object({
   type: z.enum(['Arrendar', 'Vender']).optional(),
   category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno']).optional(),
+  location: z.string().optional(),
   bairro: z.string().optional(),
   municipio: z.string().optional(),
   provincia: z.string().optional(),
