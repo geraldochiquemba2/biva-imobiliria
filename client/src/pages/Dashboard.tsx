@@ -198,27 +198,29 @@ export default function Dashboard() {
             )}
 
             {hasRole('cliente') && (
-              <Card className="hover-elevate relative overflow-hidden">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center opacity-20"
-                  style={{ backgroundImage: `url(${houseImg})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
-                  <CardTitle className="text-sm font-medium">
-                    Imóveis Disponíveis
-                  </CardTitle>
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="text-2xl font-bold" data-testid="text-properties-count">
-                    {propertiesLoading ? '...' : properties.length}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Para explorar
-                  </p>
-                </CardContent>
-              </Card>
+              <Link href="/imoveis">
+                <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${houseImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                    <CardTitle className="text-sm font-medium">
+                      Imóveis Disponíveis
+                    </CardTitle>
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <div className="text-2xl font-bold" data-testid="text-properties-count">
+                      {propertiesLoading ? '...' : properties.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Para explorar
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             )}
 
             {hasRole('admin') && (
