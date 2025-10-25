@@ -64,7 +64,15 @@ export default function ExplorarMapa() {
       mapRef.current = null;
     }
 
-    // Wait for container to be fully rendered and have dimensions
+    // Force container to have explicit height immediately
+    if (mapContainerRef.current) {
+      mapContainerRef.current.style.height = '450px';
+      mapContainerRef.current.style.width = '100%';
+    }
+
+    let retryCount = 0;
+    const maxRetries = 20;
+
     const initializeMap = () => {
       if (!mapContainerRef.current) return;
       
@@ -72,8 +80,14 @@ export default function ExplorarMapa() {
       const rect = container.getBoundingClientRect();
       
       // Only initialize if container has dimensions
+      if ((rect.width === 0 || rect.height === 0) && retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(initializeMap, 100);
+        return;
+      }
+
       if (rect.width === 0 || rect.height === 0) {
-        setTimeout(initializeMap, 50);
+        console.error('Failed to initialize map: container has no dimensions');
         return;
       }
 
@@ -95,27 +109,31 @@ export default function ExplorarMapa() {
 
         mapRef.current = map;
 
-        // Force map to recalculate size multiple times with longer delays
-        const invalidateSize = () => {
+        // Force immediate size calculation
+        setTimeout(() => {
           if (mapRef.current) {
-            mapRef.current.invalidateSize();
+            mapRef.current.invalidateSize(true);
           }
-        };
-
-        // Initial invalidation
-        setTimeout(invalidateSize, 100);
-        setTimeout(invalidateSize, 250);
-        setTimeout(invalidateSize, 500);
-        setTimeout(invalidateSize, 1000);
+        }, 0);
+        
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize(true);
+          }
+        }, 100);
+        
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize(true);
+          }
+        }, 300);
       } catch (error) {
         console.error('Error initializing map:', error);
       }
     };
 
-    // Use requestAnimationFrame to ensure DOM is ready
-    requestAnimationFrame(() => {
-      setTimeout(initializeMap, 100);
-    });
+    // Start initialization immediately
+    setTimeout(initializeMap, 0);
 
     return () => {
       if (mapRef.current) {
@@ -461,8 +479,8 @@ export default function ExplorarMapa() {
                 <CardContent className="p-6">
                   <div 
                     ref={mapContainerRef} 
-                    className="w-full h-[450px] rounded-md border"
-                    style={{ minHeight: '450px', position: 'relative' }}
+                    className="w-full rounded-md border"
+                    style={{ height: '450px', minHeight: '450px', position: 'relative' }}
                     data-testid="map-container"
                   />
                   
