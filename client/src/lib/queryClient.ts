@@ -2,17 +2,22 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
+    const contentType = res.headers.get('content-type');
+    let errorMessage = res.statusText;
+    
     try {
-      const json = await res.json();
-      const errorMessage = json.error || json.message || res.statusText;
-      throw new Error(errorMessage);
-    } catch (e) {
-      if (e instanceof Error && e.message && !e.message.includes('Unexpected')) {
-        throw e;
+      if (contentType?.includes('application/json')) {
+        const json = await res.json();
+        errorMessage = json.error || json.message || res.statusText;
+      } else {
+        const text = await res.text();
+        errorMessage = text || res.statusText;
       }
-      const text = await res.text();
-      throw new Error(text || res.statusText);
+    } catch (e) {
+      errorMessage = res.statusText;
     }
+    
+    throw new Error(errorMessage);
   }
 }
 
