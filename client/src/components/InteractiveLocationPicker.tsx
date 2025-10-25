@@ -15,7 +15,7 @@ L.Icon.Default.mergeOptions({
 interface InteractiveLocationPickerProps {
   latitude: number;
   longitude: number;
-  onLocationChange: (lat: number, lng: number) => void;
+  onLocationChange: (lat: number, lng: number, isFromGeolocation?: boolean) => void;
 }
 
 export default function InteractiveLocationPicker({ 
@@ -83,13 +83,9 @@ export default function InteractiveLocationPicker({
         if (markerRef.current && mapRef.current) {
           markerRef.current.setLatLng([latitude, longitude]);
           mapRef.current.setView([latitude, longitude], 15);
-          onLocationChange(latitude, longitude);
+          onLocationChange(latitude, longitude, true);
         }
         
-        toast({
-          title: "Localização detectada",
-          description: "Marcador atualizado com sua localização atual",
-        });
         isGettingLocationRef.current = false;
       },
       (error) => {

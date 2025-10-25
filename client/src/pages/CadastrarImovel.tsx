@@ -571,9 +571,74 @@ export default function CadastrarImovel() {
     setMapLongitude(coords.lon);
   }, [selectedProvince, selectedMunicipio, bairro]);
 
-  const handleLocationChange = (lat: number, lng: number) => {
+  // Calculate distance between two GPS coordinates using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Find the closest location from coordinates
+  const findClosestLocation = (lat: number, lng: number) => {
+    let closestProvince = '';
+    let closestMunicipio = '';
+    let minDistance = Infinity;
+
+    // Check all locations in LOCATION_COORDINATES
+    Object.entries(LOCATION_COORDINATES).forEach(([name, coords]) => {
+      const distance = calculateDistance(lat, lng, coords.lat, coords.lon);
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+        
+        // Check if this is a province
+        if (PROVINCIAS_MUNICIPIOS[name]) {
+          closestProvince = name;
+          closestMunicipio = ''; // Reset municipality if we found a closer province
+        } else {
+          // It's a municipality, find which province it belongs to
+          for (const [provincia, municipios] of Object.entries(PROVINCIAS_MUNICIPIOS)) {
+            if (municipios.includes(name)) {
+              closestProvince = provincia;
+              closestMunicipio = name;
+              break;
+            }
+          }
+        }
+      }
+    });
+
+    return { provincia: closestProvince, municipio: closestMunicipio };
+  };
+
+  const handleLocationChange = (lat: number, lng: number, isFromGeolocation: boolean = false) => {
     setMapLatitude(lat);
     setMapLongitude(lng);
+
+    // If location was obtained from geolocation, update form fields
+    if (isFromGeolocation) {
+      const { provincia, municipio } = findClosestLocation(lat, lng);
+      
+      if (provincia) {
+        setValue('provincia', provincia);
+        setSelectedProvince(provincia);
+        
+        if (municipio) {
+          setValue('municipio', municipio);
+        }
+        
+        toast({
+          title: "Localização detectada",
+          description: `${municipio || provincia}, Angola`,
+        });
+      }
+    }
   };
 
   return (
