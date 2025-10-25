@@ -225,67 +225,81 @@ export default function MeusImoveis() {
                     <h2 className="text-2xl font-bold mb-4">{statusLabels[status as keyof typeof statusLabels]}</h2>
                     <div className="grid gap-4">
                       {statusProperties.map((property) => (
-                        <Card key={property.id} className="hover-elevate relative overflow-hidden">
-                          <div 
-                            className="absolute inset-0 bg-cover bg-center opacity-5"
-                            style={{ backgroundImage: `url(${buildingImg})` }}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
-                          <CardHeader className="relative z-10">
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1">
-                                <CardTitle className="text-xl mb-1" data-testid={`text-title-${property.id}`}>
-                                  {property.title}
-                                </CardTitle>
-                                <CardDescription className="flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />
-                                  {property.bairro}, {property.municipio}
-                                </CardDescription>
-                              </div>
-                              <div className="flex gap-2">
-                                <Badge data-testid={`badge-type-${property.id}`}>{property.type}</Badge>
-                                <Badge variant="outline" data-testid={`badge-category-${property.id}`}>
-                                  {property.category}
-                                </Badge>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="relative z-10">
-                            <div className="flex items-center justify-between">
-                              <div className="flex gap-6 text-sm text-muted-foreground">
-                                {property.bedrooms > 0 && (
-                                  <div>{property.bedrooms} quartos</div>
-                                )}
-                                {property.bathrooms > 0 && (
-                                  <div>{property.bathrooms} casas de banho</div>
-                                )}
-                                <div>{property.area}m²</div>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <div className="text-right">
-                                  <p className="text-sm text-muted-foreground">Preço</p>
-                                  <p className="text-xl font-bold" data-testid={`text-price-${property.id}`}>
-                                    {Number(property.price).toLocaleString('pt-AO', {
-                                      style: 'currency',
-                                      currency: 'AOA',
-                                    })}
-                                  </p>
+                        <Card key={property.id} className="hover-elevate overflow-hidden">
+                          <div className="flex gap-4">
+                            <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
+                              {property.images && property.images.length > 0 ? (
+                                <img
+                                  src={property.images[0]}
+                                  alt={property.title}
+                                  className="w-full h-full object-cover"
+                                  data-testid={`img-property-${property.id}`}
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-muted flex items-center justify-center">
+                                  <Home className="h-8 w-8 text-muted-foreground" />
                                 </div>
-                                <div className="flex gap-2">
-                                  <Button variant="outline" size="icon" asChild data-testid={`button-edit-${property.id}`}>
-                                    <Link href={`/editar-imovel/${property.id}`}>
-                                      <Edit className="h-4 w-4" />
-                                    </Link>
-                                  </Button>
-                                  <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
-                                    <Link href={`/imoveis/${property.id}`}>
-                                      <Eye className="h-4 w-4" />
-                                    </Link>
-                                  </Button>
-                                </div>
-                              </div>
+                              )}
                             </div>
-                          </CardContent>
+                            
+                            <div className="flex-1 flex flex-col min-w-0">
+                              <CardHeader className="pb-3">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex-1 min-w-0">
+                                    <CardTitle className="text-xl mb-1" data-testid={`text-title-${property.id}`}>
+                                      {property.title}
+                                    </CardTitle>
+                                    <CardDescription className="flex items-center gap-1">
+                                      <MapPin className="h-3 w-3" />
+                                      {property.bairro}, {property.municipio}
+                                    </CardDescription>
+                                  </div>
+                                  <div className="flex gap-2 flex-shrink-0">
+                                    <Badge data-testid={`badge-type-${property.id}`}>{property.type}</Badge>
+                                    <Badge variant="outline" data-testid={`badge-category-${property.id}`}>
+                                      {property.category}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex gap-6 text-sm text-muted-foreground">
+                                    {property.bedrooms > 0 && (
+                                      <div>{property.bedrooms} quartos</div>
+                                    )}
+                                    {property.bathrooms > 0 && (
+                                      <div>{property.bathrooms} casas de banho</div>
+                                    )}
+                                    <div>{property.area}m²</div>
+                                  </div>
+                                  <div className="flex items-center gap-4">
+                                    <div className="text-right">
+                                      <p className="text-sm text-muted-foreground">Preço</p>
+                                      <p className="text-xl font-bold" data-testid={`text-price-${property.id}`}>
+                                        {Number(property.price).toLocaleString('pt-AO', {
+                                          style: 'currency',
+                                          currency: 'AOA',
+                                        })}
+                                      </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      <Button variant="outline" size="icon" asChild data-testid={`button-edit-${property.id}`}>
+                                        <Link href={`/editar-imovel/${property.id}`}>
+                                          <Edit className="h-4 w-4" />
+                                        </Link>
+                                      </Button>
+                                      <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
+                                        <Link href={`/imoveis/${property.id}`}>
+                                          <Eye className="h-4 w-4" />
+                                        </Link>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </div>
+                          </div>
                         </Card>
                       ))}
                     </div>
