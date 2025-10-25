@@ -17,6 +17,7 @@ import CadastrarImovel from "@/pages/CadastrarImovel";
 import Profile from "@/pages/Profile";
 import ContratosAtivos from "@/pages/ContratosAtivos";
 import VisitasAgendadas from "@/pages/VisitasAgendadas";
+import ImovelDetalhes from "@/pages/ImovelDetalhes";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -36,6 +37,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/imoveis" component={Imoveis} />
+        <Route path="/imoveis/:id" component={ImovelDetalhes} />
         <Route path="/servicos" component={Servicos} />
         <Route path="/sobre" component={Sobre} />
         <Route path="/contacto" component={Contacto} />

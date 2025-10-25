@@ -11,20 +11,6 @@ import CTASection from "@/components/CTASection";
 import type { Property } from "@shared/schema";
 import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
 
-// Images for properties without images
-import property1 from '@assets/generated_images/Luxury_apartment_in_Luanda_10ff3219.png';
-import property2 from '@assets/generated_images/Modern_villa_in_Angola_584197c4.png';
-import property3 from '@assets/generated_images/Commercial_office_building_2bf3374e.png';
-import property4 from '@assets/generated_images/Penthouse_with_city_view_c36d8f06.png';
-
-// Fallback images for properties without images
-const fallbackImages = [property1, property2, property3, property4];
-
-function getPropertyImage(property: Property, index: number): string {
-  if (property.image) return property.image;
-  return fallbackImages[index % fallbackImages.length];
-}
-
 const userProfiles = [
   {
     title: 'Proprietários',
@@ -117,15 +103,9 @@ export default function Home() {
     setSearchParams(newParams);
   };
 
-  // Add images to properties that don't have them
-  const propertiesWithImages = properties.map((property, index) => ({
-    ...property,
-    image: getPropertyImage(property, index),
-  }));
-
   // Limit to 10 properties initially
-  const displayedProperties = showAll ? propertiesWithImages : propertiesWithImages.slice(0, 10);
-  const hasMore = propertiesWithImages.length > 10;
+  const displayedProperties = showAll ? properties : properties.slice(0, 10);
+  const hasMore = properties.length > 10;
 
   return (
     <div className="min-h-screen pt-20">
@@ -163,7 +143,7 @@ export default function Home() {
                 {error instanceof Error ? error.message : 'Tente novamente mais tarde'}
               </p>
             </div>
-          ) : propertiesWithImages.length === 0 ? (
+          ) : properties.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground">
               Nenhum imóvel encontrado
             </div>

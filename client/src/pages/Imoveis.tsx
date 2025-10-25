@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -281,22 +282,23 @@ export default function Imoveis() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.05 }}
                 >
-                  <Card 
-                    className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer h-full flex flex-col"
-                    data-testid={`card-property-${property.id}`}
-                  >
-                    <div className="relative h-64 overflow-hidden">
-                      {property.image ? (
-                        <img 
-                          src={property.image} 
-                          alt={property.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <Home className="h-16 w-16 text-muted-foreground" />
-                        </div>
-                      )}
+                  <Link href={`/imoveis/${property.id}`}>
+                    <Card 
+                      className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer h-full flex flex-col"
+                      data-testid={`card-property-${property.id}`}
+                    >
+                      <div className="relative h-64 overflow-hidden">
+                        {property.images && property.images.length > 0 ? (
+                          <img 
+                            src={property.images[0]} 
+                            alt={property.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-muted flex items-center justify-center">
+                            <Home className="h-16 w-16 text-muted-foreground" />
+                          </div>
+                        )}
                       <div className="absolute top-4 left-4 flex gap-2">
                         <Badge className="bg-primary text-primary-foreground" data-testid={`badge-type-${property.id}`}>
                           {property.type}
@@ -356,6 +358,7 @@ export default function Imoveis() {
                       </div>
                     </div>
                   </Card>
+                  </Link>
                 </motion.div>
               ))}
             </div>

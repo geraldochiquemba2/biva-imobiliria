@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Bed, Bath, Maximize } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, Home } from "lucide-react";
 import type { Property } from "@shared/schema";
 
 interface PropertyCardProps {
@@ -17,16 +18,23 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
-      <Card 
-        className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer"
-        data-testid={`card-property-${property.id}`}
-      >
+      <Link href={`/imoveis/${property.id}`}>
+        <Card 
+          className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer"
+          data-testid={`card-property-${property.id}`}
+        >
         <div className="relative aspect-square overflow-hidden">
-          <img
-            src={property.image || ''}
-            alt={property.title}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-          />
+          {property.images && property.images.length > 0 ? (
+            <img
+              src={property.images[0]}
+              alt={property.title}
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <Home className="h-12 w-12 text-muted-foreground" />
+            </div>
+          )}
           <div className="absolute top-1.5 left-1.5">
             <Badge variant={property.type === 'Arrendar' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0.5">
               {property.type}
@@ -75,6 +83,7 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
           </div>
         </CardContent>
       </Card>
+      </Link>
     </motion.div>
   );
 }

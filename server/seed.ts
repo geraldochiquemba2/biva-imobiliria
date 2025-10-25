@@ -61,6 +61,8 @@ export async function seedDatabase() {
     console.log(`  - Cliente: ${cliente.phone} / demo123`);
 
     // Define demo properties with stable titles
+    // Commented out to remove demo data from production
+    /*
     const demoProperties: InsertProperty[] = [
       {
         title: "Apartamento Luxuoso em Talatona",
@@ -233,6 +235,8 @@ export async function seedDatabase() {
     } else {
       console.log(`✓ Demo properties already exist (${demoProperties.length} properties)`);
     }
+    */
+    console.log("✓ Demo properties creation disabled");
   } catch (error) {
     console.error("Error seeding database:", error);
   }
