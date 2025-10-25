@@ -67,7 +67,7 @@ export default function Login() {
     onError: (error: any) => {
       toast({
         title: "Erro ao fazer login",
-        description: error.message || "Número de telefone ou senha incorretos",
+        description: error.message || "Verifique suas credenciais e tente novamente",
         variant: "destructive",
       });
     },
