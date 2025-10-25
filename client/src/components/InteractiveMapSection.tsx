@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Map, MapPin, Navigation } from "lucide-react";
+import { Link } from "wouter";
 
 import mapBgImage from '@assets/stock_images/aerial_view_city_map_83390299.jpg';
 import mapInterfaceImage from '@assets/stock_images/interactive_map_inte_159a1412.jpg';
@@ -60,9 +61,11 @@ export default function InteractiveMapSection() {
               ))}
             </ul>
 
-            <Button size="lg" className="bg-primary border-primary" data-testid="button-explore-map">
-              <Navigation className="h-5 w-5 mr-2" />
-              Explorar Mapa
+            <Button size="lg" className="bg-primary border-primary" asChild data-testid="button-explore-map">
+              <Link href="/explorar-mapa">
+                <Navigation className="h-5 w-5 mr-2" />
+                Explorar Mapa
+              </Link>
             </Button>
           </motion.div>
 

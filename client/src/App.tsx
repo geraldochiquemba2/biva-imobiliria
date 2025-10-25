@@ -25,6 +25,7 @@ import ImoveisDisponiveis from "@/pages/ImoveisDisponiveis";
 import ImoveisArrendados from "@/pages/ImoveisArrendados";
 import ImoveisVendidos from "@/pages/ImoveisVendidos";
 import ImoveisIndisponiveis from "@/pages/ImoveisIndisponiveis";
+import ExplorarMapa from "@/pages/ExplorarMapa";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -45,6 +46,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/imoveis" component={Imoveis} />
         <Route path="/imoveis/:id" component={ImovelDetalhes} />
+        <Route path="/explorar-mapa" component={ExplorarMapa} />
         <Route path="/servicos" component={Servicos} />
         <Route path="/sobre" component={Sobre} />
         <Route path="/contacto" component={Contacto} />
