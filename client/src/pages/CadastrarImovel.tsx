@@ -682,24 +682,30 @@ export default function CadastrarImovel() {
     setMapLatitude(lat);
     setMapLongitude(lng);
 
-    // If location was obtained from geolocation, update form fields
-    if (isFromGeolocation) {
-      const { provincia, municipio } = findClosestLocation(lat, lng);
+    // Always update form fields based on the selected location
+    const { provincia, municipio } = findClosestLocation(lat, lng);
+    
+    if (provincia) {
+      setValue('provincia', provincia);
+      setSelectedProvince(provincia);
       
-      if (provincia) {
-        setValue('provincia', provincia);
-        setSelectedProvince(provincia);
-        
-        // Always set municipality along with province
-        if (municipio) {
-          // Need to wait for the province to update before setting municipality
-          setTimeout(() => {
-            setValue('municipio', municipio);
-          }, 0);
-        }
-        
+      // Always set municipality along with province
+      if (municipio) {
+        // Need to wait for the province to update before setting municipality
+        setTimeout(() => {
+          setValue('municipio', municipio);
+        }, 0);
+      }
+      
+      // Show appropriate toast message
+      if (isFromGeolocation) {
         toast({
           title: "Localização detectada",
+          description: `${municipio}, ${provincia}`,
+        });
+      } else {
+        toast({
+          title: "Localização selecionada",
           description: `${municipio}, ${provincia}`,
         });
       }
