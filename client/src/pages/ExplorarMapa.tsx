@@ -56,35 +56,56 @@ export default function ExplorarMapa() {
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+    if (!mapContainerRef.current) return;
 
-    // Center map on Angola (Luanda)
-    const map = L.map(mapContainerRef.current, {
-      center: [-8.8383, 13.2344],
-      zoom: 11,
-      zoomControl: true,
-      scrollWheelZoom: true,
-    });
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19,
-      minZoom: 3,
-    }).addTo(map);
+    // Cleanup existing map if any
+    if (mapRef.current) {
+      mapRef.current.remove();
+      mapRef.current = null;
+    }
 
-    mapRef.current = map;
+    // Small delay to ensure container is rendered
+    const timer = setTimeout(() => {
+      if (!mapContainerRef.current) return;
 
-    // Force map to recalculate size after initialization
-    setTimeout(() => {
-      if (mapRef.current) {
-        mapRef.current.invalidateSize();
+      try {
+        // Center map on Angola (Luanda)
+        const map = L.map(mapContainerRef.current, {
+          center: [-8.8383, 13.2344],
+          zoom: 11,
+          zoomControl: true,
+          scrollWheelZoom: true,
+          preferCanvas: false,
+        });
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+          minZoom: 3,
+        }).addTo(map);
+
+        mapRef.current = map;
+
+        // Force map to recalculate size
+        requestAnimationFrame(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing map:', error);
       }
-    }, 100);
+    }, 250);
 
     return () => {
+      clearTimeout(timer);
       if (mapRef.current) {
-        mapRef.current.off();
-        mapRef.current.remove();
+        try {
+          mapRef.current.off();
+          mapRef.current.remove();
+        } catch (e) {
+          console.error('Error cleaning up map:', e);
+        }
         mapRef.current = null;
       }
     };
