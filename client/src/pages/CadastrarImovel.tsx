@@ -60,12 +60,202 @@ const LOCATION_COORDINATES: Record<string, { lat: number; lon: number }> = {
   "Namibe": { lat: -15.1961, lon: 12.1522 },
   "Uíge": { lat: -7.6073, lon: 15.0611 },
   "Zaire": { lat: -6.2658, lon: 14.2450 },
-  // Municípios principais
+  
+  // Municípios de Luanda
   "Belas": { lat: -9.0500, lon: 13.1500 },
   "Cacuaco": { lat: -8.7833, lon: 13.3667 },
+  "Cazenga": { lat: -8.8500, lon: 13.2800 },
+  "Icolo e Bengo": { lat: -9.0667, lon: 13.5000 },
+  "Quiçama": { lat: -9.6833, lon: 13.6167 },
   "Viana": { lat: -8.8889, lon: 13.3767 },
-  "Lobito": { lat: -12.3644, lon: 13.5487 },
   "Talatona": { lat: -8.9167, lon: 13.1667 },
+  
+  // Municípios de Bengo
+  "Ambriz": { lat: -7.8667, lon: 13.1167 },
+  "Bula Atumba": { lat: -8.9167, lon: 13.9167 },
+  "Dande": { lat: -8.8000, lon: 13.4833 },
+  "Dembos": { lat: -9.1833, lon: 13.9833 },
+  "Nambuangongo": { lat: -9.0500, lon: 14.3167 },
+  "Pango Aluquém": { lat: -8.7000, lon: 13.8167 },
+  
+  // Municípios de Benguela
+  "Balombo": { lat: -12.3500, lon: 14.6833 },
+  "Baía Farta": { lat: -12.4833, lon: 13.1667 },
+  "Bocoio": { lat: -12.6000, lon: 14.1833 },
+  "Caimbambo": { lat: -12.2833, lon: 13.9167 },
+  "Catumbela": { lat: -12.4333, lon: 13.5500 },
+  "Chongorói": { lat: -12.5500, lon: 14.0833 },
+  "Cubal": { lat: -13.0000, lon: 14.2500 },
+  "Ganda": { lat: -13.2500, lon: 14.5833 },
+  "Lobito": { lat: -12.3644, lon: 13.5487 },
+  
+  // Municípios de Bié
+  "Kuito": { lat: -12.3833, lon: 16.9333 },
+  "Andulo": { lat: -11.4833, lon: 16.7167 },
+  "Camacupa": { lat: -12.0167, lon: 17.4833 },
+  "Catabola": { lat: -12.7500, lon: 17.2833 },
+  "Chinguar": { lat: -12.6333, lon: 16.5167 },
+  "Chitembo": { lat: -13.0167, lon: 16.9667 },
+  "Cuemba": { lat: -12.6667, lon: 16.8000 },
+  "Cunhinga": { lat: -11.8833, lon: 16.9333 },
+  "Nharea": { lat: -12.9167, lon: 17.5000 },
+  
+  // Municípios de Cabinda
+  "Belize": { lat: -5.5167, lon: 12.5000 },
+  "Buco-Zau": { lat: -5.1667, lon: 12.6167 },
+  "Cacongo": { lat: -5.0833, lon: 12.3833 },
+  
+  // Municípios de Cuando Cubango
+  "Menongue": { lat: -14.6667, lon: 17.7333 },
+  "Calai": { lat: -13.5000, lon: 20.3167 },
+  "Cuangar": { lat: -15.0500, lon: 20.5333 },
+  "Cuchi": { lat: -14.1000, lon: 18.5833 },
+  "Cuito Cuanavale": { lat: -15.1667, lon: 19.1833 },
+  "Dirico": { lat: -17.7833, lon: 20.7833 },
+  "Mavinga": { lat: -15.7833, lon: 20.4000 },
+  "Nankova": { lat: -13.7667, lon: 18.8667 },
+  "Rivungo": { lat: -14.3167, lon: 21.6667 },
+  
+  // Municípios de Cuanza Norte
+  "N'dalatando": { lat: -9.2978, lon: 14.9116 },
+  "Ambaca": { lat: -9.3667, lon: 15.1833 },
+  "Banga": { lat: -9.0333, lon: 15.2000 },
+  "Bolongongo": { lat: -9.1833, lon: 14.6833 },
+  "Cambambe": { lat: -9.8167, lon: 15.3667 },
+  "Cazengo": { lat: -9.6333, lon: 14.5833 },
+  "Golungo Alto": { lat: -9.1167, lon: 14.4667 },
+  "Gonguembo": { lat: -9.4833, lon: 15.5167 },
+  "Lucala": { lat: -9.5333, lon: 14.9167 },
+  "Quiculungo": { lat: -9.7167, lon: 15.0833 },
+  "Samba Caju": { lat: -9.8667, lon: 15.8167 },
+  
+  // Municípios de Cuanza Sul
+  "Sumbe": { lat: -11.2058, lon: 13.8433 },
+  "Amboim": { lat: -10.7333, lon: 14.8500 },
+  "Cassongue": { lat: -11.9167, lon: 14.4167 },
+  "Cela": { lat: -11.5167, lon: 15.3000 },
+  "Conda": { lat: -12.2000, lon: 15.5667 },
+  "Ebo": { lat: -11.1333, lon: 14.4667 },
+  "Libolo": { lat: -10.1833, lon: 14.5833 },
+  "Mussende": { lat: -10.8500, lon: 15.2167 },
+  "Porto Amboim": { lat: -10.7167, lon: 13.7833 },
+  "Quibala": { lat: -10.7333, lon: 14.9833 },
+  "Quilenda": { lat: -10.9667, lon: 14.6667 },
+  "Seles": { lat: -11.9333, lon: 14.9833 },
+  
+  // Municípios de Cunene
+  "Ondjiva": { lat: -17.0667, lon: 15.7333 },
+  "Cahama": { lat: -16.3167, lon: 14.2500 },
+  "Cuanhama": { lat: -17.3500, lon: 16.0167 },
+  "Curoca": { lat: -16.7667, lon: 15.5667 },
+  "Cuvelai": { lat: -17.3833, lon: 15.8333 },
+  "Namacunde": { lat: -17.4167, lon: 16.6667 },
+  "Ombadja": { lat: -17.2833, lon: 15.4667 },
+  
+  // Municípios de Huambo
+  "Bailundo": { lat: -12.1667, lon: 15.3167 },
+  "Cachiungo": { lat: -12.3833, lon: 16.2333 },
+  "Caála": { lat: -12.8500, lon: 15.5667 },
+  "Ekunha": { lat: -12.3500, lon: 15.6833 },
+  "Chinjenje": { lat: -12.5833, lon: 15.4500 },
+  "Chipindo": { lat: -12.6333, lon: 15.8667 },
+  "Chicala-Choloanga": { lat: -12.9833, lon: 15.2667 },
+  "Chiumbo": { lat: -12.5333, lon: 16.1833 },
+  "Londuimbali": { lat: -13.1000, lon: 15.5833 },
+  "Longonjo": { lat: -12.9000, lon: 15.2500 },
+  "Mungo": { lat: -12.7167, lon: 15.9333 },
+  "Ucuma": { lat: -12.5500, lon: 15.2833 },
+  
+  // Municípios de Huíla
+  "Lubango": { lat: -14.9167, lon: 13.4925 },
+  "Caconda": { lat: -13.7333, lon: 15.0667 },
+  "Cacula": { lat: -14.0667, lon: 14.0000 },
+  "Caluquembe": { lat: -13.9333, lon: 15.0167 },
+  "Chiange": { lat: -14.0500, lon: 13.6167 },
+  "Chibia": { lat: -15.1833, lon: 13.8667 },
+  "Chicomba": { lat: -12.4667, lon: 14.9000 },
+  "Cuvango": { lat: -14.4833, lon: 16.8833 },
+  "Humpata": { lat: -15.0500, lon: 13.3833 },
+  "Jamba": { lat: -14.7500, lon: 16.1500 },
+  "Matala": { lat: -15.0167, lon: 14.0167 },
+  "Quilengues": { lat: -13.6500, lon: 14.0500 },
+  "Quipungo": { lat: -14.8167, lon: 14.5667 },
+  
+  // Municípios de Lunda Norte
+  "Dundo": { lat: -7.3667, lon: 20.8333 },
+  "Cambulo": { lat: -7.8833, lon: 20.5000 },
+  "Capenda-Camulemba": { lat: -9.4333, lon: 18.4333 },
+  "Caungula": { lat: -8.6833, lon: 19.3167 },
+  "Chitato": { lat: -7.3833, lon: 20.2833 },
+  "Cuango": { lat: -8.5833, lon: 18.7500 },
+  "Cuílo": { lat: -7.7667, lon: 19.4167 },
+  "Lóvua": { lat: -7.1500, lon: 21.4667 },
+  "Lubalo": { lat: -8.5667, lon: 20.9333 },
+  "Lucapa": { lat: -8.4167, lon: 20.7500 },
+  
+  // Municípios de Lunda Sul
+  "Saurimo": { lat: -9.6667, lon: 20.3833 },
+  "Cacolo": { lat: -9.0667, lon: 19.4500 },
+  "Dala": { lat: -10.3500, lon: 21.5333 },
+  "Muconda": { lat: -10.3333, lon: 20.9000 },
+  
+  // Municípios de Malanje
+  "Cacuso": { lat: -9.7500, lon: 15.0833 },
+  "Calandula": { lat: -9.2167, lon: 15.8833 },
+  "Cambundi-Catembo": { lat: -8.1667, lon: 15.5000 },
+  "Cangandala": { lat: -9.7833, lon: 16.7667 },
+  "Caombo": { lat: -9.4000, lon: 16.9500 },
+  "Cuaba Nzogo": { lat: -9.1833, lon: 15.6333 },
+  "Cunda-Dia-Baze": { lat: -9.9667, lon: 15.6500 },
+  "Quirima": { lat: -9.3333, lon: 16.4833 },
+  "Luquembo": { lat: -9.2667, lon: 16.7333 },
+  "Massango": { lat: -9.9833, lon: 16.1833 },
+  "Marimba": { lat: -9.1833, lon: 16.1667 },
+  "Mucari": { lat: -10.3167, lon: 16.5333 },
+  "Quela": { lat: -10.1833, lon: 16.7667 },
+  
+  // Municípios de Moxico
+  "Luena": { lat: -11.7881, lon: 19.9069 },
+  "Alto Zambeze": { lat: -12.7500, lon: 22.6167 },
+  "Bundas": { lat: -11.3000, lon: 19.3167 },
+  "Camanongue": { lat: -13.4833, lon: 21.3000 },
+  "Cameia": { lat: -11.8667, lon: 20.8667 },
+  "Leua": { lat: -11.3667, lon: 20.3667 },
+  "Luacano": { lat: -12.3333, lon: 20.6167 },
+  "Luchazes": { lat: -13.5833, lon: 20.3500 },
+  "Lumeje": { lat: -11.6000, lon: 22.0667 },
+  
+  // Municípios de Namibe
+  "Moçâmedes": { lat: -15.1961, lon: 12.1522 },
+  "Bibala": { lat: -14.9000, lon: 13.6667 },
+  "Camucuio": { lat: -15.2667, lon: 12.8333 },
+  "Tômbua": { lat: -15.7833, lon: 11.8833 },
+  "Virei": { lat: -15.8667, lon: 13.5667 },
+  
+  // Municípios de Uíge
+  "Alto Cauale": { lat: -7.0833, lon: 15.6333 },
+  "Ambuíla": { lat: -7.3000, lon: 15.2833 },
+  "Bembe": { lat: -7.1000, lon: 15.9333 },
+  "Buengas": { lat: -7.4500, lon: 15.5167 },
+  "Bungo": { lat: -8.0333, lon: 15.7667 },
+  "Damba": { lat: -7.6500, lon: 14.9500 },
+  "Macocola": { lat: -6.8000, lon: 15.2500 },
+  "Milunga": { lat: -7.9167, lon: 15.4667 },
+  "Mucaba": { lat: -7.2500, lon: 15.4167 },
+  "Negage": { lat: -7.7667, lon: 15.2833 },
+  "Puri": { lat: -7.3667, lon: 14.7833 },
+  "Quimbele": { lat: -8.2833, lon: 15.7333 },
+  "Quitexe": { lat: -7.9333, lon: 16.2833 },
+  "Sanza Pombo": { lat: -6.8667, lon: 15.8667 },
+  "Songo": { lat: -8.0667, lon: 14.9333 },
+  
+  // Municípios de Zaire
+  "M'banza Kongo": { lat: -6.2658, lon: 14.2450 },
+  "Cuimba": { lat: -6.0167, lon: 14.4833 },
+  "Nóqui": { lat: -5.8333, lon: 12.5167 },
+  "Nzeto": { lat: -7.2333, lon: 12.8667 },
+  "Soio": { lat: -6.1333, lon: 12.3667 },
+  "Tomboco": { lat: -6.4667, lon: 14.2167 },
 };
 
 const propertyFormSchema = z.object({
