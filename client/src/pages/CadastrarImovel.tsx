@@ -1031,7 +1031,7 @@ export default function CadastrarImovel() {
                     <div>
                       <Label>Imagens do Imóvel (até 10)</Label>
                       <p className="text-xs text-muted-foreground mt-1">
-                        A primeira imagem será a capa do anúncio. Clique na estrela para mudar a capa.
+                        A primeira imagem será a capa do anúncio. Clique na estrela para mudar a capa. As imagens são armazenadas de forma segura no banco de dados.
                       </p>
                     </div>
                     

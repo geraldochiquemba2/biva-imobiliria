@@ -149,7 +149,7 @@ export default function EditarImovel() {
 
         const uploadRes = await apiRequest('POST', '/api/properties/upload', formData);
         const uploadData = await uploadRes.json();
-        
+
         finalImageUrls = [...existingImages, ...uploadData.urls];
         setUploadingImages(false);
       }
@@ -195,7 +195,7 @@ export default function EditarImovel() {
     }
 
     setNewImages([...newImages, ...files]);
-    
+
     const urls = files.map(file => URL.createObjectURL(file));
     setPreviewUrls([...previewUrls, ...urls]);
   };
@@ -270,7 +270,7 @@ export default function EditarImovel() {
                 {/* Basic Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Informações Básicas</h3>
-                  
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="title">Título *</Label>
@@ -379,7 +379,7 @@ export default function EditarImovel() {
                 {/* Location */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Localização</h3>
-                  
+
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="provincia">Província *</Label>
@@ -425,7 +425,7 @@ export default function EditarImovel() {
                 {/* Details */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Detalhes do Imóvel</h3>
-                  
+
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="bedrooms">Quartos</Label>
@@ -520,7 +520,7 @@ export default function EditarImovel() {
                 {/* Images */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Imagens ({totalImages}/10)</h3>
-                  
+
                   {/* Existing Images */}
                   {existingImages.length > 0 && (
                     <div>
