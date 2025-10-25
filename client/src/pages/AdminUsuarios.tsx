@@ -131,6 +131,32 @@ export default function AdminUsuarios() {
   const activeUsers = filteredUsers.filter(u => u.status === 'ativo');
   const blockedUsers = filteredUsers.filter(u => u.status === 'bloqueado');
 
+  // Calcular tempo total de login dos usuários ativos
+  const totalLoginTime = activeUsers.reduce((total, user) => {
+    if (user.lastLoginAt) {
+      const now = new Date();
+      const loginTime = new Date(user.lastLoginAt);
+      const diffInMs = now.getTime() - loginTime.getTime();
+      return total + diffInMs;
+    }
+    return total;
+  }, 0);
+
+  // Converter para formato legível
+  const formatTotalTime = (ms: number) => {
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) {
+      return `${days}d`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else {
+      const minutes = Math.floor(ms / (1000 * 60));
+      return `${minutes}m`;
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-6">
@@ -187,6 +213,9 @@ export default function AdminUsuarios() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">{activeUsers.length}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Tempo total: {totalLoginTime > 0 ? formatTotalTime(totalLoginTime) : '0m'}
+                </p>
               </CardContent>
             </Card>
 
