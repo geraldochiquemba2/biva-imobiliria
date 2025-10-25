@@ -17,7 +17,7 @@ import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 const registerFormSchema = z.object({
   fullName: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
+  email: z.string().email("Email inválido").optional().or(z.literal("")),
   phone: z.string().refine(
     (val) => val === "+244" || /^\+244\d{9}$/.test(val),
     "Por favor, digite os 9 dígitos do seu número"
@@ -148,7 +148,7 @@ export default function Cadastro() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Email (Opcional)</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
