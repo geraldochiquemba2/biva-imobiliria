@@ -341,8 +341,8 @@ export default function MeusImoveis() {
                                 </div>
                               </CardHeader>
                               <CardContent>
-                                <div className="flex items-center justify-between">
-                                  <div className="flex gap-6 text-sm text-muted-foreground">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                  <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-muted-foreground">
                                     {property.bedrooms > 0 && (
                                       <div>{property.bedrooms} quartos</div>
                                     )}
@@ -351,17 +351,17 @@ export default function MeusImoveis() {
                                     )}
                                     <div>{property.area}m²</div>
                                   </div>
-                                  <div className="flex items-center gap-4">
+                                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
                                     <div className="text-right">
-                                      <p className="text-sm text-muted-foreground">Preço</p>
-                                      <p className="text-xl font-bold" data-testid={`text-price-${property.id}`}>
+                                      <p className="text-xs sm:text-sm text-muted-foreground">Preço</p>
+                                      <p className="text-base sm:text-xl font-bold whitespace-nowrap" data-testid={`text-price-${property.id}`}>
                                         {Number(property.price).toLocaleString('pt-AO', {
                                           style: 'currency',
                                           currency: 'AOA',
                                         })}
                                       </p>
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 flex-shrink-0">
                                       <Button variant="outline" size="icon" asChild data-testid={`button-edit-${property.id}`}>
                                         <Link href={`/editar-imovel/${property.id}`}>
                                           <Edit className="h-4 w-4" />
