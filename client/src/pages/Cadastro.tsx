@@ -151,14 +151,11 @@ export default function Cadastro() {
                   <Label htmlFor="phone">Número de Telemóvel</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <span className="absolute left-10 top-3 text-sm text-muted-foreground pointer-events-none">
-                      +244
-                    </span>
                     <Input
                       id="phone"
                       type="tel"
                       placeholder="923456789"
-                      className="pl-[4.5rem]"
+                      className="pl-10"
                       {...register("phone")}
                       onChange={handlePhoneChange}
                       value={phoneValue?.slice(4) || ""}
