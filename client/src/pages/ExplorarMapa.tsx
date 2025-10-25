@@ -54,7 +54,7 @@ export default function ExplorarMapa() {
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current || !properties) return;
+    if (!mapContainerRef.current || mapRef.current) return;
 
     // Center map on Angola
     const map = L.map(mapContainerRef.current).setView([-8.8383, 13.2344], 11);
@@ -67,11 +67,12 @@ export default function ExplorarMapa() {
 
     return () => {
       if (mapRef.current) {
+        mapRef.current.off();
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [properties]);
+  }, []);
 
   // Add property markers
   useEffect(() => {
