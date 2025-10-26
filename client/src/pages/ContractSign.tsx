@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, PenTool, Camera, Upload, Crop } from "lucide-react";
+import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, Camera, Upload, Crop } from "lucide-react";
 import { format } from "date-fns";
 import { useState, useMemo, useRef, useCallback } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -20,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import SignatureCanvas from "react-signature-canvas";
 import logoUrl from "@assets/BIVA LOG300.300_1761489547620.png";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
@@ -30,9 +29,6 @@ export default function ContractSign() {
   const { toast } = useToast();
   const [biNumber, setBiNumber] = useState("");
   const [signDialogOpen, setSignDialogOpen] = useState(false);
-  const signatureRef = useRef<SignatureCanvas>(null);
-  const [hasSignature, setHasSignature] = useState(false);
-  const [signatureMethod, setSignatureMethod] = useState<'draw' | 'upload'>('draw');
   const [uploadedSignature, setUploadedSignature] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCropping, setIsCropping] = useState(false);
@@ -159,45 +155,24 @@ export default function ContractSign() {
   }, [contract?.contractContent]);
 
   const handleSign = () => {
-    if (!id || !biNumber || !hasSignature) {
+    if (!id || !biNumber || !uploadedSignature) {
       toast({
         variant: "destructive",
         title: "Assinatura incompleta",
-        description: "Por favor, preencha o número de BI e desenhe sua assinatura.",
+        description: "Por favor, preencha o número de BI e faça upload da sua assinatura.",
       });
       return;
     }
 
-    // Get signature image data
-    let signatureImage = '';
-    if (signatureMethod === 'draw' && signatureRef.current) {
-      signatureImage = signatureRef.current.toDataURL('image/png');
-    } else if (signatureMethod === 'upload' && uploadedSignature) {
-      signatureImage = uploadedSignature;
-    }
-
-    signMutation.mutate({ contractId: id, bi: biNumber, signatureImage });
+    signMutation.mutate({ contractId: id, bi: biNumber, signatureImage: uploadedSignature });
   };
 
   const handleOpenSignDialog = () => {
     if (currentUser?.bi) {
       setBiNumber(currentUser.bi);
     }
-    setHasSignature(false);
     setUploadedSignature(null);
-    signatureRef.current?.clear();
     setSignDialogOpen(true);
-  };
-
-  const handleClearSignature = () => {
-    signatureRef.current?.clear();
-    setHasSignature(false);
-  };
-
-  const handleSignatureEnd = () => {
-    if (signatureRef.current && !signatureRef.current.isEmpty()) {
-      setHasSignature(true);
-    }
   };
 
   const processSignatureImage = (imageDataUrl: string): Promise<string> => {
@@ -362,7 +337,6 @@ export default function ContractSign() {
       const processedImage = await processSignatureImage(croppedImage);
       
       setUploadedSignature(processedImage);
-      setHasSignature(true);
       setIsCropping(false);
       setImageToCrop(null);
       
@@ -392,7 +366,6 @@ export default function ContractSign() {
 
   const handleRemoveUploadedSignature = () => {
     setUploadedSignature(null);
-    setHasSignature(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -861,90 +834,17 @@ export default function ContractSign() {
             <div>
               <Label className="mb-3">Assinatura</Label>
               
-              {/* Method Selection Tabs */}
-              <div className="flex gap-2 mb-3">
-                <Button
-                  type="button"
-                  variant={signatureMethod === 'draw' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setSignatureMethod('draw');
-                    setHasSignature(false);
-                    setUploadedSignature(null);
-                  }}
-                  data-testid="button-method-draw"
-                  className="flex-1"
-                >
-                  <PenTool className="h-4 w-4 mr-2" />
-                  Desenhar
-                </Button>
-                <Button
-                  type="button"
-                  variant={signatureMethod === 'upload' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    setSignatureMethod('upload');
-                    setHasSignature(false);
-                    signatureRef.current?.clear();
-                  }}
-                  data-testid="button-method-upload"
-                  className="flex-1"
-                >
-                  <Camera className="h-4 w-4 mr-2" />
-                  Foto/Upload
-                </Button>
-              </div>
-
-              {/* Draw Signature */}
-              {signatureMethod === 'draw' && (
-                <>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="text-sm text-muted-foreground">
-                      Desenhe sua assinatura abaixo
-                    </Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleClearSignature}
-                      data-testid="button-clear-signature"
-                    >
-                      <Eraser className="h-4 w-4 mr-2" />
-                      Limpar
-                    </Button>
-                  </div>
-                  <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg bg-background" data-testid="canvas-signature">
-                    <SignatureCanvas
-                      ref={signatureRef}
-                      onEnd={handleSignatureEnd}
-                      canvasProps={{
-                        className: "w-full h-40 cursor-crosshair rounded-lg"
-                      }}
-                      backgroundColor="transparent"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {hasSignature 
-                      ? "Assinatura capturada. Você pode limpar e desenhar novamente se desejar."
-                      : "Use o mouse ou toque na tela para desenhar sua assinatura."}
-                  </p>
-                </>
-              )}
-
-              {/* Upload Signature */}
-              {signatureMethod === 'upload' && (
-                <>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    data-testid="input-file-signature"
-                  />
-                  
-                  {isCropping && imageToCrop ? (
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileUpload}
+                className="hidden"
+                data-testid="input-file-signature"
+              />
+              
+              {isCropping && imageToCrop ? (
                     <div className="space-y-3">
                       <div className="relative h-80 border-2 border-muted-foreground/30 rounded-lg bg-background overflow-hidden">
                         <Cropper
@@ -1043,8 +943,6 @@ export default function ContractSign() {
                       </p>
                     </div>
                   )}
-                </>
-              )}
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
@@ -1073,7 +971,7 @@ export default function ContractSign() {
               </Button>
               <Button
                 onClick={handleSign}
-                disabled={!biNumber || !hasSignature || signMutation.isPending}
+                disabled={!biNumber || !uploadedSignature || signMutation.isPending}
                 data-testid="button-confirm-sign"
               >
                 {signMutation.isPending ? (
