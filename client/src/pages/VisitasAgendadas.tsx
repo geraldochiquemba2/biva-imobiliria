@@ -8,12 +8,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle, Check, X } from "lucide-react";
+import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle, Check, X, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
 import emptyStateImage from "@assets/stock_images/empty_calendar_sched_60cbbdfd.jpg";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -301,7 +301,7 @@ export default function VisitasAgendadas() {
                               </div>
                             </div>
 
-                            <div className="mt-4 pt-4 border-t">
+                            <div className="mt-4 pt-4 border-t space-y-2">
                               {visit.status === 'pendente_cliente' ? (
                                 <div className="flex gap-2">
                                   <Button
@@ -334,6 +334,17 @@ export default function VisitasAgendadas() {
                                   {cancelVisitMutation.isPending ? 'Cancelando...' : 'Cancelar Solicitação'}
                                 </Button>
                               )}
+                              <Button
+                                variant="outline"
+                                className="w-full"
+                                asChild
+                                data-testid={`button-view-property-${visit.id}`}
+                              >
+                                <Link href={`/imoveis/${visit.propertyId}`}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  Ver Imóvel
+                                </Link>
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -432,7 +443,7 @@ export default function VisitasAgendadas() {
                         </div>
                       )}
 
-                      <div className="mt-4 pt-4 border-t">
+                      <div className="mt-4 pt-4 border-t space-y-2">
                         {visit.status === 'pendente_cliente' ? (
                           <div className="flex gap-2">
                             <Button
@@ -465,6 +476,17 @@ export default function VisitasAgendadas() {
                             {cancelVisitMutation.isPending ? 'Cancelando...' : 'Cancelar Visita'}
                           </Button>
                         ) : null}
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          asChild
+                          data-testid={`button-view-property-${visit.id}`}
+                        >
+                          <Link href={`/imoveis/${visit.propertyId}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            Ver Imóvel
+                          </Link>
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
