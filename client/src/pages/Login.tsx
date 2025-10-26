@@ -62,7 +62,13 @@ export default function Login() {
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta à BIVA",
       });
-      setLocation('/');
+      const returnUrl = sessionStorage.getItem('returnUrl');
+      if (returnUrl) {
+        sessionStorage.removeItem('returnUrl');
+        setLocation(returnUrl);
+      } else {
+        setLocation('/');
+      }
     },
     onError: (error: any) => {
       toast({

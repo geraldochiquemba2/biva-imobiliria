@@ -85,7 +85,13 @@ export default function Cadastro() {
         title: "Cadastro realizado com sucesso!",
         description: "Bem-vindo à BIVA",
       });
-      setLocation('/');
+      const returnUrl = sessionStorage.getItem('returnUrl');
+      if (returnUrl) {
+        sessionStorage.removeItem('returnUrl');
+        setLocation(returnUrl);
+      } else {
+        setLocation('/');
+      }
     },
     onError: (error: any) => {
       toast({

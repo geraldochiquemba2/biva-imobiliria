@@ -102,6 +102,7 @@ export default function ImovelDetalhes() {
 
   const handleScheduleVisit = () => {
     if (!currentUser) {
+      sessionStorage.setItem('returnUrl', window.location.pathname);
       setLocation('/login');
       toast({
         title: "Faça login para agendar visita",
