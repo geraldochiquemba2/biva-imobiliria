@@ -242,35 +242,43 @@ export default function VisitasAgendadas() {
                         transition={{ duration: 0.4 }}
                       >
                         <Card className="hover-elevate">
-                          {visit.property?.images && visit.property.images.length > 0 && (
-                            <div className="aspect-video overflow-hidden bg-muted">
-                              <img
-                                src={visit.property.images[0]}
-                                alt={visit.property.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
                           <CardHeader>
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Building2 className="h-5 w-5 text-primary" />
-                                  <CardTitle data-testid={`text-property-title-${visit.id}`}>
-                                    {visit.property?.title || 'Imóvel'}
-                                  </CardTitle>
+                            <div className="flex gap-4">
+                              {visit.property?.images && visit.property.images.length > 0 && (
+                                <div className="w-24 h-24 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                                  <img
+                                    src={visit.property.images[0]}
+                                    alt={visit.property.title}
+                                    className="w-full h-full object-cover"
+                                  />
                                 </div>
-                                <CardDescription className="flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />
-                                  {visit.property?.bairro}, {visit.property?.municipio}
-                                </CardDescription>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
+                                      <CardTitle className="text-base truncate" data-testid={`text-property-title-${visit.id}`}>
+                                        {visit.property?.title || 'Imóvel'}
+                                      </CardTitle>
+                                    </div>
+                                    <CardDescription className="flex items-start gap-1 text-sm">
+                                      <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                                      <span className="line-clamp-2">
+                                        {visit.property?.bairro}, {visit.property?.municipio}
+                                        {visit.property?.provincia && `, ${visit.property.provincia}`}
+                                      </span>
+                                    </CardDescription>
+                                  </div>
+                                  <Badge 
+                                    variant={getStatusBadge(visit.status).variant}
+                                    data-testid={`badge-status-${visit.id}`}
+                                    className="flex-shrink-0"
+                                  >
+                                    {getStatusBadge(visit.status).label}
+                                  </Badge>
+                                </div>
                               </div>
-                              <Badge 
-                                variant={getStatusBadge(visit.status).variant}
-                                data-testid={`badge-status-${visit.id}`}
-                              >
-                                {getStatusBadge(visit.status).label}
-                              </Badge>
                             </div>
                           </CardHeader>
                           <CardContent>
@@ -366,35 +374,43 @@ export default function VisitasAgendadas() {
                   transition={{ duration: 0.4 }}
                 >
                   <Card className="hover-elevate">
-                    {visit.property?.images && visit.property.images.length > 0 && (
-                      <div className="aspect-video overflow-hidden bg-muted">
-                        <img
-                          src={visit.property.images[0]}
-                          alt={visit.property.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
                     <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Building2 className="h-5 w-5 text-primary" />
-                            <CardTitle data-testid={`text-property-title-${visit.id}`}>
-                              {visit.property?.title || 'Imóvel'}
-                            </CardTitle>
+                      <div className="flex gap-4">
+                        {visit.property?.images && visit.property.images.length > 0 && (
+                          <div className="w-24 h-24 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                            <img
+                              src={visit.property.images[0]}
+                              alt={visit.property.title}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
-                          <CardDescription className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {visit.property?.bairro}, {visit.property?.municipio}
-                          </CardDescription>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
+                                <CardTitle className="text-base truncate" data-testid={`text-property-title-${visit.id}`}>
+                                  {visit.property?.title || 'Imóvel'}
+                                </CardTitle>
+                              </div>
+                              <CardDescription className="flex items-start gap-1 text-sm">
+                                <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                                <span className="line-clamp-2">
+                                  {visit.property?.bairro}, {visit.property?.municipio}
+                                  {visit.property?.provincia && `, ${visit.property.provincia}`}
+                                </span>
+                              </CardDescription>
+                            </div>
+                            <Badge 
+                              variant={getStatusBadge(visit.status).variant}
+                              data-testid={`badge-status-${visit.id}`}
+                              className="flex-shrink-0"
+                            >
+                              {getStatusBadge(visit.status).label}
+                            </Badge>
+                          </div>
                         </div>
-                        <Badge 
-                          variant={getStatusBadge(visit.status).variant}
-                          data-testid={`badge-status-${visit.id}`}
-                        >
-                          {getStatusBadge(visit.status).label}
-                        </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
