@@ -150,6 +150,13 @@ export default function ContractSign() {
     signMutation.mutate({ contractId: id, bi: biNumber });
   };
 
+  const handleOpenSignDialog = () => {
+    if (currentUser?.bi) {
+      setBiNumber(currentUser.bi);
+    }
+    setSignDialogOpen(true);
+  };
+
   const canSign = () => {
     if (!contract || !currentUser) return false;
     
@@ -353,7 +360,7 @@ export default function ContractSign() {
               </p>
             </div>
             <Button 
-              onClick={() => setSignDialogOpen(true)}
+              onClick={handleOpenSignDialog}
               data-testid="button-sign-contract"
             >
               Assinar Contrato
@@ -522,7 +529,9 @@ export default function ContractSign() {
                 data-testid="input-bi"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Este número deve corresponder ao cadastrado no seu perfil.
+                {currentUser?.bi 
+                  ? "Número preenchido automaticamente do seu perfil. Você pode editá-lo se necessário."
+                  : "Este número deve corresponder ao cadastrado no seu perfil."}
               </p>
             </div>
 
