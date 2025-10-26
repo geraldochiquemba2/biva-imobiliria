@@ -251,13 +251,50 @@ export default function ContractSign() {
       )}
 
       {/* Contract Content */}
-      <Card className="p-6">
-        <h3 className="font-semibold mb-4">Conteúdo do Contrato</h3>
-        <Separator className="mb-4" />
-        <div className="prose prose-sm max-w-none">
-          <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed" data-testid="text-contract-content">
-            {contract.contractContent}
-          </pre>
+      <Card className="p-0 overflow-hidden">
+        <div className="p-6 border-b">
+          <h3 className="font-semibold">Conteúdo do Contrato</h3>
+        </div>
+        
+        {/* Document with official background */}
+        <div className="relative bg-gradient-to-br from-amber-50/30 via-white to-amber-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+          {/* Decorative border pattern */}
+          <div className="absolute inset-0 pointer-events-none opacity-10">
+            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-primary/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-primary/20 to-transparent" />
+            <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-primary/20 to-transparent" />
+            <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-primary/20 to-transparent" />
+          </div>
+          
+          {/* Watermark */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+            <FileText className="w-96 h-96 text-primary" />
+          </div>
+          
+          {/* Contract content with official styling */}
+          <div className="relative p-12 min-h-[800px]">
+            <div className="max-w-3xl mx-auto bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg border-2 border-primary/20 shadow-lg p-8">
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed text-foreground" data-testid="text-contract-content">
+                  {contract.contractContent}
+                </pre>
+              </div>
+              
+              {/* Official seal decoration at bottom */}
+              <div className="mt-8 pt-6 border-t-2 border-primary/20">
+                <div className="flex justify-between items-end text-xs text-muted-foreground">
+                  <div>
+                    <p className="font-semibold">Documento Oficial</p>
+                    <p>Conforme Lei n.º 26/15</p>
+                  </div>
+                  <div className="text-right">
+                    <p>ID: {contract.id.substring(0, 8)}</p>
+                    <p>{format(new Date(contract.createdAt), "dd/MM/yyyy")}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </Card>
 
