@@ -150,11 +150,15 @@ export default function ContratosAtivos() {
           ) : (
             <Tabs defaultValue="venda" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6" data-testid="tabs-contract-type">
-                <TabsTrigger value="venda" data-testid="tab-venda">
-                  Contratos de Venda ({contratosvenda.length})
+                <TabsTrigger value="venda" data-testid="tab-venda" className="text-xs sm:text-sm">
+                  <span className="hidden sm:inline">Contratos de Venda</span>
+                  <span className="sm:hidden">Venda</span>
+                  <span className="ml-1">({contratosvenda.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="arrendamento" data-testid="tab-arrendamento">
-                  Contratos de Arrendamento ({contratosArrendamento.length})
+                <TabsTrigger value="arrendamento" data-testid="tab-arrendamento" className="text-xs sm:text-sm">
+                  <span className="hidden sm:inline">Contratos de Arrendamento</span>
+                  <span className="sm:hidden">Arrendamento</span>
+                  <span className="ml-1">({contratosArrendamento.length})</span>
                 </TabsTrigger>
               </TabsList>
 
