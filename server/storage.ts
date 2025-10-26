@@ -297,35 +297,52 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getContractsByUser(userId: string): Promise<any[]> {
-    const results = await db.query.contracts.findMany({
-      where: or(
-        eq(contracts.clienteId, userId),
-        eq(contracts.proprietarioId, userId)
-      ),
-      orderBy: [desc(contracts.createdAt)],
-      with: {
+    const proprietario = aliasedTable(users, 'proprietario');
+    const cliente = aliasedTable(users, 'cliente');
+    
+    const results = await db
+      .select({
+        id: contracts.id,
+        propertyId: contracts.propertyId,
+        proprietarioId: contracts.proprietarioId,
+        clienteId: contracts.clienteId,
+        tipo: contracts.tipo,
+        valor: contracts.valor,
+        dataInicio: contracts.dataInicio,
+        dataFim: contracts.dataFim,
+        status: contracts.status,
+        contractContent: contracts.contractContent,
+        proprietarioSignature: contracts.proprietarioSignature,
+        proprietarioSignedAt: contracts.proprietarioSignedAt,
+        clienteSignature: contracts.clienteSignature,
+        clienteSignedAt: contracts.clienteSignedAt,
+        observacoes: contracts.observacoes,
+        createdAt: contracts.createdAt,
         property: {
-          columns: {
-            title: true,
-            bairro: true,
-            municipio: true,
-            images: true,
-          },
+          title: properties.title,
+          bairro: properties.bairro,
+          municipio: properties.municipio,
+          images: properties.images,
         },
         proprietario: {
-          columns: {
-            fullName: true,
-            phone: true,
-          },
+          fullName: proprietario.fullName,
+          phone: proprietario.phone,
         },
         cliente: {
-          columns: {
-            fullName: true,
-            phone: true,
-          },
+          fullName: cliente.fullName,
+          phone: cliente.phone,
         },
-      },
-    });
+      })
+      .from(contracts)
+      .leftJoin(properties, eq(contracts.propertyId, properties.id))
+      .leftJoin(proprietario, eq(contracts.proprietarioId, proprietario.id))
+      .leftJoin(cliente, eq(contracts.clienteId, cliente.id))
+      .where(or(
+        eq(contracts.clienteId, userId),
+        eq(contracts.proprietarioId, userId)
+      ))
+      .orderBy(desc(contracts.createdAt));
+    
     return results;
   }
 
