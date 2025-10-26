@@ -28,6 +28,7 @@ import {
   Share2,
   User as UserIcon,
   Navigation,
+  XCircle,
 } from "lucide-react";
 
 export default function ImovelDetalhes() {
@@ -100,6 +101,29 @@ export default function ImovelDetalhes() {
       toast({
         title: "Erro ao solicitar visita",
         description: error.message || "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const cancelVisitMutation = useMutation({
+    mutationFn: async (visitId: string) => {
+      const res = await apiRequest('PATCH', `/api/visits/${visitId}`, {
+        status: 'cancelada',
+      });
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+      toast({
+        title: "Agendamento cancelado",
+        description: "Sua solicitação de visita foi cancelada",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao cancelar agendamento",
+        description: "Não foi possível cancelar. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -220,6 +244,17 @@ export default function ImovelDetalhes() {
   const hasConfirmedVisit = userVisits?.some(
     visit => visit.propertyId === property.id && visit.status === 'agendada'
   );
+
+  const activeVisit = userVisits?.find(
+    visit => visit.propertyId === property.id && 
+    ['pendente_proprietario', 'pendente_cliente', 'agendada'].includes(visit.status)
+  );
+
+  const handleCancelVisit = () => {
+    if (activeVisit) {
+      cancelVisitMutation.mutate(activeVisit.id);
+    }
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -504,16 +539,30 @@ export default function ImovelDetalhes() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <Button
-                        className="w-full"
-                        size="lg"
-                        onClick={handleScheduleVisit}
-                        disabled={createVisitMutation.isPending}
-                        data-testid="button-schedule-visit"
-                      >
-                        <Calendar className="h-5 w-5 mr-2" />
-                        {createVisitMutation.isPending ? "Agendando..." : "Agendar Visita"}
-                      </Button>
+                      {activeVisit ? (
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                          size="lg"
+                          onClick={handleCancelVisit}
+                          disabled={cancelVisitMutation.isPending}
+                          data-testid="button-cancel-visit"
+                        >
+                          <XCircle className="h-5 w-5 mr-2" />
+                          {cancelVisitMutation.isPending ? "Cancelando..." : "Cancelar Agendamento"}
+                        </Button>
+                      ) : (
+                        <Button
+                          className="w-full"
+                          size="lg"
+                          onClick={handleScheduleVisit}
+                          disabled={createVisitMutation.isPending}
+                          data-testid="button-schedule-visit"
+                        >
+                          <Calendar className="h-5 w-5 mr-2" />
+                          {createVisitMutation.isPending ? "Agendando..." : "Agendar Visita"}
+                        </Button>
+                      )}
 
                       {hasConfirmedVisit && (
                         <Button
