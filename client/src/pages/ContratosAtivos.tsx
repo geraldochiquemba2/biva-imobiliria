@@ -50,10 +50,31 @@ export default function ContratosAtivos() {
     enabled: !!currentUser,
   });
 
-  const activeContracts = contracts?.filter(c => c.status === 'ativo') || [];
+  // Show both active and pending contracts
+  const relevantContracts = contracts?.filter(c => 
+    c.status === 'ativo' || 
+    c.status === 'pendente_assinaturas' ||
+    c.status === 'assinado_proprietario' ||
+    c.status === 'assinado_cliente'
+  ) || [];
   
   const handleGoBack = () => {
     window.history.length > 1 ? window.history.back() : setLocation('/');
+  };
+  
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'ativo':
+        return { variant: 'default' as const, label: 'Ativo', className: '' };
+      case 'pendente_assinaturas':
+        return { variant: 'outline' as const, label: 'Aguardando Assinaturas', className: 'border-yellow-500 text-yellow-700 dark:text-yellow-400' };
+      case 'assinado_proprietario':
+        return { variant: 'outline' as const, label: 'Aguardando Cliente', className: 'border-blue-500 text-blue-700 dark:text-blue-400' };
+      case 'assinado_cliente':
+        return { variant: 'outline' as const, label: 'Aguardando Proprietário', className: 'border-blue-500 text-blue-700 dark:text-blue-400' };
+      default:
+        return { variant: 'secondary' as const, label: status, className: '' };
+    }
   };
 
   if (isLoading) {
@@ -84,15 +105,15 @@ export default function ContratosAtivos() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-4xl font-bold">Contratos Ativos</h1>
+                <h1 className="text-4xl font-bold">Meus Contratos</h1>
               </div>
             </div>
             <p className="text-muted-foreground">
-              Gerencie seus contratos de arrendamento e venda em andamento
+              Gerencie seus contratos ativos e pendentes de assinatura
             </p>
           </div>
 
-          {activeContracts.length === 0 ? (
+          {relevantContracts.length === 0 ? (
             <Card className="overflow-hidden">
               <div 
                 className="relative bg-cover bg-center"
@@ -101,16 +122,16 @@ export default function ContratosAtivos() {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/50" />
                 <CardContent className="relative flex flex-col items-center justify-center py-16 text-white">
                   <FileText className="h-16 w-16 mb-4 opacity-90" />
-                  <h3 className="text-lg font-semibold mb-2">Nenhum contrato ativo</h3>
+                  <h3 className="text-lg font-semibold mb-2">Nenhum contrato</h3>
                   <p className="text-white/90 text-center max-w-md">
-                    Você ainda não possui contratos ativos. Quando um contrato for criado, ele aparecerá aqui.
+                    Você ainda não possui contratos. Quando um contrato for criado, ele aparecerá aqui.
                   </p>
                 </CardContent>
               </div>
             </Card>
           ) : (
             <div className="grid grid-cols-1 gap-6">
-              {activeContracts.map((contract) => (
+              {relevantContracts.map((contract) => (
                 <motion.div
                   key={contract.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -142,10 +163,10 @@ export default function ContratosAtivos() {
                           </CardDescription>
                         </div>
                         <Badge 
-                          variant={contract.status === 'ativo' ? 'default' : 'secondary'}
+                          variant={getStatusBadge(contract.status).variant}
                           data-testid={`badge-status-${contract.id}`}
                         >
-                          {contract.status === 'ativo' ? 'Ativo' : contract.status}
+                          {getStatusBadge(contract.status).label}
                         </Badge>
                       </div>
                     </CardHeader>
@@ -217,6 +238,20 @@ export default function ContratosAtivos() {
                         <div className="mt-4 pt-4 border-t">
                           <p className="text-sm font-medium mb-1">Observações:</p>
                           <p className="text-sm text-muted-foreground">{contract.observacoes}</p>
+                        </div>
+                      )}
+                      
+                      {contract.status !== 'ativo' && (
+                        <div className="mt-4 pt-4 border-t">
+                          <Button
+                            onClick={() => setLocation(`/contratos/${contract.id}/assinar`)}
+                            className="w-full"
+                            data-testid={`button-sign-contract-${contract.id}`}
+                          >
+                            {contract.status === 'pendente_assinaturas' 
+                              ? 'Assinar Contrato' 
+                              : 'Ver Contrato'}
+                          </Button>
                         </div>
                       )}
                     </CardContent>
