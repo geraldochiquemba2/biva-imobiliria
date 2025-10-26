@@ -167,7 +167,14 @@ export class DatabaseStorage implements IStorage {
         owner: true,
       },
     });
-    return result || undefined;
+    
+    if (!result) return undefined;
+    
+    // Add thumbnail field for consistency
+    return {
+      ...result,
+      thumbnail: result.images && result.images.length > 0 ? result.images[0] : null,
+    };
   }
 
   async listProperties(params?: SearchPropertyParams): Promise<Property[]> {

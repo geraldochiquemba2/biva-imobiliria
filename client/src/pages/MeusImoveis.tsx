@@ -324,10 +324,17 @@ export default function MeusImoveis() {
                       {statusProperties.map((property) => (
                         <Card key={property.id} className="hover-elevate overflow-hidden">
                           <div className="flex gap-4">
-                            <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
+                            <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
                               {property.images && property.images.length > 0 ? (
                                 <img
                                   src={property.images[0]}
+                                  alt={property.title}
+                                  className="w-full h-full object-cover"
+                                  data-testid={`img-property-${property.id}`}
+                                />
+                              ) : property.thumbnail ? (
+                                <img
+                                  src={property.thumbnail}
                                   alt={property.title}
                                   className="w-full h-full object-cover"
                                   data-testid={`img-property-${property.id}`}

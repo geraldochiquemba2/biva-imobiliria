@@ -264,10 +264,25 @@ export default function ImoveisVendidos() {
               {soldProperties.map((property) => (
                 <Card key={property.id} className="hover-elevate overflow-hidden">
                   <div className="flex gap-4">
-                    <div 
-                      className="w-32 h-32 bg-cover bg-center flex-shrink-0"
-                      style={{ backgroundImage: `url(${property.images && property.images.length > 0 ? property.images[0] : buildingImg})` }}
-                    />
+                    <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
+                      {property.images && property.images.length > 0 ? (
+                        <img
+                          src={property.images[0]}
+                          alt={property.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (property as any).thumbnail ? (
+                        <img
+                          src={(property as any).thumbnail}
+                          alt={property.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Home className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1 py-4 pr-4">
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div className="flex-1">

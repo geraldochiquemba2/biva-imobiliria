@@ -30,6 +30,12 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
               alt={property.title}
               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
             />
+          ) : (property as any).thumbnail ? (
+            <img
+              src={(property as any).thumbnail}
+              alt={property.title}
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+            />
           ) : (
             <div className="w-full h-full bg-muted flex items-center justify-center">
               <Home className="h-12 w-12 text-muted-foreground" />
