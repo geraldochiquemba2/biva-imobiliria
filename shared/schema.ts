@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, integer, decimal, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, decimal, boolean, timestamp, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -46,7 +46,11 @@ export const properties = pgTable("properties", {
   ownerId: varchar("owner_id").notNull().references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  ownerIdx: index("properties_owner_idx").on(table.ownerId),
+  statusIdx: index("properties_status_idx").on(table.status),
+  featuredIdx: index("properties_featured_idx").on(table.featured),
+}));
 
 // Contracts table
 export const contracts = pgTable("contracts", {
@@ -68,7 +72,12 @@ export const contracts = pgTable("contracts", {
   clienteConfirmedAt: timestamp("cliente_confirmed_at"), // Confirmação após assinatura
   observacoes: text("observacoes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  proprietarioIdx: index("contracts_proprietario_idx").on(table.proprietarioId),
+  clienteIdx: index("contracts_cliente_idx").on(table.clienteId),
+  propertyIdx: index("contracts_property_idx").on(table.propertyId),
+  statusIdx: index("contracts_status_idx").on(table.status),
+}));
 
 // Visits table
 export const visits = pgTable("visits", {
@@ -84,7 +93,11 @@ export const visits = pgTable("visits", {
   ownerMessage: text("owner_message"),
   observacoes: text("observacoes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  propertyIdx: index("visits_property_idx").on(table.propertyId),
+  clienteIdx: index("visits_cliente_idx").on(table.clienteId),
+  statusIdx: index("visits_status_idx").on(table.status),
+}));
 
 // Proposals table
 export const proposals = pgTable("proposals", {

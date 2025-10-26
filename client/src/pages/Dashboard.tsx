@@ -21,6 +21,7 @@ export default function Dashboard() {
 
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
+    staleTime: 30000,
   });
 
   useEffect(() => {
@@ -35,14 +36,16 @@ export default function Dashboard() {
   
   const allSystemProperties = properties;
 
-  const { data: userContracts = [] } = useQuery<Contract[]>({
+  const { data: userContracts = [], isLoading: userContractsLoading } = useQuery<Contract[]>({
     queryKey: [`/api/users/${currentUser?.id}/contracts`],
-    enabled: !!currentUser?.id && (hasRole('cliente') || hasRole('proprietario')),
+    enabled: !!currentUser?.id && (hasRole('cliente') || hasRole('proprietario')) && !hasRole('admin') && !hasRole('corretor'),
+    staleTime: 30000,
   });
 
-  const { data: allContracts = [] } = useQuery<Contract[]>({
+  const { data: allContracts = [], isLoading: allContractsLoading } = useQuery<Contract[]>({
     queryKey: ['/api/contracts'],
     enabled: !!currentUser?.id && (hasRole('admin') || hasRole('corretor')),
+    staleTime: 30000,
   });
 
   const contracts = hasRole('admin') || hasRole('corretor')
@@ -56,12 +59,14 @@ export default function Dashboard() {
       if (!response.ok) throw new Error('Failed to fetch visits');
       return response.json();
     },
-    enabled: !!currentUser?.id && hasRole('cliente'),
+    enabled: !!currentUser?.id && hasRole('cliente') && !hasRole('admin'),
+    staleTime: 30000,
   });
 
   const { data: propertyVisits = [] } = useQuery<Visit[]>({
     queryKey: [`/api/properties/visits`, myOwnProperties.map(p => p.id)],
     queryFn: async () => {
+      if (myOwnProperties.length === 0) return [];
       const allVisits: Visit[] = [];
       for (const property of myOwnProperties) {
         const response = await fetch(`/api/properties/${property.id}/visits`);
@@ -72,7 +77,8 @@ export default function Dashboard() {
       }
       return allVisits;
     },
-    enabled: !!currentUser?.id && (hasRole('proprietario') || hasRole('corretor') || hasRole('admin')) && myOwnProperties.length > 0,
+    enabled: !!currentUser?.id && (hasRole('proprietario') || hasRole('admin')) && myOwnProperties.length > 0 && !propertiesLoading,
+    staleTime: 30000,
   });
 
   const allVisits = [...clientVisits, ...propertyVisits];
