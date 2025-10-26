@@ -1,15 +1,28 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Calendar, DollarSign, FileText, User, ArrowLeft } from "lucide-react";
+import { Building2, Calendar, DollarSign, FileText, User, ArrowLeft, Phone, X } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
 import emptyStateImage from "@assets/stock_images/contract_document_si_a2777db9.jpg";
 import { useLocation } from "wouter";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Contract {
   id: string;
@@ -203,6 +216,36 @@ function ContractCard({
   setLocation: (path: string) => void;
   getStatusBadge: (status: string) => { variant: any; label: string; className: string };
 }) {
+  const { toast } = useToast();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  const cancelMutation = useMutation({
+    mutationFn: async (contractId: string) => {
+      return await apiRequest(`/api/contracts/${contractId}/cancel`, 'POST');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/contracts'] });
+      toast({
+        title: "Contrato cancelado",
+        description: "O contrato foi cancelado com sucesso.",
+      });
+      setShowCancelDialog(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao cancelar",
+        description: error.message || "Não foi possível cancelar o contrato.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCancelContract = () => {
+    cancelMutation.mutate(contract.id);
+  };
+
+  const canCancelContract = contract.status !== 'ativo' && contract.status !== 'cancelado' && contract.status !== 'encerrado';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -283,23 +326,43 @@ function ContractCard({
             </div>
 
             <div className="space-y-3">
-              {!currentUser?.userTypes?.includes('cliente') && contract.cliente && (
-                <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Cliente:</span>
-                  <span className="text-muted-foreground">
-                    {contract.cliente.fullName}
-                  </span>
+              {contract.cliente && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Cliente:</span>
+                    <span className="text-muted-foreground" data-testid={`text-cliente-${contract.id}`}>
+                      {contract.cliente.fullName}
+                    </span>
+                  </div>
+                  {contract.cliente.phone && (
+                    <div className="flex items-center gap-2 text-sm pl-6">
+                      <Phone className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-muted-foreground text-xs">
+                        {contract.cliente.phone}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {currentUser?.userTypes?.includes('cliente') && contract.proprietario && (
-                <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Proprietário:</span>
-                  <span className="text-muted-foreground">
-                    {contract.proprietario.fullName}
-                  </span>
+              {contract.proprietario && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Proprietário:</span>
+                    <span className="text-muted-foreground" data-testid={`text-proprietario-${contract.id}`}>
+                      {contract.proprietario.fullName}
+                    </span>
+                  </div>
+                  {contract.proprietario.phone && (
+                    <div className="flex items-center gap-2 text-sm pl-6">
+                      <Phone className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-muted-foreground text-xs">
+                        {contract.proprietario.phone}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -313,20 +376,55 @@ function ContractCard({
           )}
           
           {contract.status !== 'ativo' && (
-            <div className="mt-4 pt-4 border-t">
+            <div className="mt-4 pt-4 border-t flex gap-3">
               <Button
                 onClick={() => setLocation(`/contratos/${contract.id}/assinar`)}
-                className="w-full"
+                className="flex-1"
                 data-testid={`button-sign-contract-${contract.id}`}
               >
                 {contract.status === 'pendente_assinaturas' 
                   ? 'Assinar Contrato' 
                   : 'Ver Contrato'}
               </Button>
+              
+              {canCancelContract && (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCancelDialog(true)}
+                  data-testid={`button-cancel-contract-${contract.id}`}
+                >
+                  <X className="h-4 w-4" />
+                  Cancelar
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar Contrato</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja cancelar este contrato? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-dialog-close">
+              Não, manter contrato
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelContract}
+              disabled={cancelMutation.isPending}
+              data-testid="button-cancel-dialog-confirm"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {cancelMutation.isPending ? "Cancelando..." : "Sim, cancelar contrato"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 }
