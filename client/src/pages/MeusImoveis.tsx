@@ -5,6 +5,16 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +50,7 @@ import {
   Lock
 } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
+import { RentalContractDialog } from "@/components/RentalContractDialog";
 
 interface PropertyWithEditInfo extends Property {
   hasActiveVisits?: boolean;
@@ -51,6 +62,7 @@ export default function MeusImoveis() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
+  const [rentalDialogProperty, setRentalDialogProperty] = useState<PropertyWithEditInfo | null>(null);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -428,12 +440,11 @@ export default function MeusImoveis() {
                                           )}
                                           {property.status !== 'arrendado' && property.type === 'Arrendar' && (
                                             <DropdownMenuItem
-                                              onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'arrendado' })}
-                                              disabled={updateStatusMutation.isPending}
-                                              data-testid={`action-rented-${property.id}`}
+                                              onClick={() => setRentalDialogProperty(property)}
+                                              data-testid={`action-create-contract-${property.id}`}
                                             >
                                               <CheckCircle className="h-4 w-4 mr-2" />
-                                              {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Arrendado'}
+                                              Criar Contrato de Arrendamento
                                             </DropdownMenuItem>
                                           )}
                                           {property.status !== 'vendido' && property.type === 'Vender' && (
@@ -508,6 +519,16 @@ export default function MeusImoveis() {
           )}
         </motion.div>
       </div>
+
+      {rentalDialogProperty && currentUser && (
+        <RentalContractDialog
+          open={!!rentalDialogProperty}
+          onOpenChange={(open) => !open && setRentalDialogProperty(null)}
+          property={rentalDialogProperty}
+          currentUser={currentUser}
+          onSuccess={() => {}}
+        />
+      )}
 
       <AlertDialog open={!!deletePropertyId} onOpenChange={(open) => !open && setDeletePropertyId(null)}>
         <AlertDialogContent>

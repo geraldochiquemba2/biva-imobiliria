@@ -15,6 +15,7 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import multer from "multer";
+import { generateRentalContract } from "./contractGenerator";
 
 // Extend Express session type
 declare module 'express-session' {
@@ -623,6 +624,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contract Routes
+  
+  // Create rental contract (proprietario)
+  app.post("/api/contracts/create-rental", requireRole('proprietario', 'corretor'), async (req, res) => {
+    try {
+      const { propertyId, clientePhone, valor, dataInicio, dataFim } = req.body;
+      
+      // Validate required fields
+      if (!propertyId || !clientePhone || !valor || !dataInicio || !dataFim) {
+        return res.status(400).json({ error: "Dados incompletos" });
+      }
+      
+      // Get property
+      const property = await storage.getProperty(propertyId);
+      if (!property) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+      
+      // Verify ownership (proprietarios can only create contracts for their own properties)
+      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && property.ownerId !== req.session.userId) {
+        return res.status(403).json({ error: "Você só pode criar contratos para seus próprios imóveis" });
+      }
+      
+      // Get proprietario (owner)
+      const proprietario = await storage.getUser(property.ownerId);
+      if (!proprietario) {
+        return res.status(404).json({ error: "Proprietário não encontrado" });
+      }
+      
+      // Verify proprietario has BI
+      if (!proprietario.bi) {
+        return res.status(400).json({ error: "O proprietário deve fornecer o número de BI/Passaporte primeiro" });
+      }
+      
+      // Find cliente by phone
+      const cliente = await storage.getUserByPhone(clientePhone);
+      if (!cliente) {
+        return res.status(404).json({ error: "Cliente não encontrado. O cliente deve estar cadastrado na plataforma." });
+      }
+      
+      // Generate contract content
+      const contractContent = generateRentalContract(
+        property,
+        proprietario,
+        cliente,
+        parseFloat(valor),
+        new Date(dataInicio),
+        new Date(dataFim)
+      );
+      
+      // Create contract
+      const contract = await storage.createContract({
+        propertyId,
+        proprietarioId: property.ownerId,
+        clienteId: cliente.id,
+        tipo: 'arrendamento',
+        valor: valor.toString(),
+        dataInicio: new Date(dataInicio),
+        dataFim: new Date(dataFim),
+        status: 'pendente_assinaturas',
+        contractContent,
+      });
+      
+      res.status(201).json(contract);
+    } catch (error) {
+      console.error('Error creating rental contract:', error);
+      res.status(500).json({ error: "Falha ao criar contrato de arrendamento" });
+    }
+  });
   
   // Get all contracts (corretor only)
   app.get("/api/contracts", requireRole('corretor'), async (req, res) => {
