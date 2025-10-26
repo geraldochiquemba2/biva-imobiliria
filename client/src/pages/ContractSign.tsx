@@ -184,7 +184,95 @@ export default function ContractSign() {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const processSignatureImage = (imageDataUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context not available'));
+          return;
+        }
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+
+          const brightness = (r + g + b) / 3;
+
+          if (brightness > 200) {
+            data[i + 3] = 0;
+          } else {
+            const darkness = 255 - brightness;
+            data[i] = Math.max(0, r - 50);
+            data[i + 1] = Math.max(0, g - 50);
+            data[i + 2] = Math.max(0, b - 50);
+            data[i + 3] = Math.min(255, darkness * 1.5);
+          }
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+
+        const bounds = {
+          minX: canvas.width,
+          minY: canvas.height,
+          maxX: 0,
+          maxY: 0
+        };
+
+        for (let y = 0; y < canvas.height; y++) {
+          for (let x = 0; x < canvas.width; x++) {
+            const i = (y * canvas.width + x) * 4;
+            if (data[i + 3] > 50) {
+              bounds.minX = Math.min(bounds.minX, x);
+              bounds.minY = Math.min(bounds.minY, y);
+              bounds.maxX = Math.max(bounds.maxX, x);
+              bounds.maxY = Math.max(bounds.maxY, y);
+            }
+          }
+        }
+
+        const padding = 20;
+        const cropX = Math.max(0, bounds.minX - padding);
+        const cropY = Math.max(0, bounds.minY - padding);
+        const cropWidth = Math.min(canvas.width - cropX, bounds.maxX - bounds.minX + padding * 2);
+        const cropHeight = Math.min(canvas.height - cropY, bounds.maxY - bounds.minY + padding * 2);
+
+        const croppedCanvas = document.createElement('canvas');
+        const croppedCtx = croppedCanvas.getContext('2d');
+        if (!croppedCtx) {
+          reject(new Error('Canvas context not available'));
+          return;
+        }
+
+        croppedCanvas.width = cropWidth;
+        croppedCanvas.height = cropHeight;
+
+        croppedCtx.putImageData(
+          ctx.getImageData(cropX, cropY, cropWidth, cropHeight),
+          0,
+          0
+        );
+
+        resolve(croppedCanvas.toDataURL('image/png'));
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = imageDataUrl;
+    });
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
@@ -196,11 +284,31 @@ export default function ContractSign() {
         return;
       }
 
+      toast({
+        title: "Processando assinatura...",
+        description: "Removendo fundo e otimizando a imagem.",
+      });
+
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setUploadedSignature(result);
-        setHasSignature(true);
+      reader.onload = async (e) => {
+        try {
+          const result = e.target?.result as string;
+          const processedImage = await processSignatureImage(result);
+          setUploadedSignature(processedImage);
+          setHasSignature(true);
+          toast({
+            title: "Assinatura processada!",
+            description: "Fundo removido com sucesso.",
+          });
+        } catch (error) {
+          toast({
+            variant: "destructive",
+            title: "Erro ao processar imagem",
+            description: "Usando imagem original.",
+          });
+          setUploadedSignature(e.target?.result as string);
+          setHasSignature(true);
+        }
       };
       reader.readAsDataURL(file);
     }
