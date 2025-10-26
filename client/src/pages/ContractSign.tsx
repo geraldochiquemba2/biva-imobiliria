@@ -250,50 +250,54 @@ export default function ContractSign() {
         </Card>
       )}
 
-      {/* Contract Content */}
+      {/* Contract Content - A4 Page Format */}
       <Card className="p-0 overflow-hidden">
         <div className="p-6 border-b">
           <h3 className="font-semibold">Conteúdo do Contrato</h3>
         </div>
         
-        {/* Document with official background */}
-        <div className="relative bg-gradient-to-br from-amber-50/30 via-white to-amber-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-          {/* Decorative border pattern */}
-          <div className="absolute inset-0 pointer-events-none opacity-10">
-            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-primary/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-primary/20 to-transparent" />
-            <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-primary/20 to-transparent" />
-            <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-primary/20 to-transparent" />
-          </div>
-          
-          {/* Watermark */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
-            <FileText className="w-96 h-96 text-primary" />
-          </div>
-          
-          {/* Contract content with official styling */}
-          <div className="relative p-12 min-h-[800px]">
-            <div className="max-w-3xl mx-auto bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg border-2 border-primary/20 shadow-lg p-8">
-              <div className="prose prose-sm max-w-none dark:prose-invert">
-                <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed text-foreground" data-testid="text-contract-content">
-                  {contract.contractContent}
-                </pre>
+        {/* Document viewer with A4 pages */}
+        <div className="bg-gray-200 dark:bg-gray-900 p-8">
+          <div className="max-w-[210mm] mx-auto space-y-6">
+            {/* A4 Page 1 */}
+            <div className="bg-white dark:bg-slate-50 shadow-2xl" style={{ width: '210mm', minHeight: '297mm', padding: '25mm 20mm' }}>
+              {/* Decorative header border */}
+              <div className="border-t-4 border-b-2 border-primary/30 py-3 mb-6">
+                <div className="flex justify-between items-center text-xs text-muted-foreground">
+                  <span className="font-semibold">DOCUMENTO OFICIAL</span>
+                  <span>Conforme Lei n.º 26/15 de 23 de Outubro</span>
+                </div>
               </div>
               
-              {/* Official seal decoration at bottom */}
-              <div className="mt-8 pt-6 border-t-2 border-primary/20">
-                <div className="flex justify-between items-end text-xs text-muted-foreground">
+              {/* Watermark background */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] -z-10">
+                  <FileText className="w-96 h-96 text-primary" />
+                </div>
+                
+                {/* Contract content */}
+                <div className="prose prose-sm max-w-none text-gray-900 dark:text-gray-900">
+                  <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed" data-testid="text-contract-content" style={{ fontFamily: 'Georgia, serif' }}>
+                    {contract.contractContent}
+                  </pre>
+                </div>
+              </div>
+              
+              {/* Page footer */}
+              <div className="absolute bottom-[20mm] left-[20mm] right-[20mm] pt-4 border-t border-gray-300">
+                <div className="flex justify-between items-center text-xs text-gray-500">
                   <div>
-                    <p className="font-semibold">Documento Oficial</p>
-                    <p>Conforme Lei n.º 26/15</p>
+                    <p className="font-semibold">ID: {contract.id.substring(0, 8).toUpperCase()}</p>
+                    <p>Data de Emissão: {format(new Date(contract.createdAt), "dd/MM/yyyy")}</p>
                   </div>
                   <div className="text-right">
-                    <p>ID: {contract.id.substring(0, 8)}</p>
-                    <p>{format(new Date(contract.createdAt), "dd/MM/yyyy")}</p>
+                    <p className="font-semibold">Página 1</p>
                   </div>
                 </div>
               </div>
             </div>
+            
+            {/* Additional pages can be added here if needed */}
           </div>
         </div>
       </Card>
