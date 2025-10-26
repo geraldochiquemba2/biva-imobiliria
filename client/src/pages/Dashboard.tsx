@@ -99,6 +99,8 @@ export default function Dashboard() {
   const userRolesText = currentUser.userTypes?.map(type => userTypeLabels[type]).join(' • ') || '';
 
   const activeContracts = contracts.filter(c => c.status === 'ativo');
+  const activeVendaContracts = activeContracts.filter(c => c.tipo === 'venda');
+  const activeArrendamentoContracts = activeContracts.filter(c => c.tipo === 'arrendamento');
   const scheduledVisits = allVisits.filter(v => 
     v.status === 'agendada' || 
     v.status === 'pendente_proprietario' || 
@@ -159,16 +161,42 @@ export default function Dashboard() {
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                     <CardTitle className="text-sm font-medium">
-                      Contratos Ativos
+                      Contratos de Venda
                     </CardTitle>
                     <FileText className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent className="relative z-10">
-                    <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                      {activeContracts.length}
+                    <div className="text-2xl font-bold" data-testid="text-venda-contracts-count">
+                      {activeVendaContracts.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Em andamento
+                      Ativos
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            )}
+
+            {(hasRole('proprietario') || hasRole('cliente') || hasRole('corretor')) && (
+              <Link href="/contratos-ativos">
+                <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${contractImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                    <CardTitle className="text-sm font-medium">
+                      Contratos de Arrendamento
+                    </CardTitle>
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <div className="text-2xl font-bold" data-testid="text-arrendamento-contracts-count">
+                      {activeArrendamentoContracts.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Ativos
                     </p>
                   </CardContent>
                 </Card>
@@ -262,16 +290,40 @@ export default function Dashboard() {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
                     <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                       <CardTitle className="text-sm font-medium">
-                        Contratos Ativos
+                        Contratos de Venda
                       </CardTitle>
                       <FileText className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent className="relative z-10">
-                      <div className="text-2xl font-bold" data-testid="text-contracts-count">
-                        {activeContracts.length}
+                      <div className="text-2xl font-bold" data-testid="text-admin-venda-contracts-count">
+                        {activeVendaContracts.length}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Em andamento
+                        Ativos
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
+
+                <Link href="/contratos-ativos">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${contractImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                      <CardTitle className="text-sm font-medium">
+                        Contratos de Arrendamento
+                      </CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent className="relative z-10">
+                      <div className="text-2xl font-bold" data-testid="text-admin-arrendamento-contracts-count">
+                        {activeArrendamentoContracts.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Ativos
                       </p>
                     </CardContent>
                   </Card>
