@@ -167,7 +167,7 @@ export default function Imoveis() {
               className="flex-1 transition-all duration-300"
               data-testid="button-vender"
             >
-              Vender
+              Comprar
             </Button>
           </div>
 
