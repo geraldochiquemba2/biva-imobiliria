@@ -57,12 +57,7 @@ Comodidades: ${property.amenities && property.amenities.length > 0 ? property.am
 
 Descrição: ${property.description || 'Não fornecida'}
 
-
-
-
-
-
-
+\f
 
 CLÁUSULAS CONTRATUAIS
 
