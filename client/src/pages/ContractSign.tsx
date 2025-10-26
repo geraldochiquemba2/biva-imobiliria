@@ -73,12 +73,12 @@ export default function ContractSign() {
     },
   });
 
-  // Split contract content into pages (approximately 38 lines per A4 page to leave space for footer)
+  // Split contract content into pages (approximately 32 lines per A4 page to leave space for footer)
   const contractPages = useMemo(() => {
     if (!contract?.contractContent) return [];
     
     const lines = contract.contractContent.split('\n');
-    const linesPerPage = 38; // Reduced to leave proper space for footer and avoid orphans
+    const linesPerPage = 32; // Reduced to ensure text doesn't overlap with footer
     const pages: string[][] = [];
     
     for (let i = 0; i < lines.length; i += linesPerPage) {
@@ -304,11 +304,11 @@ export default function ContractSign() {
                 </div>
                 
                 {/* Contract content */}
-                <div className="relative" style={{ 
-                  minHeight: 'calc(297mm - 50mm - 100px)',
-                  maxHeight: 'calc(297mm - 50mm - 100px)',
+                <div className="relative overflow-hidden" style={{ 
+                  minHeight: 'calc(297mm - 50mm - 120px)',
+                  maxHeight: 'calc(297mm - 50mm - 120px)',
                   zIndex: 1,
-                  paddingBottom: '20px'
+                  paddingBottom: '10px'
                 }}>
                   <div 
                     className="whitespace-pre-wrap font-serif text-sm m-0 bg-transparent text-black dark:text-black p-0" 
