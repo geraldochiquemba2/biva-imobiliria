@@ -595,7 +595,7 @@ export default function VisitasAgendadas() {
                           </div>
                         )}
 
-                        {visit.status === 'agendada' && currentUser?.userTypes?.includes('cliente') && visit.property?.owner && (
+                        {visit.status === 'agendada' && !isOwner(visit) && visit.property?.owner && (
                           <div className="bg-primary/5 p-2 rounded-md space-y-2">
                             <p className="text-xs font-medium">Contato do Proprietário:</p>
                             <div className="space-y-1">
