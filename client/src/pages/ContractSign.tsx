@@ -740,49 +740,71 @@ export default function ContractSign() {
                           }}
                         >
                           {isSignatureLine && showProprietarioSignature && contract.proprietarioSignature ? (
-                            <div className="flex flex-col items-start my-2">
-                              <img 
-                                src={contract.proprietarioSignature.startsWith('data:') ? contract.proprietarioSignature : `data:image/png;base64,${contract.proprietarioSignature}`} 
-                                alt="Assinatura do Proprietário" 
-                                className="mb-1"
-                                style={{ 
-                                  maxWidth: '300px',
-                                  height: 'auto',
-                                  minHeight: '60px',
-                                  objectFit: 'contain',
-                                  objectPosition: 'left'
-                                }}
-                                onError={(e) => {
-                                  console.error('Failed to load proprietario signature');
-                                  console.log('Signature data starts with:', contract.proprietarioSignature?.substring(0, 50));
-                                }}
-                              />
-                              <div className="text-xs text-gray-600">
-                                Assinado digitalmente em {contract.proprietarioSignedAt && format(new Date(contract.proprietarioSignedAt), "dd/MM/yyyy HH:mm")}
+                            contract.proprietarioSignature.startsWith('data:image/') ? (
+                              <div className="flex flex-col items-start my-2">
+                                <img 
+                                  src={contract.proprietarioSignature} 
+                                  alt="Assinatura do Proprietário" 
+                                  className="mb-1"
+                                  style={{ 
+                                    maxWidth: '300px',
+                                    height: 'auto',
+                                    minHeight: '60px',
+                                    objectFit: 'contain',
+                                    objectPosition: 'left'
+                                  }}
+                                  onError={(e) => {
+                                    console.error('Failed to load proprietario signature');
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                                <div className="text-xs text-gray-600">
+                                  Assinado digitalmente em {contract.proprietarioSignedAt && format(new Date(contract.proprietarioSignedAt), "dd/MM/yyyy HH:mm")}
+                                </div>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="flex flex-col items-start my-2">
+                                <div className="text-xs text-red-600 italic">
+                                  [Assinatura inválida - formato incorreto]
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                  Data: {contract.proprietarioSignedAt && format(new Date(contract.proprietarioSignedAt), "dd/MM/yyyy HH:mm")}
+                                </div>
+                              </div>
+                            )
                           ) : isSignatureLine && showClienteSignature && contract.clienteSignature ? (
-                            <div className="flex flex-col items-start my-2">
-                              <img 
-                                src={contract.clienteSignature.startsWith('data:') ? contract.clienteSignature : `data:image/png;base64,${contract.clienteSignature}`} 
-                                alt="Assinatura do Cliente" 
-                                className="mb-1"
-                                style={{ 
-                                  maxWidth: '300px',
-                                  height: 'auto',
-                                  minHeight: '60px',
-                                  objectFit: 'contain',
-                                  objectPosition: 'left'
-                                }}
-                                onError={(e) => {
-                                  console.error('Failed to load cliente signature');
-                                  console.log('Signature data starts with:', contract.clienteSignature?.substring(0, 50));
-                                }}
-                              />
-                              <div className="text-xs text-gray-600">
-                                Assinado digitalmente em {contract.clienteSignedAt && format(new Date(contract.clienteSignedAt), "dd/MM/yyyy HH:mm")}
+                            contract.clienteSignature.startsWith('data:image/') ? (
+                              <div className="flex flex-col items-start my-2">
+                                <img 
+                                  src={contract.clienteSignature} 
+                                  alt="Assinatura do Cliente" 
+                                  className="mb-1"
+                                  style={{ 
+                                    maxWidth: '300px',
+                                    height: 'auto',
+                                    minHeight: '60px',
+                                    objectFit: 'contain',
+                                    objectPosition: 'left'
+                                  }}
+                                  onError={(e) => {
+                                    console.error('Failed to load cliente signature');
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                                <div className="text-xs text-gray-600">
+                                  Assinado digitalmente em {contract.clienteSignedAt && format(new Date(contract.clienteSignedAt), "dd/MM/yyyy HH:mm")}
+                                </div>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="flex flex-col items-start my-2">
+                                <div className="text-xs text-red-600 italic">
+                                  [Assinatura inválida - formato incorreto]
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                  Data: {contract.clienteSignedAt && format(new Date(contract.clienteSignedAt), "dd/MM/yyyy HH:mm")}
+                                </div>
+                              </div>
+                            )
                           ) : (
                             line || '\u00A0'
                           )}

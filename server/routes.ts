@@ -949,6 +949,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Imagem da assinatura é obrigatória" });
       }
       
+      // Validate signature is a valid base64 image
+      if (!signatureImage.startsWith('data:image/')) {
+        return res.status(400).json({ error: "Formato de assinatura inválido. Por favor, tente desenhar ou fazer upload novamente." });
+      }
+      
       // Get contract
       const contract = await storage.getContract(contractId);
       if (!contract) {
@@ -977,10 +982,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (contract.proprietarioId === userId && !contract.proprietarioSignedAt) {
         updates.proprietarioSignedAt = new Date();
-        updates.proprietarioSignature = signatureImage; // Store the base64 signature image
+        updates.proprietarioSignature = signatureImage;
       } else if (contract.clienteId === userId && !contract.clienteSignedAt) {
         updates.clienteSignedAt = new Date();
-        updates.clienteSignature = signatureImage; // Store the base64 signature image
+        updates.clienteSignature = signatureImage;
       } else {
         return res.status(400).json({ error: "Este contrato já foi assinado por você" });
       }
