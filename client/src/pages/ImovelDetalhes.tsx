@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { PropertyWithOwner, User } from "@shared/schema";
@@ -36,6 +39,9 @@ export default function ImovelDetalhes() {
   const [showRoute, setShowRoute] = useState(false);
   const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
 
   const { data: currentUser } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -67,25 +73,28 @@ export default function ImovelDetalhes() {
 
   const createVisitMutation = useMutation({
     mutationFn: async () => {
+      const requestedDateTime = new Date(`${selectedDate}T${selectedTime}`).toISOString();
       const res = await apiRequest('POST', '/api/visits', {
         propertyId: property!.id,
         clienteId: currentUser!.id,
-        dataHora: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        status: 'agendada',
+        requestedDateTime,
       });
       return await res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+      setShowScheduleDialog(false);
+      setSelectedDate("");
+      setSelectedTime("");
       toast({
-        title: "Visita agendada!",
-        description: "Entraremos em contato para confirmar a data e horário",
+        title: "Solicitação enviada!",
+        description: "O proprietário receberá sua solicitação de visita e responderá em breve",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
-        title: "Erro ao agendar visita",
-        description: "Tente novamente mais tarde",
+        title: "Erro ao solicitar visita",
+        description: error.message || "Tente novamente mais tarde",
         variant: "destructive",
       });
     },
@@ -97,6 +106,18 @@ export default function ImovelDetalhes() {
       toast({
         title: "Faça login para agendar visita",
         description: "Você precisa estar logado para agendar visitas",
+      });
+      return;
+    }
+    setShowScheduleDialog(true);
+  };
+
+  const handleConfirmSchedule = () => {
+    if (!selectedDate || !selectedTime) {
+      toast({
+        title: "Preencha todos os campos",
+        description: "Por favor, selecione uma data e horário para a visita",
+        variant: "destructive",
       });
       return;
     }
@@ -555,6 +576,58 @@ export default function ImovelDetalhes() {
           </div>
         </motion.div>
       </div>
+
+      <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+        <DialogContent data-testid="dialog-schedule-visit">
+          <DialogHeader>
+            <DialogTitle>Solicitar Visita</DialogTitle>
+            <DialogDescription>
+              Escolha a data e horário de sua preferência. O proprietário receberá sua solicitação e poderá aceitar, recusar ou propor uma data alternativa.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="visit-date">Data</Label>
+              <Input
+                id="visit-date"
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                data-testid="input-visit-date"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="visit-time">Horário</Label>
+              <Input
+                id="visit-time"
+                type="time"
+                value={selectedTime}
+                onChange={(e) => setSelectedTime(e.target.value)}
+                data-testid="input-visit-time"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowScheduleDialog(false)}
+              data-testid="button-cancel-schedule"
+            >
+              Cancelar
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={handleConfirmSchedule}
+              disabled={createVisitMutation.isPending}
+              data-testid="button-confirm-schedule"
+            >
+              {createVisitMutation.isPending ? "Enviando..." : "Solicitar Visita"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

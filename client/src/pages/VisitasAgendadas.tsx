@@ -16,8 +16,13 @@ interface Visit {
   id: string;
   propertyId: string;
   clienteId: string;
-  dataHora: string;
+  requestedDateTime: string;
+  scheduledDateTime?: string | null;
+  ownerProposedDateTime?: string | null;
   status: string;
+  lastActionBy?: string | null;
+  clientMessage?: string | null;
+  ownerMessage?: string | null;
   observacoes: string | null;
   createdAt: string;
   property?: {
@@ -26,6 +31,7 @@ interface Visit {
     municipio: string;
     provincia: string;
     images?: string[];
+    ownerId: string;
   };
   cliente?: {
     fullName: string;
@@ -69,7 +75,33 @@ export default function VisitasAgendadas() {
     },
   });
 
+  const clientResponseMutation = useMutation({
+    mutationFn: async ({ visitId, action }: { visitId: string; action: 'accept' | 'reject' }) => {
+      const res = await apiRequest('POST', `/api/visits/${visitId}/client-response`, { action });
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+      toast({
+        title: "Resposta enviada",
+        description: "Sua resposta foi enviada ao proprietário",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao enviar resposta",
+        description: "Não foi possível enviar sua resposta. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const pendingVisits = visits?.filter(v => 
+    v.status === 'pendente_proprietario' || v.status === 'pendente_cliente'
+  ) || [];
+  
   const scheduledVisits = visits?.filter(v => v.status === 'agendada') || [];
+  const completedVisits = visits?.filter(v => v.status === 'concluida' || v.status === 'cancelada') || [];
   
   const handleGoBack = () => {
     window.history.length > 1 ? window.history.back() : setLocation('/');
@@ -77,6 +109,27 @@ export default function VisitasAgendadas() {
 
   const handleCancelVisit = (visitId: string) => {
     cancelVisitMutation.mutate(visitId);
+  };
+
+  const handleClientResponse = (visitId: string, action: 'accept' | 'reject') => {
+    clientResponseMutation.mutate({ visitId, action });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+      'pendente_proprietario': { label: 'Aguardando Proprietário', variant: 'outline' },
+      'pendente_cliente': { label: 'Aguardando Resposta', variant: 'default' },
+      'agendada': { label: 'Confirmada', variant: 'default' },
+      'concluida': { label: 'Concluída', variant: 'secondary' },
+      'cancelada': { label: 'Cancelada', variant: 'destructive' },
+    };
+    return statusMap[status] || { label: status, variant: 'outline' as const };
+  };
+
+  const getDisplayDateTime = (visit: Visit) => {
+    if (visit.scheduledDateTime) return new Date(visit.scheduledDateTime);
+    if (visit.ownerProposedDateTime) return new Date(visit.ownerProposedDateTime);
+    return new Date(visit.requestedDateTime);
   };
 
   if (isLoading) {
@@ -115,7 +168,7 @@ export default function VisitasAgendadas() {
             </p>
           </div>
 
-          {scheduledVisits.length === 0 ? (
+          {pendingVisits.length === 0 && scheduledVisits.length === 0 ? (
             <Card className="overflow-hidden">
               <div 
                 className="relative bg-cover bg-center"
@@ -132,8 +185,125 @@ export default function VisitasAgendadas() {
               </div>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {scheduledVisits.map((visit) => (
+            <div className="space-y-8">
+              {pendingVisits.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold mb-4">Aguardando Confirmação</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {pendingVisits.map((visit) => (
+                      <motion.div
+                        key={visit.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <Card className="hover-elevate">
+                          {visit.property?.images && visit.property.images.length > 0 && (
+                            <div className="aspect-video overflow-hidden bg-muted">
+                              <img
+                                src={visit.property.images[0]}
+                                alt={visit.property.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Building2 className="h-5 w-5 text-primary" />
+                                  <CardTitle data-testid={`text-property-title-${visit.id}`}>
+                                    {visit.property?.title || 'Imóvel'}
+                                  </CardTitle>
+                                </div>
+                                <CardDescription className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {visit.property?.bairro}, {visit.property?.municipio}
+                                </CardDescription>
+                              </div>
+                              <Badge 
+                                variant={getStatusBadge(visit.status).variant}
+                                data-testid={`badge-status-${visit.id}`}
+                              >
+                                {getStatusBadge(visit.status).label}
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              {visit.status === 'pendente_cliente' && visit.ownerProposedDateTime && (
+                                <div className="bg-muted/50 p-3 rounded-md space-y-2">
+                                  <p className="text-sm font-medium">O proprietário propôs uma nova data:</p>
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <Calendar className="h-4 w-4 text-primary" />
+                                    <span className="font-medium text-primary">
+                                      {format(new Date(visit.ownerProposedDateTime), "dd 'de' MMM 'às' HH:mm", { locale: ptBR })}
+                                    </span>
+                                  </div>
+                                  {visit.ownerMessage && (
+                                    <p className="text-sm text-muted-foreground italic">"{visit.ownerMessage}"</p>
+                                  )}
+                                </div>
+                              )}
+
+                              <div className="flex items-center gap-2 text-sm">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-medium">
+                                  {visit.status === 'pendente_proprietario' ? 'Data solicitada:' : 'Data:'}
+                                </span>
+                                <span className="text-muted-foreground" data-testid={`text-date-${visit.id}`}>
+                                  {format(getDisplayDateTime(visit), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="mt-4 pt-4 border-t">
+                              {visit.status === 'pendente_cliente' ? (
+                                <div className="flex gap-2">
+                                  <Button
+                                    className="flex-1"
+                                    onClick={() => handleClientResponse(visit.id, 'accept')}
+                                    disabled={clientResponseMutation.isPending}
+                                    data-testid={`button-accept-${visit.id}`}
+                                  >
+                                    {clientResponseMutation.isPending ? 'Processando...' : 'Aceitar Proposta'}
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    className="flex-1"
+                                    onClick={() => handleClientResponse(visit.id, 'reject')}
+                                    disabled={clientResponseMutation.isPending}
+                                    data-testid={`button-reject-${visit.id}`}
+                                  >
+                                    {clientResponseMutation.isPending ? 'Processando...' : 'Recusar'}
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button
+                                  variant="destructive"
+                                  className="w-full"
+                                  onClick={() => handleCancelVisit(visit.id)}
+                                  disabled={cancelVisitMutation.isPending}
+                                  data-testid={`button-cancel-${visit.id}`}
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  {cancelVisitMutation.isPending ? 'Cancelando...' : 'Cancelar Solicitação'}
+                                </Button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {scheduledVisits.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold mb-4">Visitas Confirmadas</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {scheduledVisits.map((visit) => (
                 <motion.div
                   key={visit.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -165,29 +335,38 @@ export default function VisitasAgendadas() {
                           </CardDescription>
                         </div>
                         <Badge 
-                          variant={visit.status === 'agendada' ? 'default' : visit.status === 'concluida' ? 'secondary' : 'destructive'}
+                          variant={getStatusBadge(visit.status).variant}
                           data-testid={`badge-status-${visit.id}`}
                         >
-                          {visit.status === 'agendada' ? 'Agendada' : 
-                           visit.status === 'concluida' ? 'Concluída' : 'Cancelada'}
+                          {getStatusBadge(visit.status).label}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">Data:</span>
-                          <span className="text-muted-foreground" data-testid={`text-date-${visit.id}`}>
-                            {format(new Date(visit.dataHora), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                          </span>
-                        </div>
+                        {visit.status === 'pendente_cliente' && visit.ownerProposedDateTime && (
+                          <div className="bg-muted/50 p-3 rounded-md space-y-2">
+                            <p className="text-sm font-medium">O proprietário propôs uma nova data:</p>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Calendar className="h-4 w-4 text-primary" />
+                              <span className="font-medium text-primary">
+                                {format(new Date(visit.ownerProposedDateTime), "dd 'de' MMM 'às' HH:mm", { locale: ptBR })}
+                              </span>
+                            </div>
+                            {visit.ownerMessage && (
+                              <p className="text-sm text-muted-foreground italic">"{visit.ownerMessage}"</p>
+                            )}
+                          </div>
+                        )}
 
                         <div className="flex items-center gap-2 text-sm">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">Horário:</span>
-                          <span className="text-muted-foreground" data-testid={`text-time-${visit.id}`}>
-                            {format(new Date(visit.dataHora), 'HH:mm', { locale: ptBR })}
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">
+                            {visit.status === 'agendada' ? 'Data confirmada:' : 
+                             visit.status === 'pendente_proprietario' ? 'Data solicitada:' : 'Data:'}
+                          </span>
+                          <span className="text-muted-foreground" data-testid={`text-date-${visit.id}`}>
+                            {format(getDisplayDateTime(visit), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
                           </span>
                         </div>
 
@@ -210,21 +389,46 @@ export default function VisitasAgendadas() {
                       )}
 
                       <div className="mt-4 pt-4 border-t">
-                        <Button
-                          variant="destructive"
-                          className="w-full"
-                          onClick={() => handleCancelVisit(visit.id)}
-                          disabled={cancelVisitMutation.isPending}
-                          data-testid={`button-cancel-${visit.id}`}
-                        >
-                          <XCircle className="h-4 w-4 mr-2" />
-                          {cancelVisitMutation.isPending ? 'Cancelando...' : 'Cancelar Visita'}
-                        </Button>
+                        {visit.status === 'pendente_cliente' ? (
+                          <div className="flex gap-2">
+                            <Button
+                              className="flex-1"
+                              onClick={() => handleClientResponse(visit.id, 'accept')}
+                              disabled={clientResponseMutation.isPending}
+                              data-testid={`button-accept-${visit.id}`}
+                            >
+                              {clientResponseMutation.isPending ? 'Processando...' : 'Aceitar Proposta'}
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              className="flex-1"
+                              onClick={() => handleClientResponse(visit.id, 'reject')}
+                              disabled={clientResponseMutation.isPending}
+                              data-testid={`button-reject-${visit.id}`}
+                            >
+                              {clientResponseMutation.isPending ? 'Processando...' : 'Recusar'}
+                            </Button>
+                          </div>
+                        ) : visit.status === 'agendada' || visit.status === 'pendente_proprietario' ? (
+                          <Button
+                            variant="destructive"
+                            className="w-full"
+                            onClick={() => handleCancelVisit(visit.id)}
+                            disabled={cancelVisitMutation.isPending}
+                            data-testid={`button-cancel-${visit.id}`}
+                          >
+                            <XCircle className="h-4 w-4 mr-2" />
+                            {cancelVisitMutation.isPending ? 'Cancelando...' : 'Cancelar Visita'}
+                          </Button>
+                        ) : null}
                       </div>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
+            </div>
+                </div>
+              )}
             </div>
           )}
         </motion.div>
