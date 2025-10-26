@@ -34,6 +34,7 @@ export default function ExplorarMapa() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [nearbyProperties, setNearbyProperties] = useState<PropertyWithDistance[]>([]);
   const [showNearby, setShowNearby] = useState(false);
+  const [mapInitialized, setMapInitialized] = useState(false);
 
   const { data: allProperties, isLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
@@ -105,6 +106,7 @@ export default function ExplorarMapa() {
         setTimeout(() => {
           if (mapRef.current) {
             mapRef.current.invalidateSize();
+            setMapInitialized(true);
           }
         }, 500);
       } catch (error) {
@@ -124,12 +126,13 @@ export default function ExplorarMapa() {
         }
         mapRef.current = null;
       }
+      setMapInitialized(false);
     };
   }, [isLoading]);
 
   // Add property markers
   useEffect(() => {
-    if (!mapRef.current || !properties) return;
+    if (!mapRef.current || !properties || !mapInitialized) return;
 
     // Clear existing markers
     markersRef.current.forEach(marker => marker.remove());
@@ -179,7 +182,7 @@ export default function ExplorarMapa() {
       const group = L.featureGroup(markersRef.current);
       mapRef.current.fitBounds(group.getBounds().pad(0.2), { maxZoom: 13 });
     }
-  }, [properties]);
+  }, [properties, mapInitialized]);
 
   // Get user's current location
   const getUserLocation = () => {
