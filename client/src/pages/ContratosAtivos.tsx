@@ -23,9 +23,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Download } from "lucide-react";
 import { generateContractPDF } from "@/lib/pdfGenerator";
+
+interface Property {
+  title: string;
+  bairro: string;
+  municipio: string;
+  images?: string[];
+}
 
 interface Contract {
   id: string;
@@ -39,19 +46,23 @@ interface Contract {
   status: string;
   observacoes: string | null;
   createdAt: string;
-  property?: {
-    title: string;
-    bairro: string;
-    municipio: string;
-    images?: string[];
-  };
+  contractContent?: string | null;
+  proprietarioSignature?: string | null;
+  proprietarioSignedAt?: string | null;
+  clienteSignature?: string | null;
+  clienteSignedAt?: string | null;
+  property?: Property;
   proprietario?: {
+    id: string;
     fullName: string;
     phone: string;
+    bi?: string | null;
   };
   cliente?: {
+    id: string;
     fullName: string;
     phone: string;
+    bi?: string | null;
   };
 }
 
@@ -110,7 +121,41 @@ export default function ContratosAtivos() {
 
   const handleDownloadPDF = (contract: Contract, property: Property) => {
     try {
-      generateContractPDF(contract, property.title);
+      if (!contract.proprietario || !contract.cliente) {
+        toast({
+          title: "Erro ao gerar PDF",
+          description: "Informações do proprietário ou cliente não disponíveis.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Convert to the format expected by generateContractPDF
+      const pdfData = {
+        contract: {
+          ...contract,
+          dataInicio: new Date(contract.dataInicio),
+          dataFim: contract.dataFim ? new Date(contract.dataFim) : null,
+          createdAt: new Date(contract.createdAt),
+        } as any,
+        propertyTitle: property.title,
+        proprietario: {
+          ...contract.proprietario,
+          password: '',
+          userTypes: [],
+          status: 'ativo',
+          createdAt: new Date(),
+        } as any,
+        cliente: {
+          ...contract.cliente,
+          password: '',
+          userTypes: [],
+          status: 'ativo',
+          createdAt: new Date(),
+        } as any,
+      };
+
+      generateContractPDF(pdfData);
       toast({
         title: "PDF gerado com sucesso",
         description: "O contrato foi baixado em formato PDF.",

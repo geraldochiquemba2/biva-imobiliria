@@ -1,11 +1,18 @@
-
 import jsPDF from 'jspdf';
-import type { Contract } from '@shared/schema';
-import { formatCurrency } from './currency';
+import type { Contract, User } from '@shared/schema';
+import { formatAOA } from './currency';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export function generateContractPDF(contract: Contract, propertyTitle: string) {
+interface PDFData {
+  contract: Contract;
+  propertyTitle: string;
+  proprietario: User;
+  cliente: User;
+}
+
+export function generateContractPDF(data: PDFData) {
+  const { contract, propertyTitle, proprietario, cliente } = data;
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const margin = 20;
@@ -15,7 +22,8 @@ export function generateContractPDF(contract: Contract, propertyTitle: string) {
   // Título
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text('CONTRATO DE ARRENDAMENTO', pageWidth / 2, yPosition, { align: 'center' });
+  const title = contract.tipo === 'arrendamento' ? 'CONTRATO DE ARRENDAMENTO' : 'CONTRATO DE VENDA';
+  doc.text(title, pageWidth / 2, yPosition, { align: 'center' });
   yPosition += 15;
 
   // Informações do contrato
@@ -44,20 +52,21 @@ export function generateContractPDF(contract: Contract, propertyTitle: string) {
   
   doc.text('Proprietário:', margin, yPosition);
   yPosition += 5;
-  doc.text(`Nome: ${contract.ownerName || 'N/A'}`, margin + 5, yPosition);
+  doc.text(`Nome: ${proprietario.fullName || 'N/A'}`, margin + 5, yPosition);
   yPosition += 5;
-  doc.text(`BI/Passaporte: ${contract.ownerBi || 'N/A'}`, margin + 5, yPosition);
+  doc.text(`BI/Passaporte: ${proprietario.bi || 'N/A'}`, margin + 5, yPosition);
   yPosition += 5;
-  doc.text(`Contacto: ${contract.ownerContact || 'N/A'}`, margin + 5, yPosition);
+  doc.text(`Contacto: ${proprietario.phone || 'N/A'}`, margin + 5, yPosition);
   yPosition += 10;
 
-  doc.text('Inquilino:', margin, yPosition);
+  const clienteLabel = contract.tipo === 'arrendamento' ? 'Inquilino' : 'Comprador';
+  doc.text(`${clienteLabel}:`, margin, yPosition);
   yPosition += 5;
-  doc.text(`Nome: ${contract.tenantName || 'N/A'}`, margin + 5, yPosition);
+  doc.text(`Nome: ${cliente.fullName || 'N/A'}`, margin + 5, yPosition);
   yPosition += 5;
-  doc.text(`BI/Passaporte: ${contract.tenantBi || 'N/A'}`, margin + 5, yPosition);
+  doc.text(`BI/Passaporte: ${cliente.bi || 'N/A'}`, margin + 5, yPosition);
   yPosition += 5;
-  doc.text(`Contacto: ${contract.tenantContact || 'N/A'}`, margin + 5, yPosition);
+  doc.text(`Contacto: ${cliente.phone || 'N/A'}`, margin + 5, yPosition);
   yPosition += 10;
 
   // Termos do contrato
@@ -66,26 +75,49 @@ export function generateContractPDF(contract: Contract, propertyTitle: string) {
   yPosition += 7;
   doc.setFont('helvetica', 'normal');
 
-  const startDate = contract.startDate ? format(new Date(contract.startDate), 'dd/MM/yyyy') : 'N/A';
-  const endDate = contract.endDate ? format(new Date(contract.endDate), 'dd/MM/yyyy') : 'N/A';
+  const startDate = contract.dataInicio ? format(new Date(contract.dataInicio), 'dd/MM/yyyy') : 'N/A';
+  const endDate = contract.dataFim ? format(new Date(contract.dataFim), 'dd/MM/yyyy') : 'N/A';
   
   doc.text(`Início: ${startDate}`, margin, yPosition);
   yPosition += 5;
-  doc.text(`Término: ${endDate}`, margin, yPosition);
-  yPosition += 5;
-  doc.text(`Valor Mensal: ${formatCurrency(contract.monthlyRent)}`, margin, yPosition);
-  yPosition += 5;
-  doc.text(`Depósito de Segurança: ${formatCurrency(contract.securityDeposit)}`, margin, yPosition);
+  if (contract.tipo === 'arrendamento') {
+    doc.text(`Término: ${endDate}`, margin, yPosition);
+    yPosition += 5;
+  }
+  doc.text(`Valor: ${formatAOA(contract.valor)}`, margin, yPosition);
   yPosition += 10;
 
-  // Termos adicionais
-  if (contract.terms) {
+  // Conteúdo do contrato
+  if (contract.contractContent) {
     doc.setFont('helvetica', 'bold');
-    doc.text('TERMOS ADICIONAIS:', margin, yPosition);
+    doc.text('CONTEÚDO DO CONTRATO:', margin, yPosition);
     yPosition += 7;
     doc.setFont('helvetica', 'normal');
     
-    const lines = doc.splitTextToSize(contract.terms, contentWidth);
+    const lines = doc.splitTextToSize(contract.contractContent, contentWidth);
+    lines.forEach((line: string) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(line, margin, yPosition);
+      yPosition += 5;
+    });
+    yPosition += 5;
+  }
+
+  // Observações
+  if (contract.observacoes) {
+    if (yPosition > 250) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.text('OBSERVAÇÕES:', margin, yPosition);
+    yPosition += 7;
+    doc.setFont('helvetica', 'normal');
+    
+    const lines = doc.splitTextToSize(contract.observacoes, contentWidth);
     lines.forEach((line: string) => {
       if (yPosition > 270) {
         doc.addPage();
@@ -114,20 +146,20 @@ export function generateContractPDF(contract: Contract, propertyTitle: string) {
   // Proprietário
   doc.text('_________________________', margin, signatureY);
   doc.text('Proprietário', margin, signatureY + 7);
-  if (contract.ownerSignature) {
+  if (contract.proprietarioSignature) {
     doc.setFontSize(8);
-    const ownerSigDate = contract.ownerSignedAt ? format(new Date(contract.ownerSignedAt), 'dd/MM/yyyy HH:mm') : '';
+    const ownerSigDate = contract.proprietarioSignedAt ? format(new Date(contract.proprietarioSignedAt), 'dd/MM/yyyy HH:mm') : '';
     doc.text(`Assinado em: ${ownerSigDate}`, margin, signatureY + 12);
   }
   
-  // Inquilino
+  // Cliente
   doc.setFontSize(10);
   doc.text('_________________________', pageWidth - margin - 60, signatureY);
-  doc.text('Inquilino', pageWidth - margin - 60, signatureY + 7);
-  if (contract.tenantSignature) {
+  doc.text(clienteLabel, pageWidth - margin - 60, signatureY + 7);
+  if (contract.clienteSignature) {
     doc.setFontSize(8);
-    const tenantSigDate = contract.tenantSignedAt ? format(new Date(contract.tenantSignedAt), 'dd/MM/yyyy HH:mm') : '';
-    doc.text(`Assinado em: ${tenantSigDate}`, pageWidth - margin - 60, signatureY + 12);
+    const clientSigDate = contract.clienteSignedAt ? format(new Date(contract.clienteSignedAt), 'dd/MM/yyyy HH:mm') : '';
+    doc.text(`Assinado em: ${clientSigDate}`, pageWidth - margin - 60, signatureY + 12);
   }
 
   // Salvar PDF
