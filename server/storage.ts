@@ -380,6 +380,17 @@ export class DatabaseStorage implements IStorage {
     return results;
   }
 
+  async getVisitByClientAndProperty(clienteId: string, propertyId: string): Promise<Visit | undefined> {
+    const [visit] = await db
+      .select()
+      .from(visits)
+      .where(and(
+        eq(visits.clienteId, clienteId),
+        eq(visits.propertyId, propertyId)
+      ));
+    return visit || undefined;
+  }
+
   // Proposal methods
   async getProposal(id: string): Promise<Proposal | undefined> {
     const [proposal] = await db.select().from(proposals).where(eq(proposals.id, id));

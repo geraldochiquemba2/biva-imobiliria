@@ -678,6 +678,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Você só pode agendar visitas para si mesmo" });
       }
       
+      // Check if user already has a visit for this property
+      const existingVisit = await storage.getVisitByClientAndProperty(visitData.clienteId, visitData.propertyId);
+      if (existingVisit) {
+        return res.status(400).json({ error: "Você já agendou uma visita para este imóvel" });
+      }
+      
       const visit = await storage.createVisit(visitData);
       res.status(201).json(visit);
     } catch (error) {
