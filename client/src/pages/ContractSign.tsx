@@ -309,7 +309,7 @@ export default function ContractSign() {
                 </div>
                 
                 {/* Watermark background */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50" style={{ zIndex: 0 }}>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30" style={{ zIndex: 0 }}>
                   <img 
                     src={logoUrl} 
                     alt="BIVA Imobiliária" 
