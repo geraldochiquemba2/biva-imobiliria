@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { PropertyWithOwner, User } from "@shared/schema";
+import type { PropertyWithOwner, User, Visit } from "@shared/schema";
 import MapView from "@/components/MapView";
 import {
   ArrowLeft,
@@ -57,6 +57,11 @@ export default function ImovelDetalhes() {
       return response.json();
     },
     enabled: !!params?.id,
+  });
+
+  const { data: userVisits } = useQuery<Visit[]>({
+    queryKey: ['/api/visits', 'user', currentUser?.id],
+    enabled: !!currentUser?.id,
   });
 
   // Verificar se usuário não autenticado está tentando ver imóvel indisponível
@@ -211,6 +216,10 @@ export default function ImovelDetalhes() {
   const images = property.images || [];
   const hasImages = images.length > 0;
   const isOwner = currentUser && property.ownerId === currentUser.id;
+
+  const hasConfirmedVisit = userVisits?.some(
+    visit => visit.propertyId === property.id && visit.status === 'agendada'
+  );
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -506,18 +515,20 @@ export default function ImovelDetalhes() {
                         {createVisitMutation.isPending ? "Agendando..." : "Agendar Visita"}
                       </Button>
 
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        size="lg"
-                        asChild
-                        data-testid="button-contact"
-                      >
-                        <a href={`tel:${property.owner?.phone || ''}`}>
-                          <Phone className="h-5 w-5 mr-2" />
-                          Ligar Agora
-                        </a>
-                      </Button>
+                      {hasConfirmedVisit && (
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          size="lg"
+                          asChild
+                          data-testid="button-contact"
+                        >
+                          <a href={`tel:${property.owner?.phone || ''}`}>
+                            <Phone className="h-5 w-5 mr-2" />
+                            Ligar Agora
+                          </a>
+                        </Button>
+                      )}
 
                       <Button
                         variant="outline"
@@ -554,18 +565,20 @@ export default function ImovelDetalhes() {
                                  property.owner.userTypes?.join(' • ')}
                               </p>
                             </div>
-                            <div className="space-y-1.5 text-sm">
-                              {property.owner.email && (
+                            {hasConfirmedVisit && (
+                              <div className="space-y-1.5 text-sm">
+                                {property.owner.email && (
+                                  <div className="flex items-center gap-2 text-muted-foreground">
+                                    <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                                    <span className="truncate" data-testid="text-owner-email">{property.owner.email}</span>
+                                  </div>
+                                )}
                                 <div className="flex items-center gap-2 text-muted-foreground">
-                                  <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                                  <span className="truncate" data-testid="text-owner-email">{property.owner.email}</span>
+                                  <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                                  <span data-testid="text-owner-phone">{property.owner.phone}</span>
                                 </div>
-                              )}
-                              <div className="flex items-center gap-2 text-muted-foreground">
-                                <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                                <span data-testid="text-owner-phone">{property.owner.phone}</span>
                               </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>
