@@ -675,15 +675,17 @@ export default function ContractSign() {
 
       {/* Sign Dialog */}
       <Dialog open={signDialogOpen} onOpenChange={setSignDialogOpen}>
-        <DialogContent data-testid="dialog-sign">
-          <DialogHeader>
-            <DialogTitle>Assinar Contrato Digitalmente</DialogTitle>
-            <DialogDescription>
-              Por favor, forneça o seu número de Bilhete de Identidade ou Passaporte para confirmar a assinatura digital.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent data-testid="dialog-sign" className="max-h-[95vh] flex flex-col p-0 gap-0">
+          <div className="p-6 pb-4">
+            <DialogHeader>
+              <DialogTitle>Assinar Contrato Digitalmente</DialogTitle>
+              <DialogDescription>
+                Por favor, forneça o seu número de Bilhete de Identidade ou Passaporte para confirmar a assinatura digital.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto px-6 pb-4 flex-1">
             <div>
               <Label htmlFor="bi">BI / Passaporte</Label>
               <Input
@@ -854,29 +856,31 @@ export default function ContractSign() {
             </div>
           </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setSignDialogOpen(false)}
-              data-testid="button-cancel"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleSign}
-              disabled={!biNumber || !hasSignature || signMutation.isPending}
-              data-testid="button-confirm-sign"
-            >
-              {signMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Assinando...
-                </>
-              ) : (
-                'Confirmar Assinatura'
-              )}
-            </Button>
-          </DialogFooter>
+          <div className="p-6 pt-4 border-t">
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setSignDialogOpen(false)}
+                data-testid="button-cancel"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSign}
+                disabled={!biNumber || !hasSignature || signMutation.isPending}
+                data-testid="button-confirm-sign"
+              >
+                {signMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Assinando...
+                  </>
+                ) : (
+                  'Confirmar Assinatura'
+                )}
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
