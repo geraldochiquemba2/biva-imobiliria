@@ -491,6 +491,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Você só pode atualizar seus próprios imóveis" });
       }
       
+      // Check if property has active scheduled visits
+      const propertyVisits = await storage.getVisitsByProperty(req.params.id);
+      const hasActiveVisits = propertyVisits.some(visit => visit.status === 'agendada');
+      
+      // Check if property is rented
+      const isRented = existingProperty.status === 'arrendado';
+      
+      // Proprietarios (without corretor role) cannot edit properties with active visits or that are rented
+      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor')) {
+        if (hasActiveVisits) {
+          return res.status(403).json({ 
+            error: "Não é possível editar imóvel com visitas confirmadas",
+            reason: "hasActiveVisits"
+          });
+        }
+        if (isRented) {
+          return res.status(403).json({ 
+            error: "Não é possível editar imóvel que está arrendado",
+            reason: "isRented"
+          });
+        }
+      }
+      
       const updates = req.body;
       
       // Prevent changing ownership
@@ -526,6 +549,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Proprietarios (without corretor role) can only delete their own properties
       if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && existingProperty.ownerId !== req.session.userId) {
         return res.status(403).json({ error: "Você só pode deletar seus próprios imóveis" });
+      }
+      
+      // Check if property has active scheduled visits
+      const propertyVisits = await storage.getVisitsByProperty(req.params.id);
+      const hasActiveVisits = propertyVisits.some(visit => visit.status === 'agendada');
+      
+      // Check if property is rented
+      const isRented = existingProperty.status === 'arrendado';
+      
+      // Proprietarios (without corretor role) cannot delete properties with active visits or that are rented
+      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor')) {
+        if (hasActiveVisits) {
+          return res.status(403).json({ 
+            error: "Não é possível eliminar imóvel com visitas confirmadas",
+            reason: "hasActiveVisits"
+          });
+        }
+        if (isRented) {
+          return res.status(403).json({ 
+            error: "Não é possível eliminar imóvel que está arrendado",
+            reason: "isRented"
+          });
+        }
       }
       
       const success = await storage.deleteProperty(req.params.id);

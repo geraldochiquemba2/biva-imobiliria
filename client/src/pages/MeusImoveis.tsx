@@ -459,12 +459,24 @@ export default function MeusImoveis() {
                                           <DropdownMenuSeparator />
                                           <DropdownMenuItem
                                             onClick={() => setDeletePropertyId(property.id)}
-                                            disabled={deletePropertyMutation.isPending}
+                                            disabled={deletePropertyMutation.isPending || property.canEdit === false}
                                             className="text-destructive focus:text-destructive"
                                             data-testid={`action-delete-${property.id}`}
                                           >
-                                            <Trash2 className="h-4 w-4 mr-2" />
-                                            Eliminar
+                                            {property.canEdit === false ? (
+                                              <>
+                                                <Lock className="h-4 w-4 mr-2" />
+                                                Eliminar
+                                                <span className="text-xs text-muted-foreground ml-2">
+                                                  ({property.hasActiveVisits ? "Com visitas" : "Arrendado"})
+                                                </span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                Eliminar
+                                              </>
+                                            )}
                                           </DropdownMenuItem>
                                         </DropdownMenuContent>
                                       </DropdownMenu>
