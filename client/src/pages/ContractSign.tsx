@@ -747,9 +747,9 @@ export default function ContractSign() {
                                   alt="Assinatura do Proprietário" 
                                   className="mb-1"
                                   style={{ 
-                                    maxWidth: '300px',
+                                    maxWidth: '200px',
                                     height: 'auto',
-                                    minHeight: '60px',
+                                    maxHeight: '40px',
                                     objectFit: 'contain',
                                     objectPosition: 'left'
                                   }}
@@ -780,9 +780,9 @@ export default function ContractSign() {
                                   alt="Assinatura do Cliente" 
                                   className="mb-1"
                                   style={{ 
-                                    maxWidth: '300px',
+                                    maxWidth: '200px',
                                     height: 'auto',
-                                    minHeight: '60px',
+                                    maxHeight: '40px',
                                     objectFit: 'contain',
                                     objectPosition: 'left'
                                   }}
