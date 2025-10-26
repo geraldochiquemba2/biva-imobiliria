@@ -99,7 +99,11 @@ export default function Dashboard() {
   const userRolesText = currentUser.userTypes?.map(type => userTypeLabels[type]).join(' • ') || '';
 
   const activeContracts = contracts.filter(c => c.status === 'ativo');
-  const scheduledVisits = allVisits.filter(v => v.status === 'agendada');
+  const scheduledVisits = allVisits.filter(v => 
+    v.status === 'agendada' || 
+    v.status === 'pendente_proprietario' || 
+    v.status === 'pendente_cliente'
+  );
 
   return (
     <div className="min-h-screen pt-24 pb-12">
