@@ -10,6 +10,9 @@ import {
   insertVisitSchema,
   insertProposalSchema,
   insertPaymentSchema,
+  insertVirtualTourSchema,
+  insertTourRoomSchema,
+  insertTourHotspotSchema,
   type Contract
 } from "@shared/schema";
 import { z } from "zod";
@@ -621,6 +624,251 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error getting user properties:', error);
       res.status(500).json({ error: "Falha ao buscar imóveis do usuário" });
+    }
+  });
+
+  // Virtual Tour Routes
+  
+  // Create a virtual tour for a property
+  app.post("/api/virtual-tours", requireRole('proprietario', 'corretor', 'admin'), async (req, res) => {
+    try {
+      const tourData = insertVirtualTourSchema.parse(req.body);
+      
+      // Get property to verify ownership
+      const property = await storage.getProperty(tourData.propertyId);
+      if (!property) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+      
+      // Verify ownership (proprietarios can only create tours for their own properties)
+      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && !hasRole(req.session, 'admin') && property.ownerId !== req.session.userId) {
+        return res.status(403).json({ error: "Você só pode criar tours para seus próprios imóveis" });
+      }
+      
+      // Check if tour already exists for this property
+      const existingTour = await storage.getVirtualTourByProperty(tourData.propertyId);
+      if (existingTour) {
+        return res.status(400).json({ error: "Já existe um tour virtual para este imóvel" });
+      }
+      
+      const tour = await storage.createVirtualTour(tourData);
+      res.json(tour);
+    } catch (error) {
+      console.error('Error creating virtual tour:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      res.status(500).json({ error: "Falha ao criar tour virtual" });
+    }
+  });
+  
+  // Get virtual tour by property ID
+  app.get("/api/virtual-tours/property/:propertyId", async (req, res) => {
+    try {
+      const tour = await storage.getVirtualTourByProperty(req.params.propertyId);
+      if (!tour) {
+        return res.status(404).json({ error: "Tour virtual não encontrado" });
+      }
+      res.json(tour);
+    } catch (error) {
+      console.error('Error getting virtual tour:', error);
+      res.status(500).json({ error: "Falha ao buscar tour virtual" });
+    }
+  });
+  
+  // Get virtual tour by ID
+  app.get("/api/virtual-tours/:id", async (req, res) => {
+    try {
+      const tour = await storage.getVirtualTour(req.params.id);
+      if (!tour) {
+        return res.status(404).json({ error: "Tour virtual não encontrado" });
+      }
+      res.json(tour);
+    } catch (error) {
+      console.error('Error getting virtual tour:', error);
+      res.status(500).json({ error: "Falha ao buscar tour virtual" });
+    }
+  });
+  
+  // Update virtual tour
+  app.patch("/api/virtual-tours/:id", requireRole('proprietario', 'corretor', 'admin'), async (req, res) => {
+    try {
+      const tour = await storage.getVirtualTour(req.params.id);
+      if (!tour) {
+        return res.status(404).json({ error: "Tour virtual não encontrado" });
+      }
+      
+      // Get property to verify ownership
+      const property = await storage.getProperty(tour.propertyId);
+      if (!property) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+      
+      // Verify ownership
+      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && !hasRole(req.session, 'admin') && property.ownerId !== req.session.userId) {
+        return res.status(403).json({ error: "Você só pode editar tours dos seus próprios imóveis" });
+      }
+      
+      const updatedTour = await storage.updateVirtualTour(req.params.id, req.body);
+      res.json(updatedTour);
+    } catch (error) {
+      console.error('Error updating virtual tour:', error);
+      res.status(500).json({ error: "Falha ao atualizar tour virtual" });
+    }
+  });
+  
+  // Delete virtual tour
+  app.delete("/api/virtual-tours/:id", requireRole('proprietario', 'corretor', 'admin'), async (req, res) => {
+    try {
+      const tour = await storage.getVirtualTour(req.params.id);
+      if (!tour) {
+        return res.status(404).json({ error: "Tour virtual não encontrado" });
+      }
+      
+      // Get property to verify ownership
+      const property = await storage.getProperty(tour.propertyId);
+      if (!property) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+      
+      // Verify ownership
+      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && !hasRole(req.session, 'admin') && property.ownerId !== req.session.userId) {
+        return res.status(403).json({ error: "Você só pode deletar tours dos seus próprios imóveis" });
+      }
+      
+      await storage.deleteVirtualTour(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting virtual tour:', error);
+      res.status(500).json({ error: "Falha ao deletar tour virtual" });
+    }
+  });
+  
+  // Add a room to a tour
+  app.post("/api/virtual-tours/:tourId/rooms", requireRole('proprietario', 'corretor', 'admin'), upload.single('image'), async (req, res) => {
+    try {
+      const tour = await storage.getVirtualTour(req.params.tourId);
+      if (!tour) {
+        return res.status(404).json({ error: "Tour virtual não encontrado" });
+      }
+      
+      // Get property to verify ownership
+      const property = await storage.getProperty(tour.propertyId);
+      if (!property) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+      
+      // Verify ownership
+      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && !hasRole(req.session, 'admin') && property.ownerId !== req.session.userId) {
+        return res.status(403).json({ error: "Você só pode adicionar cômodos aos tours dos seus próprios imóveis" });
+      }
+      
+      if (!req.file) {
+        return res.status(400).json({ error: "Imagem 360° é obrigatória" });
+      }
+      
+      // Convert image to base64
+      const imageBase64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      
+      const roomData = {
+        tourId: req.params.tourId,
+        name: req.body.name || 'Cômodo sem nome',
+        image: imageBase64,
+        orderIndex: parseInt(req.body.orderIndex) || 0,
+      };
+      
+      const room = await storage.createTourRoom(roomData);
+      res.json(room);
+    } catch (error) {
+      console.error('Error adding room to tour:', error);
+      res.status(500).json({ error: "Falha ao adicionar cômodo ao tour" });
+    }
+  });
+  
+  // Update a room
+  app.patch("/api/tour-rooms/:id", requireRole('proprietario', 'corretor', 'admin'), upload.single('image'), async (req, res) => {
+    try {
+      const roomData: any = {
+        name: req.body.name,
+        orderIndex: req.body.orderIndex !== undefined ? parseInt(req.body.orderIndex) : undefined,
+      };
+      
+      // If new image is uploaded, convert to base64
+      if (req.file) {
+        roomData.image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      }
+      
+      const updatedRoom = await storage.updateTourRoom(req.params.id, roomData);
+      if (!updatedRoom) {
+        return res.status(404).json({ error: "Cômodo não encontrado" });
+      }
+      
+      res.json(updatedRoom);
+    } catch (error) {
+      console.error('Error updating room:', error);
+      res.status(500).json({ error: "Falha ao atualizar cômodo" });
+    }
+  });
+  
+  // Delete a room
+  app.delete("/api/tour-rooms/:id", requireRole('proprietario', 'corretor', 'admin'), async (req, res) => {
+    try {
+      // Delete all hotspots associated with this room first
+      await storage.deleteHotspotsByRoom(req.params.id);
+      
+      // Delete the room
+      const success = await storage.deleteTourRoom(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Cômodo não encontrado" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      res.status(500).json({ error: "Falha ao deletar cômodo" });
+    }
+  });
+  
+  // Add a hotspot to a room
+  app.post("/api/tour-hotspots", requireRole('proprietario', 'corretor', 'admin'), async (req, res) => {
+    try {
+      const hotspotData = insertTourHotspotSchema.parse(req.body);
+      const hotspot = await storage.createTourHotspot(hotspotData);
+      res.json(hotspot);
+    } catch (error) {
+      console.error('Error creating hotspot:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors[0].message });
+      }
+      res.status(500).json({ error: "Falha ao criar hotspot" });
+    }
+  });
+  
+  // Update a hotspot
+  app.patch("/api/tour-hotspots/:id", requireRole('proprietario', 'corretor', 'admin'), async (req, res) => {
+    try {
+      const updatedHotspot = await storage.updateTourHotspot(req.params.id, req.body);
+      if (!updatedHotspot) {
+        return res.status(404).json({ error: "Hotspot não encontrado" });
+      }
+      res.json(updatedHotspot);
+    } catch (error) {
+      console.error('Error updating hotspot:', error);
+      res.status(500).json({ error: "Falha ao atualizar hotspot" });
+    }
+  });
+  
+  // Delete a hotspot
+  app.delete("/api/tour-hotspots/:id", requireRole('proprietario', 'corretor', 'admin'), async (req, res) => {
+    try {
+      const success = await storage.deleteTourHotspot(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Hotspot não encontrado" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting hotspot:', error);
+      res.status(500).json({ error: "Falha ao deletar hotspot" });
     }
   });
 
