@@ -303,31 +303,49 @@ export class DatabaseStorage implements IStorage {
   }
 
   async listContracts(): Promise<any[]> {
-    const results = await db.query.contracts.findMany({
-      orderBy: [desc(contracts.createdAt)],
-      with: {
+    const proprietario = aliasedTable(users, 'proprietario');
+    const cliente = aliasedTable(users, 'cliente');
+    
+    const results = await db
+      .select({
+        id: contracts.id,
+        propertyId: contracts.propertyId,
+        proprietarioId: contracts.proprietarioId,
+        clienteId: contracts.clienteId,
+        tipo: contracts.tipo,
+        valor: contracts.valor,
+        dataInicio: contracts.dataInicio,
+        dataFim: contracts.dataFim,
+        status: contracts.status,
+        contractContent: contracts.contractContent,
+        proprietarioSignature: contracts.proprietarioSignature,
+        proprietarioSignedAt: contracts.proprietarioSignedAt,
+        clienteSignature: contracts.clienteSignature,
+        clienteSignedAt: contracts.clienteSignedAt,
+        observacoes: contracts.observacoes,
+        createdAt: contracts.createdAt,
         property: {
-          columns: {
-            title: true,
-            bairro: true,
-            municipio: true,
-            // Removed images to reduce bandwidth
-          },
+          title: properties.title,
+          bairro: properties.bairro,
+          municipio: properties.municipio,
+          // Get only first image as thumbnail to reduce bandwidth
+          images: sql<string[]>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ARRAY[${properties.images}[1]] ELSE ARRAY[]::text[] END`,
         },
         proprietario: {
-          columns: {
-            fullName: true,
-            phone: true,
-          },
+          fullName: proprietario.fullName,
+          phone: proprietario.phone,
         },
         cliente: {
-          columns: {
-            fullName: true,
-            phone: true,
-          },
+          fullName: cliente.fullName,
+          phone: cliente.phone,
         },
-      },
-    });
+      })
+      .from(contracts)
+      .leftJoin(properties, eq(contracts.propertyId, properties.id))
+      .leftJoin(proprietario, eq(contracts.proprietarioId, proprietario.id))
+      .leftJoin(cliente, eq(contracts.clienteId, cliente.id))
+      .orderBy(desc(contracts.createdAt));
+    
     return results;
   }
 
@@ -374,7 +392,8 @@ export class DatabaseStorage implements IStorage {
           title: properties.title,
           bairro: properties.bairro,
           municipio: properties.municipio,
-          // Removed images to reduce bandwidth
+          // Get only first image as thumbnail to reduce bandwidth
+          images: sql<string[]>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ARRAY[${properties.images}[1]] ELSE ARRAY[]::text[] END`,
         },
         proprietario: {
           fullName: proprietario.fullName,
