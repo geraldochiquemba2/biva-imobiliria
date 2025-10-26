@@ -1,15 +1,17 @@
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Navigation, MapPin, Home, Ruler, DollarSign, X } from "lucide-react";
 import L from "leaflet";
 import type { Property } from "@shared/schema";
 import { formatAOA } from "@/lib/currency";
 import { Link } from "wouter";
+import { angolaProvinces } from "@shared/angola-locations";
 import bgImage from '@assets/stock_images/aerial_view_city_map_83390299.jpg';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -35,13 +37,34 @@ export default function ExplorarMapa() {
   const [nearbyProperties, setNearbyProperties] = useState<PropertyWithDistance[]>([]);
   const [showNearby, setShowNearby] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
+  const [selectedProvincia, setSelectedProvincia] = useState<string>("");
+  const [selectedMunicipio, setSelectedMunicipio] = useState<string>("");
 
   const { data: allProperties, isLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
   });
 
-  // Filtrar apenas imóveis disponíveis para páginas públicas
-  const properties = allProperties?.filter(property => property.status === 'disponivel') || [];
+  // Filtrar imóveis disponíveis e por província/município
+  const properties = useMemo(() => {
+    let filtered = allProperties?.filter(property => property.status === 'disponivel') || [];
+    
+    if (selectedProvincia && selectedProvincia !== "all") {
+      filtered = filtered.filter(p => p.provincia === selectedProvincia);
+    }
+    
+    if (selectedMunicipio && selectedMunicipio !== "all") {
+      filtered = filtered.filter(p => p.municipio === selectedMunicipio);
+    }
+    
+    return filtered;
+  }, [allProperties, selectedProvincia, selectedMunicipio]);
+
+  // Municípios disponíveis da província selecionada
+  const availableMunicipios = useMemo(() => {
+    if (!selectedProvincia || selectedProvincia === "all") return [];
+    const province = angolaProvinces.find(p => p.name === selectedProvincia);
+    return province?.municipalities || [];
+  }, [selectedProvincia]);
 
   // Calculate distance between two points using Haversine formula
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -80,10 +103,10 @@ export default function ExplorarMapa() {
       }
 
       try {
-        // Initialize Leaflet map
+        // Initialize Leaflet map centered on Angola
         const map = L.map(mapContainerRef.current, {
-          center: [-8.8383, 13.2344],
-          zoom: 11,
+          center: [-12.5, 17.5],
+          zoom: 6,
           zoomControl: true,
           scrollWheelZoom: true,
         });
@@ -418,7 +441,7 @@ export default function ExplorarMapa() {
               Explorar Imóveis no Mapa
             </h1>
             <p className="text-xl text-white/80">
-              Visualize todos os imóveis disponíveis e encontre os mais próximos de você
+              Visualize todos os imóveis disponíveis em Angola
             </p>
           </div>
 
@@ -427,32 +450,103 @@ export default function ExplorarMapa() {
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div>
-                      <CardTitle>Mapa Interativo</CardTitle>
-                      <CardDescription>
-                        {properties?.length || 0} imóveis disponíveis
-                      </CardDescription>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={getUserLocation}
-                        data-testid="button-get-location"
-                      >
-                        <Navigation className="h-4 w-4 mr-2" />
-                        Minha Localização
-                      </Button>
-                      {routeLayersRef.current.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div>
+                        <CardTitle>Mapa Interativo</CardTitle>
+                        <CardDescription>
+                          {properties?.length || 0} imóveis disponíveis
+                        </CardDescription>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={clearRoutes}
-                          data-testid="button-clear-routes"
+                          onClick={getUserLocation}
+                          data-testid="button-get-location"
+                        >
+                          <Navigation className="h-4 w-4 mr-2" />
+                          Minha Localização
+                        </Button>
+                        {routeLayersRef.current.length > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={clearRoutes}
+                            data-testid="button-clear-routes"
+                          >
+                            <X className="h-4 w-4 mr-2" />
+                            Limpar Rotas
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Filtros */}
+                    <div className="flex gap-3 flex-wrap">
+                      <Select 
+                        value={selectedProvincia || "all"} 
+                        onValueChange={(value) => {
+                          if (value === "all") {
+                            setSelectedProvincia("");
+                            setSelectedMunicipio("");
+                          } else {
+                            setSelectedProvincia(value);
+                            setSelectedMunicipio("");
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-[200px]" data-testid="select-provincia">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          <SelectValue placeholder="Todas as Províncias" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas as Províncias</SelectItem>
+                          {angolaProvinces.map((prov) => (
+                            <SelectItem key={prov.name} value={prov.name}>
+                              {prov.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <Select 
+                        value={selectedMunicipio || "all"} 
+                        onValueChange={(value) => {
+                          if (value === "all") {
+                            setSelectedMunicipio("");
+                          } else {
+                            setSelectedMunicipio(value);
+                          }
+                        }}
+                        disabled={!selectedProvincia || selectedProvincia === "all"}
+                      >
+                        <SelectTrigger className="w-[200px]" data-testid="select-municipio">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          <SelectValue placeholder="Todos os Municípios" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos os Municípios</SelectItem>
+                          {availableMunicipios.map((mun) => (
+                            <SelectItem key={mun.name} value={mun.name}>
+                              {mun.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {(selectedProvincia || selectedMunicipio) && selectedProvincia !== "all" && selectedMunicipio !== "all" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedProvincia("");
+                            setSelectedMunicipio("");
+                          }}
+                          data-testid="button-clear-filters"
                         >
                           <X className="h-4 w-4 mr-2" />
-                          Limpar Rotas
+                          Limpar Filtros
                         </Button>
                       )}
                     </div>
@@ -530,7 +624,7 @@ export default function ExplorarMapa() {
                         </p>
                         <div className="flex gap-2 mb-4">
                           <Badge variant={selectedProperty.type === 'Vender' ? 'destructive' : 'default'}>
-                            {selectedProperty.type}
+                            {selectedProperty.type === 'Arrendar' ? 'Disponível para arrendar' : selectedProperty.type === 'Vender' ? 'Disponível para compra' : selectedProperty.type}
                           </Badge>
                           <Badge variant="outline">{selectedProperty.category}</Badge>
                         </div>
@@ -636,9 +730,9 @@ export default function ExplorarMapa() {
                     <div className="flex gap-3">
                       <Navigation className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-medium mb-1">Encontre os mais próximos</p>
+                        <p className="font-medium mb-1">Filtre por localização</p>
                         <p className="text-muted-foreground text-xs">
-                          Clique em "Minha Localização" para ver imóveis próximos de você
+                          Use os filtros de província e município para encontrar imóveis específicos
                         </p>
                       </div>
                     </div>
