@@ -380,6 +380,43 @@ export default function VisitasAgendadas() {
                                   {format(getDisplayDateTime(visit), "dd/MM/yy 'às' HH:mm", { locale: ptBR })}
                                 </span>
                               </div>
+
+                              {visit.status === 'pendente_proprietario' && isOwner(visit) && visit.cliente && (
+                                <div className="bg-primary/5 p-2 rounded-md space-y-2">
+                                  <p className="text-xs font-medium">Solicitante:</p>
+                                  <div className="space-y-1">
+                                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                      <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                      <span className="font-medium">Nome:</span>
+                                      <span className="text-muted-foreground" data-testid={`text-client-name-pending-${visit.id}`}>
+                                        {visit.cliente.fullName}
+                                      </span>
+                                    </div>
+                                    {visit.cliente.phone && (
+                                      <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                        <Phone className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                        <span className="text-muted-foreground" data-testid={`text-client-phone-pending-${visit.id}`}>
+                                          {visit.cliente.phone}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {visit.cliente.phone && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="w-full"
+                                      asChild
+                                      data-testid={`button-call-client-pending-${visit.id}`}
+                                    >
+                                      <a href={`tel:${visit.cliente.phone}`}>
+                                        <Phone className="h-3.5 w-3.5 mr-2" />
+                                        Ligar para o Solicitante
+                                      </a>
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
                             </div>
 
                             <div className="mt-3 pt-3 border-t space-y-2">
