@@ -329,7 +329,7 @@ export default function ContractSign() {
                 </div>
                 
                 {/* Page footer */}
-                <div className="absolute bottom-[20mm] left-[20mm] right-[20mm] pt-4 border-t border-gray-300" style={{ zIndex: 1 }}>
+                <div className="absolute bottom-[20mm] left-[20mm] right-[20mm] pt-4 border-t border-gray-300 bg-white" style={{ zIndex: 10 }}>
                   <div className="flex justify-between items-center text-xs text-gray-500">
                     <div>
                       <p className="font-semibold">ID: {contract.id.substring(0, 8).toUpperCase()}</p>
