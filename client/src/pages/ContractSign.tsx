@@ -672,7 +672,7 @@ export default function ContractSign() {
                 </div>
 
                 {/* Decorative header border */}
-                <div className="border-t-4 border-b-2 border-primary/30 py-2 md:py-3 mb-4 md:mb-6 mt-[88px] md:mt-0">
+                <div className="border-t-4 border-b-2 border-primary/30 py-2 md:py-3 mb-4 md:mb-6 mt-[80px] md:mt-0">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-xs text-gray-600 gap-1">
                     <span className="font-semibold">DOCUMENTO OFICIAL</span>
                     <span className="text-[10px] md:text-xs">Conforme Lei n.º 26/15 de 23 de Outubro</span>
