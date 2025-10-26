@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, PenTool } from "lucide-react";
+import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, PenTool, Camera, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { useState, useMemo, useRef } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -30,6 +30,9 @@ export default function ContractSign() {
   const [signDialogOpen, setSignDialogOpen] = useState(false);
   const signatureRef = useRef<SignatureCanvas>(null);
   const [hasSignature, setHasSignature] = useState(false);
+  const [signatureMethod, setSignatureMethod] = useState<'draw' | 'upload'>('draw');
+  const [uploadedSignature, setUploadedSignature] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get current user
   const { data: currentUser, isLoading: isLoadingUser } = useQuery<User>({
@@ -164,6 +167,9 @@ export default function ContractSign() {
     if (currentUser?.bi) {
       setBiNumber(currentUser.bi);
     }
+    setHasSignature(false);
+    setUploadedSignature(null);
+    signatureRef.current?.clear();
     setSignDialogOpen(true);
   };
 
@@ -175,6 +181,36 @@ export default function ContractSign() {
   const handleSignatureEnd = () => {
     if (signatureRef.current && !signatureRef.current.isEmpty()) {
       setHasSignature(true);
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          variant: "destructive",
+          title: "Arquivo inválido",
+          description: "Por favor, selecione uma imagem.",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setUploadedSignature(result);
+        setHasSignature(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveUploadedSignature = () => {
+    setUploadedSignature(null);
+    setHasSignature(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -557,37 +593,142 @@ export default function ContractSign() {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="flex items-center gap-2">
-                  <PenTool className="h-4 w-4" />
-                  Desenhe sua Assinatura
-                </Label>
+              <Label className="mb-3">Assinatura</Label>
+              
+              {/* Method Selection Tabs */}
+              <div className="flex gap-2 mb-3">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant={signatureMethod === 'draw' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={handleClearSignature}
-                  data-testid="button-clear-signature"
+                  onClick={() => {
+                    setSignatureMethod('draw');
+                    setHasSignature(false);
+                    setUploadedSignature(null);
+                  }}
+                  data-testid="button-method-draw"
+                  className="flex-1"
                 >
-                  <Eraser className="h-4 w-4 mr-2" />
-                  Limpar
+                  <PenTool className="h-4 w-4 mr-2" />
+                  Desenhar
+                </Button>
+                <Button
+                  type="button"
+                  variant={signatureMethod === 'upload' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => {
+                    setSignatureMethod('upload');
+                    setHasSignature(false);
+                    signatureRef.current?.clear();
+                  }}
+                  data-testid="button-method-upload"
+                  className="flex-1"
+                >
+                  <Camera className="h-4 w-4 mr-2" />
+                  Foto/Upload
                 </Button>
               </div>
-              <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg bg-background" data-testid="canvas-signature">
-                <SignatureCanvas
-                  ref={signatureRef}
-                  onEnd={handleSignatureEnd}
-                  canvasProps={{
-                    className: "w-full h-40 cursor-crosshair rounded-lg"
-                  }}
-                  backgroundColor="transparent"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {hasSignature 
-                  ? "Assinatura capturada. Você pode limpar e desenhar novamente se desejar."
-                  : "Use o mouse ou toque na tela para desenhar sua assinatura."}
-              </p>
+
+              {/* Draw Signature */}
+              {signatureMethod === 'draw' && (
+                <>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-sm text-muted-foreground">
+                      Desenhe sua assinatura abaixo
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClearSignature}
+                      data-testid="button-clear-signature"
+                    >
+                      <Eraser className="h-4 w-4 mr-2" />
+                      Limpar
+                    </Button>
+                  </div>
+                  <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg bg-background" data-testid="canvas-signature">
+                    <SignatureCanvas
+                      ref={signatureRef}
+                      onEnd={handleSignatureEnd}
+                      canvasProps={{
+                        className: "w-full h-40 cursor-crosshair rounded-lg"
+                      }}
+                      backgroundColor="transparent"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {hasSignature 
+                      ? "Assinatura capturada. Você pode limpar e desenhar novamente se desejar."
+                      : "Use o mouse ou toque na tela para desenhar sua assinatura."}
+                  </p>
+                </>
+              )}
+
+              {/* Upload Signature */}
+              {signatureMethod === 'upload' && (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    data-testid="input-file-signature"
+                  />
+                  
+                  {uploadedSignature ? (
+                    <div className="space-y-2">
+                      <div className="border-2 border-muted-foreground/30 rounded-lg bg-background p-4">
+                        <img 
+                          src={uploadedSignature} 
+                          alt="Assinatura carregada" 
+                          className="max-h-40 mx-auto object-contain"
+                          data-testid="img-uploaded-signature"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRemoveUploadedSignature}
+                        className="w-full"
+                        data-testid="button-remove-signature"
+                      >
+                        <Eraser className="h-4 w-4 mr-2" />
+                        Remover e escolher outra
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        Assinatura carregada com sucesso.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full h-40 border-2 border-dashed border-muted-foreground/30"
+                        data-testid="button-upload-signature"
+                      >
+                        <div className="flex flex-col items-center gap-2">
+                          <Upload className="h-8 w-8 text-muted-foreground" />
+                          <div className="text-center">
+                            <p className="font-medium">Carregar foto da assinatura</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Tire uma foto ou selecione uma imagem
+                            </p>
+                          </div>
+                        </div>
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        Você pode tirar uma foto da sua assinatura em papel ou fazer upload de uma imagem.
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
