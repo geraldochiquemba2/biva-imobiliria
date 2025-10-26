@@ -413,31 +413,31 @@ function ContractCard({
             </div>
           )}
           
-          {contract.status !== 'ativo' && (
-            <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button
+              onClick={() => setLocation(`/contratos/${contract.id}/assinar`)}
+              className="flex-1 w-full sm:w-auto"
+              data-testid={`button-view-contract-${contract.id}`}
+            >
+              {contract.status === 'pendente_assinaturas' 
+                ? 'Assinar Contrato' 
+                : contract.status === 'ativo'
+                ? 'Ver Contrato'
+                : 'Ver Contrato'}
+            </Button>
+            
+            {canCancelContract && (
               <Button
-                onClick={() => setLocation(`/contratos/${contract.id}/assinar`)}
-                className="flex-1 w-full sm:w-auto"
-                data-testid={`button-sign-contract-${contract.id}`}
+                variant="outline"
+                onClick={() => setShowCancelDialog(true)}
+                data-testid={`button-cancel-contract-${contract.id}`}
+                className="w-full sm:w-auto"
               >
-                {contract.status === 'pendente_assinaturas' 
-                  ? 'Assinar Contrato' 
-                  : 'Ver Contrato'}
+                <X className="h-4 w-4 mr-2" />
+                Cancelar
               </Button>
-              
-              {canCancelContract && (
-                <Button
-                  variant="outline"
-                  onClick={() => setShowCancelDialog(true)}
-                  data-testid={`button-cancel-contract-${contract.id}`}
-                  className="w-full sm:w-auto"
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancelar
-                </Button>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
 

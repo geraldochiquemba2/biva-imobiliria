@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, Camera, Upload, Crop } from "lucide-react";
+import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, Camera, Upload, Crop, Download } from "lucide-react";
 import { format } from "date-fns";
 import { useState, useMemo, useRef, useCallback } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -57,12 +57,12 @@ export default function ContractSign() {
         credentials: 'include',
         body: JSON.stringify({ bi: data.bi, signatureImage: data.signatureImage }),
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Erro ao assinar contrato');
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -131,15 +131,15 @@ export default function ContractSign() {
   // Split contract content into pages (respecting page breaks \f)
   const contractPages = useMemo(() => {
     if (!contract?.contractContent) return [];
-    
+
     // First split by form feed character for explicit page breaks
     const pageBreaks = contract.contractContent.split('\f');
     const pages: string[][] = [];
-    
+
     pageBreaks.forEach((pageContent) => {
       const lines = pageContent.split('\n');
       const linesPerPage = 32;
-      
+
       // If page content is small enough, keep it on one page
       if (lines.length <= linesPerPage) {
         pages.push(lines);
@@ -150,7 +150,7 @@ export default function ContractSign() {
         }
       }
     });
-    
+
     return pages;
   }, [contract?.contractContent]);
 
@@ -335,11 +335,11 @@ export default function ContractSign() {
 
       const croppedImage = await createCroppedImage();
       const processedImage = await processSignatureImage(croppedImage);
-      
+
       setUploadedSignature(processedImage);
       setIsCropping(false);
       setImageToCrop(null);
-      
+
       toast({
         title: "Assinatura processada!",
         description: "Imagem recortada e fundo removido com sucesso.",
@@ -373,33 +373,33 @@ export default function ContractSign() {
 
   const canSign = () => {
     if (!contract || !currentUser) return false;
-    
+
     // Proprietario can sign if they haven't signed yet
     if (currentUser.id === contract.proprietarioId && !contract.proprietarioSignedAt) {
       return true;
     }
-    
+
     // Cliente can sign if they haven't signed yet
     if (currentUser.id === contract.clienteId && !contract.clienteSignedAt) {
       return true;
     }
-    
+
     return false;
   };
 
   const canConfirm = () => {
     if (!contract || !currentUser) return false;
-    
+
     // Proprietario can confirm if they signed but haven't confirmed yet
     if (currentUser.id === contract.proprietarioId && contract.proprietarioSignedAt && !contract.proprietarioConfirmedAt) {
       return true;
     }
-    
+
     // Cliente can confirm if they signed but haven't confirmed yet
     if (currentUser.id === contract.clienteId && contract.clienteSignedAt && !contract.clienteConfirmedAt) {
       return true;
     }
-    
+
     return false;
   };
 
@@ -417,12 +417,12 @@ export default function ContractSign() {
 
   const canCancel = () => {
     if (!contract || !currentUser) return false;
-    
+
     // Can only cancel if not active yet
     if (contract.status === 'ativo' || contract.status === 'cancelado' || contract.status === 'encerrado') {
       return false;
     }
-    
+
     // User must be part of the contract
     return contract.proprietarioId === currentUser.id || contract.clienteId === currentUser.id;
   };
@@ -442,6 +442,41 @@ export default function ContractSign() {
     }
 
     return { status: 'partial', message: 'Assinado parcialmente', variant: 'secondary' as const };
+  };
+
+  const handleExtractPdf = async () => {
+    if (!id) return;
+    try {
+      toast({ title: "A extrair PDF...", description: "Por favor, aguarde." });
+      const response = await fetch(`/api/contracts/${id}/pdf`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro ao extrair PDF: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `contrato_${contract?.id || 'desconhecido'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast({ title: "PDF extraído com sucesso!", description: "O download do contrato foi iniciado." });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao extrair PDF",
+        description: error.message || "Não foi possível gerar o PDF. Tente novamente mais tarde.",
+      });
+    }
   };
 
   if (isLoadingUser || isLoadingContract) {
@@ -613,13 +648,23 @@ export default function ContractSign() {
 
       {/* Contract Content - A4 Page Format */}
       <div className="mb-6" style={{ backgroundColor: '#f3f4f6' }}>
-        <div className="p-4 md:p-6 border-b bg-white">
-          <h3 className="font-semibold text-gray-900">Conteúdo do Contrato</h3>
-          <p className="text-sm text-gray-600 mt-1">
-            {contractPages.length} {contractPages.length === 1 ? 'página' : 'páginas'}
-          </p>
+        <div className="p-4 md:p-6 border-b bg-white flex justify-between items-center">
+          <div>
+            <h3 className="font-semibold text-gray-900">Conteúdo do Contrato</h3>
+            <p className="text-sm text-gray-600 mt-1">
+              {contractPages.length} {contractPages.length === 1 ? 'página' : 'páginas'}
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={handleExtractPdf}
+            data-testid="button-extract-pdf"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Extrair PDF
+          </Button>
         </div>
-        
+
         {/* Document viewer with A4 pages */}
         <div className="p-2 md:p-8" style={{ backgroundColor: '#f3f4f6' }}>
           <div className="w-full max-w-full md:max-w-[210mm] mx-auto space-y-6">
@@ -653,7 +698,7 @@ export default function ContractSign() {
                     <span className="text-[10px] md:text-xs">Conforme Lei n.º 26/15 de 23 de Outubro</span>
                   </div>
                 </div>
-                
+
                 {/* Watermark background */}
                 <div className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none opacity-30" style={{ zIndex: 0 }}>
                   <img 
@@ -662,7 +707,7 @@ export default function ContractSign() {
                     className="w-64 h-64 md:w-96 md:h-96 object-contain"
                   />
                 </div>
-                
+
                 {/* Contract content */}
                 <div className="relative" style={{ 
                   zIndex: 1,
@@ -687,11 +732,11 @@ export default function ContractSign() {
                       const isClausulasSection = line.trim() === 'CLÁUSULAS CONTRATUAIS';
                       const isEmpty = line.trim() === '';
                       const isSignatureLine = line.trim().startsWith('_____');
-                      
+
                       // Determine if this is proprietario or cliente signature line
                       let showProprietarioSignature = false;
                       let showClienteSignature = false;
-                      
+
                       if (isSignatureLine) {
                         // Look at next lines to determine context (signature line comes before name)
                         const nextLines = pageLines.slice(idx + 1, Math.min(pageLines.length, idx + 4)).join(' ');
@@ -701,7 +746,7 @@ export default function ContractSign() {
                           showClienteSignature = true;
                         }
                       }
-                      
+
                       return (
                         <div 
                           key={idx}
@@ -783,7 +828,7 @@ export default function ContractSign() {
                     })}
                   </div>
                 </div>
-                
+
                 {/* Page footer */}
                 <div className="absolute bottom-4 left-4 right-4 md:bottom-[20mm] md:left-[20mm] md:right-[20mm] pt-3 md:pt-4 border-t border-gray-300 bg-white" style={{ zIndex: 10 }}>
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-[10px] md:text-xs text-gray-500 gap-2 md:gap-0">
@@ -833,7 +878,7 @@ export default function ContractSign() {
 
             <div>
               <Label className="mb-3">Assinatura</Label>
-              
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -843,7 +888,7 @@ export default function ContractSign() {
                 className="hidden"
                 data-testid="input-file-signature"
               />
-              
+
               {isCropping && imageToCrop ? (
                     <div className="space-y-3">
                       <div className="relative h-80 border-2 border-muted-foreground/30 rounded-lg bg-background overflow-hidden">

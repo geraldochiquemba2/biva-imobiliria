@@ -265,156 +265,221 @@
  * need to be distinguished from eachother visually.
  */
 @layer utilities {
-
-  /* Hide ugly search cancel button in Chrome until we can style it properly */
-  input[type="search"]::-webkit-search-cancel-button {
-    @apply hidden;
+  .hover-elevate {
+    @apply transition-all duration-300 ease-out;
   }
 
-  /* Fix date input calendar icon color in dark mode */
-  .dark input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
+  .hover-elevate:hover {
+    @apply -translate-y-1 shadow-lg;
   }
 
-  /* Placeholder styling for contentEditable div */
-  [contenteditable][data-placeholder]:empty::before {
-    content: attr(data-placeholder);
-    color: hsl(var(--muted-foreground));
-    pointer-events: none;
+  .active-elevate {
+    @apply transition-all duration-150 ease-in;
   }
 
-  /* .no-default-hover-elevate/no-default-active-elevate is an escape hatch so consumers of
-   * buttons/badges can remove the automatic brightness adjustment on interactions
-   * and program their own. */
-  .no-default-hover-elevate {}
+  .active-elevate:active {
+    @apply translate-y-0.5 shadow-sm;
+  }
 
-  .no-default-active-elevate {}
+  .active-elevate-2 {
+    @apply transition-all duration-100 ease-in;
+  }
 
+  .active-elevate-2:active {
+    @apply scale-95;
+  }
+}
 
-  /**
-   * Toggleable backgrounds go behind the content. Hoverable/active goes on top.
-   * This way they can stack/compound. Both will overlap the parent's borders!
-   * So borders will be automatically adjusted both on toggle, and hover/active,
-   * and they will be compounded.
-   */
-  .toggle-elevate::before,
-  .toggle-elevate-2::before {
-    content: "";
-    pointer-events: none;
+/* Print styles for PDF extraction */
+@media print {
+  /* Hide everything except contract content */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the contract pages */
+  .shadow-2xl, .shadow-2xl * {
+    visibility: visible;
+  }
+
+  .shadow-2xl {
     position: absolute;
-    inset: 0px;
-    border-radius: inherit;
-    z-index: -1;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    min-height: 297mm;
+    page-break-after: always;
+    box-shadow: none !important;
+    margin: 0;
+    padding: 20mm;
   }
 
-  .toggle-elevate.toggle-elevated::before {
-    background-color: var(--elevate-2);
+  /* Hide buttons and UI elements */
+  button, .badge, nav, header, footer:not(.shadow-2xl footer) {
+    display: none !important;
   }
 
-  /* If there's a 1px border, adjust the inset so that it covers that parent's border */
-  .border.toggle-elevate::before {
-    inset: -1px;
+  /* Ensure proper page breaks */
+  @page {
+    size: A4;
+    margin: 0;
   }
 
-  /* Does not work on elements with overflow:hidden! */
-  .hover-elevate:not(.no-default-hover-elevate),
-  .active-elevate:not(.no-default-active-elevate),
-  .hover-elevate-2:not(.no-default-hover-elevate),
-  .active-elevate-2:not(.no-default-active-elevate) {
-    position: relative;
-    z-index: 0;
+  /* Reset backgrounds for print */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
+}
 
-  .hover-elevate:not(.no-default-hover-elevate)::after,
-  .active-elevate:not(.no-default-active-elevate)::after,
-  .hover-elevate-2:not(.no-default-hover-elevate)::after,
-  .active-elevate-2:not(.no-default-active-elevate)::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: 0px;
-    border-radius: inherit;
-    z-index: 999;
-  }
+/* Hide ugly search cancel button in Chrome until we can style it properly */
+input[type="search"]::-webkit-search-cancel-button {
+  @apply hidden;
+}
 
-  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
-  .active-elevate:active:not(.no-default-active-elevate)::after {
-    background-color: var(--elevate-1);
-  }
+/* Fix date input calendar icon color in dark mode */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
 
-  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
-  .active-elevate-2:active:not(.no-default-active-elevate)::after {
-    background-color: var(--elevate-2);
-  }
+/* Placeholder styling for contentEditable div */
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+}
 
-  /* If there's a 1px border, adjust the inset so that it covers that parent's border */
-  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
-  .border.active-elevate:not(.no-active-interaction-elevate)::after,
-  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
-  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
-  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
-    inset: -1px;
-  }
+/* .no-default-hover-elevate/no-default-active-elevate is an escape hatch so consumers of
+ * buttons/badges can remove the automatic brightness adjustment on interactions
+ * and program their own. */
+.no-default-hover-elevate {}
 
-  /* Serif font for headings */
-  h1, h2, h3, h4, h5, h6, .font-serif {
-    font-family: var(--font-serif);
-  }
+.no-default-active-elevate {}
 
-  /* Leaflet map styles */
-  .leaflet-container {
-    height: 100% !important;
-    width: 100% !important;
-    position: relative !important;
-    z-index: 1;
-    background: #f0f0f0;
-  }
 
-  .leaflet-pane {
-    z-index: 400;
-  }
+/**
+ * Toggleable backgrounds go behind the content. Hoverable/active goes on top.
+ * This way they can stack/compound. Both will overlap the parent's borders!
+ * So borders will be automatically adjusted both on toggle, and hover/active,
+ * and they will be compounded.
+ */
+.toggle-elevate::before,
+.toggle-elevate-2::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0px;
+  border-radius: inherit;
+  z-index: -1;
+}
 
-  .leaflet-tile-pane {
-    z-index: 200;
-  }
+.toggle-elevate.toggle-elevated::before {
+  background-color: var(--elevate-2);
+}
 
-  .leaflet-overlay-pane {
-    z-index: 400;
-  }
+/* If there's a 1px border, adjust the inset so that it covers that parent's border */
+.border.toggle-elevate::before {
+  inset: -1px;
+}
 
-  .leaflet-shadow-pane {
-    z-index: 500;
-  }
+/* Does not work on elements with overflow:hidden! */
+.hover-elevate:not(.no-default-hover-elevate),
+.active-elevate:not(.no-default-active-elevate),
+.hover-elevate-2:not(.no-default-hover-elevate),
+.active-elevate-2:not(.no-default-active-elevate) {
+  position: relative;
+  z-index: 0;
+}
 
-  .leaflet-marker-pane {
-    z-index: 600;
-  }
+.hover-elevate:not(.no-default-hover-elevate)::after,
+.active-elevate:not(.no-default-active-elevate)::after,
+.hover-elevate-2:not(.no-default-hover-elevate)::after,
+.active-elevate-2:not(.no-default-active-elevate)::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0px;
+  border-radius: inherit;
+  z-index: 999;
+}
 
-  .leaflet-tooltip-pane {
-    z-index: 650;
-  }
+.hover-elevate:hover:not(.no-default-hover-elevate)::after,
+.active-elevate:active:not(.no-default-active-elevate)::after {
+  background-color: var(--elevate-1);
+}
 
-  .leaflet-popup-pane {
-    z-index: 700;
-  }
+.hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+.active-elevate-2:active:not(.no-default-active-elevate)::after {
+  background-color: var(--elevate-2);
+}
 
-  .leaflet-map-pane canvas {
-    z-index: 100;
-  }
+/* If there's a 1px border, adjust the inset so that it covers that parent's border */
+.border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+.border.active-elevate:not(.no-active-interaction-elevate)::after,
+.border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+.border.active-elevate-2:not(.no-active-interaction-elevate)::after,
+.border.hover-elevate:not(.no-hover-interaction-elevate)::after {
+  inset: -1px;
+}
 
-  .leaflet-map-pane svg {
-    z-index: 200;
-  }
+/* Serif font for headings */
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: var(--font-serif);
+}
 
-  .leaflet-tile {
-    filter: brightness(0.95);
-  }
+/* Leaflet map styles */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  position: relative !important;
+  z-index: 1;
+  background: #f0f0f0;
+}
 
-  .leaflet-tile-container {
-    z-index: 1;
-  }
+.leaflet-pane {
+  z-index: 400;
+}
 
-  .leaflet-control-container {
-    z-index: 800;
-  }
+.leaflet-tile-pane {
+  z-index: 200;
+}
+
+.leaflet-overlay-pane {
+  z-index: 400;
+}
+
+.leaflet-shadow-pane {
+  z-index: 500;
+}
+
+.leaflet-marker-pane {
+  z-index: 600;
+}
+
+.leaflet-tooltip-pane {
+  z-index: 650;
+}
+
+.leaflet-popup-pane {
+  z-index: 700;
+}
+
+.leaflet-map-pane canvas {
+  z-index: 100;
+}
+
+.leaflet-map-pane svg {
+  z-index: 200;
+}
+
+.leaflet-tile {
+  filter: brightness(0.95);
+}
+
+.leaflet-tile-container {
+  z-index: 1;
+}
+
+.leaflet-control-container {
+  z-index: 800;
 }
