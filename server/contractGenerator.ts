@@ -58,6 +58,12 @@ Comodidades: ${property.amenities && property.amenities.length > 0 ? property.am
 Descrição: ${property.description || 'Não fornecida'}
 
 
+
+
+
+
+
+
 CLÁUSULAS CONTRATUAIS
 
 Cláusula 01ª (Objeto do Contrato)
