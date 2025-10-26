@@ -325,7 +325,7 @@ export default function ContractSign() {
                   paddingBottom: '10px'
                 }}>
                   <div 
-                    className="whitespace-pre-wrap font-serif text-sm m-0 bg-transparent text-black dark:text-black p-0" 
+                    className="font-serif text-sm m-0 bg-transparent text-black dark:text-black p-0" 
                     data-testid={pageIndex === 0 ? "text-contract-content" : undefined}
                     style={{ 
                       fontFamily: 'Georgia, serif', 
@@ -335,11 +335,26 @@ export default function ContractSign() {
                       wordWrap: 'break-word',
                       overflowWrap: 'break-word',
                       orphans: 3,
-                      widows: 3,
-                      textAlign: 'justify'
+                      widows: 3
                     }}
                   >
-                    {pageLines.join('\n')}
+                    {pageLines.map((line, idx) => {
+                      const isClausulaTitle = line.trim().startsWith('Cláusula');
+                      const isEmpty = line.trim() === '';
+                      
+                      return (
+                        <div 
+                          key={idx}
+                          style={{
+                            textAlign: isClausulaTitle ? 'center' : 'justify',
+                            fontWeight: isClausulaTitle ? 'bold' : 'normal',
+                            marginBottom: isEmpty ? '0' : undefined
+                          }}
+                        >
+                          {line || '\u00A0'}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 
