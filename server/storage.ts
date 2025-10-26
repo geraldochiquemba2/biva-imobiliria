@@ -141,8 +141,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async listProperties(params?: SearchPropertyParams): Promise<Property[]> {
-    let query = db.select().from(properties);
-    
     const conditions = [];
     
     if (params) {
@@ -202,12 +200,40 @@ export class DatabaseStorage implements IStorage {
       }
     }
 
+    // Select only necessary fields, exclude images array to reduce bandwidth
+    let query = db.select({
+      id: properties.id,
+      title: properties.title,
+      description: properties.description,
+      type: properties.type,
+      category: properties.category,
+      price: properties.price,
+      bairro: properties.bairro,
+      municipio: properties.municipio,
+      provincia: properties.provincia,
+      bedrooms: properties.bedrooms,
+      bathrooms: properties.bathrooms,
+      livingRooms: properties.livingRooms,
+      kitchens: properties.kitchens,
+      area: properties.area,
+      latitude: properties.latitude,
+      longitude: properties.longitude,
+      amenities: properties.amenities,
+      featured: properties.featured,
+      status: properties.status,
+      ownerId: properties.ownerId,
+      createdAt: properties.createdAt,
+      updatedAt: properties.updatedAt,
+      // Get only first image as thumbnail
+      thumbnail: sql<string | null>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ${properties.images}[1] ELSE NULL END`,
+    }).from(properties);
+
     if (conditions.length > 0) {
       query = query.where(and(...conditions)) as any;
     }
 
     const results = await query.orderBy(desc(properties.createdAt));
-    return results;
+    return results as any;
   }
 
   async createProperty(insertProperty: InsertProperty): Promise<Property> {
@@ -236,12 +262,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserProperties(userId: string): Promise<Property[]> {
+    // Select only necessary fields, exclude images array to reduce bandwidth
     const results = await db
-      .select()
+      .select({
+        id: properties.id,
+        title: properties.title,
+        description: properties.description,
+        type: properties.type,
+        category: properties.category,
+        price: properties.price,
+        bairro: properties.bairro,
+        municipio: properties.municipio,
+        provincia: properties.provincia,
+        bedrooms: properties.bedrooms,
+        bathrooms: properties.bathrooms,
+        livingRooms: properties.livingRooms,
+        kitchens: properties.kitchens,
+        area: properties.area,
+        latitude: properties.latitude,
+        longitude: properties.longitude,
+        amenities: properties.amenities,
+        featured: properties.featured,
+        status: properties.status,
+        ownerId: properties.ownerId,
+        createdAt: properties.createdAt,
+        updatedAt: properties.updatedAt,
+        // Get only first image as thumbnail
+        thumbnail: sql<string | null>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ${properties.images}[1] ELSE NULL END`,
+      })
       .from(properties)
       .where(eq(properties.ownerId, userId))
       .orderBy(desc(properties.createdAt));
-    return results;
+    return results as any;
   }
 
   // Contract methods
@@ -259,7 +311,7 @@ export class DatabaseStorage implements IStorage {
             title: true,
             bairro: true,
             municipio: true,
-            images: true,
+            // Removed images to reduce bandwidth
           },
         },
         proprietario: {
@@ -322,7 +374,7 @@ export class DatabaseStorage implements IStorage {
           title: properties.title,
           bairro: properties.bairro,
           municipio: properties.municipio,
-          images: properties.images,
+          // Removed images to reduce bandwidth
         },
         proprietario: {
           fullName: proprietario.fullName,
@@ -368,9 +420,29 @@ export class DatabaseStorage implements IStorage {
     const results = await db
       .select({
         visit: visits,
-        property: properties,
-        cliente: cliente,
-        owner: owner,
+        // Select only essential property fields, exclude images to reduce bandwidth
+        property: {
+          id: properties.id,
+          title: properties.title,
+          bairro: properties.bairro,
+          municipio: properties.municipio,
+          provincia: properties.provincia,
+          type: properties.type,
+          category: properties.category,
+          price: properties.price,
+          ownerId: properties.ownerId,
+        },
+        cliente: {
+          id: cliente.id,
+          fullName: cliente.fullName,
+          phone: cliente.phone,
+        },
+        owner: {
+          id: owner.id,
+          fullName: owner.fullName,
+          email: owner.email,
+          phone: owner.phone,
+        },
       })
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
@@ -382,16 +454,9 @@ export class DatabaseStorage implements IStorage {
       ...r.visit,
       property: {
         ...r.property,
-        owner: r.owner ? {
-          fullName: r.owner.fullName,
-          email: r.owner.email,
-          phone: r.owner.phone,
-        } : undefined,
+        owner: r.owner.id ? r.owner : undefined,
       },
-      cliente: r.cliente ? {
-        fullName: r.cliente.fullName,
-        phone: r.cliente.phone,
-      } : undefined,
+      cliente: r.cliente.id ? r.cliente : undefined,
     })) as any;
   }
 
@@ -426,8 +491,24 @@ export class DatabaseStorage implements IStorage {
     const results = await db
       .select({
         visit: visits,
-        property: properties,
-        owner: owner,
+        // Select only essential property fields, exclude images to reduce bandwidth
+        property: {
+          id: properties.id,
+          title: properties.title,
+          bairro: properties.bairro,
+          municipio: properties.municipio,
+          provincia: properties.provincia,
+          type: properties.type,
+          category: properties.category,
+          price: properties.price,
+          ownerId: properties.ownerId,
+        },
+        owner: {
+          id: owner.id,
+          fullName: owner.fullName,
+          email: owner.email,
+          phone: owner.phone,
+        },
       })
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
@@ -439,11 +520,7 @@ export class DatabaseStorage implements IStorage {
       ...r.visit,
       property: {
         ...r.property,
-        owner: r.owner ? {
-          fullName: r.owner.fullName,
-          email: r.owner.email,
-          phone: r.owner.phone,
-        } : undefined,
+        owner: r.owner.id ? r.owner : undefined,
       },
     })) as any;
   }
@@ -454,8 +531,23 @@ export class DatabaseStorage implements IStorage {
     const results = await db
       .select({
         visit: visits,
-        property: properties,
-        cliente: cliente,
+        // Select only essential property fields, exclude images to reduce bandwidth
+        property: {
+          id: properties.id,
+          title: properties.title,
+          bairro: properties.bairro,
+          municipio: properties.municipio,
+          provincia: properties.provincia,
+          type: properties.type,
+          category: properties.category,
+          price: properties.price,
+          ownerId: properties.ownerId,
+        },
+        cliente: {
+          id: cliente.id,
+          fullName: cliente.fullName,
+          phone: cliente.phone,
+        },
       })
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
@@ -466,7 +558,7 @@ export class DatabaseStorage implements IStorage {
     return results.map((r) => ({
       ...r.visit,
       property: r.property,
-      cliente: r.cliente || undefined,
+      cliente: r.cliente.id ? r.cliente : undefined,
     })) as any;
   }
 
@@ -474,8 +566,23 @@ export class DatabaseStorage implements IStorage {
     const results = await db
       .select({
         visit: visits,
-        property: properties,
-        cliente: users,
+        // Select only essential property fields, exclude images to reduce bandwidth
+        property: {
+          id: properties.id,
+          title: properties.title,
+          bairro: properties.bairro,
+          municipio: properties.municipio,
+          provincia: properties.provincia,
+          type: properties.type,
+          category: properties.category,
+          price: properties.price,
+          ownerId: properties.ownerId,
+        },
+        cliente: {
+          id: users.id,
+          fullName: users.fullName,
+          phone: users.phone,
+        },
       })
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
@@ -486,7 +593,7 @@ export class DatabaseStorage implements IStorage {
     return results.map((r) => ({
       ...r.visit,
       property: r.property,
-      cliente: r.cliente || undefined,
+      cliente: r.cliente.id ? r.cliente : undefined,
     })) as any;
   }
 
