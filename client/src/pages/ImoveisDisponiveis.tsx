@@ -282,7 +282,9 @@ export default function ImoveisDisponiveis() {
                         </div>
                         <div className="flex gap-2">
                           <Badge className="bg-green-600" data-testid={`badge-status-${property.id}`}>Disponível</Badge>
-                          <Badge data-testid={`badge-type-${property.id}`}>{property.type}</Badge>
+                          <Badge data-testid={`badge-type-${property.id}`}>
+                            {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
+                          </Badge>
                           <Badge variant="outline" data-testid={`badge-category-${property.id}`}>
                             {property.category}
                           </Badge>

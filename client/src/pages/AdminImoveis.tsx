@@ -185,7 +185,7 @@ export default function AdminImoveis() {
                                 {property.category}
                               </Badge>
                               <Badge variant="outline" className="text-xs">
-                                {property.type}
+                                {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
                               </Badge>
                             </div>
                             {property.bedrooms > 0 && (

@@ -472,7 +472,7 @@ export default function ImovelDetalhes() {
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <Badge variant={property.type === 'Arrendar' ? 'default' : 'secondary'} data-testid="badge-type">
-                        {property.type === 'Vender' ? 'Disponível para compra' : property.type}
+                        {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
                       </Badge>
                       {property.featured && (
                         <Badge className="bg-yellow-500 text-yellow-950 border-yellow-600">

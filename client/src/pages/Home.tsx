@@ -124,7 +124,7 @@ export default function Home() {
       
       <IntroSection />
       
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar />
 
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto">

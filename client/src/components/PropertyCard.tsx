@@ -37,7 +37,7 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
           )}
           <div className="absolute top-1.5 left-1.5">
             <Badge variant={property.type === 'Arrendar' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0.5">
-              {property.type}
+              {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
             </Badge>
           </div>
           {property.featured && (

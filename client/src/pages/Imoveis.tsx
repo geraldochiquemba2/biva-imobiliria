@@ -367,7 +367,7 @@ export default function Imoveis() {
                         )}
                       <div className="absolute top-4 left-4 flex gap-2">
                         <Badge className="bg-primary text-primary-foreground" data-testid={`badge-type-${property.id}`}>
-                          {property.type === 'Vender' ? 'Disponível para compra' : property.type}
+                          {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
                         </Badge>
                         {property.featured && (
                           <Badge variant="secondary" data-testid={`badge-featured-${property.id}`}>
