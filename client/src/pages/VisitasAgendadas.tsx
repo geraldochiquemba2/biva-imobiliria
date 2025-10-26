@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle, Check, X, Eye } from "lucide-react";
+import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle, Check, X, Eye, Mail, Phone } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
@@ -37,6 +37,11 @@ interface Visit {
     provincia: string;
     images?: string[];
     ownerId: string;
+    owner?: {
+      fullName: string;
+      email: string;
+      phone: string;
+    };
   };
   cliente?: {
     fullName: string;
@@ -252,10 +257,10 @@ export default function VisitasAgendadas() {
                         transition={{ duration: 0.4 }}
                       >
                         <Card className="hover-elevate">
-                          <CardHeader>
-                            <div className="flex gap-4">
+                          <CardHeader className="p-4">
+                            <div className="flex gap-3">
                               {visit.property?.images && visit.property.images.length > 0 && (
-                                <div className="w-24 h-24 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                                <div className="w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
                                   <img
                                     src={visit.property.images[0]}
                                     alt={visit.property.title}
@@ -291,35 +296,35 @@ export default function VisitasAgendadas() {
                               </div>
                             </div>
                           </CardHeader>
-                          <CardContent>
-                            <div className="space-y-3">
+                          <CardContent className="p-4 pt-0">
+                            <div className="space-y-2">
                               {visit.status === 'pendente_cliente' && visit.ownerProposedDateTime && (
-                                <div className="bg-muted/50 p-3 rounded-md space-y-2">
-                                  <p className="text-sm font-medium">O proprietário propôs uma nova data:</p>
-                                  <div className="flex items-center gap-2 text-sm">
-                                    <Calendar className="h-4 w-4 text-primary" />
+                                <div className="bg-muted/50 p-2 rounded-md space-y-1.5">
+                                  <p className="text-xs font-medium">O proprietário propôs uma nova data:</p>
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <Calendar className="h-3.5 w-3.5 text-primary" />
                                     <span className="font-medium text-primary">
                                       {format(new Date(visit.ownerProposedDateTime), "dd 'de' MMM 'às' HH:mm", { locale: ptBR })}
                                     </span>
                                   </div>
                                   {visit.ownerMessage && (
-                                    <p className="text-sm text-muted-foreground italic">"{visit.ownerMessage}"</p>
+                                    <p className="text-xs text-muted-foreground italic">"{visit.ownerMessage}"</p>
                                   )}
                                 </div>
                               )}
 
-                              <div className="flex flex-wrap items-center gap-2 text-sm">
-                                <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                              <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                <Calendar className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                                 <span className="font-medium">
                                   {visit.status === 'pendente_proprietario' ? 'Data solicitada:' : 'Data:'}
                                 </span>
                                 <span className="text-muted-foreground" data-testid={`text-date-${visit.id}`}>
-                                  {format(getDisplayDateTime(visit), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                                  {format(getDisplayDateTime(visit), "dd/MM/yy 'às' HH:mm", { locale: ptBR })}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="mt-4 pt-4 border-t space-y-2">
+                            <div className="mt-3 pt-3 border-t space-y-2">
                               {visit.status === 'pendente_cliente' ? (
                                 <div className="flex gap-2">
                                   <Button
@@ -384,10 +389,10 @@ export default function VisitasAgendadas() {
                   transition={{ duration: 0.4 }}
                 >
                   <Card className="hover-elevate">
-                    <CardHeader>
-                      <div className="flex gap-4">
+                    <CardHeader className="p-4">
+                      <div className="flex gap-3">
                         {visit.property?.images && visit.property.images.length > 0 && (
-                          <div className="w-24 h-24 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                          <div className="w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
                             <img
                               src={visit.property.images[0]}
                               alt={visit.property.title}
@@ -423,53 +428,75 @@ export default function VisitasAgendadas() {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
+                    <CardContent className="p-4 pt-0">
+                      <div className="space-y-2">
                         {visit.status === 'pendente_cliente' && visit.ownerProposedDateTime && (
-                          <div className="bg-muted/50 p-3 rounded-md space-y-2">
-                            <p className="text-sm font-medium">O proprietário propôs uma nova data:</p>
-                            <div className="flex items-center gap-2 text-sm">
-                              <Calendar className="h-4 w-4 text-primary" />
+                          <div className="bg-muted/50 p-2 rounded-md space-y-1.5">
+                            <p className="text-xs font-medium">O proprietário propôs uma nova data:</p>
+                            <div className="flex items-center gap-2 text-xs">
+                              <Calendar className="h-3.5 w-3.5 text-primary" />
                               <span className="font-medium text-primary">
                                 {format(new Date(visit.ownerProposedDateTime), "dd 'de' MMM 'às' HH:mm", { locale: ptBR })}
                               </span>
                             </div>
                             {visit.ownerMessage && (
-                              <p className="text-sm text-muted-foreground italic">"{visit.ownerMessage}"</p>
+                              <p className="text-xs text-muted-foreground italic">"{visit.ownerMessage}"</p>
                             )}
                           </div>
                         )}
 
-                        <div className="flex flex-wrap items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                          <Calendar className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                           <span className="font-medium">
                             {visit.status === 'agendada' ? 'Data confirmada:' : 
                              visit.status === 'pendente_proprietario' ? 'Data solicitada:' : 'Data:'}
                           </span>
                           <span className="text-muted-foreground" data-testid={`text-date-${visit.id}`}>
-                            {format(getDisplayDateTime(visit), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                            {format(getDisplayDateTime(visit), "dd/MM/yy 'às' HH:mm", { locale: ptBR })}
                           </span>
                         </div>
 
                         {!currentUser?.userTypes?.includes('cliente') && visit.cliente && (
-                          <div className="flex flex-wrap items-center gap-2 text-sm">
-                            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                            <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                             <span className="font-medium">Cliente:</span>
                             <span className="text-muted-foreground">
                               {visit.cliente.fullName}
                             </span>
                           </div>
                         )}
+
+                        {visit.status === 'agendada' && visit.property?.owner && (
+                          <div className="bg-primary/5 p-2 rounded-md space-y-1.5">
+                            <p className="text-xs font-medium">Contato do Proprietário:</p>
+                            <div className="space-y-1">
+                              {visit.property.owner.email && (
+                                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                  <Mail className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                  <span className="text-muted-foreground truncate" data-testid={`text-owner-email-${visit.id}`}>
+                                    {visit.property.owner.email}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                <Phone className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                <span className="text-muted-foreground" data-testid={`text-owner-phone-${visit.id}`}>
+                                  {visit.property.owner.phone}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {visit.observacoes && (
-                        <div className="mt-4 pt-4 border-t">
-                          <p className="text-sm font-medium mb-1">Observações:</p>
-                          <p className="text-sm text-muted-foreground">{visit.observacoes}</p>
+                        <div className="mt-3 pt-3 border-t">
+                          <p className="text-xs font-medium mb-1">Observações:</p>
+                          <p className="text-xs text-muted-foreground">{visit.observacoes}</p>
                         </div>
                       )}
 
-                      <div className="mt-4 pt-4 border-t space-y-2">
+                      <div className="mt-3 pt-3 border-t space-y-2">
                         {visit.status === 'pendente_cliente' ? (
                           <div className="flex gap-2">
                             <Button
