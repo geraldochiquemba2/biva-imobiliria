@@ -275,17 +275,18 @@ export default function ContractSign() {
         </div>
         
         {/* Document viewer with A4 pages */}
-        <div className="bg-gray-200 dark:bg-gray-900 p-8">
+        <div className="bg-gray-200 dark:bg-gray-700 p-8">
           <div className="max-w-[210mm] mx-auto space-y-6">
             {contractPages.map((pageLines, pageIndex) => (
               <div 
                 key={pageIndex}
-                className="bg-white dark:bg-slate-50 shadow-2xl relative" 
+                className="shadow-2xl relative" 
                 style={{ 
                   width: '210mm', 
                   height: '297mm', 
                   padding: '25mm 20mm',
-                  pageBreakAfter: 'always'
+                  pageBreakAfter: 'always',
+                  backgroundColor: '#ffffff'
                 }}
               >
                 {/* Decorative header border */}
@@ -306,11 +307,11 @@ export default function ContractSign() {
                   minHeight: 'calc(297mm - 50mm - 80px)',
                   zIndex: 1 
                 }}>
-                  <div className="prose prose-sm max-w-none text-gray-900">
+                  <div className="prose prose-sm max-w-none">
                     <pre 
                       className="whitespace-pre-wrap font-serif text-sm leading-relaxed m-0" 
                       data-testid={pageIndex === 0 ? "text-contract-content" : undefined}
-                      style={{ fontFamily: 'Georgia, serif' }}
+                      style={{ fontFamily: 'Georgia, serif', color: '#1a1a1a' }}
                     >
                       {pageLines.join('\n')}
                     </pre>
