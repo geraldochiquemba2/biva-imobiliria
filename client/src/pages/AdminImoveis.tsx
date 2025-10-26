@@ -155,15 +155,15 @@ export default function AdminImoveis() {
                     <Card key={property.id} className="overflow-hidden">
                       <CardHeader className="p-0">
                         <div className="relative h-48 overflow-hidden">
-                          {property.images && property.images.length > 0 ? (
+                          {(property as any).thumbnail ? (
                             <img
-                              src={property.images[0]}
+                              src={(property as any).thumbnail}
                               alt={property.title}
                               className="w-full h-full object-cover"
                             />
-                          ) : (property as any).thumbnail ? (
+                          ) : property.images && property.images.length > 0 ? (
                             <img
-                              src={(property as any).thumbnail}
+                              src={property.images[0]}
                               alt={property.title}
                               className="w-full h-full object-cover"
                             />

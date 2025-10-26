@@ -265,15 +265,15 @@ export default function ImoveisIndisponiveis() {
                 <Card key={property.id} className="hover-elevate overflow-hidden">
                   <div className="flex gap-4">
                     <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
-                      {property.images && property.images.length > 0 ? (
+                      {(property as any).thumbnail ? (
                         <img
-                          src={property.images[0]}
+                          src={(property as any).thumbnail}
                           alt={property.title}
                           className="w-full h-full object-cover"
                         />
-                      ) : (property as any).thumbnail ? (
+                      ) : property.images && property.images.length > 0 ? (
                         <img
-                          src={(property as any).thumbnail}
+                          src={property.images[0]}
                           alt={property.title}
                           className="w-full h-full object-cover"
                         />
