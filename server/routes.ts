@@ -938,11 +938,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Sign contract
   app.post("/api/contracts/:id/sign", requireAuth, async (req, res) => {
     try {
-      const { bi } = req.body;
+      const { bi, signatureImage } = req.body;
       const contractId = req.params.id;
       
       if (!bi) {
         return res.status(400).json({ error: "Número de BI/Passaporte é obrigatório" });
+      }
+      
+      if (!signatureImage) {
+        return res.status(400).json({ error: "Imagem da assinatura é obrigatória" });
       }
       
       // Get contract
@@ -973,10 +977,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (contract.proprietarioId === userId && !contract.proprietarioSignedAt) {
         updates.proprietarioSignedAt = new Date();
-        updates.proprietarioSignature = `Assinado digitalmente por ${user.fullName} (${bi}) em ${new Date().toISOString()}`;
+        updates.proprietarioSignature = signatureImage; // Store the base64 signature image
       } else if (contract.clienteId === userId && !contract.clienteSignedAt) {
         updates.clienteSignedAt = new Date();
-        updates.clienteSignature = `Assinado digitalmente por ${user.fullName} (${bi}) em ${new Date().toISOString()}`;
+        updates.clienteSignature = signatureImage; // Store the base64 signature image
       } else {
         return res.status(400).json({ error: "Este contrato já foi assinado por você" });
       }

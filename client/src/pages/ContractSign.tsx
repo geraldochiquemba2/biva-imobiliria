@@ -54,12 +54,12 @@ export default function ContractSign() {
 
   // Sign contract mutation
   const signMutation = useMutation({
-    mutationFn: async (data: { contractId: string; bi: string }) => {
+    mutationFn: async (data: { contractId: string; bi: string; signatureImage: string }) => {
       const response = await fetch(`/api/contracts/${data.contractId}/sign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ bi: data.bi }),
+        body: JSON.stringify({ bi: data.bi, signatureImage: data.signatureImage }),
       });
       
       if (!response.ok) {
@@ -167,7 +167,16 @@ export default function ContractSign() {
       });
       return;
     }
-    signMutation.mutate({ contractId: id, bi: biNumber });
+
+    // Get signature image data
+    let signatureImage = '';
+    if (signatureMethod === 'draw' && signatureRef.current) {
+      signatureImage = signatureRef.current.toDataURL('image/png');
+    } else if (signatureMethod === 'upload' && uploadedSignature) {
+      signatureImage = uploadedSignature;
+    }
+
+    signMutation.mutate({ contractId: id, bi: biNumber, signatureImage });
   };
 
   const handleOpenSignDialog = () => {
@@ -705,6 +714,21 @@ export default function ContractSign() {
                       const isClausulaTitle = line.trim().startsWith('Cláusula');
                       const isClausulasSection = line.trim() === 'CLÁUSULAS CONTRATUAIS';
                       const isEmpty = line.trim() === '';
+                      const isSignatureLine = line.trim().startsWith('_____');
+                      
+                      // Determine if this is proprietario or cliente signature line
+                      let showProprietarioSignature = false;
+                      let showClienteSignature = false;
+                      
+                      if (isSignatureLine) {
+                        // Look at previous lines to determine context
+                        const previousLines = pageLines.slice(Math.max(0, idx - 3), idx).join(' ');
+                        if (previousLines.includes('SENHORIO') || previousLines.includes('Proprietário')) {
+                          showProprietarioSignature = true;
+                        } else if (previousLines.includes('INQUILINO') || previousLines.includes('Arrendatário')) {
+                          showClienteSignature = true;
+                        }
+                      }
                       
                       return (
                         <div 
@@ -715,7 +739,33 @@ export default function ContractSign() {
                             marginBottom: isEmpty ? '0' : undefined
                           }}
                         >
-                          {line || '\u00A0'}
+                          {isSignatureLine && showProprietarioSignature && contract.proprietarioSignature ? (
+                            <div className="flex flex-col items-start">
+                              <img 
+                                src={contract.proprietarioSignature} 
+                                alt="Assinatura do Proprietário" 
+                                className="max-h-16 object-contain"
+                                style={{ maxWidth: '200px' }}
+                              />
+                              <div className="text-xs text-gray-600 mt-1">
+                                Assinado digitalmente em {contract.proprietarioSignedAt && format(new Date(contract.proprietarioSignedAt), "dd/MM/yyyy HH:mm")}
+                              </div>
+                            </div>
+                          ) : isSignatureLine && showClienteSignature && contract.clienteSignature ? (
+                            <div className="flex flex-col items-start">
+                              <img 
+                                src={contract.clienteSignature} 
+                                alt="Assinatura do Cliente" 
+                                className="max-h-16 object-contain"
+                                style={{ maxWidth: '200px' }}
+                              />
+                              <div className="text-xs text-gray-600 mt-1">
+                                Assinado digitalmente em {contract.clienteSignedAt && format(new Date(contract.clienteSignedAt), "dd/MM/yyyy HH:mm")}
+                              </div>
+                            </div>
+                          ) : (
+                            line || '\u00A0'
+                          )}
                         </div>
                       );
                     })}
