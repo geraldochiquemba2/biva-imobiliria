@@ -221,7 +221,7 @@ function ContractCard({
 
   const cancelMutation = useMutation({
     mutationFn: async (contractId: string) => {
-      return await apiRequest(`/api/contracts/${contractId}/cancel`, 'POST');
+      return await apiRequest('POST', `/api/contracts/${contractId}/cancel`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/contracts'] });
