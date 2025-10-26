@@ -119,8 +119,18 @@ export default function Home() {
   const hasMore = properties.length > 10;
 
   return (
-    <div className="min-h-screen pt-20">
-      <HeroSection />
+    <div className="min-h-screen pt-20 relative">
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+        <img 
+          src={logoImage} 
+          alt="" 
+          className="w-1/3 max-w-md object-contain dark:brightness-0 dark:invert opacity-40"
+          aria-hidden="true"
+        />
+      </div>
+      
+      <div className="relative z-10">
+        <HeroSection />
       
       <IntroSection />
       
@@ -200,7 +210,9 @@ export default function Home() {
 
       <CTASection />
 
-      <footer className="bg-card border-t py-12 px-6">
+      </div>
+
+      <footer className="bg-card border-t py-12 px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
