@@ -58,7 +58,12 @@ export const contracts = pgTable("contracts", {
   valor: decimal("valor", { precision: 15, scale: 2 }).notNull(),
   dataInicio: timestamp("data_inicio").notNull(),
   dataFim: timestamp("data_fim"), // null for venda
-  status: text("status").notNull().default('ativo'), // 'ativo', 'encerrado', 'pendente'
+  status: text("status").notNull().default('pendente_assinaturas'), // 'pendente_assinaturas', 'assinado_proprietario', 'assinado_cliente', 'ativo', 'encerrado'
+  contractContent: text("contract_content"), // Conteúdo completo do contrato gerado
+  proprietarioSignature: text("proprietario_signature"), // Assinatura digital do proprietário
+  proprietarioSignedAt: timestamp("proprietario_signed_at"),
+  clienteSignature: text("cliente_signature"), // Assinatura digital do cliente
+  clienteSignedAt: timestamp("cliente_signed_at"),
   observacoes: text("observacoes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
