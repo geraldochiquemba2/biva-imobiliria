@@ -23,7 +23,7 @@ import {
   type InsertNotification
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, or, gte, lte, ilike, desc, aliasedTable } from "drizzle-orm";
+import { eq, and, or, gte, lte, ilike, desc, aliasedTable, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User methods

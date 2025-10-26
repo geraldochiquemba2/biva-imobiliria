@@ -258,32 +258,35 @@ function ContractCard({
       transition={{ duration: 0.4 }}
     >
       <Card className="hover-elevate">
-        {contract.property?.images && contract.property.images.length > 0 && (
-          <div className="aspect-video overflow-hidden bg-muted">
-            <img
-              src={contract.property.images[0]}
-              alt={contract.property.title}
-              className="w-full h-full object-cover"
-              data-testid={`img-property-${contract.id}`}
-            />
-          </div>
-        )}
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-5 w-5 text-primary" />
-                <CardTitle data-testid={`text-property-title-${contract.id}`}>
-                  {contract.property?.title || 'Imóvel'}
-                </CardTitle>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex gap-3 flex-1 min-w-0">
+              {contract.property?.images && contract.property.images.length > 0 && (
+                <div className="w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                  <img
+                    src={contract.property.images[0]}
+                    alt={contract.property.title}
+                    className="w-full h-full object-cover"
+                    data-testid={`img-property-${contract.id}`}
+                  />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building2 className="h-5 w-5 text-primary flex-shrink-0" />
+                  <CardTitle className="line-clamp-1" data-testid={`text-property-title-${contract.id}`}>
+                    {contract.property?.title || 'Imóvel'}
+                  </CardTitle>
+                </div>
+                <CardDescription className="line-clamp-1">
+                  {contract.property?.bairro}, {contract.property?.municipio}
+                </CardDescription>
               </div>
-              <CardDescription>
-                {contract.property?.bairro}, {contract.property?.municipio}
-              </CardDescription>
             </div>
             <Badge 
               variant={getStatusBadge(contract.status).variant}
               data-testid={`badge-status-${contract.id}`}
+              className="flex-shrink-0"
             >
               {getStatusBadge(contract.status).label}
             </Badge>
