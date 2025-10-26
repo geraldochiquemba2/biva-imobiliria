@@ -440,7 +440,74 @@ export default function ExplorarMapa() {
             </p>
           </div>
 
-          <div className="max-w-md mx-auto space-y-6">
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Map Section */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                      <CardTitle>Mapa Interativo</CardTitle>
+                      <CardDescription>
+                        {properties?.length || 0} imóveis disponíveis
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={getUserLocation}
+                        data-testid="button-get-location"
+                      >
+                        <Navigation className="h-4 w-4 mr-2" />
+                        Minha Localização
+                      </Button>
+                      {routeLayersRef.current.length > 0 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={clearRoutes}
+                          data-testid="button-clear-routes"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Limpar Rotas
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div 
+                    ref={mapContainerRef} 
+                    className="w-full rounded-md border"
+                    style={{ height: '450px', minHeight: '450px', position: 'relative' }}
+                    data-testid="map-container"
+                  />
+                  
+                  <div className="mt-4 flex gap-4 flex-wrap text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-red-600 border-2 border-white"></div>
+                      <span>Venda</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-blue-600 border-2 border-white"></div>
+                      <span>Arrendamento</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-green-600 border-2 border-white"></div>
+                      <span>Sua Localização</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-1 bg-blue-600 rounded-full"></div>
+                      <span>Rota</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
               {/* Selected Property */}
               {selectedProperty && (
                 <motion.div
@@ -605,6 +672,7 @@ export default function ExplorarMapa() {
                   </CardContent>
                 </Card>
               )}
+            </div>
           </div>
         </motion.div>
       </div>
