@@ -348,6 +348,21 @@ function ContractCard({
                       </span>
                     </div>
                   )}
+                  {currentUser?.id === contract.proprietarioId && contract.cliente.phone && (
+                    <div className="pl-6 pt-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        asChild
+                        data-testid={`button-call-cliente-${contract.id}`}
+                      >
+                        <a href={`tel:${contract.cliente.phone}`} className="flex items-center gap-2">
+                          <Phone className="h-3 w-3" />
+                          Ligar para Cliente
+                        </a>
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -366,6 +381,21 @@ function ContractCard({
                       <span className="text-muted-foreground text-xs">
                         {contract.proprietario.phone}
                       </span>
+                    </div>
+                  )}
+                  {currentUser?.id === contract.clienteId && contract.proprietario.phone && (
+                    <div className="pl-6 pt-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        asChild
+                        data-testid={`button-call-proprietario-${contract.id}`}
+                      >
+                        <a href={`tel:${contract.proprietario.phone}`} className="flex items-center gap-2">
+                          <Phone className="h-3 w-3" />
+                          Ligar para Proprietário
+                        </a>
+                      </Button>
                     </div>
                   )}
                 </div>
