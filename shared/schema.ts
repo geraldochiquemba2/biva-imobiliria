@@ -62,8 +62,10 @@ export const contracts = pgTable("contracts", {
   contractContent: text("contract_content"), // Conteúdo completo do contrato gerado
   proprietarioSignature: text("proprietario_signature"), // Assinatura digital do proprietário
   proprietarioSignedAt: timestamp("proprietario_signed_at"),
+  proprietarioConfirmedAt: timestamp("proprietario_confirmed_at"), // Confirmação após assinatura
   clienteSignature: text("cliente_signature"), // Assinatura digital do cliente
   clienteSignedAt: timestamp("cliente_signed_at"),
+  clienteConfirmedAt: timestamp("cliente_confirmed_at"), // Confirmação após assinatura
   observacoes: text("observacoes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

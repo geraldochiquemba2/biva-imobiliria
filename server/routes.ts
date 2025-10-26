@@ -874,17 +874,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update contract
       const updatedContract = await storage.updateContract(contractId, updates);
       
-      // Check if both parties have signed
-      if (updatedContract && updatedContract.proprietarioSignedAt && updatedContract.clienteSignedAt) {
-        // Both signed - update contract and property status
-        await storage.updateContract(contractId, { status: 'ativo' });
-        await storage.updateProperty(contract.propertyId, { status: 'arrendado' });
-      }
-      
       res.json(updatedContract);
     } catch (error) {
       console.error('Error signing contract:', error);
       res.status(500).json({ error: "Falha ao assinar contrato" });
+    }
+  });
+
+  // Confirm contract signature
+  app.post("/api/contracts/:id/confirm", requireAuth, async (req, res) => {
+    try {
+      const contractId = req.params.id;
+      
+      // Get contract
+      const contract = await storage.getContract(contractId);
+      if (!contract) {
+        return res.status(404).json({ error: "Contrato não encontrado" });
+      }
+      
+      // Check if user is part of this contract
+      const userId = req.session.userId!;
+      if (contract.proprietarioId !== userId && contract.clienteId !== userId) {
+        return res.status(403).json({ error: "Você não está autorizado a confirmar este contrato" });
+      }
+      
+      // Update confirmation based on user role in contract
+      const updates: Partial<Contract> = {};
+      
+      if (contract.proprietarioId === userId) {
+        if (!contract.proprietarioSignedAt) {
+          return res.status(400).json({ error: "Você precisa assinar o contrato antes de confirmar" });
+        }
+        if (contract.proprietarioConfirmedAt) {
+          return res.status(400).json({ error: "Você já confirmou este contrato" });
+        }
+        updates.proprietarioConfirmedAt = new Date();
+      } else if (contract.clienteId === userId) {
+        if (!contract.clienteSignedAt) {
+          return res.status(400).json({ error: "Você precisa assinar o contrato antes de confirmar" });
+        }
+        if (contract.clienteConfirmedAt) {
+          return res.status(400).json({ error: "Você já confirmou este contrato" });
+        }
+        updates.clienteConfirmedAt = new Date();
+      }
+      
+      // Update contract
+      const updatedContract = await storage.updateContract(contractId, updates);
+      
+      // Check if both parties have confirmed
+      if (updatedContract && updatedContract.proprietarioConfirmedAt && updatedContract.clienteConfirmedAt) {
+        // Both confirmed - activate contract and update property status
+        await storage.updateContract(contractId, { status: 'ativo' });
+        const propertyStatus = contract.tipo === 'venda' ? 'vendido' : 'arrendado';
+        await storage.updateProperty(contract.propertyId, { status: propertyStatus });
+      }
+      
+      res.json(updatedContract);
+    } catch (error) {
+      console.error('Error confirming contract:', error);
+      res.status(500).json({ error: "Falha ao confirmar contrato" });
     }
   });
 

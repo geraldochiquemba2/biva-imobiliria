@@ -59,7 +59,7 @@ export default function ContractSign() {
     onSuccess: () => {
       toast({
         title: "Contrato assinado com sucesso!",
-        description: "A sua assinatura digital foi registada.",
+        description: "A sua assinatura digital foi registada. Agora você pode confirmar.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/contracts', id] });
       setSignDialogOpen(false);
@@ -70,6 +70,28 @@ export default function ContractSign() {
         variant: "destructive",
         title: "Erro ao assinar contrato",
         description: error.message || "Por favor, verifique o seu número de BI/Passaporte.",
+      });
+    },
+  });
+
+  // Confirm contract mutation
+  const confirmMutation = useMutation({
+    mutationFn: async (contractId: string) => {
+      const response = await apiRequest('POST', `/api/contracts/${contractId}/confirm`, {});
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Contrato confirmado com sucesso!",
+        description: "Aguardando confirmação da outra parte.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/contracts', id] });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Erro ao confirmar contrato",
+        description: error.message || "Erro desconhecido.",
       });
     },
   });
@@ -119,6 +141,27 @@ export default function ContractSign() {
     }
     
     return false;
+  };
+
+  const canConfirm = () => {
+    if (!contract || !currentUser) return false;
+    
+    // Proprietario can confirm if they signed but haven't confirmed yet
+    if (currentUser.id === contract.proprietarioId && contract.proprietarioSignedAt && !contract.proprietarioConfirmedAt) {
+      return true;
+    }
+    
+    // Cliente can confirm if they signed but haven't confirmed yet
+    if (currentUser.id === contract.clienteId && contract.clienteSignedAt && !contract.clienteConfirmedAt) {
+      return true;
+    }
+    
+    return false;
+  };
+
+  const handleConfirm = () => {
+    if (!id) return;
+    confirmMutation.mutate(id);
   };
 
   const getSignatureStatus = () => {
@@ -257,7 +300,7 @@ export default function ContractSign() {
         </div>
       </Card>
 
-      {/* Action Button */}
+      {/* Action Buttons */}
       {canSign() && (
         <Card className="p-6 mb-6 border-primary">
           <div className="flex items-center justify-between">
@@ -272,6 +315,34 @@ export default function ContractSign() {
               data-testid="button-sign-contract"
             >
               Assinar Contrato
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {canConfirm() && (
+        <Card className="p-6 mb-6 border-green-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold mb-1">Pronto para Confirmar?</h3>
+              <p className="text-sm text-muted-foreground">
+                Você já assinou. Agora confirme para ativar o contrato.
+              </p>
+            </div>
+            <Button 
+              onClick={handleConfirm}
+              disabled={confirmMutation.isPending}
+              data-testid="button-confirm-contract"
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {confirmMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Confirmando...
+                </>
+              ) : (
+                'Confirmar Contrato'
+              )}
             </Button>
           </div>
         </Card>
