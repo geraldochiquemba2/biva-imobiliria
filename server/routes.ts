@@ -647,6 +647,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Você só pode criar contratos para seus próprios imóveis" });
       }
       
+      // Check for existing contracts on this property
+      const existingContracts = await storage.getContractsByProperty(propertyId);
+      
+      // For rental properties, check if there's an active or non-expired contract
+      const now = new Date();
+      const hasActiveRentalContract = existingContracts.some(contract => {
+        if (contract.tipo === 'arrendamento') {
+          // Check if contract is active or hasn't expired yet
+          if (contract.status === 'ativo' || contract.status === 'pendente_assinaturas') {
+            // If dataFim exists and is in the future, contract is still valid
+            if (contract.dataFim && new Date(contract.dataFim) > now) {
+              return true;
+            }
+          }
+        }
+        return false;
+      });
+      
+      if (hasActiveRentalContract) {
+        return res.status(400).json({ 
+          error: "Já existe um contrato de arrendamento ativo para este imóvel. Só é possível gerar um novo contrato após o término do prazo atual." 
+        });
+      }
+      
+      // Check if property was sold
+      const hasSaleContract = existingContracts.some(contract => 
+        contract.tipo === 'venda' && contract.status === 'ativo'
+      );
+      
+      if (hasSaleContract) {
+        return res.status(400).json({ 
+          error: "Este imóvel já foi vendido e não pode mais ser arrendado pelo proprietário anterior." 
+        });
+      }
+      
       // Get proprietario (owner)
       const proprietario = await storage.getUser(property.ownerId);
       if (!proprietario) {
@@ -791,6 +826,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contracts", requireRole('corretor'), async (req, res) => {
     try {
       const contractData = insertContractSchema.parse(req.body);
+      
+      // Check for existing contracts on this property
+      const existingContracts = await storage.getContractsByProperty(contractData.propertyId);
+      
+      // For sale contracts, check if there's already any sale contract
+      if (contractData.tipo === 'venda') {
+        const hasSaleContract = existingContracts.some(contract => 
+          contract.tipo === 'venda' && 
+          (contract.status === 'ativo' || contract.status === 'pendente_assinaturas')
+        );
+        
+        if (hasSaleContract) {
+          return res.status(400).json({ 
+            error: "Já existe um contrato de venda para este imóvel. Só é possível gerar um contrato de venda por propriedade." 
+          });
+        }
+      }
+      
+      // For rental contracts, check if there's an active or non-expired contract
+      if (contractData.tipo === 'arrendamento') {
+        const now = new Date();
+        const hasActiveRentalContract = existingContracts.some(contract => {
+          if (contract.tipo === 'arrendamento') {
+            if (contract.status === 'ativo' || contract.status === 'pendente_assinaturas') {
+              if (contract.dataFim && new Date(contract.dataFim) > now) {
+                return true;
+              }
+            }
+          }
+          return false;
+        });
+        
+        if (hasActiveRentalContract) {
+          return res.status(400).json({ 
+            error: "Já existe um contrato de arrendamento ativo para este imóvel. Só é possível gerar um novo contrato após o término do prazo atual." 
+          });
+        }
+      }
+      
       const contract = await storage.createContract(contractData);
       
       // Update property status
