@@ -345,8 +345,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async listVisits(): Promise<Visit[]> {
-    const results = await db.select().from(visits).orderBy(desc(visits.createdAt));
-    return results;
+    const results = await db
+      .select({
+        visit: visits,
+        property: properties,
+        cliente: users,
+      })
+      .from(visits)
+      .innerJoin(properties, eq(visits.propertyId, properties.id))
+      .leftJoin(users, eq(visits.clienteId, users.id))
+      .orderBy(desc(visits.createdAt));
+    
+    return results.map((r) => ({
+      ...r.visit,
+      property: r.property,
+      cliente: r.cliente || undefined,
+    })) as any;
   }
 
   async createVisit(insertVisit: InsertVisit): Promise<Visit> {
@@ -376,20 +390,39 @@ export class DatabaseStorage implements IStorage {
 
   async getVisitsByClient(clienteId: string): Promise<Visit[]> {
     const results = await db
-      .select()
+      .select({
+        visit: visits,
+        property: properties,
+      })
       .from(visits)
+      .innerJoin(properties, eq(visits.propertyId, properties.id))
       .where(eq(visits.clienteId, clienteId))
       .orderBy(desc(visits.createdAt));
-    return results;
+    
+    return results.map((r) => ({
+      ...r.visit,
+      property: r.property,
+    })) as any;
   }
 
   async getVisitsByProperty(propertyId: string): Promise<Visit[]> {
     const results = await db
-      .select()
+      .select({
+        visit: visits,
+        property: properties,
+        cliente: users,
+      })
       .from(visits)
+      .innerJoin(properties, eq(visits.propertyId, properties.id))
+      .leftJoin(users, eq(visits.clienteId, users.id))
       .where(eq(visits.propertyId, propertyId))
       .orderBy(desc(visits.createdAt));
-    return results;
+    
+    return results.map((r) => ({
+      ...r.visit,
+      property: r.property,
+      cliente: r.cliente || undefined,
+    })) as any;
   }
 
   async getVisitsByOwner(ownerId: string): Promise<Visit[]> {
