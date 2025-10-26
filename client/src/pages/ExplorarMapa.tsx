@@ -29,11 +29,11 @@ export default function ExplorarMapa() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const routeLayersRef = useRef<L.Polyline[]>([]);
+  const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [nearbyProperties, setNearbyProperties] = useState<PropertyWithDistance[]>([]);
   const [showNearby, setShowNearby] = useState(false);
-  const [mapReady, setMapReady] = useState(false);
 
   const { data: allProperties, isLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
@@ -55,12 +55,17 @@ export default function ExplorarMapa() {
     return R * c;
   };
 
-  // Initialize map - wait for animation to complete
+  // Initialize map
   useEffect(() => {
-    if (!mapContainerRef.current || isLoading || mapReady) return;
+    if (isLoading || !mapContainerRef.current) return;
 
-    // Wait for motion animation to complete (600ms from motion.div)
-    const animationDelay = setTimeout(() => {
+    // Clear any pending initialization
+    if (initTimeoutRef.current) {
+      clearTimeout(initTimeoutRef.current);
+    }
+
+    // Wait for the page animation and DOM to settle
+    initTimeoutRef.current = setTimeout(() => {
       if (!mapContainerRef.current) return;
 
       // Cleanup existing map if any
@@ -73,88 +78,46 @@ export default function ExplorarMapa() {
         mapRef.current = null;
       }
 
-      // Force container to have explicit height immediately
-      mapContainerRef.current.style.height = '450px';
-      mapContainerRef.current.style.width = '100%';
-
-      let retryCount = 0;
-      const maxRetries = 30;
-
-      const initializeMap = () => {
-        if (!mapContainerRef.current) return;
+      try {
+        // Initialize Leaflet map
+        const map = L.map(mapContainerRef.current, {
+          center: [-8.8383, 13.2344],
+          zoom: 11,
+          zoomControl: true,
+          scrollWheelZoom: true,
+        });
         
-        const container = mapContainerRef.current;
-        const rect = container.getBoundingClientRect();
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+          minZoom: 3,
+        }).addTo(map);
+
+        mapRef.current = map;
+
+        // Force map to recalculate size after tiles load
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        }, 100);
         
-        // Only initialize if container has dimensions
-        if ((rect.width === 0 || rect.height === 0) && retryCount < maxRetries) {
-          retryCount++;
-          setTimeout(initializeMap, 100);
-          return;
-        }
-
-        if (rect.width === 0 || rect.height === 0) {
-          console.error('Failed to initialize map: container has no dimensions after retries');
-          return;
-        }
-
-        try {
-          // Center map on Angola (Luanda)
-          const map = L.map(container, {
-            center: [-8.8383, 13.2344],
-            zoom: 11,
-            zoomControl: true,
-            scrollWheelZoom: true,
-            preferCanvas: false,
-          });
-          
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 19,
-            minZoom: 3,
-          }).addTo(map);
-
-          mapRef.current = map;
-          setMapReady(true);
-
-          // Force size recalculation multiple times
-          setTimeout(() => {
-            if (mapRef.current) {
-              mapRef.current.invalidateSize(true);
-            }
-          }, 100);
-          
-          setTimeout(() => {
-            if (mapRef.current) {
-              mapRef.current.invalidateSize(true);
-            }
-          }, 300);
-          
-          setTimeout(() => {
-            if (mapRef.current) {
-              mapRef.current.invalidateSize(true);
-            }
-          }, 600);
-
-          setTimeout(() => {
-            if (mapRef.current) {
-              mapRef.current.invalidateSize(true);
-            }
-          }, 1000);
-        } catch (error) {
-          console.error('Error initializing map:', error);
-        }
-      };
-
-      // Start initialization after a small delay
-      setTimeout(initializeMap, 200);
-    }, 700);
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        }, 500);
+      } catch (error) {
+        console.error('Error initializing map:', error);
+      }
+    }, 800);
 
     return () => {
-      clearTimeout(animationDelay);
+      if (initTimeoutRef.current) {
+        clearTimeout(initTimeoutRef.current);
+      }
       if (mapRef.current) {
         try {
-          mapRef.current.off();
           mapRef.current.remove();
         } catch (e) {
           console.error('Error cleaning up map:', e);
@@ -162,7 +125,7 @@ export default function ExplorarMapa() {
         mapRef.current = null;
       }
     };
-  }, [isLoading, mapReady]);
+  }, [isLoading]);
 
   // Add property markers
   useEffect(() => {
