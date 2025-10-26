@@ -335,7 +335,8 @@ export default function ContractSign() {
                       wordWrap: 'break-word',
                       overflowWrap: 'break-word',
                       orphans: 3,
-                      widows: 3
+                      widows: 3,
+                      textAlign: 'justify'
                     }}
                   >
                     {pageLines.join('\n')}
