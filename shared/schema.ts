@@ -135,6 +135,45 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Virtual Tours table
+export const virtualTours = pgTable("virtual_tours", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  startingRoomId: varchar("starting_room_id"), // ID do cômodo inicial
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  propertyIdx: index("virtual_tours_property_idx").on(table.propertyId),
+}));
+
+// Tour Rooms table (individual 360° photos/rooms)
+export const tourRooms = pgTable("tour_rooms", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tourId: varchar("tour_id").notNull().references(() => virtualTours.id, { onDelete: 'cascade' }),
+  name: text("name").notNull(), // Nome do cômodo (ex: "Sala de Estar", "Quarto Principal")
+  image: text("image").notNull(), // Base64 ou URL da foto 360°
+  orderIndex: integer("order_index").notNull().default(0), // Ordem de exibição
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  tourIdx: index("tour_rooms_tour_idx").on(table.tourId),
+}));
+
+// Tour Hotspots table (clickable points to navigate between rooms)
+export const tourHotspots = pgTable("tour_hotspots", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fromRoomId: varchar("from_room_id").notNull().references(() => tourRooms.id, { onDelete: 'cascade' }),
+  toRoomId: varchar("to_room_id").notNull().references(() => tourRooms.id, { onDelete: 'cascade' }),
+  yaw: decimal("yaw", { precision: 10, scale: 6 }).notNull(), // Ângulo horizontal (0-360)
+  pitch: decimal("pitch", { precision: 10, scale: 6 }).notNull(), // Ângulo vertical (-90 a 90)
+  label: text("label"), // Texto do hotspot (ex: "Ir para Quarto")
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  fromRoomIdx: index("tour_hotspots_from_room_idx").on(table.fromRoomId),
+  toRoomIdx: index("tour_hotspots_to_room_idx").on(table.toRoomId),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   ownedProperties: many(properties),
@@ -152,6 +191,7 @@ export const propertiesRelations = relations(properties, ({ one, many }) => ({
   contracts: many(contracts),
   visits: many(visits),
   proposals: many(proposals),
+  virtualTours: many(virtualTours),
 }));
 
 export const contractsRelations = relations(contracts, ({ one, many }) => ({
@@ -203,6 +243,36 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(users, {
     fields: [notifications.userId],
     references: [users.id],
+  }),
+}));
+
+export const virtualToursRelations = relations(virtualTours, ({ one, many }) => ({
+  property: one(properties, {
+    fields: [virtualTours.propertyId],
+    references: [properties.id],
+  }),
+  rooms: many(tourRooms),
+}));
+
+export const tourRoomsRelations = relations(tourRooms, ({ one, many }) => ({
+  tour: one(virtualTours, {
+    fields: [tourRooms.tourId],
+    references: [virtualTours.id],
+  }),
+  hotspotsFrom: many(tourHotspots, { relationName: "from_room" }),
+  hotspotsTo: many(tourHotspots, { relationName: "to_room" }),
+}));
+
+export const tourHotspotsRelations = relations(tourHotspots, ({ one }) => ({
+  fromRoom: one(tourRooms, {
+    fields: [tourHotspots.fromRoomId],
+    references: [tourRooms.id],
+    relationName: "from_room",
+  }),
+  toRoom: one(tourRooms, {
+    fields: [tourHotspots.toRoomId],
+    references: [tourRooms.id],
+    relationName: "to_room",
   }),
 }));
 
@@ -278,6 +348,22 @@ export const insertPaymentSchema = createInsertSchema(payments).omit({
   createdAt: true,
 });
 
+export const insertVirtualTourSchema = createInsertSchema(virtualTours).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTourRoomSchema = createInsertSchema(tourRooms).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertTourHotspotSchema = createInsertSchema(tourHotspots).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -302,6 +388,21 @@ export type Payment = typeof payments.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
 
+export type InsertVirtualTour = z.infer<typeof insertVirtualTourSchema>;
+export type VirtualTour = typeof virtualTours.$inferSelect;
+
+export type InsertTourRoom = z.infer<typeof insertTourRoomSchema>;
+export type TourRoom = typeof tourRooms.$inferSelect;
+
+export type InsertTourHotspot = z.infer<typeof insertTourHotspotSchema>;
+export type TourHotspot = typeof tourHotspots.$inferSelect;
+
 export type PropertyWithOwner = Property & {
   owner: Omit<User, 'password'>;
+};
+
+export type VirtualTourWithRooms = VirtualTour & {
+  rooms: (TourRoom & {
+    hotspotsFrom: TourHotspot[];
+  })[];
 };
