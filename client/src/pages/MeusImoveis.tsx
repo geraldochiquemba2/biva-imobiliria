@@ -449,11 +449,23 @@ export default function MeusImoveis() {
                                           {property.status !== 'indisponivel' && (
                                             <DropdownMenuItem
                                               onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'indisponivel' })}
-                                              disabled={updateStatusMutation.isPending}
+                                              disabled={updateStatusMutation.isPending || property.canEdit === false}
                                               data-testid={`action-unavailable-${property.id}`}
                                             >
-                                              <XCircle className="h-4 w-4 mr-2" />
-                                              {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Indisponível'}
+                                              {property.canEdit === false ? (
+                                                <>
+                                                  <Lock className="h-4 w-4 mr-2" />
+                                                  Marcar como Indisponível
+                                                  <span className="text-xs text-muted-foreground ml-2">
+                                                    ({property.hasActiveVisits ? "Com visitas" : "Arrendado"})
+                                                  </span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <XCircle className="h-4 w-4 mr-2" />
+                                                  {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Indisponível'}
+                                                </>
+                                              )}
                                             </DropdownMenuItem>
                                           )}
                                           <DropdownMenuSeparator />
