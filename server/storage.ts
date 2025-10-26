@@ -59,6 +59,7 @@ export interface IStorage {
   deleteVisit(id: string): Promise<boolean>;
   getVisitsByClient(clienteId: string): Promise<Visit[]>;
   getVisitsByProperty(propertyId: string): Promise<Visit[]>;
+  getVisitsByOwner(ownerId: string): Promise<Visit[]>;
   getVisitByClientAndProperty(clienteId: string, propertyId: string): Promise<Visit | undefined>;
   
   // Proposal methods
@@ -389,6 +390,26 @@ export class DatabaseStorage implements IStorage {
       .where(eq(visits.propertyId, propertyId))
       .orderBy(desc(visits.createdAt));
     return results;
+  }
+
+  async getVisitsByOwner(ownerId: string): Promise<Visit[]> {
+    const results = await db
+      .select({
+        visit: visits,
+        property: properties,
+        cliente: users,
+      })
+      .from(visits)
+      .innerJoin(properties, eq(visits.propertyId, properties.id))
+      .leftJoin(users, eq(visits.clienteId, users.id))
+      .where(eq(properties.ownerId, ownerId))
+      .orderBy(desc(visits.createdAt));
+    
+    return results.map((r) => ({
+      ...r.visit,
+      property: r.property,
+      cliente: r.cliente || undefined,
+    })) as any;
   }
 
   async getVisitByClientAndProperty(clienteId: string, propertyId: string): Promise<Visit | undefined> {

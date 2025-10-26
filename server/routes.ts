@@ -597,10 +597,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Visit Routes
   
-  // Get all visits (corretor only)
-  app.get("/api/visits", requireRole('corretor'), async (req, res) => {
+  // Get visits (returns client visits, owner visits, or all visits depending on user role)
+  app.get("/api/visits", requireAuth, async (req, res) => {
     try {
-      const visits = await storage.listVisits();
+      let visits;
+      const userId = req.session.userId!;
+      
+      if (hasRole(req.session, 'corretor')) {
+        visits = await storage.listVisits();
+      } else if (hasRole(req.session, 'proprietario')) {
+        visits = await storage.getVisitsByOwner(userId);
+      } else {
+        visits = await storage.getVisitsByClient(userId);
+      }
+      
       res.json(visits);
     } catch (error) {
       console.error('Error listing visits:', error);

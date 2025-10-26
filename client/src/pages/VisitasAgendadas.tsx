@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle, Check, X } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
@@ -42,6 +47,11 @@ interface Visit {
 export default function VisitasAgendadas() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [showProposeDialog, setShowProposeDialog] = useState(false);
+  const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
+  const [proposedDate, setProposedDate] = useState("");
+  const [proposedTime, setProposedTime] = useState("");
+  const [ownerMessage, setOwnerMessage] = useState("");
   
   const { data: currentUser } = useQuery<UserType>({
     queryKey: ['/api/auth/me'],
@@ -85,6 +95,40 @@ export default function VisitasAgendadas() {
       toast({
         title: "Resposta enviada",
         description: "Sua resposta foi enviada ao proprietário",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao enviar resposta",
+        description: "Não foi possível enviar sua resposta. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const ownerResponseMutation = useMutation({
+    mutationFn: async ({ visitId, action, proposedDateTime, message }: { 
+      visitId: string; 
+      action: 'accept' | 'reject' | 'propose'; 
+      proposedDateTime?: string;
+      message?: string;
+    }) => {
+      const res = await apiRequest('POST', `/api/visits/${visitId}/owner-response`, { 
+        action, 
+        proposedDateTime,
+        message 
+      });
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+      setShowProposeDialog(false);
+      setProposedDate("");
+      setProposedTime("");
+      setOwnerMessage("");
+      toast({
+        title: "Resposta enviada",
+        description: "Sua resposta foi enviada ao cliente",
       });
     },
     onError: () => {
