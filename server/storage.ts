@@ -6,6 +6,9 @@ import {
   proposals,
   payments,
   notifications,
+  virtualTours,
+  tourRooms,
+  tourHotspots,
   type User, 
   type InsertUser,
   type Property,
@@ -20,7 +23,14 @@ import {
   type Payment,
   type InsertPayment,
   type Notification,
-  type InsertNotification
+  type InsertNotification,
+  type VirtualTour,
+  type InsertVirtualTour,
+  type TourRoom,
+  type InsertTourRoom,
+  type TourHotspot,
+  type InsertTourHotspot,
+  type VirtualTourWithRooms
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, gte, lte, ilike, desc, aliasedTable, sql } from "drizzle-orm";
@@ -83,6 +93,26 @@ export interface IStorage {
   getUnreadNotificationsByUser(userId: string): Promise<Notification[]>;
   markNotificationAsRead(id: string): Promise<Notification | undefined>;
   markAllNotificationsAsRead(userId: string): Promise<void>;
+  
+  // Virtual Tour methods
+  createVirtualTour(tour: InsertVirtualTour): Promise<VirtualTour>;
+  getVirtualTour(id: string): Promise<VirtualTourWithRooms | undefined>;
+  getVirtualTourByProperty(propertyId: string): Promise<VirtualTourWithRooms | undefined>;
+  updateVirtualTour(id: string, tour: Partial<InsertVirtualTour>): Promise<VirtualTour | undefined>;
+  deleteVirtualTour(id: string): Promise<boolean>;
+  
+  // Tour Room methods
+  createTourRoom(room: InsertTourRoom): Promise<TourRoom>;
+  updateTourRoom(id: string, room: Partial<InsertTourRoom>): Promise<TourRoom | undefined>;
+  deleteTourRoom(id: string): Promise<boolean>;
+  getTourRoomsByTour(tourId: string): Promise<TourRoom[]>;
+  
+  // Tour Hotspot methods
+  createTourHotspot(hotspot: InsertTourHotspot): Promise<TourHotspot>;
+  updateTourHotspot(id: string, hotspot: Partial<InsertTourHotspot>): Promise<TourHotspot | undefined>;
+  deleteTourHotspot(id: string): Promise<boolean>;
+  getHotspotsByRoom(roomId: string): Promise<TourHotspot[]>;
+  deleteHotspotsByRoom(roomId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -756,6 +786,140 @@ export class DatabaseStorage implements IStorage {
       .where(and(
         eq(notifications.userId, userId),
         eq(notifications.readAt, null as any)
+      ));
+  }
+
+  // Virtual Tour methods
+  async createVirtualTour(insertTour: InsertVirtualTour): Promise<VirtualTour> {
+    const [tour] = await db
+      .insert(virtualTours)
+      .values(insertTour)
+      .returning();
+    return tour;
+  }
+
+  async getVirtualTour(id: string): Promise<VirtualTourWithRooms | undefined> {
+    const result = await db.query.virtualTours.findFirst({
+      where: eq(virtualTours.id, id),
+      with: {
+        rooms: {
+          orderBy: (rooms, { asc }) => [asc(rooms.orderIndex)],
+          with: {
+            hotspotsFrom: true,
+          },
+        },
+      },
+    });
+    return result || undefined;
+  }
+
+  async getVirtualTourByProperty(propertyId: string): Promise<VirtualTourWithRooms | undefined> {
+    const result = await db.query.virtualTours.findFirst({
+      where: eq(virtualTours.propertyId, propertyId),
+      with: {
+        rooms: {
+          orderBy: (rooms, { asc }) => [asc(rooms.orderIndex)],
+          with: {
+            hotspotsFrom: true,
+          },
+        },
+      },
+    });
+    return result || undefined;
+  }
+
+  async updateVirtualTour(id: string, updates: Partial<InsertVirtualTour>): Promise<VirtualTour | undefined> {
+    const [tour] = await db
+      .update(virtualTours)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(virtualTours.id, id))
+      .returning();
+    return tour || undefined;
+  }
+
+  async deleteVirtualTour(id: string): Promise<boolean> {
+    const result = await db
+      .delete(virtualTours)
+      .where(eq(virtualTours.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  // Tour Room methods
+  async createTourRoom(insertRoom: InsertTourRoom): Promise<TourRoom> {
+    const [room] = await db
+      .insert(tourRooms)
+      .values(insertRoom)
+      .returning();
+    return room;
+  }
+
+  async updateTourRoom(id: string, updates: Partial<InsertTourRoom>): Promise<TourRoom | undefined> {
+    const [room] = await db
+      .update(tourRooms)
+      .set(updates)
+      .where(eq(tourRooms.id, id))
+      .returning();
+    return room || undefined;
+  }
+
+  async deleteTourRoom(id: string): Promise<boolean> {
+    const result = await db
+      .delete(tourRooms)
+      .where(eq(tourRooms.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  async getTourRoomsByTour(tourId: string): Promise<TourRoom[]> {
+    const results = await db
+      .select()
+      .from(tourRooms)
+      .where(eq(tourRooms.tourId, tourId))
+      .orderBy(tourRooms.orderIndex);
+    return results;
+  }
+
+  // Tour Hotspot methods
+  async createTourHotspot(insertHotspot: InsertTourHotspot): Promise<TourHotspot> {
+    const [hotspot] = await db
+      .insert(tourHotspots)
+      .values(insertHotspot)
+      .returning();
+    return hotspot;
+  }
+
+  async updateTourHotspot(id: string, updates: Partial<InsertTourHotspot>): Promise<TourHotspot | undefined> {
+    const [hotspot] = await db
+      .update(tourHotspots)
+      .set(updates)
+      .where(eq(tourHotspots.id, id))
+      .returning();
+    return hotspot || undefined;
+  }
+
+  async deleteTourHotspot(id: string): Promise<boolean> {
+    const result = await db
+      .delete(tourHotspots)
+      .where(eq(tourHotspots.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  async getHotspotsByRoom(roomId: string): Promise<TourHotspot[]> {
+    const results = await db
+      .select()
+      .from(tourHotspots)
+      .where(eq(tourHotspots.fromRoomId, roomId));
+    return results;
+  }
+
+  async deleteHotspotsByRoom(roomId: string): Promise<void> {
+    await db
+      .delete(tourHotspots)
+      .where(or(
+        eq(tourHotspots.fromRoomId, roomId),
+        eq(tourHotspots.toRoomId, roomId)
       ));
   }
 }
