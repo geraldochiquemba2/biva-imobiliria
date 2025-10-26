@@ -60,8 +60,8 @@ export default function ContratosAtivos() {
   });
 
   const { data: contracts, isLoading } = useQuery<Contract[]>({
-    queryKey: ['/api/contracts'],
-    enabled: !!currentUser,
+    queryKey: ['/api/users', currentUser?.id, 'contracts'],
+    enabled: !!currentUser?.id,
   });
 
   // Show both active and pending contracts
@@ -225,7 +225,7 @@ function ContractCard({
       return response.json();
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['/api/contracts'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/users'] });
       toast({
         title: "Contrato cancelado",
         description: "O contrato foi cancelado com sucesso.",
