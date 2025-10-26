@@ -451,35 +451,11 @@ export default function ExplorarMapa() {
               <Card>
                 <CardHeader>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                      <div>
-                        <CardTitle>Mapa Interativo</CardTitle>
-                        <CardDescription>
-                          {properties?.length || 0} imóveis disponíveis
-                        </CardDescription>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={getUserLocation}
-                          data-testid="button-get-location"
-                        >
-                          <Navigation className="h-4 w-4 mr-2" />
-                          Minha Localização
-                        </Button>
-                        {routeLayersRef.current.length > 0 && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={clearRoutes}
-                            data-testid="button-clear-routes"
-                          >
-                            <X className="h-4 w-4 mr-2" />
-                            Limpar Rotas
-                          </Button>
-                        )}
-                      </div>
+                    <div>
+                      <CardTitle>Mapa Interativo</CardTitle>
+                      <CardDescription>
+                        {properties?.length || 0} imóveis disponíveis
+                      </CardDescription>
                     </div>
                     
                     {/* Filtros */}
@@ -569,14 +545,6 @@ export default function ExplorarMapa() {
                       <div className="w-4 h-4 rounded-full bg-blue-600 border-2 border-white"></div>
                       <span>Arrendamento</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-green-600 border-2 border-white"></div>
-                      <span>Sua Localização</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-1 bg-blue-600 rounded-full"></div>
-                      <span>Rota</span>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -628,91 +596,25 @@ export default function ExplorarMapa() {
                           </Badge>
                           <Badge variant="outline">{selectedProperty.category}</Badge>
                         </div>
-                        <div className="space-y-2">
-                          <Button
-                            className="w-full"
-                            size="sm"
-                            onClick={() => showRoute(selectedProperty)}
-                            data-testid="button-show-route"
-                          >
-                            <Navigation className="h-4 w-4 mr-2" />
-                            Mostrar Rota
-                          </Button>
-                          <Button
-                            className="w-full"
-                            variant="outline"
-                            size="sm"
-                            asChild
-                            data-testid="button-view-details"
-                          >
-                            <Link href={`/imoveis/${selectedProperty.id}`}>
-                              <Home className="h-4 w-4 mr-2" />
-                              Ver Detalhes
-                            </Link>
-                          </Button>
-                        </div>
+                        <Button
+                          className="w-full"
+                          size="sm"
+                          asChild
+                          data-testid="button-view-details"
+                        >
+                          <Link href={`/imoveis/${selectedProperty.id}`}>
+                            <Home className="h-4 w-4 mr-2" />
+                            Ver Detalhes
+                          </Link>
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
                 </motion.div>
               )}
 
-              {/* Nearby Properties */}
-              {showNearby && nearbyProperties.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Imóveis Próximos</CardTitle>
-                      <CardDescription>
-                        Os 5 imóveis mais próximos de você
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {nearbyProperties.map((property, index) => (
-                        <div
-                          key={property.id}
-                          className="p-3 border rounded-md hover-elevate active-elevate-2 cursor-pointer"
-                          onClick={() => showRoute(property)}
-                          data-testid={`nearby-property-${index}`}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-sm truncate mb-1">
-                                {property.title}
-                              </h4>
-                              <p className="text-xs text-muted-foreground mb-2">
-                                {property.bairro}, {property.municipio}
-                              </p>
-                              <div className="flex items-center gap-3 text-xs">
-                                <div className="flex items-center gap-1">
-                                  <Ruler className="h-3 w-3" />
-                                  <span>{property.distance?.toFixed(2)} km</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <DollarSign className="h-3 w-3" />
-                                  <span className="font-medium">
-                                    {formatAOA(property.price)}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="shrink-0">
-                              #{index + 1}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-
               {/* Info Card */}
-              {!showNearby && !selectedProperty && (
+              {!selectedProperty && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">Como usar</CardTitle>
@@ -733,15 +635,6 @@ export default function ExplorarMapa() {
                         <p className="font-medium mb-1">Filtre por localização</p>
                         <p className="text-muted-foreground text-xs">
                           Use os filtros de província e município para encontrar imóveis específicos
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      <Ruler className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-medium mb-1">Traçar rotas</p>
-                        <p className="text-muted-foreground text-xs">
-                          Veja a rota e distância até os imóveis de interesse
                         </p>
                       </div>
                     </div>
