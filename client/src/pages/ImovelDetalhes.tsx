@@ -61,8 +61,15 @@ export default function ImovelDetalhes() {
   });
 
   const { data: userVisits } = useQuery<Visit[]>({
-    queryKey: ['/api/visits', 'user', currentUser?.id],
-    enabled: !!currentUser?.id,
+    queryKey: ['/api/visits', currentUser?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/visits');
+      if (!response.ok) {
+        throw new Error('Falha ao buscar visitas');
+      }
+      return response.json();
+    },
+    enabled: !!currentUser,
   });
 
   // Verificar se usuário não autenticado está tentando ver imóvel indisponível
