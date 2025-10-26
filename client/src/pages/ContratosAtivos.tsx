@@ -23,6 +23,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Download } from "lucide-react";
+import { generateContractPDF } from "@/lib/pdfGenerator";
 
 interface Contract {
   id: string;
@@ -54,7 +57,11 @@ interface Contract {
 
 export default function ContratosAtivos() {
   const [, setLocation] = useLocation();
-  
+  const { toast } = useToast();
+  const [viewContractDialog, setViewContractDialog] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+
   const { data: currentUser } = useQuery<UserType>({
     queryKey: ['/api/auth/me'],
   });
@@ -75,11 +82,11 @@ export default function ContratosAtivos() {
   // Separate by type
   const contratosvenda = relevantContracts.filter(c => c.tipo === 'venda');
   const contratosArrendamento = relevantContracts.filter(c => c.tipo === 'arrendamento');
-  
+
   const handleGoBack = () => {
     window.history.length > 1 ? window.history.back() : setLocation('/');
   };
-  
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'ativo':
@@ -92,6 +99,28 @@ export default function ContratosAtivos() {
         return { variant: 'outline' as const, label: 'Aguardando Proprietário', className: 'border-blue-500 text-blue-700 dark:text-blue-400' };
       default:
         return { variant: 'secondary' as const, label: status, className: '' };
+    }
+  };
+
+  const handleViewContract = (contract: Contract, property: Property) => {
+    setSelectedContract(contract);
+    setSelectedProperty(property);
+    setViewContractDialog(true);
+  };
+
+  const handleDownloadPDF = (contract: Contract, property: Property) => {
+    try {
+      generateContractPDF(contract, property.title);
+      toast({
+        title: "PDF gerado com sucesso",
+        description: "O contrato foi baixado em formato PDF.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao gerar PDF",
+        description: "Não foi possível gerar o PDF do contrato.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -176,7 +205,7 @@ export default function ContratosAtivos() {
                 ) : (
                   <div className="grid grid-cols-1 gap-6">
                     {contratosvenda.map((contract) => (
-                      <ContractCard key={contract.id} contract={contract} currentUser={currentUser} setLocation={setLocation} getStatusBadge={getStatusBadge} />
+                      <ContractCard key={contract.id} contract={contract} currentUser={currentUser} setLocation={setLocation} getStatusBadge={getStatusBadge} handleViewContract={handleViewContract} handleDownloadPDF={handleDownloadPDF} />
                     ))}
                   </div>
                 )}
@@ -196,7 +225,7 @@ export default function ContratosAtivos() {
                 ) : (
                   <div className="grid grid-cols-1 gap-6">
                     {contratosArrendamento.map((contract) => (
-                      <ContractCard key={contract.id} contract={contract} currentUser={currentUser} setLocation={setLocation} getStatusBadge={getStatusBadge} />
+                      <ContractCard key={contract.id} contract={contract} currentUser={currentUser} setLocation={setLocation} getStatusBadge={getStatusBadge} handleViewContract={handleViewContract} handleDownloadPDF={handleDownloadPDF} />
                     ))}
                   </div>
                 )}
@@ -205,6 +234,101 @@ export default function ContratosAtivos() {
           )}
         </motion.div>
       </div>
+
+      <Dialog open={viewContractDialog} onOpenChange={setViewContractDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Visualizando Contrato</DialogTitle>
+            <DialogDescription>Detalhes do contrato selecionado.</DialogDescription>
+          </DialogHeader>
+          {selectedContract && selectedProperty && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Tipo:</span>
+                    <span className="text-muted-foreground capitalize">{selectedContract.tipo}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Valor:</span>
+                    <span className="text-muted-foreground">
+                      {new Intl.NumberFormat('pt-AO', {
+                        style: 'currency',
+                        currency: 'AOA'
+                      }).format(Number(selectedContract.valor))}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Início:</span>
+                    <span className="text-muted-foreground">
+                      {format(new Date(selectedContract.dataInicio), 'dd/MM/yyyy', { locale: ptBR })}
+                    </span>
+                  </div>
+                  {selectedContract.dataFim && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Término:</span>
+                      <span className="text-muted-foreground">
+                        {format(new Date(selectedContract.dataFim), 'dd/MM/yyyy', { locale: ptBR })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  {selectedContract.cliente && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Cliente:</span>
+                        <span className="text-muted-foreground">{selectedContract.cliente.fullName}</span>
+                      </div>
+                      {selectedContract.cliente.phone && (
+                        <div className="flex items-center gap-2 text-sm pl-6">
+                          <Phone className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-muted-foreground text-xs">{selectedContract.cliente.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {selectedContract.proprietario && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Proprietário:</span>
+                        <span className="text-muted-foreground">{selectedContract.proprietario.fullName}</span>
+                      </div>
+                      {selectedContract.proprietario.phone && (
+                        <div className="flex items-center gap-2 text-sm pl-6">
+                          <Phone className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-muted-foreground text-xs">{selectedContract.proprietario.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {selectedContract.observacoes && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-sm font-medium mb-1">Observações:</p>
+                  <p className="text-sm text-muted-foreground">{selectedContract.observacoes}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewContractDialog(false)}>Fechar</Button>
+            {selectedContract && selectedProperty && (
+              <Button onClick={() => handleDownloadPDF(selectedContract, selectedProperty)}>
+                <Download className="w-4 h-4 mr-2" />
+                Baixar PDF
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -213,12 +337,16 @@ function ContractCard({
   contract, 
   currentUser, 
   setLocation, 
-  getStatusBadge 
+  getStatusBadge, 
+  handleViewContract, 
+  handleDownloadPDF
 }: { 
   contract: Contract; 
   currentUser: UserType | undefined; 
   setLocation: (path: string) => void;
   getStatusBadge: (status: string) => { variant: any; label: string; className: string };
+  handleViewContract: (contract: Contract, property: Property) => void;
+  handleDownloadPDF: (contract: Contract, property: Property) => void;
 }) {
   const { toast } = useToast();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -412,7 +540,7 @@ function ContractCard({
               <p className="text-sm text-muted-foreground">{contract.observacoes}</p>
             </div>
           )}
-          
+
           <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Button
               onClick={() => setLocation(`/contratos/${contract.id}/assinar`)}
@@ -425,7 +553,7 @@ function ContractCard({
                 ? 'Ver Contrato'
                 : 'Ver Contrato'}
             </Button>
-            
+
             {canCancelContract && (
               <Button
                 variant="outline"
