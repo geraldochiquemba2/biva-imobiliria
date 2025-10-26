@@ -548,7 +548,7 @@ export default function VisitasAgendadas() {
                           </span>
                         </div>
 
-                        {!currentUser?.userTypes?.includes('cliente') && visit.cliente && (
+                        {!currentUser?.userTypes?.includes('cliente') && visit.status !== 'agendada' && visit.cliente && (
                           <div className="flex flex-wrap items-center gap-1.5 text-xs">
                             <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                             <span className="font-medium">Cliente:</span>
@@ -558,8 +558,8 @@ export default function VisitasAgendadas() {
                           </div>
                         )}
 
-                        {visit.status === 'agendada' && visit.property?.owner && (
-                          <div className="bg-primary/5 p-2 rounded-md space-y-1.5">
+                        {visit.status === 'agendada' && currentUser?.userTypes?.includes('cliente') && visit.property?.owner && (
+                          <div className="bg-primary/5 p-2 rounded-md space-y-2">
                             <p className="text-xs font-medium">Contato do Proprietário:</p>
                             <div className="space-y-1">
                               {visit.property.owner.email && (
@@ -570,13 +570,66 @@ export default function VisitasAgendadas() {
                                   </span>
                                 </div>
                               )}
+                              {visit.property.owner.phone && (
+                                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                  <Phone className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                  <span className="text-muted-foreground" data-testid={`text-owner-phone-${visit.id}`}>
+                                    {visit.property.owner.phone}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            {visit.property.owner.phone && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                asChild
+                                data-testid={`button-call-owner-${visit.id}`}
+                              >
+                                <a href={`tel:${visit.property.owner.phone}`}>
+                                  <Phone className="h-3.5 w-3.5 mr-2" />
+                                  Ligar para o Proprietário
+                                </a>
+                              </Button>
+                            )}
+                          </div>
+                        )}
+
+                        {visit.status === 'agendada' && isOwner(visit) && visit.cliente && (
+                          <div className="bg-primary/5 p-2 rounded-md space-y-2">
+                            <p className="text-xs font-medium">Contato do Cliente:</p>
+                            <div className="space-y-1">
                               <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                                <Phone className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                                <span className="text-muted-foreground" data-testid={`text-owner-phone-${visit.id}`}>
-                                  {visit.property.owner.phone}
+                                <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                <span className="font-medium">Nome:</span>
+                                <span className="text-muted-foreground" data-testid={`text-client-name-${visit.id}`}>
+                                  {visit.cliente.fullName}
                                 </span>
                               </div>
+                              {visit.cliente.phone && (
+                                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                                  <Phone className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                  <span className="text-muted-foreground" data-testid={`text-client-phone-${visit.id}`}>
+                                    {visit.cliente.phone}
+                                  </span>
+                                </div>
+                              )}
                             </div>
+                            {visit.cliente.phone && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                asChild
+                                data-testid={`button-call-client-${visit.id}`}
+                              >
+                                <a href={`tel:${visit.cliente.phone}`}>
+                                  <Phone className="h-3.5 w-3.5 mr-2" />
+                                  Ligar para o Cliente
+                                </a>
+                              </Button>
+                            )}
                           </div>
                         )}
                       </div>
