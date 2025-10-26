@@ -640,7 +640,7 @@ export default function ContractSign() {
 
       {/* Contract Content - A4 Page Format */}
       <div className="mb-6" style={{ backgroundColor: '#f3f4f6' }}>
-        <div className="p-6 border-b bg-white">
+        <div className="p-4 md:p-6 border-b bg-white">
           <h3 className="font-semibold text-gray-900">Conteúdo do Contrato</h3>
           <p className="text-sm text-gray-600 mt-1">
             {contractPages.length} {contractPages.length === 1 ? 'página' : 'páginas'}
@@ -648,56 +648,53 @@ export default function ContractSign() {
         </div>
         
         {/* Document viewer with A4 pages */}
-        <div className="p-8" style={{ backgroundColor: '#f3f4f6' }}>
-          <div className="max-w-[210mm] mx-auto space-y-6">
+        <div className="p-2 md:p-8" style={{ backgroundColor: '#f3f4f6' }}>
+          <div className="w-full max-w-full md:max-w-[210mm] mx-auto space-y-6">
             {contractPages.map((pageLines, pageIndex) => (
               <div 
                 key={pageIndex}
-                className="shadow-2xl relative overflow-hidden" 
+                className="shadow-2xl relative overflow-hidden w-full" 
                 style={{ 
-                  width: '210mm', 
-                  height: '297mm', 
-                  padding: '25mm 20mm',
+                  minHeight: '500px',
+                  padding: '16px',
                   pageBreakAfter: 'always',
                   backgroundColor: '#ffffff',
                   color: '#1a1a1a'
                 }}
               >
                 {/* Logo in top-left corner */}
-                <div className="absolute top-[2mm] left-[16mm]" style={{ zIndex: 5 }}>
+                <div className="absolute top-2 left-4 md:top-[2mm] md:left-[16mm]" style={{ zIndex: 5 }}>
                   <img 
                     src={logoUrl} 
                     alt="BIVA Imobiliária" 
-                    className="w-32 h-32 object-contain"
+                    className="w-20 h-20 md:w-32 md:h-32 object-contain"
                   />
                 </div>
 
                 {/* Decorative header border */}
-                <div className="border-t-4 border-b-2 border-primary/30 py-3 mb-6">
-                  <div className="flex justify-between items-center text-xs text-gray-600">
+                <div className="border-t-4 border-b-2 border-primary/30 py-2 md:py-3 mb-4 md:mb-6">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-xs text-gray-600 gap-1">
                     <span className="font-semibold">DOCUMENTO OFICIAL</span>
-                    <span>Conforme Lei n.º 26/15 de 23 de Outubro</span>
+                    <span className="text-[10px] md:text-xs">Conforme Lei n.º 26/15 de 23 de Outubro</span>
                   </div>
                 </div>
                 
                 {/* Watermark background */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30" style={{ zIndex: 0 }}>
+                <div className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none opacity-30" style={{ zIndex: 0 }}>
                   <img 
                     src={logoUrl} 
                     alt="BIVA Imobiliária" 
-                    className="w-96 h-96 object-contain"
+                    className="w-64 h-64 md:w-96 md:h-96 object-contain"
                   />
                 </div>
                 
                 {/* Contract content */}
-                <div className="relative overflow-hidden" style={{ 
-                  minHeight: 'calc(297mm - 50mm - 120px)',
-                  maxHeight: 'calc(297mm - 50mm - 120px)',
+                <div className="relative overflow-auto md:overflow-hidden" style={{ 
                   zIndex: 1,
                   paddingBottom: '10px'
                 }}>
                   <div 
-                    className="font-serif text-sm m-0 bg-transparent text-black dark:text-black p-0" 
+                    className="font-serif text-xs md:text-sm m-0 bg-transparent text-black dark:text-black p-0" 
                     data-testid={pageIndex === 0 ? "text-contract-content" : undefined}
                     style={{ 
                       fontFamily: 'Georgia, serif', 
@@ -745,11 +742,8 @@ export default function ContractSign() {
                                 <img 
                                   src={contract.proprietarioSignature} 
                                   alt="Assinatura do Proprietário" 
-                                  className="mb-1"
+                                  className="mb-1 max-w-[200px] md:max-w-[265px] h-auto max-h-[45px] md:max-h-[52px] object-contain object-left"
                                   style={{ 
-                                    maxWidth: '265px',
-                                    height: 'auto',
-                                    maxHeight: '52px',
                                     objectFit: 'contain',
                                     objectPosition: 'left'
                                   }}
@@ -778,11 +772,8 @@ export default function ContractSign() {
                                 <img 
                                   src={contract.clienteSignature} 
                                   alt="Assinatura do Cliente" 
-                                  className="mb-1"
+                                  className="mb-1 max-w-[200px] md:max-w-[265px] h-auto max-h-[45px] md:max-h-[52px] object-contain object-left"
                                   style={{ 
-                                    maxWidth: '265px',
-                                    height: 'auto',
-                                    maxHeight: '52px',
                                     objectFit: 'contain',
                                     objectPosition: 'left'
                                   }}
@@ -815,13 +806,13 @@ export default function ContractSign() {
                 </div>
                 
                 {/* Page footer */}
-                <div className="absolute bottom-[20mm] left-[20mm] right-[20mm] pt-4 border-t border-gray-300 bg-white" style={{ zIndex: 10 }}>
-                  <div className="flex justify-between items-center text-xs text-gray-500">
+                <div className="absolute bottom-4 left-4 right-4 md:bottom-[20mm] md:left-[20mm] md:right-[20mm] pt-3 md:pt-4 border-t border-gray-300 bg-white" style={{ zIndex: 10 }}>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-[10px] md:text-xs text-gray-500 gap-2 md:gap-0">
                     <div>
                       <p className="font-semibold">ID: {contract.id.substring(0, 8).toUpperCase()}</p>
                       <p>Data de Emissão: {format(new Date(contract.createdAt), "dd/MM/yyyy")}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left md:text-right">
                       <p className="font-semibold">Página {pageIndex + 1} de {contractPages.length}</p>
                     </div>
                   </div>
