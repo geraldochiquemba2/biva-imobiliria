@@ -174,6 +174,64 @@ export default function VisitasAgendadas() {
     clientResponseMutation.mutate({ visitId, action });
   };
 
+  const handleOwnerAccept = (visitId: string) => {
+    ownerResponseMutation.mutate({ visitId, action: 'accept' });
+  };
+
+  const handleOwnerReject = (visitId: string) => {
+    ownerResponseMutation.mutate({ visitId, action: 'reject' });
+  };
+
+  const handleOpenProposeDialog = (visitId: string) => {
+    setProposedDate("");
+    setProposedTime("");
+    setOwnerMessage("");
+    setSelectedVisitId(visitId);
+    setShowProposeDialog(true);
+  };
+
+  const handleCloseProposeDialog = () => {
+    setShowProposeDialog(false);
+    setProposedDate("");
+    setProposedTime("");
+    setOwnerMessage("");
+    setSelectedVisitId(null);
+  };
+
+  const handleProposeDate = () => {
+    if (!selectedVisitId || !proposedDate || !proposedTime) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha a data e hora propostas",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const proposedDateTime = new Date(`${proposedDate}T${proposedTime}:00`);
+    const now = new Date();
+    
+    if (proposedDateTime <= now) {
+      toast({
+        title: "Data inválida",
+        description: "A data e hora propostas devem ser no futuro",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    ownerResponseMutation.mutate({ 
+      visitId: selectedVisitId, 
+      action: 'propose', 
+      proposedDateTime: proposedDateTime.toISOString(),
+      message: ownerMessage || undefined
+    });
+  };
+
+  const isOwner = (visit: Visit) => {
+    return currentUser && visit.property?.ownerId === currentUser.id;
+  };
+
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
       'pendente_proprietario': { label: 'Aguardando Proprietário', variant: 'outline' },
@@ -343,6 +401,40 @@ export default function VisitasAgendadas() {
                                     data-testid={`button-reject-${visit.id}`}
                                   >
                                     {clientResponseMutation.isPending ? 'Processando...' : 'Recusar'}
+                                  </Button>
+                                </div>
+                              ) : visit.status === 'pendente_proprietario' && isOwner(visit) ? (
+                                <div className="space-y-2">
+                                  <div className="flex gap-2">
+                                    <Button
+                                      className="flex-1"
+                                      onClick={() => handleOwnerAccept(visit.id)}
+                                      disabled={ownerResponseMutation.isPending}
+                                      data-testid={`button-owner-accept-${visit.id}`}
+                                    >
+                                      <Check className="h-4 w-4 mr-2" />
+                                      {ownerResponseMutation.isPending ? 'Processando...' : 'Aceitar'}
+                                    </Button>
+                                    <Button
+                                      variant="destructive"
+                                      className="flex-1"
+                                      onClick={() => handleOwnerReject(visit.id)}
+                                      disabled={ownerResponseMutation.isPending}
+                                      data-testid={`button-owner-reject-${visit.id}`}
+                                    >
+                                      <X className="h-4 w-4 mr-2" />
+                                      {ownerResponseMutation.isPending ? 'Processando...' : 'Recusar'}
+                                    </Button>
+                                  </div>
+                                  <Button
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={() => handleOpenProposeDialog(visit.id)}
+                                    disabled={ownerResponseMutation.isPending}
+                                    data-testid={`button-propose-date-${visit.id}`}
+                                  >
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Propor Outra Data
                                   </Button>
                                 </div>
                               ) : (
@@ -552,6 +644,67 @@ export default function VisitasAgendadas() {
           )}
         </motion.div>
       </div>
+
+      <Dialog open={showProposeDialog} onOpenChange={(open) => !open && handleCloseProposeDialog()}>
+        <DialogContent data-testid="dialog-propose-date">
+          <DialogHeader>
+            <DialogTitle>Propor Nova Data</DialogTitle>
+            <DialogDescription>
+              Sugira uma nova data e horário para a visita. O cliente será notificado da sua proposta.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="proposed-date">Data</Label>
+              <Input
+                id="proposed-date"
+                type="date"
+                value={proposedDate}
+                onChange={(e) => setProposedDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                data-testid="input-proposed-date"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="proposed-time">Horário</Label>
+              <Input
+                id="proposed-time"
+                type="time"
+                value={proposedTime}
+                onChange={(e) => setProposedTime(e.target.value)}
+                data-testid="input-proposed-time"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="owner-message">Mensagem (opcional)</Label>
+              <Textarea
+                id="owner-message"
+                placeholder="Adicione uma mensagem para o cliente..."
+                value={ownerMessage}
+                onChange={(e) => setOwnerMessage(e.target.value)}
+                rows={3}
+                data-testid="textarea-owner-message"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={handleCloseProposeDialog}
+              data-testid="button-cancel-propose"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleProposeDate}
+              disabled={ownerResponseMutation.isPending}
+              data-testid="button-submit-propose"
+            >
+              {ownerResponseMutation.isPending ? 'Enviando...' : 'Enviar Proposta'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
