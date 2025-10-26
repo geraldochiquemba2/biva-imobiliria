@@ -68,8 +68,13 @@ export const visits = pgTable("visits", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   propertyId: varchar("property_id").notNull().references(() => properties.id),
   clienteId: varchar("cliente_id").notNull().references(() => users.id),
-  dataHora: timestamp("data_hora").notNull(),
-  status: text("status").notNull().default('agendada'), // 'agendada', 'concluida', 'cancelada'
+  requestedDateTime: timestamp("requested_date_time").notNull(), // Data/hora solicitada pelo cliente
+  scheduledDateTime: timestamp("scheduled_date_time"), // Data/hora confirmada por ambos
+  ownerProposedDateTime: timestamp("owner_proposed_date_time"), // Contraproposta do proprietário
+  status: text("status").notNull().default('pendente_proprietario'), // 'pendente_proprietario', 'pendente_cliente', 'agendada', 'concluida', 'recusada', 'cancelada'
+  lastActionBy: text("last_action_by"), // 'cliente' ou 'proprietario'
+  clientMessage: text("client_message"),
+  ownerMessage: text("owner_message"),
   observacoes: text("observacoes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -97,12 +102,26 @@ export const payments = pgTable("payments", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Notifications table
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // 'visit_requested', 'visit_owner_response', 'visit_client_response', 'visit_confirmed'
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  entityId: varchar("entity_id"), // ID da visita, contrato, etc
+  payload: text("payload"), // JSON string with additional data
+  readAt: timestamp("read_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   ownedProperties: many(properties),
   contracts: many(contracts),
   visits: many(visits),
   proposals: many(proposals),
+  notifications: many(notifications),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -160,6 +179,13 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
   }),
 }));
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+}));
+
 // Schemas for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -212,7 +238,14 @@ export const insertVisitSchema = createInsertSchema(visits).omit({
   id: true,
   createdAt: true,
 }).extend({
-  dataHora: z.coerce.date(),
+  requestedDateTime: z.coerce.date(),
+  scheduledDateTime: z.coerce.date().optional().nullable(),
+  ownerProposedDateTime: z.coerce.date().optional().nullable(),
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertProposalSchema = createInsertSchema(proposals).omit({
@@ -245,6 +278,9 @@ export type Proposal = typeof proposals.$inferSelect;
 
 export type InsertPayment = z.infer<typeof insertPaymentSchema>;
 export type Payment = typeof payments.$inferSelect;
+
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Notification = typeof notifications.$inferSelect;
 
 export type PropertyWithOwner = Property & {
   owner: Omit<User, 'password'>;
