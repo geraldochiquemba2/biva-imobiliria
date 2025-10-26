@@ -723,13 +723,10 @@ export default function ContractSign() {
                       if (isSignatureLine) {
                         // Look at next lines to determine context (signature line comes before name)
                         const nextLines = pageLines.slice(idx + 1, Math.min(pageLines.length, idx + 4)).join(' ');
-                        console.log('Signature line detected, next lines:', nextLines);
                         if (nextLines.includes('SENHORIO') || nextLines.includes('Proprietário')) {
                           showProprietarioSignature = true;
-                          console.log('Proprietario signature detected. Has signature?', !!contract.proprietarioSignature);
                         } else if (nextLines.includes('INQUILINO') || nextLines.includes('Arrendatário')) {
                           showClienteSignature = true;
-                          console.log('Cliente signature detected. Has signature?', !!contract.clienteSignature);
                         }
                       }
                       
@@ -743,24 +740,36 @@ export default function ContractSign() {
                           }}
                         >
                           {isSignatureLine && showProprietarioSignature && contract.proprietarioSignature ? (
-                            <div className="flex flex-col items-start mb-2">
+                            <div className="flex flex-col items-start my-2">
                               <img 
                                 src={contract.proprietarioSignature} 
                                 alt="Assinatura do Proprietário" 
-                                className="max-h-16 object-contain mb-1"
-                                style={{ maxWidth: '200px' }}
+                                className="mb-1"
+                                style={{ 
+                                  maxWidth: '300px',
+                                  height: 'auto',
+                                  minHeight: '60px',
+                                  objectFit: 'contain',
+                                  objectPosition: 'left'
+                                }}
                               />
                               <div className="text-xs text-gray-600">
                                 Assinado digitalmente em {contract.proprietarioSignedAt && format(new Date(contract.proprietarioSignedAt), "dd/MM/yyyy HH:mm")}
                               </div>
                             </div>
                           ) : isSignatureLine && showClienteSignature && contract.clienteSignature ? (
-                            <div className="flex flex-col items-start mb-2">
+                            <div className="flex flex-col items-start my-2">
                               <img 
                                 src={contract.clienteSignature} 
                                 alt="Assinatura do Cliente" 
-                                className="max-h-16 object-contain mb-1"
-                                style={{ maxWidth: '200px' }}
+                                className="mb-1"
+                                style={{ 
+                                  maxWidth: '300px',
+                                  height: 'auto',
+                                  minHeight: '60px',
+                                  objectFit: 'contain',
+                                  objectPosition: 'left'
+                                }}
                               />
                               <div className="text-xs text-gray-600">
                                 Assinado digitalmente em {contract.clienteSignedAt && format(new Date(contract.clienteSignedAt), "dd/MM/yyyy HH:mm")}
