@@ -27,6 +27,7 @@ import ImoveisArrendados from "@/pages/ImoveisArrendados";
 import ImoveisVendidos from "@/pages/ImoveisVendidos";
 import ImoveisIndisponiveis from "@/pages/ImoveisIndisponiveis";
 import ExplorarMapa from "@/pages/ExplorarMapa";
+import ContractSign from "@/pages/ContractSign";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -57,6 +58,7 @@ function Router() {
         <Route path="/cadastrar-imovel" component={CadastrarImovel} />
         <Route path="/perfil" component={Profile} />
         <Route path="/contratos-ativos" component={ContratosAtivos} />
+        <Route path="/contratos/:id/assinar" component={ContractSign} />
         <Route path="/visitas-agendadas" component={VisitasAgendadas} />
         <Route path="/meus-imoveis" component={MeusImoveis} />
         <Route path="/editar-imovel/:id" component={EditarImovel} />

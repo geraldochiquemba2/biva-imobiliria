@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,6 +58,7 @@ export function RentalContractDialog({
   onSuccess,
 }: RentalContractDialogProps) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [showBiDialog, setShowBiDialog] = useState(false);
   const [contractData, setContractData] = useState<ContractFormData | null>(null);
 
@@ -127,12 +129,17 @@ export function RentalContractDialog({
       
       toast({
         title: "Contrato criado!",
-        description: "O contrato foi criado e está aguardando assinaturas",
+        description: "Redirecionando para a página de assinatura...",
       });
       
       onSuccess();
       onOpenChange(false);
       contractForm.reset();
+      
+      // Redirect to contract signing page
+      setTimeout(() => {
+        setLocation(`/contratos/${contract.id}/assinar`);
+      }, 500);
     },
     onError: (error: Error) => {
       toast({

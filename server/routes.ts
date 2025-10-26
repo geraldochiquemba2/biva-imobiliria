@@ -801,6 +801,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sign contract
+  app.post("/api/contracts/:id/sign", requireAuth, async (req, res) => {
+    try {
+      const { bi } = req.body;
+      const contractId = req.params.id;
+      
+      if (!bi) {
+        return res.status(400).json({ error: "Número de BI/Passaporte é obrigatório" });
+      }
+      
+      // Get contract
+      const contract = await storage.getContract(contractId);
+      if (!contract) {
+        return res.status(404).json({ error: "Contrato não encontrado" });
+      }
+      
+      // Check if user is part of this contract
+      const userId = req.session.userId!;
+      if (contract.proprietarioId !== userId && contract.clienteId !== userId) {
+        return res.status(403).json({ error: "Você não está autorizado a assinar este contrato" });
+      }
+      
+      // Get user
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      // Verify BI matches
+      if (user.bi !== bi) {
+        return res.status(400).json({ error: "O número de BI/Passaporte não corresponde ao cadastrado" });
+      }
+      
+      // Update signature based on user role in contract
+      const updates: Partial<Contract> = {};
+      
+      if (contract.proprietarioId === userId && !contract.proprietarioSignedAt) {
+        updates.proprietarioSignedAt = new Date();
+        updates.proprietarioSignature = `Assinado digitalmente por ${user.fullName} (${bi}) em ${new Date().toISOString()}`;
+      } else if (contract.clienteId === userId && !contract.clienteSignedAt) {
+        updates.clienteSignedAt = new Date();
+        updates.clienteSignature = `Assinado digitalmente por ${user.fullName} (${bi}) em ${new Date().toISOString()}`;
+      } else {
+        return res.status(400).json({ error: "Este contrato já foi assinado por você" });
+      }
+      
+      // Update contract
+      const updatedContract = await storage.updateContract(contractId, updates);
+      
+      // Check if both parties have signed
+      if (updatedContract && updatedContract.proprietarioSignedAt && updatedContract.clienteSignedAt) {
+        // Both signed - update contract and property status
+        await storage.updateContract(contractId, { status: 'ativo' });
+        await storage.updateProperty(contract.propertyId, { status: 'arrendado' });
+      }
+      
+      res.json(updatedContract);
+    } catch (error) {
+      console.error('Error signing contract:', error);
+      res.status(500).json({ error: "Falha ao assinar contrato" });
+    }
+  });
+
   // Visit Routes
   
   // Get visits (returns client visits, owner visits, or all visits depending on user role)
