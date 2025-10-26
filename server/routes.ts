@@ -611,6 +611,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         visits = await storage.getVisitsByClient(userId);
       }
       
+      if (visits && visits.length > 0) {
+        console.log('DEBUG - Primeira visita retornada:', JSON.stringify(visits[0], null, 2).substring(0, 500));
+      }
+      
       res.json(visits);
     } catch (error) {
       console.error('Error listing visits:', error);

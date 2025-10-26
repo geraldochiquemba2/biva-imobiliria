@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +61,16 @@ export default function VisitasAgendadas() {
     queryKey: ['/api/visits'],
     enabled: !!currentUser,
   });
+
+  useEffect(() => {
+    if (visits) {
+      console.log('Visitas recebidas:', visits);
+      if (visits.length > 0) {
+        console.log('Primeira visita:', visits[0]);
+        console.log('Property da primeira visita:', visits[0].property);
+      }
+    }
+  }, [visits]);
 
   const cancelVisitMutation = useMutation({
     mutationFn: async (visitId: string) => {
