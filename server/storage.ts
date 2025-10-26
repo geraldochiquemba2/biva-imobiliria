@@ -23,7 +23,7 @@ import {
   type InsertNotification
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, or, gte, lte, ilike, desc } from "drizzle-orm";
+import { eq, and, or, gte, lte, ilike, desc, aliasedTable } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -345,21 +345,36 @@ export class DatabaseStorage implements IStorage {
   }
 
   async listVisits(): Promise<Visit[]> {
+    const cliente = aliasedTable(users, 'cliente');
+    const owner = aliasedTable(users, 'owner');
+    
     const results = await db
       .select({
         visit: visits,
         property: properties,
-        cliente: users,
+        cliente: cliente,
+        owner: owner,
       })
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
-      .leftJoin(users, eq(visits.clienteId, users.id))
+      .leftJoin(cliente, eq(visits.clienteId, cliente.id))
+      .leftJoin(owner, eq(properties.ownerId, owner.id))
       .orderBy(desc(visits.createdAt));
     
     return results.map((r) => ({
       ...r.visit,
-      property: r.property,
-      cliente: r.cliente || undefined,
+      property: {
+        ...r.property,
+        owner: r.owner ? {
+          fullName: r.owner.fullName,
+          email: r.owner.email,
+          phone: r.owner.phone,
+        } : undefined,
+      },
+      cliente: r.cliente ? {
+        fullName: r.cliente.fullName,
+        phone: r.cliente.phone,
+      } : undefined,
     })) as any;
   }
 
@@ -389,32 +404,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getVisitsByClient(clienteId: string): Promise<Visit[]> {
+    const owner = aliasedTable(users, 'owner');
+    
     const results = await db
       .select({
         visit: visits,
         property: properties,
+        owner: owner,
       })
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
+      .leftJoin(owner, eq(properties.ownerId, owner.id))
       .where(eq(visits.clienteId, clienteId))
       .orderBy(desc(visits.createdAt));
     
     return results.map((r) => ({
       ...r.visit,
-      property: r.property,
+      property: {
+        ...r.property,
+        owner: r.owner ? {
+          fullName: r.owner.fullName,
+          email: r.owner.email,
+          phone: r.owner.phone,
+        } : undefined,
+      },
     })) as any;
   }
 
   async getVisitsByProperty(propertyId: string): Promise<Visit[]> {
+    const cliente = aliasedTable(users, 'cliente');
+    
     const results = await db
       .select({
         visit: visits,
         property: properties,
-        cliente: users,
+        cliente: cliente,
       })
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
-      .leftJoin(users, eq(visits.clienteId, users.id))
+      .leftJoin(cliente, eq(visits.clienteId, cliente.id))
       .where(eq(visits.propertyId, propertyId))
       .orderBy(desc(visits.createdAt));
     
