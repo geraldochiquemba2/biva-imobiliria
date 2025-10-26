@@ -23,6 +23,7 @@ import {
 import logoUrl from "@assets/BIVA LOG300.300_1761489547620.png";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
+import { generateContractPDFFromPages } from "@/lib/pdfGenerator";
 
 export default function ContractSign() {
   const { id } = useParams<{ id: string }>();
@@ -445,35 +446,24 @@ export default function ContractSign() {
   };
 
   const handleExtractPdf = async () => {
-    if (!id) return;
+    if (!contract) return;
+    
     try {
-      toast({ title: "A extrair PDF...", description: "Por favor, aguarde." });
-      const response = await fetch(`/api/contracts/${id}/pdf`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
+      toast({ title: "Gerando PDF...", description: "Por favor, aguarde enquanto o PDF é gerado." });
+
+      // Generate PDF from the current pages
+      await generateContractPDFFromPages({
+        contractPages,
+        contract,
+        logoUrl,
       });
 
-      if (!response.ok) {
-        throw new Error(`Erro ao extrair PDF: ${response.statusText}`);
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `contrato_${contract?.id || 'desconhecido'}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast({ title: "PDF extraído com sucesso!", description: "O download do contrato foi iniciado." });
+      toast({ title: "PDF gerado com sucesso!", description: "O contrato foi baixado em formato PDF." });
     } catch (error: any) {
+      console.error('Error generating PDF:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao extrair PDF",
+        title: "Erro ao gerar PDF",
         description: error.message || "Não foi possível gerar o PDF. Tente novamente mais tarde.",
       });
     }

@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Download } from "lucide-react";
-import { generateContractPDF } from "@/lib/pdfGenerator";
+import { generateContractPDFFromPages, splitContractIntoPages } from "@/lib/pdfGenerator";
+import logoUrl from "@assets/BIVA LOG300.300_1761489547620.png";
 
 interface Property {
   title: string;
@@ -119,48 +120,49 @@ export default function ContratosAtivos() {
     setViewContractDialog(true);
   };
 
-  const handleDownloadPDF = (contract: Contract, property: Property) => {
+  const handleDownloadPDF = async (contract: Contract, property: Property) => {
     try {
-      if (!contract.proprietario || !contract.cliente) {
+      if (!contract.contractContent) {
         toast({
           title: "Erro ao gerar PDF",
-          description: "Informações do proprietário ou cliente não disponíveis.",
+          description: "Conteúdo do contrato não disponível.",
           variant: "destructive",
         });
         return;
       }
 
-      // Convert to the format expected by generateContractPDF
-      const pdfData = {
-        contract: {
-          ...contract,
-          dataInicio: new Date(contract.dataInicio),
-          dataFim: contract.dataFim ? new Date(contract.dataFim) : null,
-          createdAt: new Date(contract.createdAt),
-        } as any,
-        propertyTitle: property.title,
-        proprietario: {
-          ...contract.proprietario,
-          password: '',
-          userTypes: [],
-          status: 'ativo',
-          createdAt: new Date(),
-        } as any,
-        cliente: {
-          ...contract.cliente,
-          password: '',
-          userTypes: [],
-          status: 'ativo',
-          createdAt: new Date(),
-        } as any,
-      };
+      // Show loading toast
+      toast({
+        title: "Gerando PDF...",
+        description: "Por favor, aguarde enquanto o PDF é gerado.",
+      });
 
-      generateContractPDF(pdfData);
+      // Split contract content into pages
+      const contractPages = splitContractIntoPages(contract.contractContent);
+
+      // Convert contract to proper format
+      const contractData = {
+        ...contract,
+        dataInicio: new Date(contract.dataInicio),
+        dataFim: contract.dataFim ? new Date(contract.dataFim) : null,
+        createdAt: new Date(contract.createdAt),
+        proprietarioSignedAt: contract.proprietarioSignedAt ? new Date(contract.proprietarioSignedAt) : null,
+        clienteSignedAt: contract.clienteSignedAt ? new Date(contract.clienteSignedAt) : null,
+      } as any;
+
+      // Generate PDF
+      await generateContractPDFFromPages({
+        contractPages,
+        contract: contractData,
+        logoUrl,
+      });
+
       toast({
         title: "PDF gerado com sucesso",
         description: "O contrato foi baixado em formato PDF.",
       });
     } catch (error) {
+      console.error('Error generating PDF:', error);
       toast({
         title: "Erro ao gerar PDF",
         description: "Não foi possível gerar o PDF do contrato.",
