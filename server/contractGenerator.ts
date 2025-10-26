@@ -52,9 +52,11 @@ Características:
 - ${property.bathrooms} Casa(s) de Banho
 - ${property.livingRooms} Sala(s)
 - ${property.kitchens} Cozinha(s)
-${property.amenities && property.amenities.length > 0 ? `\nComodidades: ${property.amenities.join(', ')}` : ''}
+
+Comodidades: ${property.amenities && property.amenities.length > 0 ? property.amenities.join(', ') : 'Não especificadas'}
 
 Descrição: ${property.description || 'Não fornecida'}
+
 
 CLÁUSULAS CONTRATUAIS
 
