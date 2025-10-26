@@ -742,7 +742,7 @@ export default function ContractSign() {
                           {isSignatureLine && showProprietarioSignature && contract.proprietarioSignature ? (
                             <div className="flex flex-col items-start my-2">
                               <img 
-                                src={contract.proprietarioSignature} 
+                                src={contract.proprietarioSignature.startsWith('data:') ? contract.proprietarioSignature : `data:image/png;base64,${contract.proprietarioSignature}`} 
                                 alt="Assinatura do Proprietário" 
                                 className="mb-1"
                                 style={{ 
@@ -752,6 +752,10 @@ export default function ContractSign() {
                                   objectFit: 'contain',
                                   objectPosition: 'left'
                                 }}
+                                onError={(e) => {
+                                  console.error('Failed to load proprietario signature');
+                                  console.log('Signature data starts with:', contract.proprietarioSignature?.substring(0, 50));
+                                }}
                               />
                               <div className="text-xs text-gray-600">
                                 Assinado digitalmente em {contract.proprietarioSignedAt && format(new Date(contract.proprietarioSignedAt), "dd/MM/yyyy HH:mm")}
@@ -760,7 +764,7 @@ export default function ContractSign() {
                           ) : isSignatureLine && showClienteSignature && contract.clienteSignature ? (
                             <div className="flex flex-col items-start my-2">
                               <img 
-                                src={contract.clienteSignature} 
+                                src={contract.clienteSignature.startsWith('data:') ? contract.clienteSignature : `data:image/png;base64,${contract.clienteSignature}`} 
                                 alt="Assinatura do Cliente" 
                                 className="mb-1"
                                 style={{ 
@@ -769,6 +773,10 @@ export default function ContractSign() {
                                   minHeight: '60px',
                                   objectFit: 'contain',
                                   objectPosition: 'left'
+                                }}
+                                onError={(e) => {
+                                  console.error('Failed to load cliente signature');
+                                  console.log('Signature data starts with:', contract.clienteSignature?.substring(0, 50));
                                 }}
                               />
                               <div className="text-xs text-gray-600">
