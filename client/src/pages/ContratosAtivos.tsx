@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, Calendar, DollarSign, FileText, User, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -57,6 +58,10 @@ export default function ContratosAtivos() {
     c.status === 'assinado_proprietario' ||
     c.status === 'assinado_cliente'
   ) || [];
+
+  // Separate by type
+  const contratosvenda = relevantContracts.filter(c => c.tipo === 'venda');
+  const contratosArrendamento = relevantContracts.filter(c => c.tipo === 'arrendamento');
   
   const handleGoBack = () => {
     window.history.length > 1 ? window.history.back() : setLocation('/');
@@ -130,138 +135,198 @@ export default function ContratosAtivos() {
               </div>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 gap-6">
-              {relevantContracts.map((contract) => (
-                <motion.div
-                  key={contract.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <Card className="hover-elevate">
-                    {contract.property?.images && contract.property.images.length > 0 && (
-                      <div className="aspect-video overflow-hidden bg-muted">
-                        <img
-                          src={contract.property.images[0]}
-                          alt={contract.property.title}
-                          className="w-full h-full object-cover"
-                          data-testid={`img-property-${contract.id}`}
-                        />
-                      </div>
-                    )}
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Building2 className="h-5 w-5 text-primary" />
-                            <CardTitle data-testid={`text-property-title-${contract.id}`}>
-                              {contract.property?.title || 'Imóvel'}
-                            </CardTitle>
-                          </div>
-                          <CardDescription>
-                            {contract.property?.bairro}, {contract.property?.municipio}
-                          </CardDescription>
-                        </div>
-                        <Badge 
-                          variant={getStatusBadge(contract.status).variant}
-                          data-testid={`badge-status-${contract.id}`}
-                        >
-                          {getStatusBadge(contract.status).label}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2 text-sm">
-                            <FileText className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">Tipo:</span>
-                            <span className="text-muted-foreground capitalize">
-                              {contract.tipo}
-                            </span>
-                          </div>
+            <Tabs defaultValue="venda" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6" data-testid="tabs-contract-type">
+                <TabsTrigger value="venda" data-testid="tab-venda">
+                  Contratos de Venda ({contratosvenda.length})
+                </TabsTrigger>
+                <TabsTrigger value="arrendamento" data-testid="tab-arrendamento">
+                  Contratos de Arrendamento ({contratosArrendamento.length})
+                </TabsTrigger>
+              </TabsList>
 
-                          <div className="flex items-center gap-2 text-sm">
-                            <DollarSign className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">Valor:</span>
-                            <span className="text-muted-foreground" data-testid={`text-valor-${contract.id}`}>
-                              {new Intl.NumberFormat('pt-AO', {
-                                style: 'currency',
-                                currency: 'AOA'
-                              }).format(Number(contract.valor))}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2 text-sm">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">Início:</span>
-                            <span className="text-muted-foreground">
-                              {format(new Date(contract.dataInicio), 'dd/MM/yyyy', { locale: ptBR })}
-                            </span>
-                          </div>
-
-                          {contract.dataFim && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium">Término:</span>
-                              <span className="text-muted-foreground">
-                                {format(new Date(contract.dataFim), 'dd/MM/yyyy', { locale: ptBR })}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-3">
-                          {!currentUser?.userTypes?.includes('cliente') && contract.cliente && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium">Cliente:</span>
-                              <span className="text-muted-foreground">
-                                {contract.cliente.fullName}
-                              </span>
-                            </div>
-                          )}
-
-                          {currentUser?.userTypes?.includes('cliente') && contract.proprietario && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium">Proprietário:</span>
-                              <span className="text-muted-foreground">
-                                {contract.proprietario.fullName}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {contract.observacoes && (
-                        <div className="mt-4 pt-4 border-t">
-                          <p className="text-sm font-medium mb-1">Observações:</p>
-                          <p className="text-sm text-muted-foreground">{contract.observacoes}</p>
-                        </div>
-                      )}
-                      
-                      {contract.status !== 'ativo' && (
-                        <div className="mt-4 pt-4 border-t">
-                          <Button
-                            onClick={() => setLocation(`/contratos/${contract.id}/assinar`)}
-                            className="w-full"
-                            data-testid={`button-sign-contract-${contract.id}`}
-                          >
-                            {contract.status === 'pendente_assinaturas' 
-                              ? 'Assinar Contrato' 
-                              : 'Ver Contrato'}
-                          </Button>
-                        </div>
-                      )}
+              <TabsContent value="venda" className="space-y-6">
+                {contratosvenda.length === 0 ? (
+                  <Card className="overflow-hidden">
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <FileText className="h-12 w-12 mb-4 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold mb-2">Nenhum contrato de venda</h3>
+                      <p className="text-muted-foreground text-center max-w-md">
+                        Você ainda não possui contratos de venda.
+                      </p>
                     </CardContent>
                   </Card>
-                </motion.div>
-              ))}
-            </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-6">
+                    {contratosvenda.map((contract) => (
+                      <ContractCard key={contract.id} contract={contract} currentUser={currentUser} setLocation={setLocation} getStatusBadge={getStatusBadge} />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="arrendamento" className="space-y-6">
+                {contratosArrendamento.length === 0 ? (
+                  <Card className="overflow-hidden">
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <FileText className="h-12 w-12 mb-4 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold mb-2">Nenhum contrato de arrendamento</h3>
+                      <p className="text-muted-foreground text-center max-w-md">
+                        Você ainda não possui contratos de arrendamento.
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 gap-6">
+                    {contratosArrendamento.map((contract) => (
+                      <ContractCard key={contract.id} contract={contract} currentUser={currentUser} setLocation={setLocation} getStatusBadge={getStatusBadge} />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           )}
         </motion.div>
       </div>
     </div>
+  );
+}
+
+function ContractCard({ 
+  contract, 
+  currentUser, 
+  setLocation, 
+  getStatusBadge 
+}: { 
+  contract: Contract; 
+  currentUser: UserType | undefined; 
+  setLocation: (path: string) => void;
+  getStatusBadge: (status: string) => { variant: any; label: string; className: string };
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Card className="hover-elevate">
+        {contract.property?.images && contract.property.images.length > 0 && (
+          <div className="aspect-video overflow-hidden bg-muted">
+            <img
+              src={contract.property.images[0]}
+              alt={contract.property.title}
+              className="w-full h-full object-cover"
+              data-testid={`img-property-${contract.id}`}
+            />
+          </div>
+        )}
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Building2 className="h-5 w-5 text-primary" />
+                <CardTitle data-testid={`text-property-title-${contract.id}`}>
+                  {contract.property?.title || 'Imóvel'}
+                </CardTitle>
+              </div>
+              <CardDescription>
+                {contract.property?.bairro}, {contract.property?.municipio}
+              </CardDescription>
+            </div>
+            <Badge 
+              variant={getStatusBadge(contract.status).variant}
+              data-testid={`badge-status-${contract.id}`}
+            >
+              {getStatusBadge(contract.status).label}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Tipo:</span>
+                <span className="text-muted-foreground capitalize">
+                  {contract.tipo}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Valor:</span>
+                <span className="text-muted-foreground" data-testid={`text-valor-${contract.id}`}>
+                  {new Intl.NumberFormat('pt-AO', {
+                    style: 'currency',
+                    currency: 'AOA'
+                  }).format(Number(contract.valor))}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Início:</span>
+                <span className="text-muted-foreground">
+                  {format(new Date(contract.dataInicio), 'dd/MM/yyyy', { locale: ptBR })}
+                </span>
+              </div>
+
+              {contract.dataFim && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Término:</span>
+                  <span className="text-muted-foreground">
+                    {format(new Date(contract.dataFim), 'dd/MM/yyyy', { locale: ptBR })}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              {!currentUser?.userTypes?.includes('cliente') && contract.cliente && (
+                <div className="flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Cliente:</span>
+                  <span className="text-muted-foreground">
+                    {contract.cliente.fullName}
+                  </span>
+                </div>
+              )}
+
+              {currentUser?.userTypes?.includes('cliente') && contract.proprietario && (
+                <div className="flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Proprietário:</span>
+                  <span className="text-muted-foreground">
+                    {contract.proprietario.fullName}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {contract.observacoes && (
+            <div className="mt-4 pt-4 border-t">
+              <p className="text-sm font-medium mb-1">Observações:</p>
+              <p className="text-sm text-muted-foreground">{contract.observacoes}</p>
+            </div>
+          )}
+          
+          {contract.status !== 'ativo' && (
+            <div className="mt-4 pt-4 border-t">
+              <Button
+                onClick={() => setLocation(`/contratos/${contract.id}/assinar`)}
+                className="w-full"
+                data-testid={`button-sign-contract-${contract.id}`}
+              >
+                {contract.status === 'pendente_assinaturas' 
+                  ? 'Assinar Contrato' 
+                  : 'Ver Contrato'}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
