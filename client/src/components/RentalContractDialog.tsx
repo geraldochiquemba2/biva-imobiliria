@@ -22,6 +22,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -189,11 +190,14 @@ export function RentalContractDialog({
                     <FormLabel>Número de Telefone do Cliente</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="+244912345678"
+                        placeholder="+244912345678 ou 912345678"
                         {...field}
                         data-testid="input-client-phone"
                       />
                     </FormControl>
+                    <FormDescription>
+                      Digite o telefone do cliente cadastrado na plataforma
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

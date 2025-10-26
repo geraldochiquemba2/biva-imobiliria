@@ -9,7 +9,8 @@ import {
   insertContractSchema,
   insertVisitSchema,
   insertProposalSchema,
-  insertPaymentSchema
+  insertPaymentSchema,
+  type Contract
 } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcrypt";
@@ -657,8 +658,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "O proprietário deve fornecer o número de BI/Passaporte primeiro" });
       }
       
-      // Find cliente by phone
-      const cliente = await storage.getUserByPhone(clientePhone);
+      // Normalize phone number - try with and without +244 prefix
+      let normalizedPhone = clientePhone.trim();
+      
+      // Remove all spaces and special characters except +
+      normalizedPhone = normalizedPhone.replace(/[\s\-\(\)]/g, '');
+      
+      // If doesn't start with +, try adding +244
+      if (!normalizedPhone.startsWith('+')) {
+        normalizedPhone = '+244' + normalizedPhone;
+      }
+      
+      // Find cliente by phone - try normalized version first
+      let cliente = await storage.getUserByPhone(normalizedPhone);
+      
+      // If not found, try original phone
+      if (!cliente) {
+        cliente = await storage.getUserByPhone(clientePhone);
+      }
+      
+      // If still not found, try without +244 prefix
+      if (!cliente && normalizedPhone.startsWith('+244')) {
+        const phoneWithoutPrefix = normalizedPhone.substring(4);
+        cliente = await storage.getUserByPhone(phoneWithoutPrefix);
+      }
+      
       if (!cliente) {
         return res.status(404).json({ error: "Cliente não encontrado. O cliente deve estar cadastrado na plataforma." });
       }
