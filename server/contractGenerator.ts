@@ -59,8 +59,6 @@ Descrição: ${property.description || 'Não fornecida'}
 
 \f
 
-\f
-
 CLÁUSULAS CONTRATUAIS
 
 Cláusula 01ª (Objeto do Contrato)
