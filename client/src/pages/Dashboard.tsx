@@ -104,7 +104,12 @@ export default function Dashboard() {
   
   const userRolesText = currentUser.userTypes?.map(type => userTypeLabels[type]).join(' • ') || '';
 
-  const activeContracts = contracts.filter(c => c.status === 'ativo');
+  const activeContracts = contracts.filter(c => 
+    c.status === 'ativo' || 
+    c.status === 'pendente_assinaturas' ||
+    c.status === 'assinado_proprietario' ||
+    c.status === 'assinado_cliente'
+  );
   const scheduledVisits = allVisits.filter(v => 
     v.status === 'agendada' || 
     v.status === 'pendente_proprietario' || 
