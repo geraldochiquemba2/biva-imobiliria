@@ -300,7 +300,7 @@ export default function ImovelDetalhes() {
                 <div className="space-y-4">
                   <div className="relative aspect-video rounded-md overflow-hidden bg-muted">
                     <img
-                      src={images[selectedImageIndex]}
+                      src={selectedImageIndex === 0 && (property as any).thumbnail ? (property as any).thumbnail : images[selectedImageIndex]}
                       alt={property.title}
                       className="w-full h-full object-cover"
                       data-testid="img-main"
@@ -319,7 +319,7 @@ export default function ImovelDetalhes() {
                           data-testid={`button-thumbnail-${index}`}
                         >
                           <img
-                            src={image}
+                            src={index === 0 && (property as any).thumbnail ? (property as any).thumbnail : image}
                             alt={`${property.title} - ${index + 1}`}
                             className="w-full h-full object-cover hover-elevate"
                           />
