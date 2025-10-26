@@ -73,6 +73,21 @@ export default function ContractSign() {
     },
   });
 
+  // Split contract content into pages (approximately 45 lines per A4 page)
+  const contractPages = useMemo(() => {
+    if (!contract?.contractContent) return [];
+    
+    const lines = contract.contractContent.split('\n');
+    const linesPerPage = 45; // Approximate number of lines that fit in an A4 page
+    const pages: string[][] = [];
+    
+    for (let i = 0; i < lines.length; i += linesPerPage) {
+      pages.push(lines.slice(i, i + linesPerPage));
+    }
+    
+    return pages;
+  }, [contract?.contractContent]);
+
   const handleSign = () => {
     if (!id || !biNumber) return;
     signMutation.mutate({ contractId: id, bi: biNumber });
@@ -133,21 +148,6 @@ export default function ContractSign() {
   }
 
   const signatureStatus = getSignatureStatus();
-
-  // Split contract content into pages (approximately 45 lines per A4 page)
-  const contractPages = useMemo(() => {
-    if (!contract?.contractContent) return [];
-    
-    const lines = contract.contractContent.split('\n');
-    const linesPerPage = 45; // Approximate number of lines that fit in an A4 page
-    const pages: string[][] = [];
-    
-    for (let i = 0; i < lines.length; i += linesPerPage) {
-      pages.push(lines.slice(i, i + linesPerPage));
-    }
-    
-    return pages;
-  }, [contract?.contractContent]);
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
