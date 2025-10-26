@@ -381,10 +381,10 @@ function ContractCard({
           )}
           
           {contract.status !== 'ativo' && (
-            <div className="mt-4 pt-4 border-t flex gap-3">
+            <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2 sm:gap-3">
               <Button
                 onClick={() => setLocation(`/contratos/${contract.id}/assinar`)}
-                className="flex-1"
+                className="flex-1 w-full sm:w-auto"
                 data-testid={`button-sign-contract-${contract.id}`}
               >
                 {contract.status === 'pendente_assinaturas' 
@@ -397,8 +397,9 @@ function ContractCard({
                   variant="outline"
                   onClick={() => setShowCancelDialog(true)}
                   data-testid={`button-cancel-contract-${contract.id}`}
+                  className="w-full sm:w-auto"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 mr-2" />
                   Cancelar
                 </Button>
               )}
