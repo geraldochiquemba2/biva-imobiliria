@@ -155,12 +155,24 @@ export default function EditarImovel() {
       }
 
       const propertyData = {
-        ...data,
+        title: data.title,
+        description: data.description,
+        type: data.type,
+        category: data.category,
         price: data.price.toString(),
+        provincia: data.provincia,
+        municipio: data.municipio,
+        bairro: data.bairro,
+        bedrooms: data.bedrooms,
+        bathrooms: data.bathrooms,
+        livingRooms: data.livingRooms,
+        kitchens: data.kitchens,
+        area: data.area,
         latitude: data.latitude.toString(),
         longitude: data.longitude.toString(),
+        amenities: data.amenities,
+        status: data.status,
         images: finalImageUrls,
-        // Don't include ownerId - preserve original owner
       };
 
       const res = await apiRequest('PATCH', `/api/properties/${params!.id}`, propertyData);
@@ -168,6 +180,7 @@ export default function EditarImovel() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties', params!.id] });
       toast({
         title: "Imóvel atualizado!",
         description: "As alterações foram salvas com sucesso.",
