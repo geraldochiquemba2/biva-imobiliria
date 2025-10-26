@@ -1001,7 +1001,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Both confirmed - activate contract and update property status
         await storage.updateContract(contractId, { status: 'ativo' });
         const propertyStatus = contract.tipo === 'venda' ? 'vendido' : 'arrendado';
-        await storage.updateProperty(contract.propertyId, { status: propertyStatus });
+        
+        // If it's a sale contract, transfer property ownership to the buyer
+        if (contract.tipo === 'venda') {
+          await storage.updateProperty(contract.propertyId, { 
+            status: propertyStatus,
+            ownerId: contract.clienteId  // Transfer ownership to buyer
+          });
+        } else {
+          await storage.updateProperty(contract.propertyId, { status: propertyStatus });
+        }
       }
       
       res.json(updatedContract);
