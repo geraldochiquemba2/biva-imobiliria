@@ -211,6 +211,8 @@ export const insertContractSchema = createInsertSchema(contracts).omit({
 export const insertVisitSchema = createInsertSchema(visits).omit({
   id: true,
   createdAt: true,
+}).extend({
+  dataHora: z.coerce.date(),
 });
 
 export const insertProposalSchema = createInsertSchema(proposals).omit({
