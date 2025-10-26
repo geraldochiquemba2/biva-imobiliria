@@ -292,7 +292,7 @@ export default function ContractSign() {
                 }}
               >
                 {/* Logo in top-left corner */}
-                <div className="absolute top-[3mm] left-[20mm]" style={{ zIndex: 5 }}>
+                <div className="absolute top-0 left-[20mm]" style={{ zIndex: 5 }}>
                   <img 
                     src={logoUrl} 
                     alt="BIVA Imobiliária" 
