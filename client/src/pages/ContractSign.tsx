@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import logoUrl from "@assets/BIVA LOG300.300_1761489547620.png";
 
 export default function ContractSign() {
   const { id } = useParams<{ id: string }>();
@@ -290,6 +291,15 @@ export default function ContractSign() {
                   color: '#1a1a1a'
                 }}
               >
+                {/* Logo in top-left corner */}
+                <div className="absolute top-[15mm] left-[15mm]" style={{ zIndex: 5 }}>
+                  <img 
+                    src={logoUrl} 
+                    alt="BIVA Imobiliária" 
+                    className="w-24 h-24 object-contain"
+                  />
+                </div>
+
                 {/* Decorative header border */}
                 <div className="border-t-4 border-b-2 border-primary/30 py-3 mb-6">
                   <div className="flex justify-between items-center text-xs text-gray-600">
