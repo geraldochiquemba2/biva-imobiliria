@@ -1,14 +1,16 @@
 import { motion } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, Calendar, Clock, MapPin, User, ArrowLeft } from "lucide-react";
+import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
 import emptyStateImage from "@assets/stock_images/empty_calendar_sched_60cbbdfd.jpg";
 import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 interface Visit {
   id: string;
@@ -33,6 +35,7 @@ interface Visit {
 
 export default function VisitasAgendadas() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   
   const { data: currentUser } = useQuery<UserType>({
     queryKey: ['/api/auth/me'],
@@ -43,10 +46,37 @@ export default function VisitasAgendadas() {
     enabled: !!currentUser,
   });
 
+  const cancelVisitMutation = useMutation({
+    mutationFn: async (visitId: string) => {
+      const res = await apiRequest('PATCH', `/api/visits/${visitId}`, {
+        status: 'cancelada',
+      });
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+      toast({
+        title: "Visita cancelada",
+        description: "A visita foi cancelada com sucesso",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao cancelar visita",
+        description: "Não foi possível cancelar a visita. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const scheduledVisits = visits?.filter(v => v.status === 'agendada') || [];
   
   const handleGoBack = () => {
     window.history.length > 1 ? window.history.back() : setLocation('/');
+  };
+
+  const handleCancelVisit = (visitId: string) => {
+    cancelVisitMutation.mutate(visitId);
   };
 
   if (isLoading) {
@@ -178,6 +208,19 @@ export default function VisitasAgendadas() {
                           <p className="text-sm text-muted-foreground">{visit.observacoes}</p>
                         </div>
                       )}
+
+                      <div className="mt-4 pt-4 border-t">
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                          onClick={() => handleCancelVisit(visit.id)}
+                          disabled={cancelVisitMutation.isPending}
+                          data-testid={`button-cancel-${visit.id}`}
+                        >
+                          <XCircle className="h-4 w-4 mr-2" />
+                          {cancelVisitMutation.isPending ? 'Cancelando...' : 'Cancelar Visita'}
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
