@@ -694,7 +694,8 @@ export default function ContractSign() {
                 {/* Contract content */}
                 <div className="relative overflow-auto md:overflow-hidden" style={{ 
                   zIndex: 1,
-                  paddingBottom: '10px'
+                  paddingBottom: '80px',
+                  minHeight: '400px'
                 }}>
                   <div 
                     className="font-serif text-xs md:text-sm m-0 bg-transparent text-black dark:text-black p-0" 
@@ -736,7 +737,11 @@ export default function ContractSign() {
                           style={{
                             textAlign: (isClausulaTitle || isClausulasSection) ? 'center' : 'justify',
                             fontWeight: (isClausulaTitle || isClausulasSection) ? 'bold' : 'normal',
-                            marginBottom: isEmpty ? '0' : undefined
+                            marginBottom: isEmpty ? '0' : undefined,
+                            pageBreakAfter: (isClausulaTitle || isClausulasSection) ? 'avoid' : 'auto',
+                            pageBreakInside: 'avoid',
+                            breakAfter: (isClausulaTitle || isClausulasSection) ? 'avoid' : 'auto',
+                            breakInside: 'avoid'
                           }}
                         >
                           {isSignatureLine && showProprietarioSignature && contract.proprietarioSignature ? (
