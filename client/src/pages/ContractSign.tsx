@@ -7,9 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, FileText, Calendar, AlertCircle, Loader2 } from "lucide-react";
+import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, PenTool } from "lucide-react";
 import { format } from "date-fns";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Contract, User } from "@shared/schema";
 import {
@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import SignatureCanvas from "react-signature-canvas";
 import logoUrl from "@assets/BIVA LOG300.300_1761489547620.png";
 
 export default function ContractSign() {
@@ -27,6 +28,8 @@ export default function ContractSign() {
   const { toast } = useToast();
   const [biNumber, setBiNumber] = useState("");
   const [signDialogOpen, setSignDialogOpen] = useState(false);
+  const signatureRef = useRef<SignatureCanvas>(null);
+  const [hasSignature, setHasSignature] = useState(false);
 
   // Get current user
   const { data: currentUser, isLoading: isLoadingUser } = useQuery<User>({
@@ -146,7 +149,14 @@ export default function ContractSign() {
   }, [contract?.contractContent]);
 
   const handleSign = () => {
-    if (!id || !biNumber) return;
+    if (!id || !biNumber || !hasSignature) {
+      toast({
+        variant: "destructive",
+        title: "Assinatura incompleta",
+        description: "Por favor, preencha o número de BI e desenhe sua assinatura.",
+      });
+      return;
+    }
     signMutation.mutate({ contractId: id, bi: biNumber });
   };
 
@@ -155,6 +165,17 @@ export default function ContractSign() {
       setBiNumber(currentUser.bi);
     }
     setSignDialogOpen(true);
+  };
+
+  const handleClearSignature = () => {
+    signatureRef.current?.clear();
+    setHasSignature(false);
+  };
+
+  const handleSignatureEnd = () => {
+    if (signatureRef.current && !signatureRef.current.isEmpty()) {
+      setHasSignature(true);
+    }
   };
 
   const canSign = () => {
@@ -535,6 +556,40 @@ export default function ContractSign() {
               </p>
             </div>
 
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="flex items-center gap-2">
+                  <PenTool className="h-4 w-4" />
+                  Desenhe sua Assinatura
+                </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearSignature}
+                  data-testid="button-clear-signature"
+                >
+                  <Eraser className="h-4 w-4 mr-2" />
+                  Limpar
+                </Button>
+              </div>
+              <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg bg-background" data-testid="canvas-signature">
+                <SignatureCanvas
+                  ref={signatureRef}
+                  onEnd={handleSignatureEnd}
+                  canvasProps={{
+                    className: "w-full h-40 cursor-crosshair rounded-lg"
+                  }}
+                  backgroundColor="transparent"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {hasSignature 
+                  ? "Assinatura capturada. Você pode limpar e desenhar novamente se desejar."
+                  : "Use o mouse ou toque na tela para desenhar sua assinatura."}
+              </p>
+            </div>
+
             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
               <div className="flex gap-2">
                 <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -560,7 +615,7 @@ export default function ContractSign() {
             </Button>
             <Button
               onClick={handleSign}
-              disabled={!biNumber || signMutation.isPending}
+              disabled={!biNumber || !hasSignature || signMutation.isPending}
               data-testid="button-confirm-sign"
             >
               {signMutation.isPending ? (
