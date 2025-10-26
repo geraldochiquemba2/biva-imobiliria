@@ -161,20 +161,20 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.9 }}
           >
             <Link href="/imoveis">
-              <button 
-                className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
+              <a 
+                className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center"
                 data-testid="button-explore-properties"
               >
                 Explorar Imóveis
-              </button>
+              </a>
             </Link>
             <Link href="/cadastro">
-              <button 
-                className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all"
+              <a 
+                className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center"
                 data-testid="button-advertise-property"
               >
                 Anunciar Imóvel
-              </button>
+              </a>
             </Link>
           </motion.div>
         </motion.div>
