@@ -7,9 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, PenTool, Camera, Upload } from "lucide-react";
+import { CheckCircle, FileText, Calendar, AlertCircle, Loader2, Eraser, PenTool, Camera, Upload, Crop } from "lucide-react";
 import { format } from "date-fns";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Contract, User } from "@shared/schema";
 import {
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import SignatureCanvas from "react-signature-canvas";
 import logoUrl from "@assets/BIVA LOG300.300_1761489547620.png";
+import Cropper from "react-easy-crop";
+import type { Area } from "react-easy-crop";
 
 export default function ContractSign() {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +35,11 @@ export default function ContractSign() {
   const [signatureMethod, setSignatureMethod] = useState<'draw' | 'upload'>('draw');
   const [uploadedSignature, setUploadedSignature] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCropping, setIsCropping] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   // Get current user
   const { data: currentUser, isLoading: isLoadingUser } = useQuery<User>({
@@ -284,33 +291,93 @@ export default function ContractSign() {
         return;
       }
 
-      toast({
-        title: "Processando assinatura...",
-        description: "Removendo fundo e otimizando a imagem.",
-      });
-
       const reader = new FileReader();
       reader.onload = async (e) => {
-        try {
-          const result = e.target?.result as string;
-          const processedImage = await processSignatureImage(result);
-          setUploadedSignature(processedImage);
-          setHasSignature(true);
-          toast({
-            title: "Assinatura processada!",
-            description: "Fundo removido com sucesso.",
-          });
-        } catch (error) {
-          toast({
-            variant: "destructive",
-            title: "Erro ao processar imagem",
-            description: "Usando imagem original.",
-          });
-          setUploadedSignature(e.target?.result as string);
-          setHasSignature(true);
-        }
+        const result = e.target?.result as string;
+        setImageToCrop(result);
+        setIsCropping(true);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const createCroppedImage = async (): Promise<string> => {
+    if (!imageToCrop || !croppedAreaPixels) {
+      throw new Error('No image to crop');
+    }
+
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context not available'));
+          return;
+        }
+
+        canvas.width = croppedAreaPixels.width;
+        canvas.height = croppedAreaPixels.height;
+
+        ctx.drawImage(
+          image,
+          croppedAreaPixels.x,
+          croppedAreaPixels.y,
+          croppedAreaPixels.width,
+          croppedAreaPixels.height,
+          0,
+          0,
+          croppedAreaPixels.width,
+          croppedAreaPixels.height
+        );
+
+        resolve(canvas.toDataURL('image/png'));
+      };
+      image.onerror = () => reject(new Error('Failed to load image'));
+      image.src = imageToCrop;
+    });
+  };
+
+  const handleConfirmCrop = async () => {
+    try {
+      toast({
+        title: "Processando assinatura...",
+        description: "Recortando e otimizando a imagem.",
+      });
+
+      const croppedImage = await createCroppedImage();
+      const processedImage = await processSignatureImage(croppedImage);
+      
+      setUploadedSignature(processedImage);
+      setHasSignature(true);
+      setIsCropping(false);
+      setImageToCrop(null);
+      
+      toast({
+        title: "Assinatura processada!",
+        description: "Imagem recortada e fundo removido com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao processar imagem",
+        description: "Tente novamente.",
+      });
+    }
+  };
+
+  const handleCancelCrop = () => {
+    setIsCropping(false);
+    setImageToCrop(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -788,7 +855,57 @@ export default function ContractSign() {
                     data-testid="input-file-signature"
                   />
                   
-                  {uploadedSignature ? (
+                  {isCropping && imageToCrop ? (
+                    <div className="space-y-3">
+                      <div className="relative h-80 border-2 border-muted-foreground/30 rounded-lg bg-background overflow-hidden">
+                        <Cropper
+                          image={imageToCrop}
+                          crop={crop}
+                          zoom={zoom}
+                          aspect={3 / 1}
+                          onCropChange={setCrop}
+                          onZoomChange={setZoom}
+                          onCropComplete={onCropComplete}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm">Zoom</Label>
+                        <input
+                          type="range"
+                          min={1}
+                          max={3}
+                          step={0.1}
+                          value={zoom}
+                          onChange={(e) => setZoom(Number(e.target.value))}
+                          className="w-full"
+                          data-testid="slider-zoom"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleCancelCrop}
+                          className="flex-1"
+                          data-testid="button-cancel-crop"
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleConfirmCrop}
+                          className="flex-1"
+                          data-testid="button-confirm-crop"
+                        >
+                          <Crop className="h-4 w-4 mr-2" />
+                          Recortar
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Ajuste o recorte para isolar apenas a sua assinatura.
+                      </p>
+                    </div>
+                  ) : uploadedSignature ? (
                     <div className="space-y-2">
                       <div className="border-2 border-muted-foreground/30 rounded-lg bg-background p-4">
                         <img 
