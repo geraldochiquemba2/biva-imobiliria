@@ -96,6 +96,29 @@ export default function ContractSign() {
     },
   });
 
+  // Cancel contract mutation
+  const cancelMutation = useMutation({
+    mutationFn: async (contractId: string) => {
+      const response = await apiRequest('POST', `/api/contracts/${contractId}/cancel`, {});
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Contrato cancelado",
+        description: "O contrato foi cancelado com sucesso.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/contracts', id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/contracts'] });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Erro ao cancelar contrato",
+        description: error.message || "Não foi possível cancelar o contrato.",
+      });
+    },
+  });
+
   // Split contract content into pages (respecting page breaks \f)
   const contractPages = useMemo(() => {
     if (!contract?.contractContent) return [];
@@ -162,6 +185,25 @@ export default function ContractSign() {
   const handleConfirm = () => {
     if (!id) return;
     confirmMutation.mutate(id);
+  };
+
+  const handleCancel = () => {
+    if (!id) return;
+    if (confirm("Tem certeza que deseja cancelar este contrato? Esta ação não pode ser desfeita.")) {
+      cancelMutation.mutate(id);
+    }
+  };
+
+  const canCancel = () => {
+    if (!contract || !currentUser) return false;
+    
+    // Can only cancel if not active yet
+    if (contract.status === 'ativo' || contract.status === 'cancelado' || contract.status === 'encerrado') {
+      return false;
+    }
+    
+    // User must be part of the contract
+    return contract.proprietarioId === currentUser.id || contract.clienteId === currentUser.id;
   };
 
   const getSignatureStatus = () => {

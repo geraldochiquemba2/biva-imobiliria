@@ -884,6 +884,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cancel contract
+  app.post("/api/contracts/:id/cancel", requireAuth, async (req, res) => {
+    try {
+      const contractId = req.params.id;
+      
+      // Get contract
+      const contract = await storage.getContract(contractId);
+      if (!contract) {
+        return res.status(404).json({ error: "Contrato não encontrado" });
+      }
+      
+      // Check if user is part of this contract
+      const userId = req.session.userId!;
+      if (contract.proprietarioId !== userId && contract.clienteId !== userId && !hasRole(req.session, 'corretor') && !hasRole(req.session, 'admin')) {
+        return res.status(403).json({ error: "Você não está autorizado a cancelar este contrato" });
+      }
+      
+      // Only allow cancellation if contract is not yet active
+      if (contract.status === 'ativo') {
+        return res.status(400).json({ error: "Não é possível cancelar um contrato ativo" });
+      }
+      
+      if (contract.status === 'cancelado' || contract.status === 'encerrado') {
+        return res.status(400).json({ error: "Este contrato já foi cancelado ou encerrado" });
+      }
+      
+      // Update contract status to cancelled
+      const updatedContract = await storage.updateContract(contractId, { status: 'cancelado' });
+      
+      res.json(updatedContract);
+    } catch (error) {
+      console.error('Error cancelling contract:', error);
+      res.status(500).json({ error: "Falha ao cancelar contrato" });
+    }
+  });
+
   // Update contract (corretor only)
   app.patch("/api/contracts/:id", requireRole('corretor'), async (req, res) => {
     try {
