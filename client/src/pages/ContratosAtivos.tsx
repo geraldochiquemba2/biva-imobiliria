@@ -221,10 +221,11 @@ function ContractCard({
 
   const cancelMutation = useMutation({
     mutationFn: async (contractId: string) => {
-      return await apiRequest('POST', `/api/contracts/${contractId}/cancel`);
+      const response = await apiRequest('POST', `/api/contracts/${contractId}/cancel`);
+      return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/contracts'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['/api/contracts'] });
       toast({
         title: "Contrato cancelado",
         description: "O contrato foi cancelado com sucesso.",
