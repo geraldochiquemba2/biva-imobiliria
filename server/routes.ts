@@ -70,6 +70,28 @@ const upload = multer({
   }
 });
 
+// Helper function to auto-complete visits that are more than 1 day old
+async function getVisitsWithAutoComplete() {
+  const visits = await storage.listVisits();
+  const now = new Date();
+  const oneDayInMs = 24 * 60 * 60 * 1000;
+  
+  for (const visit of visits) {
+    if (visit.status === 'agendada' && visit.scheduledDateTime) {
+      const visitDate = new Date(visit.scheduledDateTime);
+      const timeSinceVisit = now.getTime() - visitDate.getTime();
+      
+      // If visit was more than 1 day ago, mark as completed
+      if (timeSinceVisit > oneDayInMs) {
+        await storage.updateVisit(visit.id, { status: 'concluida' });
+        visit.status = 'concluida';
+      }
+    }
+  }
+  
+  return visits;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint for keep-alive
   app.get("/api/health", (_req, res) => {
@@ -313,7 +335,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const properties = await storage.listProperties(searchParams);
-      res.json(properties);
+      
+      // Get all active visits (with auto-complete) to check which properties can be edited
+      const allVisits = await getVisitsWithAutoComplete();
+      const activeVisitsByProperty = new Map();
+      allVisits.forEach(visit => {
+        if (visit.status === 'agendada') {
+          activeVisitsByProperty.set(visit.propertyId, true);
+        }
+      });
+      
+      // Add edit information to each property
+      const propertiesWithEditInfo = properties.map(property => {
+        const hasActiveVisits = activeVisitsByProperty.get(property.id) || false;
+        const isRented = property.status === 'arrendado';
+        const canEdit = !hasActiveVisits && !isRented;
+        
+        return {
+          ...property,
+          hasActiveVisits,
+          isRented,
+          canEdit
+        };
+      });
+      
+      res.json(propertiesWithEditInfo);
     } catch (error) {
       console.error('Error listing properties:', error);
       res.status(400).json({ error: "Parâmetros de busca inválidos" });
@@ -339,11 +385,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Imóvel não encontrado" });
       }
       
+      // Check if property has active scheduled visits
+      const propertyVisits = await storage.getVisitsByProperty(req.params.id);
+      const hasActiveVisits = propertyVisits.some(visit => visit.status === 'agendada');
+      
+      // Check if property is rented
+      const isRented = property.status === 'arrendado';
+      
+      // Determine if editing is blocked
+      const canEdit = !hasActiveVisits && !isRented;
+      
       if (property.owner) {
         const { password, ...ownerWithoutPassword } = property.owner;
-        res.json({ ...property, owner: ownerWithoutPassword });
+        res.json({ 
+          ...property, 
+          owner: ownerWithoutPassword,
+          hasActiveVisits,
+          isRented,
+          canEdit
+        });
       } else {
-        res.json(property);
+        res.json({ 
+          ...property,
+          hasActiveVisits,
+          isRented,
+          canEdit
+        });
       }
     } catch (error) {
       console.error('Error getting property:', error);
@@ -478,7 +545,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const properties = await storage.getUserProperties(req.params.userId);
-      res.json(properties);
+      
+      // Get all active visits (with auto-complete) to check which properties can be edited
+      const allVisits = await getVisitsWithAutoComplete();
+      const activeVisitsByProperty = new Map();
+      allVisits.forEach(visit => {
+        if (visit.status === 'agendada') {
+          activeVisitsByProperty.set(visit.propertyId, true);
+        }
+      });
+      
+      // Add edit information to each property
+      const propertiesWithEditInfo = properties.map(property => {
+        const hasActiveVisits = activeVisitsByProperty.get(property.id) || false;
+        const isRented = property.status === 'arrendado';
+        const canEdit = !hasActiveVisits && !isRented;
+        
+        return {
+          ...property,
+          hasActiveVisits,
+          isRented,
+          canEdit
+        };
+      });
+      
+      res.json(propertiesWithEditInfo);
     } catch (error) {
       console.error('Error getting user properties:', error);
       res.status(500).json({ error: "Falha ao buscar imóveis do usuário" });
@@ -600,6 +691,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get visits (returns client visits, owner visits, or all visits depending on user role)
   app.get("/api/visits", requireAuth, async (req, res) => {
     try {
+      // First, auto-complete all old visits
+      await getVisitsWithAutoComplete();
+      
+      // Then fetch user-specific visits
       let visits;
       const userId = req.session.userId!;
       
@@ -609,25 +704,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         visits = await storage.getVisitsByOwner(userId);
       } else {
         visits = await storage.getVisitsByClient(userId);
-      }
-      
-      // Auto-complete scheduled visits that are more than 1 day old
-      if (visits && visits.length > 0) {
-        const now = new Date();
-        const oneDayInMs = 24 * 60 * 60 * 1000;
-        
-        for (const visit of visits) {
-          if (visit.status === 'agendada' && visit.scheduledDateTime) {
-            const visitDate = new Date(visit.scheduledDateTime);
-            const timeSinceVisit = now.getTime() - visitDate.getTime();
-            
-            // If visit was more than 1 day ago, mark as completed
-            if (timeSinceVisit > oneDayInMs) {
-              await storage.updateVisit(visit.id, { status: 'concluida' });
-              visit.status = 'concluida';
-            }
-          }
-        }
       }
       
       if (visits && visits.length > 0) {

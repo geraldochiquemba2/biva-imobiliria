@@ -36,9 +36,16 @@ import {
   MoreVertical,
   CheckCircle,
   XCircle,
-  Trash2
+  Trash2,
+  Lock
 } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
+
+interface PropertyWithEditInfo extends Property {
+  hasActiveVisits?: boolean;
+  isRented?: boolean;
+  canEdit?: boolean;
+}
 
 export default function MeusImoveis() {
   const [, setLocation] = useLocation();
@@ -49,7 +56,7 @@ export default function MeusImoveis() {
     queryKey: ['/api/auth/me'],
   });
 
-  const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
+  const { data: properties = [], isLoading: propertiesLoading } = useQuery<PropertyWithEditInfo[]>({
     queryKey: ['/api/users', currentUser?.id, 'properties'],
     queryFn: async () => {
       const response = await fetch(`/api/users/${currentUser?.id}/properties`);
@@ -362,11 +369,24 @@ export default function MeusImoveis() {
                                       </p>
                                     </div>
                                     <div className="flex gap-1 flex-shrink-0">
-                                      <Button variant="outline" size="icon" className="h-8 w-8" asChild data-testid={`button-edit-${property.id}`}>
-                                        <Link href={`/editar-imovel/${property.id}`}>
-                                          <Edit className="h-3 w-3" />
-                                        </Link>
-                                      </Button>
+                                      {property.canEdit !== false ? (
+                                        <Button variant="outline" size="icon" className="h-8 w-8" asChild data-testid={`button-edit-${property.id}`}>
+                                          <Link href={`/editar-imovel/${property.id}`}>
+                                            <Edit className="h-3 w-3" />
+                                          </Link>
+                                        </Button>
+                                      ) : (
+                                        <Button 
+                                          variant="outline" 
+                                          size="icon" 
+                                          className="h-8 w-8" 
+                                          disabled 
+                                          data-testid={`button-edit-disabled-${property.id}`}
+                                          title={property.hasActiveVisits ? "Imóvel tem visitas confirmadas" : "Imóvel está arrendado"}
+                                        >
+                                          <Lock className="h-3 w-3" />
+                                        </Button>
+                                      )}
                                       <Button variant="outline" size="icon" className="h-8 w-8" asChild data-testid={`button-view-${property.id}`}>
                                         <Link href={`/imoveis/${property.id}`}>
                                           <Eye className="h-3 w-3" />
@@ -379,12 +399,22 @@ export default function MeusImoveis() {
                                           </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                          <DropdownMenuItem asChild data-testid={`action-edit-${property.id}`}>
-                                            <Link href={`/editar-imovel/${property.id}`}>
-                                              <Edit className="h-4 w-4 mr-2" />
+                                          {property.canEdit !== false ? (
+                                            <DropdownMenuItem asChild data-testid={`action-edit-${property.id}`}>
+                                              <Link href={`/editar-imovel/${property.id}`}>
+                                                <Edit className="h-4 w-4 mr-2" />
+                                                Editar Imóvel
+                                              </Link>
+                                            </DropdownMenuItem>
+                                          ) : (
+                                            <DropdownMenuItem disabled data-testid={`action-edit-disabled-${property.id}`}>
+                                              <Lock className="h-4 w-4 mr-2" />
                                               Editar Imóvel
-                                            </Link>
-                                          </DropdownMenuItem>
+                                              <span className="text-xs text-muted-foreground ml-2">
+                                                ({property.hasActiveVisits ? "Com visitas" : "Arrendado"})
+                                              </span>
+                                            </DropdownMenuItem>
+                                          )}
                                           <DropdownMenuSeparator />
                                           {property.status !== 'disponivel' && (
                                             <DropdownMenuItem

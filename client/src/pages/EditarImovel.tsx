@@ -13,10 +13,17 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Building2, Upload, X, Save } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ArrowLeft, Building2, Upload, X, Save, AlertCircle, Lock } from "lucide-react";
 import type { User, Property } from "@shared/schema";
 import { z } from "zod";
 import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
+
+interface PropertyWithEditInfo extends Property {
+  hasActiveVisits?: boolean;
+  isRented?: boolean;
+  canEdit?: boolean;
+}
 
 const AMENITIES = [
   "Piscina",
@@ -73,7 +80,7 @@ export default function EditarImovel() {
     queryKey: ['/api/auth/me'],
   });
 
-  const { data: property, isLoading: propertyLoading } = useQuery<Property>({
+  const { data: property, isLoading: propertyLoading } = useQuery<PropertyWithEditInfo>({
     queryKey: ['/api/properties', params?.id],
     queryFn: async () => {
       const response = await fetch(`/api/properties/${params?.id}`);
@@ -247,6 +254,7 @@ export default function EditarImovel() {
   }
 
   const totalImages = existingImages.length + newImages.length;
+  const isEditBlocked = property?.canEdit === false;
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -267,6 +275,24 @@ export default function EditarImovel() {
               Voltar para Meus Imóveis
             </Link>
           </Button>
+
+          {isEditBlocked && (
+            <Alert className="mb-6" data-testid="alert-edit-blocked">
+              <Lock className="h-4 w-4" />
+              <AlertTitle>Edição Bloqueada</AlertTitle>
+              <AlertDescription>
+                {property.hasActiveVisits && property.isRented && (
+                  "Este imóvel não pode ser editado pois está arrendado e possui visitas confirmadas."
+                )}
+                {property.hasActiveVisits && !property.isRented && (
+                  "Este imóvel não pode ser editado pois possui visitas confirmadas. Cancele as visitas ou aguarde sua conclusão para poder editar."
+                )}
+                {!property.hasActiveVisits && property.isRented && (
+                  "Este imóvel não pode ser editado pois está arrendado."
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
 
           <Card>
             <CardHeader>
@@ -290,6 +316,7 @@ export default function EditarImovel() {
                       <Input
                         id="title"
                         {...register("title")}
+                        disabled={isEditBlocked}
                         data-testid="input-title"
                       />
                       {errors.title && (
@@ -303,7 +330,7 @@ export default function EditarImovel() {
                         name="status"
                         control={control}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select value={field.value} onValueChange={field.onChange} disabled={isEditBlocked}>
                             <SelectTrigger data-testid="select-status">
                               <SelectValue placeholder="Selecione o status" />
                             </SelectTrigger>
@@ -326,6 +353,7 @@ export default function EditarImovel() {
                       id="description"
                       rows={4}
                       {...register("description")}
+                      disabled={isEditBlocked}
                       data-testid="input-description"
                     />
                     {errors.description && (
@@ -340,7 +368,7 @@ export default function EditarImovel() {
                         name="type"
                         control={control}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select value={field.value} onValueChange={field.onChange} disabled={isEditBlocked}>
                             <SelectTrigger data-testid="select-type">
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
@@ -359,7 +387,7 @@ export default function EditarImovel() {
                         name="category"
                         control={control}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select value={field.value} onValueChange={field.onChange} disabled={isEditBlocked}>
                             <SelectTrigger data-testid="select-category">
                               <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
@@ -380,6 +408,7 @@ export default function EditarImovel() {
                         id="price"
                         type="number"
                         {...register("price")}
+                        disabled={isEditBlocked}
                         data-testid="input-price"
                       />
                       {errors.price && (
@@ -399,6 +428,7 @@ export default function EditarImovel() {
                       <Input
                         id="provincia"
                         {...register("provincia")}
+                        disabled={isEditBlocked}
                         data-testid="input-provincia"
                       />
                     </div>
@@ -408,6 +438,7 @@ export default function EditarImovel() {
                       <Input
                         id="municipio"
                         {...register("municipio")}
+                        disabled={isEditBlocked}
                         data-testid="input-municipio"
                       />
                     </div>
@@ -417,6 +448,7 @@ export default function EditarImovel() {
                       <Input
                         id="bairro"
                         {...register("bairro")}
+                        disabled={isEditBlocked}
                         data-testid="input-bairro"
                       />
                     </div>
@@ -447,6 +479,7 @@ export default function EditarImovel() {
                         type="number"
                         min="0"
                         {...register("bedrooms", { valueAsNumber: true })}
+                        disabled={isEditBlocked}
                         data-testid="input-bedrooms"
                       />
                     </div>
@@ -458,6 +491,7 @@ export default function EditarImovel() {
                         type="number"
                         min="0"
                         {...register("bathrooms", { valueAsNumber: true })}
+                        disabled={isEditBlocked}
                         data-testid="input-bathrooms"
                       />
                     </div>
@@ -469,6 +503,7 @@ export default function EditarImovel() {
                         type="number"
                         min="0"
                         {...register("livingRooms", { valueAsNumber: true })}
+                        disabled={isEditBlocked}
                         data-testid="input-livingrooms"
                       />
                     </div>
@@ -480,6 +515,7 @@ export default function EditarImovel() {
                         type="number"
                         min="0"
                         {...register("kitchens", { valueAsNumber: true })}
+                        disabled={isEditBlocked}
                         data-testid="input-kitchens"
                       />
                     </div>
@@ -491,6 +527,7 @@ export default function EditarImovel() {
                         type="number"
                         min="1"
                         {...register("area", { valueAsNumber: true })}
+                        disabled={isEditBlocked}
                         data-testid="input-area"
                       />
                       {errors.area && (
@@ -520,6 +557,7 @@ export default function EditarImovel() {
                                     : current.filter((a) => a !== amenity)
                                 );
                               }}
+                              disabled={isEditBlocked}
                               data-testid={`checkbox-${amenity.toLowerCase().replace(/\s+/g, '-')}`}
                             />
                           )}
@@ -553,7 +591,8 @@ export default function EditarImovel() {
                             <button
                               type="button"
                               onClick={() => removeExistingImage(index)}
-                              className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              disabled={isEditBlocked}
+                              className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
                               data-testid={`button-remove-existing-${index}`}
                             >
                               <X className="h-4 w-4" />
@@ -579,7 +618,8 @@ export default function EditarImovel() {
                             <button
                               type="button"
                               onClick={() => removeNewImage(index)}
-                              className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              disabled={isEditBlocked}
+                              className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
                               data-testid={`button-remove-new-${index}`}
                             >
                               <X className="h-4 w-4" />
@@ -590,7 +630,7 @@ export default function EditarImovel() {
                     </div>
                   )}
 
-                  {totalImages < 10 && (
+                  {totalImages < 10 && !isEditBlocked && (
                     <div>
                       <Label
                         htmlFor="images"
@@ -616,7 +656,7 @@ export default function EditarImovel() {
                   <Button
                     type="submit"
                     size="lg"
-                    disabled={updatePropertyMutation.isPending || uploadingImages}
+                    disabled={isEditBlocked || updatePropertyMutation.isPending || uploadingImages}
                     className="flex-1"
                     data-testid="button-save"
                   >
