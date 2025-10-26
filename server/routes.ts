@@ -1220,9 +1220,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
       
-      // Verify BI matches
-      if (user.bi !== bi) {
-        return res.status(400).json({ error: "O número de BI/Passaporte não corresponde ao cadastrado" });
+      // If user doesn't have BI in profile, update it automatically
+      if (!user.bi) {
+        await storage.updateUser(userId, { bi });
+      } else {
+        // If user already has BI, verify it matches
+        if (user.bi !== bi) {
+          return res.status(400).json({ error: "O número de BI/Passaporte não corresponde ao cadastrado no seu perfil" });
+        }
       }
       
       // Update signature based on user role in contract

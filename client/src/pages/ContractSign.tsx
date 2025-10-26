@@ -827,7 +827,7 @@ export default function ContractSign() {
               <p className="text-xs text-muted-foreground mt-1">
                 {currentUser?.bi 
                   ? "Número preenchido automaticamente do seu perfil. Você pode editá-lo se necessário."
-                  : "Este número deve corresponder ao cadastrado no seu perfil."}
+                  : "Este número será salvo automaticamente no seu perfil ao assinar."}
               </p>
             </div>
 
