@@ -74,17 +74,28 @@ export default function ContractSign() {
     },
   });
 
-  // Split contract content into pages (approximately 32 lines per A4 page to leave space for footer)
+  // Split contract content into pages (respecting page breaks \f)
   const contractPages = useMemo(() => {
     if (!contract?.contractContent) return [];
     
-    const lines = contract.contractContent.split('\n');
-    const linesPerPage = 32; // Reduced to ensure text doesn't overlap with footer
+    // First split by form feed character for explicit page breaks
+    const pageBreaks = contract.contractContent.split('\f');
     const pages: string[][] = [];
     
-    for (let i = 0; i < lines.length; i += linesPerPage) {
-      pages.push(lines.slice(i, i + linesPerPage));
-    }
+    pageBreaks.forEach((pageContent) => {
+      const lines = pageContent.split('\n');
+      const linesPerPage = 32;
+      
+      // If page content is small enough, keep it on one page
+      if (lines.length <= linesPerPage) {
+        pages.push(lines);
+      } else {
+        // If too large, split into multiple pages
+        for (let i = 0; i < lines.length; i += linesPerPage) {
+          pages.push(lines.slice(i, i + linesPerPage));
+        }
+      }
+    });
     
     return pages;
   }, [contract?.contractContent]);
