@@ -31,9 +31,9 @@ export default function Dashboard() {
 
   const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
   
-  const userProperties = hasRole('admin') || hasRole('corretor')
-    ? properties 
-    : properties.filter(p => p.ownerId === (currentUser?.id || ''));
+  const myOwnProperties = properties.filter(p => p.ownerId === (currentUser?.id || ''));
+  
+  const allSystemProperties = properties;
 
   const { data: userContracts = [] } = useQuery<Contract[]>({
     queryKey: [`/api/users/${currentUser?.id}/contracts`],
@@ -60,10 +60,10 @@ export default function Dashboard() {
   });
 
   const { data: propertyVisits = [] } = useQuery<Visit[]>({
-    queryKey: [`/api/properties/visits`, userProperties.map(p => p.id)],
+    queryKey: [`/api/properties/visits`, myOwnProperties.map(p => p.id)],
     queryFn: async () => {
       const allVisits: Visit[] = [];
-      for (const property of userProperties) {
+      for (const property of myOwnProperties) {
         const response = await fetch(`/api/properties/${property.id}/visits`);
         if (response.ok) {
           const visits = await response.json();
@@ -72,7 +72,7 @@ export default function Dashboard() {
       }
       return allVisits;
     },
-    enabled: !!currentUser?.id && (hasRole('proprietario') || hasRole('corretor') || hasRole('admin')) && userProperties.length > 0,
+    enabled: !!currentUser?.id && (hasRole('proprietario') || hasRole('corretor') || hasRole('admin')) && myOwnProperties.length > 0,
   });
 
   const allVisits = [...clientVisits, ...propertyVisits];
@@ -135,7 +135,7 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-2xl font-bold" data-testid="text-properties-count">
-                      {propertiesLoading ? '...' : userProperties.length}
+                      {propertiesLoading ? '...' : myOwnProperties.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Imóveis cadastrados
@@ -240,7 +240,7 @@ export default function Dashboard() {
                     </CardHeader>
                     <CardContent className="relative z-10">
                       <div className="text-2xl font-bold" data-testid="text-properties-count">
-                        {propertiesLoading ? '...' : userProperties.length}
+                        {propertiesLoading ? '...' : allSystemProperties.length}
                       </div>
                       <p className="text-xs text-muted-foreground">
                         No sistema
@@ -344,7 +344,7 @@ export default function Dashboard() {
                       <div className="flex justify-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                       </div>
-                    ) : userProperties.length === 0 ? (
+                    ) : myOwnProperties.length === 0 ? (
                       <div className="text-center py-12">
                         <Home className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                         <h3 className="text-lg font-semibold mb-2">
@@ -357,7 +357,7 @@ export default function Dashboard() {
                     ) : (
                       <div className="space-y-4">
                         <p className="text-center text-muted-foreground">
-                          Clique para ver todos os seus {userProperties.length} {userProperties.length === 1 ? 'imóvel' : 'imóveis'}
+                          Clique para ver todos os seus {myOwnProperties.length} {myOwnProperties.length === 1 ? 'imóvel' : 'imóveis'}
                         </p>
                       </div>
                     )}
