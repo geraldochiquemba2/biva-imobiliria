@@ -12,8 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { PropertyWithOwner, User, Visit } from "@shared/schema";
+import type { PropertyWithOwner, User, Visit, VirtualTourWithRooms } from "@shared/schema";
 import MapView from "@/components/MapView";
+import VirtualTourViewer from "@/components/VirtualTourViewer";
 import {
   ArrowLeft,
   MapPin,
@@ -29,6 +30,9 @@ import {
   User as UserIcon,
   Navigation,
   XCircle,
+  Eye,
+  Edit,
+  Plus,
 } from "lucide-react";
 
 export default function ImovelDetalhes() {
@@ -70,6 +74,11 @@ export default function ImovelDetalhes() {
       return response.json();
     },
     enabled: !!currentUser,
+  });
+
+  const { data: virtualTour } = useQuery<VirtualTourWithRooms>({
+    queryKey: ['/api/virtual-tours/property', params?.id],
+    enabled: !!params?.id,
   });
 
   // Verificar se usuário não autenticado está tentando ver imóvel indisponível
@@ -323,6 +332,45 @@ export default function ImovelDetalhes() {
                 <div className="aspect-video rounded-md bg-muted flex items-center justify-center">
                   <p className="text-muted-foreground">Sem imagens disponíveis</p>
                 </div>
+              )}
+
+              {/* Tour Virtual 360° */}
+              {virtualTour && virtualTour.rooms && virtualTour.rooms.length > 0 && (
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-2xl font-bold">Tour Virtual 360°</h2>
+                      {currentUser && property.ownerId === currentUser.id && (
+                        <Link href={`/imoveis/${property.id}/tour-virtual`}>
+                          <Button variant="outline" size="sm" data-testid="button-manage-tour">
+                            <Edit className="h-4 w-4 mr-2" />
+                            Gerenciar Tour
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                    <VirtualTourViewer tour={virtualTour} />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Botão para criar tour (apenas para proprietário) */}
+              {!virtualTour && currentUser && property.ownerId === currentUser.id && (
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <Eye className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">Adicione um Tour Virtual 360°</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Mostre seu imóvel de forma interativa com fotos 360° e hotspots navegáveis
+                    </p>
+                    <Link href={`/imoveis/${property.id}/tour-virtual`}>
+                      <Button data-testid="button-create-tour">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Criar Tour Virtual
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               )}
 
               {/* Descrição */}

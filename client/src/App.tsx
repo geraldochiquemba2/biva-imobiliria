@@ -28,6 +28,7 @@ import ImoveisVendidos from "@/pages/ImoveisVendidos";
 import ImoveisIndisponiveis from "@/pages/ImoveisIndisponiveis";
 import ExplorarMapa from "@/pages/ExplorarMapa";
 import ContractSign from "@/pages/ContractSign";
+import TourVirtualManager from "@/pages/TourVirtualManager";
 import NotFound from "@/pages/not-found";
 
 function ScrollToTop() {
@@ -48,6 +49,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/imoveis" component={Imoveis} />
         <Route path="/imoveis/:id" component={ImovelDetalhes} />
+        <Route path="/imoveis/:propertyId/tour-virtual" component={TourVirtualManager} />
         <Route path="/explorar-mapa" component={ExplorarMapa} />
         <Route path="/servicos" component={Servicos} />
         <Route path="/sobre" component={Sobre} />
