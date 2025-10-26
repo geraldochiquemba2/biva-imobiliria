@@ -653,9 +653,8 @@ export default function ContractSign() {
             {contractPages.map((pageLines, pageIndex) => (
               <div 
                 key={pageIndex}
-                className="shadow-2xl relative overflow-hidden w-full" 
+                className="shadow-2xl relative overflow-hidden w-full min-h-[700px] md:min-h-[297mm]"
                 style={{ 
-                  minHeight: '500px',
                   paddingTop: '100px',
                   paddingLeft: '16px',
                   paddingRight: '16px',
@@ -692,10 +691,9 @@ export default function ContractSign() {
                 </div>
                 
                 {/* Contract content */}
-                <div className="relative overflow-auto md:overflow-hidden" style={{ 
+                <div className="relative" style={{ 
                   zIndex: 1,
-                  paddingBottom: '80px',
-                  minHeight: '400px'
+                  paddingBottom: '80px'
                 }}>
                   <div 
                     className="font-serif text-xs md:text-sm m-0 bg-transparent text-black dark:text-black p-0" 
