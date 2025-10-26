@@ -678,13 +678,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Você só pode agendar visitas para si mesmo" });
       }
       
-      // Check if user already has a visit for this property
+      // Check if user already has a pending/active visit for this property
       const existingVisit = await storage.getVisitByClientAndProperty(visitData.clienteId, visitData.propertyId);
-      if (existingVisit) {
-        return res.status(400).json({ error: "Você já agendou uma visita para este imóvel" });
+      if (existingVisit && ['pendente_proprietario', 'pendente_cliente', 'agendada'].includes(existingVisit.status)) {
+        return res.status(400).json({ error: "Você já possui uma visita ativa para este imóvel" });
       }
       
-      const visit = await storage.createVisit(visitData);
+      // Set default values
+      const newVisit = {
+        ...visitData,
+        status: 'pendente_proprietario' as const,
+        lastActionBy: 'cliente' as const,
+      };
+      
+      const visit = await storage.createVisit(newVisit);
+      
+      // Get property to notify owner
+      const property = await storage.getProperty(visit.propertyId);
+      if (property) {
+        const client = await storage.getUser(visit.clienteId);
+        await storage.createNotification({
+          userId: property.ownerId,
+          type: 'visit_requested',
+          title: 'Nova solicitação de visita',
+          message: `${client?.fullName} solicitou uma visita para ${property.title}`,
+          entityId: visit.id,
+        });
+      }
+      
       res.status(201).json(visit);
     } catch (error) {
       console.error('Error creating visit:', error);
@@ -717,6 +738,170 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error updating visit:', error);
       res.status(500).json({ error: "Falha ao atualizar visita" });
+    }
+  });
+
+  // Owner response to visit request (accept, reject, or propose new date)
+  app.post("/api/visits/:id/owner-response", requireAuth, async (req, res) => {
+    try {
+      const visit = await storage.getVisit(req.params.id);
+      if (!visit) {
+        return res.status(404).json({ error: "Visita não encontrada" });
+      }
+      
+      const property = await storage.getProperty(visit.propertyId);
+      if (!property || property.ownerId !== req.session.userId) {
+        return res.status(403).json({ error: "Apenas o proprietário pode responder a esta visita" });
+      }
+      
+      const { action, proposedDateTime, message } = req.body;
+      
+      if (action === 'accept') {
+        const updatedVisit = await storage.updateVisit(visit.id, {
+          status: 'agendada',
+          scheduledDateTime: visit.ownerProposedDateTime || visit.requestedDateTime,
+          lastActionBy: 'proprietario',
+          ownerMessage: message,
+        });
+        
+        await storage.createNotification({
+          userId: visit.clienteId,
+          type: 'visit_confirmed',
+          title: 'Visita confirmada!',
+          message: `Sua visita foi confirmada pelo proprietário`,
+          entityId: visit.id,
+        });
+        
+        return res.json(updatedVisit);
+      }
+      
+      if (action === 'reject') {
+        const updatedVisit = await storage.updateVisit(visit.id, {
+          status: 'recusada',
+          lastActionBy: 'proprietario',
+          ownerMessage: message,
+        });
+        
+        await storage.createNotification({
+          userId: visit.clienteId,
+          type: 'visit_owner_response',
+          title: 'Visita recusada',
+          message: `O proprietário recusou sua solicitação de visita`,
+          entityId: visit.id,
+        });
+        
+        return res.json(updatedVisit);
+      }
+      
+      if (action === 'propose' && proposedDateTime) {
+        const updatedVisit = await storage.updateVisit(visit.id, {
+          status: 'pendente_cliente',
+          ownerProposedDateTime: new Date(proposedDateTime),
+          lastActionBy: 'proprietario',
+          ownerMessage: message,
+        });
+        
+        await storage.createNotification({
+          userId: visit.clienteId,
+          type: 'visit_owner_response',
+          title: 'Nova data proposta',
+          message: `O proprietário propôs uma nova data para a visita`,
+          entityId: visit.id,
+        });
+        
+        return res.json(updatedVisit);
+      }
+      
+      return res.status(400).json({ error: "Ação inválida" });
+    } catch (error) {
+      console.error('Error in owner response:', error);
+      res.status(500).json({ error: "Falha ao processar resposta" });
+    }
+  });
+
+  // Client response to owner's proposal
+  app.post("/api/visits/:id/client-response", requireAuth, async (req, res) => {
+    try {
+      const visit = await storage.getVisit(req.params.id);
+      if (!visit) {
+        return res.status(404).json({ error: "Visita não encontrada" });
+      }
+      
+      if (visit.clienteId !== req.session.userId) {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+      
+      const { action, proposedDateTime, message } = req.body;
+      
+      if (action === 'accept') {
+        const updatedVisit = await storage.updateVisit(visit.id, {
+          status: 'agendada',
+          scheduledDateTime: visit.ownerProposedDateTime || visit.requestedDateTime,
+          lastActionBy: 'cliente',
+          clientMessage: message,
+        });
+        
+        const property = await storage.getProperty(visit.propertyId);
+        if (property) {
+          await storage.createNotification({
+            userId: property.ownerId,
+            type: 'visit_confirmed',
+            title: 'Visita confirmada!',
+            message: `O cliente aceitou a data proposta`,
+            entityId: visit.id,
+          });
+        }
+        
+        return res.json(updatedVisit);
+      }
+      
+      if (action === 'reject') {
+        const updatedVisit = await storage.updateVisit(visit.id, {
+          status: 'recusada',
+          lastActionBy: 'cliente',
+          clientMessage: message,
+        });
+        
+        const property = await storage.getProperty(visit.propertyId);
+        if (property) {
+          await storage.createNotification({
+            userId: property.ownerId,
+            type: 'visit_client_response',
+            title: 'Visita recusada',
+            message: `O cliente recusou a data proposta`,
+            entityId: visit.id,
+          });
+        }
+        
+        return res.json(updatedVisit);
+      }
+      
+      if (action === 'propose' && proposedDateTime) {
+        const updatedVisit = await storage.updateVisit(visit.id, {
+          status: 'pendente_proprietario',
+          requestedDateTime: new Date(proposedDateTime),
+          lastActionBy: 'cliente',
+          clientMessage: message,
+        });
+        
+        const property = await storage.getProperty(visit.propertyId);
+        if (property) {
+          await storage.createNotification({
+            userId: property.ownerId,
+            type: 'visit_client_response',
+            title: 'Nova data proposta',
+            message: `O cliente propôs uma nova data para a visita`,
+            entityId: visit.id,
+          });
+        }
+        
+        return res.json(updatedVisit);
+      }
+      
+      return res.status(400).json({ error: "Ação inválida" });
+    } catch (error) {
+      console.error('Error in client response:', error);
+      res.status(500).json({ error: "Falha ao processar resposta" });
     }
   });
 
@@ -928,6 +1113,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error updating payment:', error);
       res.status(500).json({ error: "Falha ao atualizar pagamento" });
+    }
+  });
+
+  // Notification Routes
+  
+  // Get user notifications
+  app.get("/api/notifications", requireAuth, async (req, res) => {
+    try {
+      const notifications = await storage.getNotificationsByUser(req.session.userId!);
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error getting notifications:', error);
+      res.status(500).json({ error: "Falha ao buscar notificações" });
+    }
+  });
+
+  // Get unread notifications count
+  app.get("/api/notifications/unread", requireAuth, async (req, res) => {
+    try {
+      const notifications = await storage.getUnreadNotificationsByUser(req.session.userId!);
+      res.json({ count: notifications.length, notifications });
+    } catch (error) {
+      console.error('Error getting unread notifications:', error);
+      res.status(500).json({ error: "Falha ao buscar notificações não lidas" });
+    }
+  });
+
+  // Mark notification as read
+  app.patch("/api/notifications/:id/read", requireAuth, async (req, res) => {
+    try {
+      const notification = await storage.markNotificationAsRead(req.params.id);
+      if (!notification) {
+        return res.status(404).json({ error: "Notificação não encontrada" });
+      }
+      res.json(notification);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ error: "Falha ao marcar notificação como lida" });
+    }
+  });
+
+  // Mark all notifications as read
+  app.post("/api/notifications/read-all", requireAuth, async (req, res) => {
+    try {
+      await storage.markAllNotificationsAsRead(req.session.userId!);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      res.status(500).json({ error: "Falha ao marcar todas notificações como lidas" });
     }
   });
 

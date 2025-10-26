@@ -5,6 +5,7 @@ import {
   visits,
   proposals,
   payments,
+  notifications,
   type User, 
   type InsertUser,
   type Property,
@@ -17,7 +18,9 @@ import {
   type Proposal,
   type InsertProposal,
   type Payment,
-  type InsertPayment
+  type InsertPayment,
+  type Notification,
+  type InsertNotification
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, gte, lte, ilike, desc } from "drizzle-orm";
@@ -56,6 +59,7 @@ export interface IStorage {
   deleteVisit(id: string): Promise<boolean>;
   getVisitsByClient(clienteId: string): Promise<Visit[]>;
   getVisitsByProperty(propertyId: string): Promise<Visit[]>;
+  getVisitByClientAndProperty(clienteId: string, propertyId: string): Promise<Visit | undefined>;
   
   // Proposal methods
   getProposal(id: string): Promise<Proposal | undefined>;
@@ -71,6 +75,13 @@ export interface IStorage {
   createPayment(payment: InsertPayment): Promise<Payment>;
   updatePayment(id: string, payment: Partial<InsertPayment>): Promise<Payment | undefined>;
   getPaymentsByContract(contractId: string): Promise<Payment[]>;
+  
+  // Notification methods
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  getNotificationsByUser(userId: string): Promise<Notification[]>;
+  getUnreadNotificationsByUser(userId: string): Promise<Notification[]>;
+  markNotificationAsRead(id: string): Promise<Notification | undefined>;
+  markAllNotificationsAsRead(userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -472,6 +483,55 @@ export class DatabaseStorage implements IStorage {
       .where(eq(payments.contractId, contractId))
       .orderBy(desc(payments.createdAt));
     return results;
+  }
+
+  // Notification methods
+  async createNotification(insertNotification: InsertNotification): Promise<Notification> {
+    const [notification] = await db
+      .insert(notifications)
+      .values(insertNotification)
+      .returning();
+    return notification;
+  }
+
+  async getNotificationsByUser(userId: string): Promise<Notification[]> {
+    const results = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt));
+    return results;
+  }
+
+  async getUnreadNotificationsByUser(userId: string): Promise<Notification[]> {
+    const results = await db
+      .select()
+      .from(notifications)
+      .where(and(
+        eq(notifications.userId, userId),
+        eq(notifications.readAt, null as any)
+      ))
+      .orderBy(desc(notifications.createdAt));
+    return results;
+  }
+
+  async markNotificationAsRead(id: string): Promise<Notification | undefined> {
+    const [notification] = await db
+      .update(notifications)
+      .set({ readAt: new Date() })
+      .where(eq(notifications.id, id))
+      .returning();
+    return notification || undefined;
+  }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    await db
+      .update(notifications)
+      .set({ readAt: new Date() })
+      .where(and(
+        eq(notifications.userId, userId),
+        eq(notifications.readAt, null as any)
+      ));
   }
 }
 
