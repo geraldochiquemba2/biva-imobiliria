@@ -309,9 +309,14 @@ export default function ContractSign() {
                   zIndex: 1 
                 }}>
                   <pre 
-                    className="whitespace-pre-wrap font-serif text-sm leading-relaxed m-0 bg-transparent text-black dark:text-black p-0 border-0" 
+                    className="whitespace-pre-wrap font-serif text-sm m-0 bg-transparent text-black dark:text-black p-0 border-0" 
                     data-testid={pageIndex === 0 ? "text-contract-content" : undefined}
-                    style={{ fontFamily: 'Georgia, serif', color: '#1a1a1a', backgroundColor: 'transparent' }}
+                    style={{ 
+                      fontFamily: 'Georgia, serif', 
+                      color: '#1a1a1a', 
+                      backgroundColor: 'transparent',
+                      lineHeight: '1.8'
+                    }}
                   >
                     {pageLines.join('\n')}
                   </pre>
