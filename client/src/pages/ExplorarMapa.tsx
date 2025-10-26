@@ -33,6 +33,7 @@ export default function ExplorarMapa() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [nearbyProperties, setNearbyProperties] = useState<PropertyWithDistance[]>([]);
   const [showNearby, setShowNearby] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   const { data: allProperties, isLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
@@ -54,88 +55,103 @@ export default function ExplorarMapa() {
     return R * c;
   };
 
-  // Initialize map
+  // Initialize map - wait for animation to complete
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    if (!mapContainerRef.current || isLoading || mapReady) return;
 
-    // Cleanup existing map if any
-    if (mapRef.current) {
-      mapRef.current.remove();
-      mapRef.current = null;
-    }
+    // Wait for motion animation to complete (600ms from motion.div)
+    const animationDelay = setTimeout(() => {
+      if (!mapContainerRef.current) return;
 
-    // Force container to have explicit height immediately
-    if (mapContainerRef.current) {
+      // Cleanup existing map if any
+      if (mapRef.current) {
+        try {
+          mapRef.current.remove();
+        } catch (e) {
+          console.error('Error removing existing map:', e);
+        }
+        mapRef.current = null;
+      }
+
+      // Force container to have explicit height immediately
       mapContainerRef.current.style.height = '450px';
       mapContainerRef.current.style.width = '100%';
-    }
 
-    let retryCount = 0;
-    const maxRetries = 20;
+      let retryCount = 0;
+      const maxRetries = 30;
 
-    const initializeMap = () => {
-      if (!mapContainerRef.current) return;
-      
-      const container = mapContainerRef.current;
-      const rect = container.getBoundingClientRect();
-      
-      // Only initialize if container has dimensions
-      if ((rect.width === 0 || rect.height === 0) && retryCount < maxRetries) {
-        retryCount++;
-        setTimeout(initializeMap, 100);
-        return;
-      }
-
-      if (rect.width === 0 || rect.height === 0) {
-        console.error('Failed to initialize map: container has no dimensions');
-        return;
-      }
-
-      try {
-        // Center map on Angola (Luanda)
-        const map = L.map(container, {
-          center: [-8.8383, 13.2344],
-          zoom: 11,
-          zoomControl: true,
-          scrollWheelZoom: true,
-          preferCanvas: false,
-        });
+      const initializeMap = () => {
+        if (!mapContainerRef.current) return;
         
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19,
-          minZoom: 3,
-        }).addTo(map);
-
-        mapRef.current = map;
-
-        // Force immediate size calculation
-        setTimeout(() => {
-          if (mapRef.current) {
-            mapRef.current.invalidateSize(true);
-          }
-        }, 0);
+        const container = mapContainerRef.current;
+        const rect = container.getBoundingClientRect();
         
-        setTimeout(() => {
-          if (mapRef.current) {
-            mapRef.current.invalidateSize(true);
-          }
-        }, 100);
-        
-        setTimeout(() => {
-          if (mapRef.current) {
-            mapRef.current.invalidateSize(true);
-          }
-        }, 300);
-      } catch (error) {
-        console.error('Error initializing map:', error);
-      }
-    };
+        // Only initialize if container has dimensions
+        if ((rect.width === 0 || rect.height === 0) && retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(initializeMap, 100);
+          return;
+        }
 
-    // Start initialization immediately
-    setTimeout(initializeMap, 0);
+        if (rect.width === 0 || rect.height === 0) {
+          console.error('Failed to initialize map: container has no dimensions after retries');
+          return;
+        }
+
+        try {
+          // Center map on Angola (Luanda)
+          const map = L.map(container, {
+            center: [-8.8383, 13.2344],
+            zoom: 11,
+            zoomControl: true,
+            scrollWheelZoom: true,
+            preferCanvas: false,
+          });
+          
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+            minZoom: 3,
+          }).addTo(map);
+
+          mapRef.current = map;
+          setMapReady(true);
+
+          // Force size recalculation multiple times
+          setTimeout(() => {
+            if (mapRef.current) {
+              mapRef.current.invalidateSize(true);
+            }
+          }, 100);
+          
+          setTimeout(() => {
+            if (mapRef.current) {
+              mapRef.current.invalidateSize(true);
+            }
+          }, 300);
+          
+          setTimeout(() => {
+            if (mapRef.current) {
+              mapRef.current.invalidateSize(true);
+            }
+          }, 600);
+
+          setTimeout(() => {
+            if (mapRef.current) {
+              mapRef.current.invalidateSize(true);
+            }
+          }, 1000);
+        } catch (error) {
+          console.error('Error initializing map:', error);
+        }
+      };
+
+      // Start initialization after a small delay
+      setTimeout(initializeMap, 200);
+    }, 700);
 
     return () => {
+      clearTimeout(animationDelay);
       if (mapRef.current) {
         try {
           mapRef.current.off();
@@ -146,7 +162,7 @@ export default function ExplorarMapa() {
         mapRef.current = null;
       }
     };
-  }, []);
+  }, [isLoading, mapReady]);
 
   // Add property markers
   useEffect(() => {
