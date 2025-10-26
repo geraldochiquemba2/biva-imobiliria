@@ -328,6 +328,15 @@ export default function ImovelDetalhes() {
                     </div>
                   )}
                 </div>
+              ) : (property as any).thumbnail ? (
+                <div className="aspect-video rounded-md overflow-hidden bg-muted">
+                  <img
+                    src={(property as any).thumbnail}
+                    alt={property.title}
+                    className="w-full h-full object-cover"
+                    data-testid="img-main"
+                  />
+                </div>
               ) : (
                 <div className="aspect-video rounded-md bg-muted flex items-center justify-center">
                   <p className="text-muted-foreground">Sem imagens disponíveis</p>

@@ -6,14 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { User, Property } from "@shared/schema";
-import { 
-  Building2, 
-  ArrowLeft, 
-  MapPin, 
-  Bed, 
+import {
+  Building2,
+  ArrowLeft,
+  MapPin,
+  Bed,
   Bath,
   Maximize,
-  Eye
+  Eye,
+  Home, // Import Home icon
 } from "lucide-react";
 
 export default function AdminImoveis() {
@@ -151,9 +152,30 @@ export default function AdminImoveis() {
               ) : (
                 <div className="space-y-4">
                   {properties.map((property) => (
-                    <Card key={property.id} className="hover-elevate" data-testid={`property-card-${property.id}`}>
-                      <CardHeader>
-                        <div className="flex items-start justify-between gap-4">
+                    <Card key={property.id} className="overflow-hidden">
+                      <CardHeader className="p-0">
+                        <div className="relative h-48 overflow-hidden">
+                          {property.images && property.images.length > 0 ? (
+                            <img
+                              src={property.images[0]}
+                              alt={property.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (property as any).thumbnail ? (
+                            <img
+                              src={(property as any).thumbnail}
+                              alt={property.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-muted flex items-center justify-center">
+                              <Home className="h-12 w-12 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-start justify-between gap-4 pt-4">
                           <div className="flex-1">
                             <CardTitle className="text-base mb-1">
                               {property.title}
@@ -176,7 +198,7 @@ export default function AdminImoveis() {
                              property.status === 'vendido' ? 'Vendido' : 'Indisponível'}
                           </Badge>
                         </div>
-                      </CardHeader>
+                      </CardContent>
                       <CardContent>
                         <div className="flex flex-wrap items-center justify-between gap-4">
                           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">

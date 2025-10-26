@@ -116,7 +116,7 @@ export default function ImoveisArrendados() {
   const userProperties = properties;
 
   const rentedProperties = userProperties.filter(p => p.status === 'arrendado');
-  
+
   const propertiesByStatus = {
     disponivel: userProperties.filter(p => p.status === 'disponivel'),
     arrendado: userProperties.filter(p => p.status === 'arrendado'),
@@ -132,7 +132,7 @@ export default function ImoveisArrendados() {
           style={{ backgroundImage: `url(${buildingImg})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -142,7 +142,7 @@ export default function ImoveisArrendados() {
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
               Imóveis Arrendados
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
               {rentedProperties.length} {rentedProperties.length === 1 ? 'imóvel arrendado' : 'imóveis arrendados'}
             </p>
@@ -264,10 +264,25 @@ export default function ImoveisArrendados() {
               {rentedProperties.map((property) => (
                 <Card key={property.id} className="hover-elevate overflow-hidden">
                   <div className="flex gap-4">
-                    <div 
-                      className="w-32 h-32 bg-cover bg-center flex-shrink-0"
-                      style={{ backgroundImage: `url(${property.images && property.images.length > 0 ? property.images[0] : buildingImg})` }}
-                    />
+                    <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
+                      {property.images && property.images.length > 0 ? (
+                        <img
+                          src={property.images[0]}
+                          alt={property.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (property as any).thumbnail ? (
+                        <img
+                          src={(property as any).thumbnail}
+                          alt={property.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Home className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1 py-4 pr-4">
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div className="flex-1">

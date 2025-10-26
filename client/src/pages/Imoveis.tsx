@@ -360,6 +360,12 @@ export default function Imoveis() {
                             alt={property.title}
                             className="w-full h-full object-cover"
                           />
+                        ) : (property as any).thumbnail ? (
+                          <img 
+                            src={(property as any).thumbnail} 
+                            alt={property.title}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <div className="w-full h-full bg-muted flex items-center justify-center">
                             <Home className="h-16 w-16 text-muted-foreground" />
