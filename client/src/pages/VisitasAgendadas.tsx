@@ -264,11 +264,11 @@ export default function VisitasAgendadas() {
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2 mb-2">
+                                <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
-                                      <CardTitle className="text-base truncate" data-testid={`text-property-title-${visit.id}`}>
+                                    <div className="flex items-start gap-2 mb-1">
+                                      <Building2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                                      <CardTitle className="text-base line-clamp-2" data-testid={`text-property-title-${visit.id}`}>
                                         {visit.property?.title || 'Imóvel'}
                                       </CardTitle>
                                     </div>
@@ -308,8 +308,8 @@ export default function VisitasAgendadas() {
                                 </div>
                               )}
 
-                              <div className="flex items-center gap-2 text-sm">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                              <div className="flex flex-wrap items-center gap-2 text-sm">
+                                <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                                 <span className="font-medium">
                                   {visit.status === 'pendente_proprietario' ? 'Data solicitada:' : 'Data:'}
                                 </span>
@@ -396,11 +396,11 @@ export default function VisitasAgendadas() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
-                                <CardTitle className="text-base truncate" data-testid={`text-property-title-${visit.id}`}>
+                              <div className="flex items-start gap-2 mb-1">
+                                <Building2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                                <CardTitle className="text-base line-clamp-2" data-testid={`text-property-title-${visit.id}`}>
                                   {visit.property?.title || 'Imóvel'}
                                 </CardTitle>
                               </div>
@@ -440,8 +440,8 @@ export default function VisitasAgendadas() {
                           </div>
                         )}
 
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <div className="flex flex-wrap items-center gap-2 text-sm">
+                          <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           <span className="font-medium">
                             {visit.status === 'agendada' ? 'Data confirmada:' : 
                              visit.status === 'pendente_proprietario' ? 'Data solicitada:' : 'Data:'}
@@ -452,8 +452,8 @@ export default function VisitasAgendadas() {
                         </div>
 
                         {!currentUser?.userTypes?.includes('cliente') && visit.cliente && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <User className="h-4 w-4 text-muted-foreground" />
+                          <div className="flex flex-wrap items-center gap-2 text-sm">
+                            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="font-medium">Cliente:</span>
                             <span className="text-muted-foreground">
                               {visit.cliente.fullName}
