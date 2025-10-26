@@ -18,6 +18,7 @@ import {
   MapPin, 
   Home,
   Eye,
+  Edit,
   MoreVertical,
   XCircle,
   Trash2,
@@ -319,6 +320,13 @@ export default function ImoveisDisponiveis() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild data-testid={`action-edit-${property.id}`}>
+                                <Link href={`/editar-imovel/${property.id}`}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Editar Imóvel
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
                               {property.type === 'Arrendar' && (
                                 <DropdownMenuItem
                                   onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'arrendado' })}

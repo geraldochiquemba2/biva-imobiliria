@@ -379,6 +379,13 @@ export default function MeusImoveis() {
                                           </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
+                                          <DropdownMenuItem asChild data-testid={`action-edit-${property.id}`}>
+                                            <Link href={`/editar-imovel/${property.id}`}>
+                                              <Edit className="h-4 w-4 mr-2" />
+                                              Editar Imóvel
+                                            </Link>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuSeparator />
                                           {property.status !== 'disponivel' && (
                                             <DropdownMenuItem
                                               onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'disponivel' })}
