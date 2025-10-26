@@ -308,15 +308,13 @@ export default function ContractSign() {
                   minHeight: 'calc(297mm - 50mm - 80px)',
                   zIndex: 1 
                 }}>
-                  <div className="prose prose-sm max-w-none">
-                    <pre 
-                      className="whitespace-pre-wrap font-serif text-sm leading-relaxed m-0 bg-transparent text-black dark:text-black p-0 border-0" 
-                      data-testid={pageIndex === 0 ? "text-contract-content" : undefined}
-                      style={{ fontFamily: 'Georgia, serif', color: '#1a1a1a', backgroundColor: 'transparent' }}
-                    >
-                      {pageLines.join('\n')}
-                    </pre>
-                  </div>
+                  <pre 
+                    className="whitespace-pre-wrap font-serif text-sm leading-relaxed m-0 bg-transparent text-black dark:text-black p-0 border-0" 
+                    data-testid={pageIndex === 0 ? "text-contract-content" : undefined}
+                    style={{ fontFamily: 'Georgia, serif', color: '#1a1a1a', backgroundColor: 'transparent' }}
+                  >
+                    {pageLines.join('\n')}
+                  </pre>
                 </div>
                 
                 {/* Page footer */}
