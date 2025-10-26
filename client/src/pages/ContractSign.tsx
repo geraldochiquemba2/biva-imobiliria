@@ -296,7 +296,7 @@ export default function ContractSign() {
                   <img 
                     src={logoUrl} 
                     alt="BIVA Imobiliária" 
-                    className="w-20 h-20 object-contain"
+                    className="w-32 h-32 object-contain"
                   />
                 </div>
 
