@@ -266,27 +266,28 @@ export default function ContractSign() {
       )}
 
       {/* Contract Content - A4 Page Format */}
-      <Card className="p-0 overflow-hidden">
-        <div className="p-6 border-b">
-          <h3 className="font-semibold">Conteúdo do Contrato</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+      <div className="mb-6" style={{ backgroundColor: '#f3f4f6' }}>
+        <div className="p-6 border-b bg-white">
+          <h3 className="font-semibold text-gray-900">Conteúdo do Contrato</h3>
+          <p className="text-sm text-gray-600 mt-1">
             {contractPages.length} {contractPages.length === 1 ? 'página' : 'páginas'}
           </p>
         </div>
         
         {/* Document viewer with A4 pages */}
-        <div className="bg-gray-200 dark:bg-gray-700 p-8">
+        <div className="p-8" style={{ backgroundColor: '#f3f4f6' }}>
           <div className="max-w-[210mm] mx-auto space-y-6">
             {contractPages.map((pageLines, pageIndex) => (
               <div 
                 key={pageIndex}
-                className="shadow-2xl relative" 
+                className="shadow-2xl relative overflow-hidden" 
                 style={{ 
                   width: '210mm', 
                   height: '297mm', 
                   padding: '25mm 20mm',
                   pageBreakAfter: 'always',
-                  backgroundColor: '#ffffff'
+                  backgroundColor: '#ffffff',
+                  color: '#1a1a1a'
                 }}
               >
                 {/* Decorative header border */}
@@ -334,7 +335,7 @@ export default function ContractSign() {
             ))}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Sign Dialog */}
       <Dialog open={signDialogOpen} onOpenChange={setSignDialogOpen}>
