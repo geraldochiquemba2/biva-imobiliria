@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, FileText, Calendar, AlertCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Contract, User } from "@shared/schema";
 import {
@@ -134,6 +134,21 @@ export default function ContractSign() {
 
   const signatureStatus = getSignatureStatus();
 
+  // Split contract content into pages (approximately 45 lines per A4 page)
+  const contractPages = useMemo(() => {
+    if (!contract?.contractContent) return [];
+    
+    const lines = contract.contractContent.split('\n');
+    const linesPerPage = 45; // Approximate number of lines that fit in an A4 page
+    const pages: string[][] = [];
+    
+    for (let i = 0; i < lines.length; i += linesPerPage) {
+      pages.push(lines.slice(i, i + linesPerPage));
+    }
+    
+    return pages;
+  }, [contract?.contractContent]);
+
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
       {/* Header */}
@@ -254,50 +269,68 @@ export default function ContractSign() {
       <Card className="p-0 overflow-hidden">
         <div className="p-6 border-b">
           <h3 className="font-semibold">Conteúdo do Contrato</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            {contractPages.length} {contractPages.length === 1 ? 'página' : 'páginas'}
+          </p>
         </div>
         
         {/* Document viewer with A4 pages */}
         <div className="bg-gray-200 dark:bg-gray-900 p-8">
           <div className="max-w-[210mm] mx-auto space-y-6">
-            {/* A4 Page 1 */}
-            <div className="bg-white dark:bg-slate-50 shadow-2xl" style={{ width: '210mm', minHeight: '297mm', padding: '25mm 20mm' }}>
-              {/* Decorative header border */}
-              <div className="border-t-4 border-b-2 border-primary/30 py-3 mb-6">
-                <div className="flex justify-between items-center text-xs text-muted-foreground">
-                  <span className="font-semibold">DOCUMENTO OFICIAL</span>
-                  <span>Conforme Lei n.º 26/15 de 23 de Outubro</span>
+            {contractPages.map((pageLines, pageIndex) => (
+              <div 
+                key={pageIndex}
+                className="bg-white dark:bg-slate-50 shadow-2xl relative" 
+                style={{ 
+                  width: '210mm', 
+                  height: '297mm', 
+                  padding: '25mm 20mm',
+                  pageBreakAfter: 'always'
+                }}
+              >
+                {/* Decorative header border */}
+                <div className="border-t-4 border-b-2 border-primary/30 py-3 mb-6">
+                  <div className="flex justify-between items-center text-xs text-gray-600">
+                    <span className="font-semibold">DOCUMENTO OFICIAL</span>
+                    <span>Conforme Lei n.º 26/15 de 23 de Outubro</span>
+                  </div>
                 </div>
-              </div>
-              
-              {/* Watermark background */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] -z-10">
+                
+                {/* Watermark background */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]" style={{ zIndex: 0 }}>
                   <FileText className="w-96 h-96 text-primary" />
                 </div>
                 
                 {/* Contract content */}
-                <div className="prose prose-sm max-w-none text-gray-900 dark:text-gray-900">
-                  <pre className="whitespace-pre-wrap font-serif text-sm leading-relaxed" data-testid="text-contract-content" style={{ fontFamily: 'Georgia, serif' }}>
-                    {contract.contractContent}
-                  </pre>
-                </div>
-              </div>
-              
-              {/* Page footer */}
-              <div className="absolute bottom-[20mm] left-[20mm] right-[20mm] pt-4 border-t border-gray-300">
-                <div className="flex justify-between items-center text-xs text-gray-500">
-                  <div>
-                    <p className="font-semibold">ID: {contract.id.substring(0, 8).toUpperCase()}</p>
-                    <p>Data de Emissão: {format(new Date(contract.createdAt), "dd/MM/yyyy")}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold">Página 1</p>
+                <div className="relative" style={{ 
+                  minHeight: 'calc(297mm - 50mm - 80px)',
+                  zIndex: 1 
+                }}>
+                  <div className="prose prose-sm max-w-none text-gray-900">
+                    <pre 
+                      className="whitespace-pre-wrap font-serif text-sm leading-relaxed m-0" 
+                      data-testid={pageIndex === 0 ? "text-contract-content" : undefined}
+                      style={{ fontFamily: 'Georgia, serif' }}
+                    >
+                      {pageLines.join('\n')}
+                    </pre>
                   </div>
                 </div>
+                
+                {/* Page footer */}
+                <div className="absolute bottom-[20mm] left-[20mm] right-[20mm] pt-4 border-t border-gray-300" style={{ zIndex: 1 }}>
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <div>
+                      <p className="font-semibold">ID: {contract.id.substring(0, 8).toUpperCase()}</p>
+                      <p>Data de Emissão: {format(new Date(contract.createdAt), "dd/MM/yyyy")}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">Página {pageIndex + 1} de {contractPages.length}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            {/* Additional pages can be added here if needed */}
+            ))}
           </div>
         </div>
       </Card>
