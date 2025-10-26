@@ -351,14 +351,15 @@ export default function ContractSign() {
                   >
                     {pageLines.map((line, idx) => {
                       const isClausulaTitle = line.trim().startsWith('Cláusula');
+                      const isClausulasSection = line.trim() === 'CLÁUSULAS CONTRATUAIS';
                       const isEmpty = line.trim() === '';
                       
                       return (
                         <div 
                           key={idx}
                           style={{
-                            textAlign: isClausulaTitle ? 'center' : 'justify',
-                            fontWeight: isClausulaTitle ? 'bold' : 'normal',
+                            textAlign: (isClausulaTitle || isClausulasSection) ? 'center' : 'justify',
+                            fontWeight: (isClausulaTitle || isClausulasSection) ? 'bold' : 'normal',
                             marginBottom: isEmpty ? '0' : undefined
                           }}
                         >
