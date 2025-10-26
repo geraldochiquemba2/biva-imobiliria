@@ -611,6 +611,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         visits = await storage.getVisitsByClient(userId);
       }
       
+      // Auto-complete scheduled visits that are more than 1 day old
+      if (visits && visits.length > 0) {
+        const now = new Date();
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        
+        for (const visit of visits) {
+          if (visit.status === 'agendada' && visit.scheduledDateTime) {
+            const visitDate = new Date(visit.scheduledDateTime);
+            const timeSinceVisit = now.getTime() - visitDate.getTime();
+            
+            // If visit was more than 1 day ago, mark as completed
+            if (timeSinceVisit > oneDayInMs) {
+              await storage.updateVisit(visit.id, { status: 'concluida' });
+              visit.status = 'concluida';
+            }
+          }
+        }
+      }
+      
       if (visits && visits.length > 0) {
         console.log('DEBUG - Primeira visita retornada:', JSON.stringify(visits[0], null, 2).substring(0, 500));
       }
