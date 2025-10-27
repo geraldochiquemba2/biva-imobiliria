@@ -35,12 +35,6 @@ export default function InteractiveLocationPicker({
     try {
       const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
       
-      // Camada de ruas com cores fortes e alto contraste (OpenTopoMap)
-      const streetMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
-        maxZoom: 17
-      });
-
       // Camada de satélite (Esri World Imagery)
       const satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: '&copy; Esri',
@@ -56,29 +50,8 @@ export default function InteractiveLocationPicker({
       // Criar um grupo de camadas para híbrido (satélite + rótulos)
       const hybridMap = L.layerGroup([satelliteMap, labels]);
 
-      // Camada de POIs (Pontos de Interesse)
-      const poiLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
-        maxZoom: 20
-      });
-
-      // Adicionar camada padrão
-      streetMap.addTo(map);
-
-      // Criar grupo de camadas base
-      const baseMaps = {
-        "Ruas": streetMap,
-        "Satélite": satelliteMap,
-        "Híbrido (Satélite + Rótulos)": hybridMap
-      };
-
-      // Criar grupo de sobreposições
-      const overlays = {
-        "Instituições e POIs": poiLayer
-      };
-
-      // Adicionar controle de camadas
-      L.control.layers(baseMaps, overlays, { position: 'topright' }).addTo(map);
+      // Adicionar camada padrão (Híbrido)
+      hybridMap.addTo(map);
 
       const marker = L.marker([lat, lng]).addTo(map);
       
