@@ -107,7 +107,7 @@ export default function ExplorarMapa() {
         const map = L.map(mapContainerRef.current, {
           center: [-12.5, 17.5],
           zoom: 6,
-          maxZoom: 18,
+          maxZoom: 19,
           zoomControl: true,
           scrollWheelZoom: true,
         });
@@ -122,12 +122,13 @@ export default function ExplorarMapa() {
         const hybridLayer = L.layerGroup([
           L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri',
-            maxZoom: 18,
+            maxZoom: 19,
+            maxNativeZoom: 18,
             minZoom: 3,
           }),
           L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            maxZoom: 18,
+            maxZoom: 19,
             minZoom: 3,
           })
         ]);
