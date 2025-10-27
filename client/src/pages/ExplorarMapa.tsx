@@ -134,6 +134,15 @@ export default function ExplorarMapa() {
           })
         ]);
 
+        // POI layer - Shows institutions and points of interest
+        const poiLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+          maxZoom: 19,
+          minZoom: 10,
+          opacity: 1,
+          subdomains: 'abcd',
+        });
+
         // Add default layer (hybrid for more realistic view)
         hybridLayer.addTo(map);
 
@@ -143,7 +152,11 @@ export default function ExplorarMapa() {
           "Ruas": streetLayer,
         };
 
-        L.control.layers(baseLayers, {}, {
+        const overlayLayers = {
+          "Instituições e POIs": poiLayer,
+        };
+
+        L.control.layers(baseLayers, overlayLayers, {
           position: 'topright',
           collapsed: false,
         }).addTo(map);
