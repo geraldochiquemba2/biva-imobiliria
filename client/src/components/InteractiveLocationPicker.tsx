@@ -35,10 +35,10 @@ export default function InteractiveLocationPicker({
     try {
       const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
       
-      // Camada de ruas com alto contraste e detalhes (CartoDB Voyager)
-      const streetMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        maxZoom: 20
+      // Camada de ruas com alto contraste (OpenStreetMap padrão - mais escuro e visível)
+      const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
       });
 
       // Camada de satélite (Esri World Imagery)
