@@ -143,12 +143,11 @@ export default function ExplorarMapa() {
           subdomains: 'abcd',
         });
 
-        // Add default layer (streets for better visibility)
-        streetLayer.addTo(map);
+        // Add default layer (hybrid)
+        hybridLayer.addTo(map);
 
-        // Add layer control (Ruas first for better visibility)
+        // Add layer control (only Hybrid option)
         const baseLayers = {
-          "🗺️ Ruas": streetLayer,
           "🛰️ Híbrido (Satélite + Rótulos)": hybridLayer,
         };
 
