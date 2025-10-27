@@ -49,6 +49,11 @@ export default function InteractiveLocationPicker({
     mapRef.current = map;
     markerRef.current = marker;
 
+    // Force map to resize after a short delay to ensure proper rendering
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+
     return () => {
       map.remove();
       mapRef.current = null;
