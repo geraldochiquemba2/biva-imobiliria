@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { User as UserType } from "@shared/schema";
 import {
@@ -22,8 +22,9 @@ export default function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const { toast } = useToast();
 
-  const { data: currentUser } = useQuery<UserType>({
+  const { data: currentUser } = useQuery<UserType | null>({
     queryKey: ['/api/auth/me'],
+    queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   const logoutMutation = useMutation({
