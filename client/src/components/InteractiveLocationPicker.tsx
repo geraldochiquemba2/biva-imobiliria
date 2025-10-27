@@ -32,33 +32,54 @@ export default function InteractiveLocationPicker({
     const lat = latitude || -8.8383;
     const lng = longitude || 13.2344;
 
-    const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    console.log('Initializing map with coordinates:', lat, lng);
+    console.log('Map container:', mapContainerRef.current);
 
-    const marker = L.marker([lat, lng]).addTo(map);
-    
-    map.on('click', (e: L.LeafletMouseEvent) => {
-      const { lat, lng } = e.latlng;
-      marker.setLatLng([lat, lng]);
-      onLocationChange(lat, lng);
-    });
+    try {
+      const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
+      console.log('Map created successfully');
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+      }).addTo(map);
+      console.log('Tile layer added');
 
-    mapRef.current = map;
-    markerRef.current = marker;
+      const marker = L.marker([lat, lng]).addTo(map);
+      console.log('Marker added');
+      
+      map.on('click', (e: L.LeafletMouseEvent) => {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        onLocationChange(lat, lng);
+      });
 
-    // Force map to resize after a short delay to ensure proper rendering
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
+      mapRef.current = map;
+      markerRef.current = marker;
 
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      markerRef.current = null;
-    };
+      // Force map to resize after delays to ensure proper rendering
+      setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.invalidateSize();
+          console.log('Map size invalidated (100ms)');
+        }
+      }, 100);
+
+      setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.invalidateSize();
+          console.log('Map size invalidated (500ms)');
+        }
+      }, 500);
+
+      return () => {
+        map.remove();
+        mapRef.current = null;
+        markerRef.current = null;
+      };
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -77,9 +98,9 @@ export default function InteractiveLocationPicker({
       
       <div 
         ref={mapContainerRef} 
-        className="w-full h-96 rounded-md border"
+        className="w-full rounded-md border"
         data-testid="map-container"
-        style={{ position: 'relative', zIndex: 0 }}
+        style={{ height: '384px', minHeight: '384px', width: '100%', position: 'relative', zIndex: 0, backgroundColor: '#f0f0f0' }}
       />
       
       <p className="text-xs text-muted-foreground" data-testid="text-coordinates">
