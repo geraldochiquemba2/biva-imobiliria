@@ -120,13 +120,6 @@ export default function ExplorarMapa() {
           minZoom: 3,
         });
 
-        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-          maxZoom: 20,
-          maxNativeZoom: 18,
-          minZoom: 3,
-        });
-
         const hybridLayer = L.layerGroup([
           L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri',
@@ -142,31 +135,13 @@ export default function ExplorarMapa() {
           })
         ]);
 
-        const terrainLayer = L.tileLayer('https://tile.opentopomap.org/{z}/{x}/{y}.png', {
-          attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-          maxZoom: 20,
-          maxNativeZoom: 17,
-          minZoom: 3,
-        });
-
-        const tonerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          maxZoom: 20,
-          maxNativeZoom: 19,
-          minZoom: 3,
-          subdomains: 'abcd',
-        });
-
-        // Add default layer (satellite for more realistic view)
-        satelliteLayer.addTo(map);
+        // Add default layer (hybrid for more realistic view)
+        hybridLayer.addTo(map);
 
         // Add layer control
         const baseLayers = {
-          "Satélite": satelliteLayer,
           "Híbrido (Satélite + Rótulos)": hybridLayer,
           "Ruas": streetLayer,
-          "Terreno": terrainLayer,
-          "Preto e Branco": tonerLayer,
         };
 
         L.control.layers(baseLayers, {}, {
