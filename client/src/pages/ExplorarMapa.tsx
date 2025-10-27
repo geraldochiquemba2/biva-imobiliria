@@ -122,7 +122,8 @@ export default function ExplorarMapa() {
         const hybridLayer = L.layerGroup([
           L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri',
-            maxZoom: 18,
+            maxZoom: 19,
+            maxNativeZoom: 18,
             minZoom: 3,
           }),
           L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
