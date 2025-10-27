@@ -72,8 +72,9 @@ export default function InteractiveLocationPicker({
       
       <div 
         ref={mapContainerRef} 
-        className="w-full h-96 rounded-md overflow-hidden border"
+        className="w-full h-96 rounded-md border"
         data-testid="map-container"
+        style={{ position: 'relative', zIndex: 0 }}
       />
       
       <p className="text-xs text-muted-foreground" data-testid="text-coordinates">
