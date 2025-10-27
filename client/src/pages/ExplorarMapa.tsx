@@ -107,7 +107,7 @@ export default function ExplorarMapa() {
         const map = L.map(mapContainerRef.current, {
           center: [-12.5, 17.5],
           zoom: 6,
-          maxZoom: 19,
+          maxZoom: 17,
           zoomControl: true,
           scrollWheelZoom: true,
         });
