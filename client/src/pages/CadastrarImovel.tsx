@@ -383,8 +383,25 @@ export default function CadastrarImovel() {
     };
   }, [previewUrls]);
 
-  // Note: Map coordinates are now controlled only by clicking on the map
-  // Typing in Bairro, Município, or Província fields will NOT move the marker
+  // Get coordinates for the current location (excluding bairro)
+  const getCoordinates = () => {
+    // Priority: municipio > provincia (bairro is NOT included)
+    if (selectedMunicipio && LOCATION_COORDINATES[selectedMunicipio]) {
+      return LOCATION_COORDINATES[selectedMunicipio];
+    }
+    if (selectedProvince && LOCATION_COORDINATES[selectedProvince]) {
+      return LOCATION_COORDINATES[selectedProvince];
+    }
+    // Default to Luanda
+    return { lat: -8.8383, lon: 13.2344 };
+  };
+
+  // Update map coordinates when província or município changes (but NOT bairro)
+  useEffect(() => {
+    const coords = getCoordinates();
+    setMapLatitude(coords.lat);
+    setMapLongitude(coords.lon);
+  }, [selectedProvince, selectedMunicipio]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
