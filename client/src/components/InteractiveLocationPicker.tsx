@@ -35,10 +35,10 @@ export default function InteractiveLocationPicker({
     try {
       const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
       
-      // Camada de mapa padrão (OpenStreetMap)
-      const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19
+      // Camada de ruas com alto contraste e detalhes (CartoDB Voyager)
+      const streetMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 20
       });
 
       // Camada de satélite (Esri World Imagery)
@@ -47,11 +47,19 @@ export default function InteractiveLocationPicker({
         maxZoom: 19
       });
 
-      // Camada de rótulos para sobrepor ao satélite
-      const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
-        attribution: '&copy; CartoDB',
-        maxZoom: 19,
-        pane: 'shadowPane'
+      // Camada de rótulos claros para sobrepor ao satélite
+      const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 20
+      });
+
+      // Criar um grupo de camadas para híbrido (satélite + rótulos)
+      const hybridMap = L.layerGroup([satelliteMap, labels]);
+
+      // Camada de POIs (Pontos de Interesse)
+      const poiLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 20
       });
 
       // Adicionar camada padrão
@@ -59,13 +67,14 @@ export default function InteractiveLocationPicker({
 
       // Criar grupo de camadas base
       const baseMaps = {
-        "Mapa": streetMap,
-        "Satélite": satelliteMap
+        "Ruas": streetMap,
+        "Satélite": satelliteMap,
+        "Híbrido (Satélite + Rótulos)": hybridMap
       };
 
       // Criar grupo de sobreposições
       const overlays = {
-        "Rótulos": labels
+        "Instituições e POIs": poiLayer
       };
 
       // Adicionar controle de camadas
