@@ -35,10 +35,10 @@ export default function InteractiveLocationPicker({
     try {
       const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
       
-      // Camada de ruas com alto contraste (OpenStreetMap padrão - mais escuro e visível)
-      const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19
+      // Camada de ruas com cores fortes e alto contraste (OpenTopoMap)
+      const streetMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+        maxZoom: 17
       });
 
       // Camada de satélite (Esri World Imagery)
