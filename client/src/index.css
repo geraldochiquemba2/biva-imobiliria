@@ -483,3 +483,158 @@ h1, h2, h3, h4, h5, h6, .font-serif {
 .leaflet-control-container {
   z-index: 800;
 }
+
+/* Estilos melhorados para o controle de camadas do Leaflet */
+.leaflet-control-layers {
+  background-color: white !important;
+  border: 2px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 12px !important;
+  font-family: var(--font-sans);
+  min-width: 240px;
+}
+
+.dark .leaflet-control-layers {
+  background-color: hsl(var(--card)) !important;
+  border: 2px solid hsl(var(--card-border)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+.leaflet-control-layers-toggle {
+  background-color: white !important;
+  border: 2px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 6px !important;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.dark .leaflet-control-layers-toggle {
+  background-color: hsl(var(--card)) !important;
+  border: 2px solid hsl(var(--card-border)) !important;
+}
+
+.leaflet-control-layers-base label,
+.leaflet-control-layers-overlays label {
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 4px !important;
+  margin: 4px 0 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  color: #222 !important;
+}
+
+.dark .leaflet-control-layers-base label,
+.dark .leaflet-control-layers-overlays label {
+  color: hsl(var(--card-foreground)) !important;
+}
+
+.leaflet-control-layers-base label:hover,
+.leaflet-control-layers-overlays label:hover {
+  background-color: rgba(217, 217, 217, 0.3) !important;
+}
+
+.dark .leaflet-control-layers-base label:hover,
+.dark .leaflet-control-layers-overlays label:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+.leaflet-control-layers-selector {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 12px 0 4px !important;
+  border: 2.5px solid #666 !important;
+  cursor: pointer !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.dark .leaflet-control-layers-selector {
+  border-color: hsl(var(--muted-foreground)) !important;
+}
+
+/* Radio buttons (camadas base) */
+.leaflet-control-layers-base .leaflet-control-layers-selector {
+  border-radius: 50% !important;
+}
+
+.leaflet-control-layers-base .leaflet-control-layers-selector:checked {
+  border-color: #ef4444 !important;
+  background-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.dark .leaflet-control-layers-base .leaflet-control-layers-selector:checked {
+  border-color: hsl(var(--primary)) !important;
+  background-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2) !important;
+}
+
+.leaflet-control-layers-base .leaflet-control-layers-selector:checked::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 8px !important;
+  height: 8px !important;
+  background-color: white !important;
+  border-radius: 50% !important;
+}
+
+/* Checkboxes (camadas de sobreposição) */
+.leaflet-control-layers-overlays .leaflet-control-layers-selector {
+  border-radius: 4px !important;
+}
+
+.leaflet-control-layers-overlays .leaflet-control-layers-selector:checked {
+  border-color: #3b82f6 !important;
+  background-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+.dark .leaflet-control-layers-overlays .leaflet-control-layers-selector:checked {
+  border-color: hsl(var(--primary)) !important;
+  background-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2) !important;
+}
+
+.leaflet-control-layers-overlays .leaflet-control-layers-selector:checked::after {
+  content: "✓" !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  color: white !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  line-height: 1 !important;
+}
+
+.leaflet-control-layers-separator {
+  height: 0 !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+  margin: 8px 0 !important;
+}
+
+.dark .leaflet-control-layers-separator {
+  border-top-color: hsl(var(--card-border)) !important;
+}
+
+/* Hover states para melhor feedback */
+.leaflet-control-layers-selector:hover {
+  border-width: 3px !important;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .leaflet-control-layers-selector:hover {
+  box-shadow: 0 0 0 3px hsl(var(--accent)) !important;
+}
