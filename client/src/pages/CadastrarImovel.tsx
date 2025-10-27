@@ -383,28 +383,8 @@ export default function CadastrarImovel() {
     };
   }, [previewUrls]);
 
-  // Get coordinates for the current location
-  const getCoordinates = () => {
-    // Priority: bairro > municipio > provincia
-    if (bairro && LOCATION_COORDINATES[bairro]) {
-      return LOCATION_COORDINATES[bairro];
-    }
-    if (selectedMunicipio && LOCATION_COORDINATES[selectedMunicipio]) {
-      return LOCATION_COORDINATES[selectedMunicipio];
-    }
-    if (selectedProvince && LOCATION_COORDINATES[selectedProvince]) {
-      return LOCATION_COORDINATES[selectedProvince];
-    }
-    // Default to Luanda
-    return { lat: -8.8383, lon: 13.2344 };
-  };
-
-  // Update map coordinates when location changes
-  useEffect(() => {
-    const coords = getCoordinates();
-    setMapLatitude(coords.lat);
-    setMapLongitude(coords.lon);
-  }, [selectedProvince, selectedMunicipio, bairro]);
+  // Note: Map coordinates are now controlled only by clicking on the map
+  // Typing in Bairro, Município, or Província fields will NOT move the marker
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -593,22 +573,6 @@ export default function CadastrarImovel() {
 
   const showRoomFields = category === 'Casa' || category === 'Apartamento';
   const availableMunicipios = selectedProvince ? PROVINCIAS_MUNICIPIOS[selectedProvince] || [] : [];
-
-  const getMapCenter = () => {
-    const coords = getCoordinates();
-    return `${coords.lat},${coords.lon}`;
-  };
-
-  const getMapBounds = () => {
-    const coords = getCoordinates();
-    // Calculate bounding box (approximately 0.1 degrees around the center)
-    const delta = 0.05;
-    const minLon = coords.lon - delta;
-    const minLat = coords.lat - delta;
-    const maxLon = coords.lon + delta;
-    const maxLat = coords.lat + delta;
-    return `${minLon},${minLat},${maxLon},${maxLat}`;
-  };
 
   // Calculate distance between two GPS coordinates using Haversine formula
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
