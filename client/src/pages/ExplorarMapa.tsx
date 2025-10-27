@@ -146,20 +146,6 @@ export default function ExplorarMapa() {
         // Add default layer (hybrid)
         hybridLayer.addTo(map);
 
-        // Add layer control (only Hybrid option)
-        const baseLayers = {
-          "🛰️ Híbrido (Satélite + Rótulos)": hybridLayer,
-        };
-
-        const overlayLayers = {
-          "Instituições e POIs": poiLayer,
-        };
-
-        L.control.layers(baseLayers, overlayLayers, {
-          position: 'topright',
-          collapsed: false,
-        }).addTo(map);
-
         mapRef.current = map;
 
         // Force map to recalculate size after tiles load
