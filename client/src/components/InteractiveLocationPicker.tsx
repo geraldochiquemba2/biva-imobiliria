@@ -32,21 +32,46 @@ export default function InteractiveLocationPicker({
     const lat = latitude || -8.8383;
     const lng = longitude || 13.2344;
 
-    console.log('Initializing map with coordinates:', lat, lng);
-    console.log('Map container:', mapContainerRef.current);
-
     try {
       const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
-      console.log('Map created successfully');
       
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      // Camada de mapa padrão (OpenStreetMap)
+      const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19
-      }).addTo(map);
-      console.log('Tile layer added');
+      });
+
+      // Camada de satélite (Esri World Imagery)
+      const satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; Esri',
+        maxZoom: 19
+      });
+
+      // Camada de rótulos para sobrepor ao satélite
+      const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+        attribution: '&copy; CartoDB',
+        maxZoom: 19,
+        pane: 'shadowPane'
+      });
+
+      // Adicionar camada padrão
+      streetMap.addTo(map);
+
+      // Criar grupo de camadas base
+      const baseMaps = {
+        "Mapa": streetMap,
+        "Satélite": satelliteMap
+      };
+
+      // Criar grupo de sobreposições
+      const overlays = {
+        "Rótulos": labels
+      };
+
+      // Adicionar controle de camadas
+      L.control.layers(baseMaps, overlays, { position: 'topright' }).addTo(map);
 
       const marker = L.marker([lat, lng]).addTo(map);
-      console.log('Marker added');
       
       map.on('click', (e: L.LeafletMouseEvent) => {
         const { lat, lng } = e.latlng;
@@ -61,14 +86,12 @@ export default function InteractiveLocationPicker({
       setTimeout(() => {
         if (mapRef.current) {
           mapRef.current.invalidateSize();
-          console.log('Map size invalidated (100ms)');
         }
       }, 100);
 
       setTimeout(() => {
         if (mapRef.current) {
           mapRef.current.invalidateSize();
-          console.log('Map size invalidated (500ms)');
         }
       }, 500);
 
@@ -100,7 +123,7 @@ export default function InteractiveLocationPicker({
         ref={mapContainerRef} 
         className="w-full rounded-md border"
         data-testid="map-container"
-        style={{ height: '384px', minHeight: '384px', width: '100%', position: 'relative', zIndex: 0, backgroundColor: '#f0f0f0' }}
+        style={{ height: '384px', minHeight: '384px', width: '100%', position: 'relative', zIndex: 0 }}
       />
       
       <p className="text-xs text-muted-foreground" data-testid="text-coordinates">
