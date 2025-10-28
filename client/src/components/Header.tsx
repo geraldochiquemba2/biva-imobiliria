@@ -117,6 +117,25 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4">
+            <div className="hidden lg:flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                data-testid="button-arrendar"
+              >
+                <Link href="/imoveis?type=Arrendar">Arrendar</Link>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                data-testid="button-comprar"
+              >
+                <Link href="/imoveis?type=Vender">Comprar</Link>
+              </Button>
+            </div>
+
             <Button
               variant="ghost"
               size="icon"
@@ -228,6 +247,30 @@ export default function Header() {
                   {item.label}
                 </Link>
               ))}
+              <div className="flex flex-col gap-2 pt-2 border-t">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  asChild
+                  data-testid="button-mobile-arrendar"
+                >
+                  <Link href="/imoveis?type=Arrendar" onClick={() => setMobileMenuOpen(false)}>
+                    Arrendar
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  asChild
+                  data-testid="button-mobile-comprar"
+                >
+                  <Link href="/imoveis?type=Vender" onClick={() => setMobileMenuOpen(false)}>
+                    Comprar
+                  </Link>
+                </Button>
+              </div>
               <div className="flex flex-col gap-2 pt-2 border-t">
                 {currentUser ? (
                   <>
