@@ -657,7 +657,7 @@ export default function ExplorarMapa() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {(selectedProperty as any).thumbnail ? (
-                        <div className="relative w-full h-48 rounded-md overflow-hidden bg-muted">
+                        <div className="relative w-full h-36 rounded-md overflow-hidden bg-muted">
                           <img
                             src={(selectedProperty as any).thumbnail}
                             alt={selectedProperty.title}
@@ -677,8 +677,8 @@ export default function ExplorarMapa() {
                           />
                         </div>
                       ) : (
-                        <div className="w-full h-48 bg-muted flex flex-col items-center justify-center rounded-md">
-                          <Home className="h-16 w-16 text-muted-foreground" />
+                        <div className="w-full h-36 bg-muted flex flex-col items-center justify-center rounded-md">
+                          <Home className="h-12 w-12 text-muted-foreground" />
                           <p className="text-xs text-muted-foreground mt-2">Sem imagem disponível</p>
                         </div>
                       )}
