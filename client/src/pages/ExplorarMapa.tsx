@@ -657,11 +657,11 @@ export default function ExplorarMapa() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {(selectedProperty as any).thumbnail ? (
-                        <div className="relative w-full h-48 rounded-md overflow-hidden">
+                        <div className="relative w-full h-48 rounded-md overflow-hidden bg-muted">
                           <img
                             src={(selectedProperty as any).thumbnail}
                             alt={selectedProperty.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                             onError={(e) => {
                               console.log('ERROR loading image:', (selectedProperty as any).thumbnail?.substring(0, 100));
                               e.currentTarget.style.display = 'none';
