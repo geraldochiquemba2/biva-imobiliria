@@ -57,6 +57,7 @@ interface PropertyWithEditInfo extends Property {
   hasActiveVisits?: boolean;
   isRented?: boolean;
   canEdit?: boolean;
+  thumbnail?: string;
 }
 
 export default function MeusImoveis() {
@@ -331,9 +332,9 @@ export default function MeusImoveis() {
                                   src={property.images[0]}
                                   alt={property.title}
                                 />
-                              ) : property.thumbnail ? (
+                              ) : (property as any).thumbnail ? (
                                 <PropertyImage
-                                  src={property.thumbnail}
+                                  src={(property as any).thumbnail}
                                   alt={property.title}
                                 />
                               ) : (

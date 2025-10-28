@@ -18,6 +18,7 @@ import { ArrowLeft, Building2, Upload, X, Save, AlertCircle, Lock } from "lucide
 import type { User, Property } from "@shared/schema";
 import { z } from "zod";
 import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
+import { angolaProvinces } from "@shared/angola-locations";
 
 interface PropertyWithEditInfo extends Property {
   hasActiveVisits?: boolean;
@@ -75,6 +76,7 @@ export default function EditarImovel() {
   const [newImages, setNewImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [selectedProvince, setSelectedProvince] = useState<string>("");
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -129,6 +131,7 @@ export default function EditarImovel() {
       setValue("amenities", property.amenities || []);
       setValue("status", property.status as any);
       setExistingImages(property.images || []);
+      setSelectedProvince(property.provincia);
     }
   }, [property, setValue]);
 
@@ -141,6 +144,11 @@ export default function EditarImovel() {
   const selectedAmenities = watch("amenities") || [];
   const latitude = watch("latitude");
   const longitude = watch("longitude");
+  const provincia = watch("provincia");
+  
+  const availableMunicipalities = selectedProvince 
+    ? angolaProvinces.find(p => p.name === selectedProvince)?.municipalities || []
+    : [];
 
   const updatePropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
@@ -425,22 +433,64 @@ export default function EditarImovel() {
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="provincia">Província *</Label>
-                      <Input
-                        id="provincia"
-                        {...register("provincia")}
-                        disabled={isEditBlocked}
-                        data-testid="input-provincia"
+                      <Controller
+                        name="provincia"
+                        control={control}
+                        render={({ field }) => (
+                          <Select 
+                            value={field.value} 
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setSelectedProvince(value);
+                              setValue("municipio", "");
+                            }}
+                            disabled={isEditBlocked}
+                          >
+                            <SelectTrigger data-testid="select-provincia">
+                              <SelectValue placeholder="Selecione a província" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {angolaProvinces.map((province) => (
+                                <SelectItem key={province.name} value={province.name}>
+                                  {province.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
+                      {errors.provincia && (
+                        <p className="text-sm text-destructive">{errors.provincia.message}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="municipio">Município *</Label>
-                      <Input
-                        id="municipio"
-                        {...register("municipio")}
-                        disabled={isEditBlocked}
-                        data-testid="input-municipio"
+                      <Controller
+                        name="municipio"
+                        control={control}
+                        render={({ field }) => (
+                          <Select 
+                            value={field.value} 
+                            onValueChange={field.onChange}
+                            disabled={isEditBlocked || !selectedProvince}
+                          >
+                            <SelectTrigger data-testid="select-municipio">
+                              <SelectValue placeholder={selectedProvince ? "Selecione o município" : "Primeiro selecione a província"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableMunicipalities.map((municipality) => (
+                                <SelectItem key={municipality.name} value={municipality.name}>
+                                  {municipality.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
+                      {errors.municipio && (
+                        <p className="text-sm text-destructive">{errors.municipio.message}</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -451,6 +501,9 @@ export default function EditarImovel() {
                         disabled={isEditBlocked}
                         data-testid="input-bairro"
                       />
+                      {errors.bairro && (
+                        <p className="text-sm text-destructive">{errors.bairro.message}</p>
+                      )}
                     </div>
                   </div>
 
