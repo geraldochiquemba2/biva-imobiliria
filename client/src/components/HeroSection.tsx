@@ -155,15 +155,15 @@ export default function HeroSection() {
           </motion.p>
           
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-30"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9 }}
           >
-            <Link href="/imoveis" className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center" data-testid="button-explore-properties">
+            <Link href="/imoveis" className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center min-w-[200px] touch-manipulation" data-testid="button-explore-properties">
               Explorar Imóveis
             </Link>
-            <Link href="/cadastro" className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center" data-testid="button-advertise-property">
+            <Link href="/cadastro" className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center min-w-[200px] touch-manipulation" data-testid="button-advertise-property">
               Anunciar Imóvel
             </Link>
           </motion.div>
