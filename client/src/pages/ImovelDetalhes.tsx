@@ -15,6 +15,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { PropertyWithOwner, User, Visit, VirtualTourWithRooms } from "@shared/schema";
 import MapView from "@/components/MapView";
 import VirtualTourViewer from "@/components/VirtualTourViewer";
+import PropertyImage from "@/components/PropertyImage";
 import {
   ArrowLeft,
   MapPin,
@@ -298,12 +299,10 @@ export default function ImovelDetalhes() {
               {/* Galeria de Imagens */}
               {hasImages ? (
                 <div className="space-y-4">
-                  <div className="relative aspect-video rounded-md overflow-hidden bg-muted">
-                    <img
+                  <div className="aspect-video rounded-md overflow-hidden bg-muted" data-testid="img-main">
+                    <PropertyImage
                       src={selectedImageIndex === 0 && (property as any).thumbnail ? (property as any).thumbnail : images[selectedImageIndex]}
                       alt={property.title}
-                      className="w-full h-full object-cover"
-                      data-testid="img-main"
                     />
                   </div>
                   
@@ -313,15 +312,14 @@ export default function ImovelDetalhes() {
                         <button
                           key={index}
                           onClick={() => setSelectedImageIndex(index)}
-                          className={`relative aspect-video rounded-md overflow-hidden ${
+                          className={`aspect-video rounded-md overflow-hidden hover-elevate ${
                             selectedImageIndex === index ? 'ring-2 ring-primary' : ''
                           }`}
                           data-testid={`button-thumbnail-${index}`}
                         >
-                          <img
+                          <PropertyImage
                             src={index === 0 && (property as any).thumbnail ? (property as any).thumbnail : image}
                             alt={`${property.title} - ${index + 1}`}
-                            className="w-full h-full object-cover hover-elevate"
                           />
                         </button>
                       ))}
@@ -329,12 +327,10 @@ export default function ImovelDetalhes() {
                   )}
                 </div>
               ) : (property as any).thumbnail ? (
-                <div className="aspect-video rounded-md overflow-hidden bg-muted">
-                  <img
+                <div className="aspect-video rounded-md overflow-hidden bg-muted" data-testid="img-main">
+                  <PropertyImage
                     src={(property as any).thumbnail}
                     alt={property.title}
-                    className="w-full h-full object-cover"
-                    data-testid="img-main"
                   />
                 </div>
               ) : (
