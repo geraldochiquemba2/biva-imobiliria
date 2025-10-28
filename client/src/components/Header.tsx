@@ -121,18 +121,18 @@ export default function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                asChild
+                onClick={() => window.location.href = '/imoveis?type=Arrendar'}
                 data-testid="button-arrendar"
               >
-                <Link href="/imoveis?type=Arrendar">Arrendar</Link>
+                Arrendar
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                asChild
+                onClick={() => window.location.href = '/imoveis?type=Vender'}
                 data-testid="button-comprar"
               >
-                <Link href="/imoveis?type=Vender">Comprar</Link>
+                Comprar
               </Button>
             </div>
 
@@ -252,23 +252,25 @@ export default function Header() {
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  asChild
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    window.location.href = '/imoveis?type=Arrendar';
+                  }}
                   data-testid="button-mobile-arrendar"
                 >
-                  <Link href="/imoveis?type=Arrendar" onClick={() => setMobileMenuOpen(false)}>
-                    Arrendar
-                  </Link>
+                  Arrendar
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  asChild
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    window.location.href = '/imoveis?type=Vender';
+                  }}
                   data-testid="button-mobile-comprar"
                 >
-                  <Link href="/imoveis?type=Vender" onClick={() => setMobileMenuOpen(false)}>
-                    Comprar
-                  </Link>
+                  Comprar
                 </Button>
               </div>
               <div className="flex flex-col gap-2 pt-2 border-t">
