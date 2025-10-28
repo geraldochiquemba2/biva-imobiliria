@@ -34,6 +34,8 @@ import {
   Eye,
   Edit,
   Plus,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export default function ImovelDetalhes() {
@@ -299,12 +301,36 @@ export default function ImovelDetalhes() {
               {/* Galeria de Imagens */}
               {hasImages ? (
                 <div className="space-y-4">
-                  <div className="aspect-video rounded-md bg-muted flex items-center justify-center" data-testid="img-main">
+                  <div className="relative aspect-video rounded-md bg-muted flex items-center justify-center group" data-testid="img-main">
                     <PropertyImage
                       src={selectedImageIndex === 0 && (property as any).thumbnail ? (property as any).thumbnail : images[selectedImageIndex]}
                       alt={property.title}
                       className="w-full h-full"
                     />
+                    
+                    {/* Setas de navegação */}
+                    {images.length > 1 && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+                          data-testid="button-prev-image"
+                        >
+                          <ChevronLeft className="h-6 w-6" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+                          data-testid="button-next-image"
+                        >
+                          <ChevronRight className="h-6 w-6" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                   
                   {images.length > 1 && (
