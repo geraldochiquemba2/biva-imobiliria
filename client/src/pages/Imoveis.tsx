@@ -381,18 +381,18 @@ export default function Imoveis() {
                       className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer h-full flex flex-col"
                       data-testid={`card-property-${property.id}`}
                     >
-                      <div className="relative w-full aspect-[4/3] sm:aspect-video overflow-hidden">
+                      <div className="relative w-full aspect-[4/3] sm:aspect-video overflow-hidden bg-muted">
                         {property.images && property.images.length > 0 ? (
                           <img 
                             src={property.images[0]} 
                             alt={property.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         ) : (property as any).thumbnail ? (
                           <img 
                             src={(property as any).thumbnail} 
                             alt={property.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         ) : (
                           <div className="w-full h-full bg-muted flex items-center justify-center">
