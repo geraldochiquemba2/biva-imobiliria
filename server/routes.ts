@@ -97,6 +97,17 @@ async function getVisitsWithAutoComplete() {
   return visits;
 }
 
+// Cache control middleware for GET requests
+function cacheControl(maxAge: number) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.method === 'GET') {
+      res.set('Cache-Control', `private, max-age=${maxAge}, must-revalidate`);
+      res.set('ETag', `W/"${Date.now()}"`);
+    }
+    next();
+  };
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint for keep-alive
   app.get("/api/health", (_req, res) => {
@@ -321,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Property Routes
   
   // Get all properties with optional filters
-  app.get("/api/properties", async (req, res) => {
+  app.get("/api/properties", cacheControl(120), async (req, res) => {
     try {
       const searchParams = searchPropertySchema.parse({
         type: req.query.type,
@@ -372,7 +383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get featured properties
-  app.get("/api/properties/featured", async (req, res) => {
+  app.get("/api/properties/featured", cacheControl(180), async (req, res) => {
     try {
       const properties = await storage.listProperties({ featured: true });
       res.json(properties);
@@ -383,7 +394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get single property
-  app.get("/api/properties/:id", async (req, res) => {
+  app.get("/api/properties/:id", cacheControl(180), async (req, res) => {
     try {
       const property = await storage.getProperty(req.params.id);
       if (!property) {
@@ -588,7 +599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get properties by user
-  app.get("/api/users/:userId/properties", requireAuth, async (req, res) => {
+  app.get("/api/users/:userId/properties", requireAuth, cacheControl(120), async (req, res) => {
     try {
       // Users can only see their own properties, unless they're corretor or admin
       if (!hasRole(req.session, 'corretor') && !hasRole(req.session, 'admin') && req.params.userId !== req.session.userId) {
@@ -663,7 +674,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get virtual tour by property ID
-  app.get("/api/virtual-tours/property/:propertyId", async (req, res) => {
+  app.get("/api/virtual-tours/property/:propertyId", cacheControl(300), async (req, res) => {
     try {
       const tour = await storage.getVirtualTourByProperty(req.params.propertyId);
       if (!tour) {
@@ -677,7 +688,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get virtual tour by ID
-  app.get("/api/virtual-tours/:id", async (req, res) => {
+  app.get("/api/virtual-tours/:id", cacheControl(300), async (req, res) => {
     try {
       const tour = await storage.getVirtualTour(req.params.id);
       if (!tour) {
