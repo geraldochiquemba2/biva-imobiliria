@@ -11,7 +11,7 @@ export default function PropertyImage({
   src, 
   alt, 
   className = '', 
-  variant = 'cover' 
+  variant = 'contain' 
 }: PropertyImageProps) {
   return (
     <div className={`relative ${className}`}>
