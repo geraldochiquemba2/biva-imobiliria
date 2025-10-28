@@ -187,15 +187,12 @@ export class DatabaseStorage implements IStorage {
         ownerId: properties.ownerId,
         createdAt: properties.createdAt,
         updatedAt: properties.updatedAt,
-        // Get only first image as thumbnail to reduce bandwidth
         thumbnail: sql<string | null>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ${properties.images}[1] ELSE NULL END`,
-        owner: {
-          id: owner.id,
-          fullName: owner.fullName,
-          email: owner.email,
-          phone: owner.phone,
-          userType: owner.userType,
-        },
+        ownerId_fk: owner.id,
+        ownerFullName: owner.fullName,
+        ownerEmail: owner.email,
+        ownerPhone: owner.phone,
+        ownerUserTypes: owner.userTypes,
       })
       .from(properties)
       .leftJoin(owner, eq(properties.ownerId, owner.id))
@@ -203,7 +200,24 @@ export class DatabaseStorage implements IStorage {
     
     if (!results || results.length === 0) return undefined;
     
-    return results[0];
+    const result = results[0];
+    
+    if (result.ownerId_fk) {
+      const { ownerId_fk, ownerFullName, ownerEmail, ownerPhone, ownerUserTypes, ...propertyData } = result;
+      return {
+        ...propertyData,
+        owner: {
+          id: ownerId_fk,
+          fullName: ownerFullName,
+          email: ownerEmail,
+          phone: ownerPhone,
+          userTypes: ownerUserTypes,
+        }
+      };
+    }
+    
+    const { ownerId_fk, ownerFullName, ownerEmail, ownerPhone, ownerUserTypes, ...propertyData } = result;
+    return propertyData;
   }
 
   async getPropertyImages(id: string): Promise<string[] | undefined> {
