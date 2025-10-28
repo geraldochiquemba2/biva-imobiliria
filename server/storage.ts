@@ -161,20 +161,60 @@ export class DatabaseStorage implements IStorage {
 
   // Property methods
   async getProperty(id: string): Promise<any | undefined> {
-    const result = await db.query.properties.findFirst({
-      where: eq(properties.id, id),
-      with: {
-        owner: true,
-      },
-    });
+    const owner = aliasedTable(users, 'owner');
     
-    if (!result) return undefined;
+    const results = await db
+      .select({
+        id: properties.id,
+        title: properties.title,
+        description: properties.description,
+        type: properties.type,
+        category: properties.category,
+        price: properties.price,
+        bairro: properties.bairro,
+        municipio: properties.municipio,
+        provincia: properties.provincia,
+        bedrooms: properties.bedrooms,
+        bathrooms: properties.bathrooms,
+        livingRooms: properties.livingRooms,
+        kitchens: properties.kitchens,
+        area: properties.area,
+        latitude: properties.latitude,
+        longitude: properties.longitude,
+        amenities: properties.amenities,
+        featured: properties.featured,
+        status: properties.status,
+        ownerId: properties.ownerId,
+        createdAt: properties.createdAt,
+        updatedAt: properties.updatedAt,
+        // Get only first image as thumbnail to reduce bandwidth
+        thumbnail: sql<string | null>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ${properties.images}[1] ELSE NULL END`,
+        owner: {
+          id: owner.id,
+          fullName: owner.fullName,
+          email: owner.email,
+          phone: owner.phone,
+          userType: owner.userType,
+        },
+      })
+      .from(properties)
+      .leftJoin(owner, eq(properties.ownerId, owner.id))
+      .where(eq(properties.id, id));
     
-    // Add thumbnail field for consistency
-    return {
-      ...result,
-      thumbnail: result.images && result.images.length > 0 ? result.images[0] : null,
-    };
+    if (!results || results.length === 0) return undefined;
+    
+    return results[0];
+  }
+
+  async getPropertyImages(id: string): Promise<string[] | undefined> {
+    const result = await db
+      .select({ images: properties.images })
+      .from(properties)
+      .where(eq(properties.id, id));
+    
+    if (!result || result.length === 0) return undefined;
+    
+    return result[0].images || [];
   }
 
   async listProperties(params?: SearchPropertyParams): Promise<Property[]> {

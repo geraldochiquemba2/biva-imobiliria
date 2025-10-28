@@ -433,6 +433,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get property images (lazy loading)
+  app.get("/api/properties/:id/images", cacheControl(300), async (req, res) => {
+    try {
+      const images = await storage.getPropertyImages(req.params.id);
+      if (!images) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+      res.json({ images });
+    } catch (error) {
+      console.error('Error getting property images:', error);
+      res.status(500).json({ error: "Falha ao buscar imagens do imóvel" });
+    }
+  });
+
   // Upload property images (proprietarios and corretores only)
   app.post("/api/properties/upload", requireRole('proprietario', 'corretor'), upload.array('images', 10), async (req, res) => {
     try {
