@@ -21,33 +21,48 @@ export default function Imoveis() {
 
   // Load filters from URL on mount and when location changes
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const urlFilters: SearchPropertyParams = {};
+    const loadFiltersFromURL = () => {
+      const params = new URLSearchParams(window.location.search);
+      const urlFilters: SearchPropertyParams = {};
+      
+      if (params.get('type')) urlFilters.type = params.get('type') as any;
+      if (params.get('provincia')) urlFilters.provincia = params.get('provincia')!;
+      if (params.get('municipio')) urlFilters.municipio = params.get('municipio')!;
+      if (params.get('category')) urlFilters.category = params.get('category') as any;
+      if (params.get('bedrooms')) urlFilters.bedrooms = Number(params.get('bedrooms'));
+      if (params.get('livingRooms')) urlFilters.livingRooms = Number(params.get('livingRooms'));
+      if (params.get('kitchens')) urlFilters.kitchens = Number(params.get('kitchens'));
+      if (params.get('minPrice')) {
+        urlFilters.minPrice = Number(params.get('minPrice'));
+        setMinPrice(params.get('minPrice')!);
+      }
+      if (params.get('maxPrice')) {
+        urlFilters.maxPrice = Number(params.get('maxPrice'));
+        setMaxPrice(params.get('maxPrice')!);
+      }
+      
+      if (Object.keys(urlFilters).length > 0) {
+        setFilters(urlFilters);
+      } else if (window.location.search === '') {
+        // Se não há query string na URL, limpar os filtros
+        setFilters({});
+        setMinPrice('');
+        setMaxPrice('');
+      }
+    };
+
+    loadFiltersFromURL();
+
+    // Listen to custom event for filter changes
+    const handleFilterChange = () => {
+      loadFiltersFromURL();
+    };
+
+    window.addEventListener('filterchange', handleFilterChange);
     
-    if (params.get('type')) urlFilters.type = params.get('type') as any;
-    if (params.get('provincia')) urlFilters.provincia = params.get('provincia')!;
-    if (params.get('municipio')) urlFilters.municipio = params.get('municipio')!;
-    if (params.get('category')) urlFilters.category = params.get('category') as any;
-    if (params.get('bedrooms')) urlFilters.bedrooms = Number(params.get('bedrooms'));
-    if (params.get('livingRooms')) urlFilters.livingRooms = Number(params.get('livingRooms'));
-    if (params.get('kitchens')) urlFilters.kitchens = Number(params.get('kitchens'));
-    if (params.get('minPrice')) {
-      urlFilters.minPrice = Number(params.get('minPrice'));
-      setMinPrice(params.get('minPrice')!);
-    }
-    if (params.get('maxPrice')) {
-      urlFilters.maxPrice = Number(params.get('maxPrice'));
-      setMaxPrice(params.get('maxPrice')!);
-    }
-    
-    if (Object.keys(urlFilters).length > 0) {
-      setFilters(urlFilters);
-    } else if (window.location.search === '') {
-      // Se não há query string na URL, limpar os filtros
-      setFilters({});
-      setMinPrice('');
-      setMaxPrice('');
-    }
+    return () => {
+      window.removeEventListener('filterchange', handleFilterChange);
+    };
   }, [location]);
 
   const availableMunicipios = useMemo(() => {
@@ -160,7 +175,11 @@ export default function Imoveis() {
           <div className="flex gap-3 mb-6">
             <Button
               variant={filters.type === 'Arrendar' ? 'default' : 'outline'}
-              onClick={() => setLocation('/imoveis?type=Arrendar')}
+              onClick={() => {
+                const newUrl = '/imoveis?type=Arrendar';
+                window.history.pushState({}, '', newUrl);
+                window.dispatchEvent(new Event('filterchange'));
+              }}
               className="flex-1 transition-all duration-300"
               data-testid="button-arrendar"
             >
@@ -168,7 +187,11 @@ export default function Imoveis() {
             </Button>
             <Button
               variant={filters.type === 'Vender' ? 'default' : 'outline'}
-              onClick={() => setLocation('/imoveis?type=Vender')}
+              onClick={() => {
+                const newUrl = '/imoveis?type=Vender';
+                window.history.pushState({}, '', newUrl);
+                window.dispatchEvent(new Event('filterchange'));
+              }}
               className="flex-1 transition-all duration-300"
               data-testid="button-vender"
             >

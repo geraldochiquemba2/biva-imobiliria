@@ -121,7 +121,10 @@ export default function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/imoveis?type=Arrendar')}
+                onClick={() => {
+                  navigate('/imoveis?type=Arrendar');
+                  setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
+                }}
                 data-testid="button-arrendar"
               >
                 Arrendar
@@ -129,7 +132,10 @@ export default function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/imoveis?type=Vender')}
+                onClick={() => {
+                  navigate('/imoveis?type=Vender');
+                  setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
+                }}
                 data-testid="button-comprar"
               >
                 Comprar
@@ -255,6 +261,7 @@ export default function Header() {
                   onClick={() => {
                     setMobileMenuOpen(false);
                     navigate('/imoveis?type=Arrendar');
+                    setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
                   }}
                   data-testid="button-mobile-arrendar"
                 >
@@ -267,6 +274,7 @@ export default function Header() {
                   onClick={() => {
                     setMobileMenuOpen(false);
                     navigate('/imoveis?type=Vender');
+                    setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
                   }}
                   data-testid="button-mobile-comprar"
                 >
