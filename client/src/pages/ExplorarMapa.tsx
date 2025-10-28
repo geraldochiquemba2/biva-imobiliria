@@ -511,7 +511,7 @@ export default function ExplorarMapa() {
     >
       <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80" />
       
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -526,9 +526,9 @@ export default function ExplorarMapa() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Map Section */}
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-3 order-2 lg:order-1">
               <Card>
                 <CardHeader>
                   <div className="space-y-4">
@@ -612,8 +612,8 @@ export default function ExplorarMapa() {
                 <CardContent className="p-6">
                   <div 
                     ref={mapContainerRef} 
-                    className="w-full rounded-md border"
-                    style={{ height: '450px', minHeight: '450px', position: 'relative' }}
+                    className="w-full rounded-md border h-[400px] sm:h-[450px]"
+                    style={{ minHeight: '300px', position: 'relative' }}
                     data-testid="map-container"
                   />
                   
@@ -632,7 +632,7 @@ export default function ExplorarMapa() {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-6 order-1 lg:order-2">
               {/* Selected Property */}
               {selectedProperty && (
                 <motion.div
