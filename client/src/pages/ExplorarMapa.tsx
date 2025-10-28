@@ -13,6 +13,7 @@ import { formatAOA } from "@/lib/currency";
 import { Link } from "wouter";
 import { angolaProvinces } from "@shared/angola-locations";
 import bgImage from '@assets/stock_images/aerial_view_city_map_83390299.jpg';
+import PropertyImage from "@/components/PropertyImage";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -654,12 +655,16 @@ export default function ExplorarMapa() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {selectedProperty.images && selectedProperty.images.length > 0 && (
-                        <img 
+                      {selectedProperty.images && selectedProperty.images.length > 0 ? (
+                        <PropertyImage
                           src={selectedProperty.images[0]} 
                           alt={selectedProperty.title}
-                          className="w-full h-40 object-cover rounded-md"
+                          className="w-full h-48 rounded-md overflow-hidden"
                         />
+                      ) : (
+                        <div className="w-full h-48 bg-muted flex items-center justify-center rounded-md">
+                          <Home className="h-16 w-16 text-muted-foreground" />
+                        </div>
                       )}
                       <div>
                         <h3 className="font-semibold mb-1">{selectedProperty.title}</h3>
