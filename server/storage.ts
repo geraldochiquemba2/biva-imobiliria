@@ -564,9 +564,9 @@ export class DatabaseStorage implements IStorage {
       ...r.visit,
       property: {
         ...r.property,
-        owner: r.owner.id ? r.owner : undefined,
+        owner: r.owner?.id ? r.owner : undefined,
       },
-      cliente: r.cliente.id ? r.cliente : undefined,
+      cliente: r.cliente?.id ? r.cliente : undefined,
     })) as any;
   }
 
@@ -630,7 +630,7 @@ export class DatabaseStorage implements IStorage {
       ...r.visit,
       property: {
         ...r.property,
-        owner: r.owner.id ? r.owner : undefined,
+        owner: r.owner?.id ? r.owner : undefined,
       },
     })) as any;
   }
@@ -668,7 +668,7 @@ export class DatabaseStorage implements IStorage {
     return results.map((r) => ({
       ...r.visit,
       property: r.property,
-      cliente: r.cliente.id ? r.cliente : undefined,
+      cliente: r.cliente?.id ? r.cliente : undefined,
     })) as any;
   }
 
@@ -703,7 +703,7 @@ export class DatabaseStorage implements IStorage {
     return results.map((r) => ({
       ...r.visit,
       property: r.property,
-      cliente: r.cliente.id ? r.cliente : undefined,
+      cliente: r.cliente?.id ? r.cliente : undefined,
     })) as any;
   }
 
