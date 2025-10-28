@@ -231,14 +231,14 @@ export default function ExplorarMapa() {
           iconAnchor: [15, 30],
         });
 
-        const hasImage = property.images && property.images.length > 0;
-        const imageUrl = hasImage ? property.images![0] : '';
+        const hasImage = property.images && Array.isArray(property.images) && property.images.length > 0;
+        const imageUrl = hasImage ? property.images[0] : '';
         
         const marker = L.marker([markerLat, markerLng], { icon: customIcon })
           .addTo(mapRef.current!)
           .bindPopup(`
             <div style="min-width: 220px; max-width: 250px;">
-              ${hasImage ? `<img src="${imageUrl}" alt="${property.title}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px; margin-bottom: 8px;" />` : ''}
+              ${imageUrl ? `<img src="${imageUrl}" alt="${property.title}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px; margin-bottom: 8px; display: block;" onerror="this.style.display='none'" />` : ''}
               <h3 style="margin: 0 0 8px 0; font-weight: bold; font-size: 14px;">${property.title}</h3>
               <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">${property.bairro}, ${property.municipio}</p>
               <p style="margin: 0 0 8px 0; font-weight: bold; color: ${iconColor};">${formatAOA(property.price)}</p>
