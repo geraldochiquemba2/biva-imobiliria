@@ -38,17 +38,17 @@ export default function Dashboard() {
 
   const { data: userContracts = [], isLoading: userContractsLoading } = useQuery<Contract[]>({
     queryKey: [`/api/users/${currentUser?.id}/contracts`],
-    enabled: !!currentUser?.id && (hasRole('cliente') || hasRole('proprietario')) && !hasRole('admin') && !hasRole('corretor'),
+    enabled: !!currentUser?.id && (hasRole('cliente') || hasRole('proprietario')),
     staleTime: 30000,
   });
 
   const { data: allContracts = [], isLoading: allContractsLoading } = useQuery<Contract[]>({
     queryKey: ['/api/contracts'],
-    enabled: !!currentUser?.id && (hasRole('admin') || hasRole('corretor')),
+    enabled: !!currentUser?.id && hasRole('admin'),
     staleTime: 30000,
   });
 
-  const contracts = hasRole('admin') || hasRole('corretor')
+  const contracts = hasRole('admin')
     ? allContracts 
     : userContracts;
 
