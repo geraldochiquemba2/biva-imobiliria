@@ -322,7 +322,7 @@ export default function Imoveis() {
             </Button>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="text-sm text-muted-foreground">
               Pesquise entre milhares de imóveis em toda Angola
             </div>
@@ -332,7 +332,7 @@ export default function Imoveis() {
                 variant="ghost" 
                 size="sm"
                 onClick={clearFilters}
-                className="text-muted-foreground hover-elevate"
+                className="text-muted-foreground hover-elevate shrink-0"
                 data-testid="button-reset-filters"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
@@ -399,12 +399,12 @@ export default function Imoveis() {
                             <Home className="h-16 w-16 text-muted-foreground" />
                           </div>
                         )}
-                      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col sm:flex-row gap-2">
-                        <Badge className="bg-primary text-primary-foreground text-xs sm:text-sm" data-testid={`badge-type-${property.id}`}>
-                          {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
+                      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-wrap gap-1 sm:gap-2 max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)]">
+                        <Badge className="bg-primary text-primary-foreground text-xs whitespace-nowrap" data-testid={`badge-type-${property.id}`}>
+                          {property.type === 'Arrendar' ? 'Arrendar' : property.type === 'Vender' ? 'Comprar' : property.type}
                         </Badge>
                         {property.featured && (
-                          <Badge variant="secondary" className="text-xs sm:text-sm" data-testid={`badge-featured-${property.id}`}>
+                          <Badge variant="secondary" className="text-xs whitespace-nowrap" data-testid={`badge-featured-${property.id}`}>
                             Destaque
                           </Badge>
                         )}
@@ -426,33 +426,33 @@ export default function Imoveis() {
                         {property.description || 'Sem descrição disponível'}
                       </p>
 
-                      <div className="flex flex-wrap gap-2 sm:gap-4 mb-2 sm:mb-4 text-xs sm:text-sm text-muted-foreground">
+                      <div className="flex flex-wrap gap-2 sm:gap-3 mb-2 sm:mb-4 text-xs sm:text-sm text-muted-foreground">
                         {property.bedrooms > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Bed className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <div className="flex items-center gap-0.5 sm:gap-1">
+                            <Bed className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                             <span>{property.bedrooms}</span>
                           </div>
                         )}
                         {property.bathrooms > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Bath className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <div className="flex items-center gap-0.5 sm:gap-1">
+                            <Bath className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                             <span>{property.bathrooms}</span>
                           </div>
                         )}
-                        <div className="flex items-center gap-1">
-                          <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>{property.area}m²</span>
+                        <div className="flex items-center gap-0.5 sm:gap-1">
+                          <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                          <span className="whitespace-nowrap">{property.area}m²</span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-2 sm:pt-4 border-t">
-                        <div>
+                      <div className="flex items-center justify-between gap-2 pt-2 sm:pt-4 border-t">
+                        <div className="min-w-0 flex-1">
                           <p className="text-xs sm:text-sm text-muted-foreground">Preço</p>
-                          <p className="text-lg sm:text-2xl font-bold text-primary" data-testid={`text-price-${property.id}`}>
+                          <p className="text-sm sm:text-lg md:text-2xl font-bold text-primary truncate" data-testid={`text-price-${property.id}`}>
                             {Number(property.price).toLocaleString('pt-AO')} AOA
                           </p>
                         </div>
-                        <Badge variant="outline" className="text-xs" data-testid={`badge-category-${property.id}`}>
+                        <Badge variant="outline" className="text-xs shrink-0" data-testid={`badge-category-${property.id}`}>
                           {property.category}
                         </Badge>
                       </div>
