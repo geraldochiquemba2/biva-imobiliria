@@ -232,7 +232,12 @@ export default function ExplorarMapa() {
         });
 
         const hasImage = property.images && Array.isArray(property.images) && property.images.length > 0;
-        const imageUrl = hasImage ? property.images[0] : '';
+        let imageUrl = hasImage ? property.images[0] : '';
+        
+        // Ensure image URL is valid
+        if (imageUrl && !imageUrl.startsWith('data:') && !imageUrl.startsWith('http')) {
+          imageUrl = ''; // Invalid URL
+        }
         
         const marker = L.marker([markerLat, markerLng], { icon: customIcon })
           .addTo(mapRef.current!)
