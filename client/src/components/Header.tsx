@@ -17,7 +17,7 @@ import {
 import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
 
 export default function Header() {
-  const [location, setLocation] = useLocation();
+  const [location, navigate] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const { toast } = useToast();
@@ -41,7 +41,7 @@ export default function Header() {
         title: "Logout realizado com sucesso",
         description: "Até breve!",
       });
-      setLocation('/');
+      navigate('/');
     },
     onError: () => {
       toast({
@@ -121,7 +121,7 @@ export default function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.location.href = '/imoveis?type=Arrendar'}
+                onClick={() => navigate('/imoveis?type=Arrendar')}
                 data-testid="button-arrendar"
               >
                 Arrendar
@@ -129,7 +129,7 @@ export default function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.location.href = '/imoveis?type=Vender'}
+                onClick={() => navigate('/imoveis?type=Vender')}
                 data-testid="button-comprar"
               >
                 Comprar
@@ -254,7 +254,7 @@ export default function Header() {
                   className="w-full"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    window.location.href = '/imoveis?type=Arrendar';
+                    navigate('/imoveis?type=Arrendar');
                   }}
                   data-testid="button-mobile-arrendar"
                 >
@@ -266,7 +266,7 @@ export default function Header() {
                   className="w-full"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    window.location.href = '/imoveis?type=Vender';
+                    navigate('/imoveis?type=Vender');
                   }}
                   data-testid="button-mobile-comprar"
                 >
