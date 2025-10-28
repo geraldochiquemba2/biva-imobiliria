@@ -343,9 +343,10 @@ export default function ImovelDetalhes() {
                           }`}
                           data-testid={`button-thumbnail-${index}`}
                         >
-                          <PropertyImage
+                          <img
                             src={index === 0 && (property as any).thumbnail ? (property as any).thumbnail : image}
                             alt={`${property.title} - ${index + 1}`}
+                            className="w-full h-full object-cover"
                           />
                         </button>
                       ))}
