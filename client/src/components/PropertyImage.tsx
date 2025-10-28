@@ -23,7 +23,7 @@ export default function PropertyImage({
       <img
         src={logoWatermark}
         alt="BIVA Imobiliária"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 pointer-events-none w-1/3 max-w-[200px] select-none"
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 pointer-events-none w-1/3 max-w-[200px] select-none"
         style={{ mixBlendMode: 'normal' }}
         draggable={false}
       />
