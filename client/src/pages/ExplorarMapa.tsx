@@ -14,6 +14,7 @@ import { Link } from "wouter";
 import { angolaProvinces } from "@shared/angola-locations";
 import bgImage from '@assets/stock_images/aerial_view_city_map_83390299.jpg';
 import PropertyImage from "@/components/PropertyImage";
+import logoWatermark from '@assets/BIVA LOG300.300_1761652396256.png';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -656,16 +657,29 @@ export default function ExplorarMapa() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {selectedProperty.images && selectedProperty.images.length > 0 ? (
-                        <div className="w-full h-48 rounded-md overflow-hidden">
-                          <PropertyImage
-                            src={selectedProperty.images[0]} 
+                        <div className="relative w-full h-48 rounded-md overflow-hidden">
+                          <img
+                            src={selectedProperty.images[0]}
                             alt={selectedProperty.title}
-                            className="w-full h-full"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              console.log('ERROR loading image:', selectedProperty.images?.[0]?.substring(0, 100));
+                              e.currentTarget.style.display = 'none';
+                            }}
+                            onLoad={() => console.log('Image loaded successfully!')}
+                          />
+                          <img
+                            src={logoWatermark}
+                            alt="BIVA Imobiliária"
+                            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 pointer-events-none w-1/3 max-w-[200px] select-none"
+                            style={{ mixBlendMode: 'normal' }}
+                            draggable={false}
                           />
                         </div>
                       ) : (
                         <div className="w-full h-48 bg-muted flex items-center justify-center rounded-md">
                           <Home className="h-16 w-16 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground mt-2">Sem imagem disponível</p>
                         </div>
                       )}
                       <div>
