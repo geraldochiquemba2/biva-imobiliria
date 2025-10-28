@@ -50,6 +50,16 @@ export const properties = pgTable("properties", {
   ownerIdx: index("properties_owner_idx").on(table.ownerId),
   statusIdx: index("properties_status_idx").on(table.status),
   featuredIdx: index("properties_featured_idx").on(table.featured),
+  typeIdx: index("properties_type_idx").on(table.type),
+  categoryIdx: index("properties_category_idx").on(table.category),
+  bairroIdx: index("properties_bairro_idx").on(table.bairro),
+  municipioIdx: index("properties_municipio_idx").on(table.municipio),
+  provinciaIdx: index("properties_provincia_idx").on(table.provincia),
+  priceIdx: index("properties_price_idx").on(table.price),
+  createdAtIdx: index("properties_created_at_idx").on(table.createdAt),
+  statusFeaturedIdx: index("properties_status_featured_idx").on(table.status, table.featured),
+  typeStatusIdx: index("properties_type_status_idx").on(table.type, table.status),
+  municipioTypeIdx: index("properties_municipio_type_idx").on(table.municipio, table.type),
 }));
 
 // Contracts table
@@ -97,6 +107,9 @@ export const visits = pgTable("visits", {
   propertyIdx: index("visits_property_idx").on(table.propertyId),
   clienteIdx: index("visits_cliente_idx").on(table.clienteId),
   statusIdx: index("visits_status_idx").on(table.status),
+  scheduledDateTimeIdx: index("visits_scheduled_date_time_idx").on(table.scheduledDateTime),
+  clienteStatusIdx: index("visits_cliente_status_idx").on(table.clienteId, table.status),
+  propertyStatusIdx: index("visits_property_status_idx").on(table.propertyId, table.status),
 }));
 
 // Proposals table
@@ -143,6 +156,9 @@ export const notifications = pgTable("notifications", {
 }, (table) => ({
   userIdx: index("notifications_user_idx").on(table.userId),
   readAtIdx: index("notifications_read_at_idx").on(table.readAt),
+  createdAtIdx: index("notifications_created_at_idx").on(table.createdAt),
+  userCreatedAtIdx: index("notifications_user_created_at_idx").on(table.userId, table.createdAt),
+  userReadAtIdx: index("notifications_user_read_at_idx").on(table.userId, table.readAt),
 }));
 
 // Virtual Tours table
