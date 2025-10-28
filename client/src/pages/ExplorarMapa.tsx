@@ -244,32 +244,32 @@ export default function ExplorarMapa() {
         const marker = L.marker([markerLat, markerLng], { icon: customIcon })
           .addTo(mapRef.current!)
           .bindPopup(`
-            <div style="min-width: 260px; max-width: 280px; font-family: system-ui, -apple-system, sans-serif;">
+            <div style="min-width: 200px; max-width: 220px; font-family: system-ui, -apple-system, sans-serif;">
               ${imageUrl ? `
-                <div style="position: relative; margin: -10px -10px 12px -10px; overflow: hidden; border-radius: 8px 8px 0 0;">
+                <div style="position: relative; margin: -10px -10px 10px -10px; overflow: hidden; border-radius: 8px 8px 0 0;">
                   <img 
                     src="${imageUrl}" 
                     alt="${property.title}" 
-                    style="width: 100%; height: 150px; object-fit: cover; display: block;" 
+                    style="width: 100%; height: 110px; object-fit: cover; display: block;" 
                     onerror="this.parentElement.style.display='none'"
                   />
                 </div>
               ` : ''}
               <div style="padding: ${imageUrl ? '0' : '0 4px'};">
-                <h3 style="margin: 0 0 8px 0; font-weight: 600; font-size: 15px; color: #1a1a1a; line-height: 1.3;">${property.title}</h3>
-                <p style="margin: 0 0 6px 0; font-size: 13px; color: #666; display: flex; align-items: center; gap: 4px;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;">
+                <h3 style="margin: 0 0 6px 0; font-weight: 600; font-size: 13px; color: #1a1a1a; line-height: 1.3;">${property.title}</h3>
+                <p style="margin: 0 0 5px 0; font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                   </svg>
                   <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${property.bairro}, ${property.municipio}</span>
                 </p>
-                <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 16px; color: ${iconColor};">${formatAOA(property.price)}</p>
-                <a href="/imoveis/${property.id}" style="display: inline-block; background-color: ${iconColor}; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Ver detalhes</a>
+                <p style="margin: 0 0 8px 0; font-weight: 700; font-size: 14px; color: ${iconColor};">${formatAOA(property.price)}</p>
+                <a href="/imoveis/${property.id}" style="display: inline-block; background-color: ${iconColor}; color: white; padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 500; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Ver</a>
               </div>
             </div>
           `, {
-            maxWidth: 280,
+            maxWidth: 220,
             className: 'custom-popup'
           });
 
