@@ -151,26 +151,6 @@ export default function EditarImovel() {
     ? angolaProvinces.find(p => p.name === selectedProvince)?.municipalities || []
     : [];
 
-  useEffect(() => {
-    if (provincia && provincia !== selectedProvince) {
-      const province = angolaProvinces.find(p => p.name === provincia);
-      if (province?.coordinates) {
-        setValue("latitude", province.coordinates.lat);
-        setValue("longitude", province.coordinates.lng);
-      }
-    }
-  }, [provincia, selectedProvince, setValue]);
-
-  useEffect(() => {
-    if (municipio && selectedProvince) {
-      const province = angolaProvinces.find(p => p.name === selectedProvince);
-      const municipality = province?.municipalities.find(m => m.name === municipio);
-      if (municipality?.coordinates) {
-        setValue("latitude", municipality.coordinates.lat);
-        setValue("longitude", municipality.coordinates.lng);
-      }
-    }
-  }, [municipio, selectedProvince, setValue]);
 
   const updatePropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
@@ -465,6 +445,12 @@ export default function EditarImovel() {
                               field.onChange(value);
                               setSelectedProvince(value);
                               setValue("municipio", "");
+                              
+                              const province = angolaProvinces.find(p => p.name === value);
+                              if (province?.coordinates) {
+                                setValue("latitude", province.coordinates.lat);
+                                setValue("longitude", province.coordinates.lng);
+                              }
                             }}
                             disabled={isEditBlocked}
                           >
@@ -494,7 +480,16 @@ export default function EditarImovel() {
                         render={({ field }) => (
                           <Select 
                             value={field.value} 
-                            onValueChange={field.onChange}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              
+                              const province = angolaProvinces.find(p => p.name === selectedProvince);
+                              const municipality = province?.municipalities.find(m => m.name === value);
+                              if (municipality?.coordinates) {
+                                setValue("latitude", municipality.coordinates.lat);
+                                setValue("longitude", municipality.coordinates.lng);
+                              }
+                            }}
                             disabled={isEditBlocked || !selectedProvince}
                           >
                             <SelectTrigger data-testid="select-municipio">
