@@ -640,24 +640,24 @@ export default function ExplorarMapa() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="text-sm">Imóvel Selecionado</CardTitle>
+                  <Card className="max-w-xs">
+                    <CardHeader className="pb-1.5 px-4 pt-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-xs">Imóvel Selecionado</CardTitle>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6"
+                          className="h-5 w-5 -mt-0.5"
                           onClick={() => setSelectedProperty(null)}
                           data-testid="button-close-selected"
                         >
-                          <X className="h-3 w-3" />
+                          <X className="h-2.5 w-2.5" />
                         </Button>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-2 pt-0 pb-4">
+                    <CardContent className="space-y-1.5 pt-0 pb-3 px-4">
                       {(selectedProperty as any).thumbnail ? (
-                        <div className="relative w-full h-24 rounded-md overflow-hidden bg-muted">
+                        <div className="relative w-full h-20 rounded-md overflow-hidden bg-muted">
                           <img
                             src={(selectedProperty as any).thumbnail}
                             alt={selectedProperty.title}
@@ -671,39 +671,38 @@ export default function ExplorarMapa() {
                           <img
                             src={logoWatermark}
                             alt="BIVA Imobiliária"
-                            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 pointer-events-none w-1/3 max-w-[120px] select-none"
+                            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 pointer-events-none w-1/3 max-w-[100px] select-none"
                             style={{ mixBlendMode: 'normal' }}
                             draggable={false}
                           />
                         </div>
                       ) : (
-                        <div className="w-full h-24 bg-muted flex flex-col items-center justify-center rounded-md">
-                          <Home className="h-8 w-8 text-muted-foreground" />
-                          <p className="text-xs text-muted-foreground mt-1">Sem imagem</p>
+                        <div className="w-full h-20 bg-muted flex flex-col items-center justify-center rounded-md">
+                          <Home className="h-6 w-6 text-muted-foreground" />
+                          <p className="text-[10px] text-muted-foreground mt-0.5">Sem imagem</p>
                         </div>
                       )}
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <h3 className="font-semibold text-xs leading-tight line-clamp-2">{selectedProperty.title}</h3>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
+                        <p className="text-[10px] text-muted-foreground line-clamp-1">
                           {selectedProperty.bairro}, {selectedProperty.municipio}
                         </p>
-                        <p className="text-base font-bold text-primary">
+                        <p className="text-sm font-bold text-primary">
                           {formatAOA(selectedProperty.price)}
                         </p>
                         <div className="flex gap-1 flex-wrap">
-                          <Badge variant={selectedProperty.type === 'Vender' ? 'destructive' : 'default'} className="text-[10px] h-5">
+                          <Badge variant={selectedProperty.type === 'Vender' ? 'destructive' : 'default'} className="text-[9px] h-4 px-1.5">
                             {selectedProperty.type === 'Arrendar' ? 'Arrendar' : selectedProperty.type === 'Vender' ? 'Compra' : selectedProperty.type}
                           </Badge>
-                          <Badge variant="outline" className="text-[10px] h-5">{selectedProperty.category}</Badge>
+                          <Badge variant="outline" className="text-[9px] h-4 px-1.5">{selectedProperty.category}</Badge>
                         </div>
                         <Button
-                          className="w-full mt-2"
-                          size="sm"
+                          className="w-full mt-1.5 h-7 text-xs"
                           asChild
                           data-testid="button-view-details"
                         >
                           <Link href={`/imoveis/${selectedProperty.id}`}>
-                            <Home className="h-3 w-3 mr-1.5" />
+                            <Home className="h-2.5 w-2.5 mr-1" />
                             Ver Detalhes
                           </Link>
                         </Button>
