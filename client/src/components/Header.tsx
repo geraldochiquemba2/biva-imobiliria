@@ -87,7 +87,7 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
       <div className="max-w-7xl mx-auto px-6" ref={mobileMenuRef}>
         <div className="flex items-center justify-between h-24">
-          <Link href="/" data-testid="link-logo">
+          <Link href="/" data-testid="link-logo" className="flex-shrink-0">
             <div 
               className="flex items-center cursor-pointer"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -95,7 +95,7 @@ export default function Header() {
               <img 
                 src={logoImage} 
                 alt="BIVA Imobiliária" 
-                className="h-16 sm:h-20 w-auto object-contain dark:brightness-0 dark:invert transition-all"
+                className="h-14 sm:h-16 md:h-20 w-auto object-contain dark:brightness-0 dark:invert transition-all"
                 style={{ aspectRatio: 'auto' }}
               />
             </div>
