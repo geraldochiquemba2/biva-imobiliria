@@ -641,23 +641,23 @@ export default function ExplorarMapa() {
                   transition={{ duration: 0.3 }}
                 >
                   <Card>
-                    <CardHeader>
+                    <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg">Imóvel Selecionado</CardTitle>
+                        <CardTitle className="text-base">Imóvel Selecionado</CardTitle>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
+                          className="h-7 w-7"
                           onClick={() => setSelectedProperty(null)}
                           data-testid="button-close-selected"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-3 pt-0">
                       {(selectedProperty as any).thumbnail ? (
-                        <div className="relative w-full h-36 rounded-md overflow-hidden bg-muted">
+                        <div className="relative w-full h-28 rounded-md overflow-hidden bg-muted">
                           <img
                             src={(selectedProperty as any).thumbnail}
                             alt={selectedProperty.title}
@@ -671,30 +671,30 @@ export default function ExplorarMapa() {
                           <img
                             src={logoWatermark}
                             alt="BIVA Imobiliária"
-                            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 pointer-events-none w-1/3 max-w-[200px] select-none"
+                            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 pointer-events-none w-1/3 max-w-[150px] select-none"
                             style={{ mixBlendMode: 'normal' }}
                             draggable={false}
                           />
                         </div>
                       ) : (
-                        <div className="w-full h-36 bg-muted flex flex-col items-center justify-center rounded-md">
-                          <Home className="h-12 w-12 text-muted-foreground" />
-                          <p className="text-xs text-muted-foreground mt-2">Sem imagem disponível</p>
+                        <div className="w-full h-28 bg-muted flex flex-col items-center justify-center rounded-md">
+                          <Home className="h-10 w-10 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground mt-1">Sem imagem disponível</p>
                         </div>
                       )}
-                      <div>
-                        <h3 className="font-semibold mb-1">{selectedProperty.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-sm leading-tight">{selectedProperty.title}</h3>
+                        <p className="text-xs text-muted-foreground">
                           {selectedProperty.bairro}, {selectedProperty.municipio}
                         </p>
-                        <p className="text-2xl font-bold text-primary mb-3">
+                        <p className="text-lg font-bold text-primary">
                           {formatAOA(selectedProperty.price)}
                         </p>
-                        <div className="flex gap-2 mb-4">
-                          <Badge variant={selectedProperty.type === 'Vender' ? 'destructive' : 'default'}>
+                        <div className="flex gap-1.5 flex-wrap">
+                          <Badge variant={selectedProperty.type === 'Vender' ? 'destructive' : 'default'} className="text-xs">
                             {selectedProperty.type === 'Arrendar' ? 'Disponível para arrendar' : selectedProperty.type === 'Vender' ? 'Disponível para compra' : selectedProperty.type}
                           </Badge>
-                          <Badge variant="outline">{selectedProperty.category}</Badge>
+                          <Badge variant="outline" className="text-xs">{selectedProperty.category}</Badge>
                         </div>
                         <Button
                           className="w-full"
@@ -703,7 +703,7 @@ export default function ExplorarMapa() {
                           data-testid="button-view-details"
                         >
                           <Link href={`/imoveis/${selectedProperty.id}`}>
-                            <Home className="h-4 w-4 mr-2" />
+                            <Home className="h-3.5 w-3.5 mr-2" />
                             Ver Detalhes
                           </Link>
                         </Button>
