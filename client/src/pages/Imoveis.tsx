@@ -354,7 +354,7 @@ export default function Imoveis() {
           </div>
 
           {isLoading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[...Array(6)].map((_, i) => (
                 <Card key={i} className="overflow-hidden">
                   <Skeleton className="h-64 w-full" />
@@ -367,7 +367,7 @@ export default function Imoveis() {
               ))}
             </div>
           ) : properties && properties.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {properties.map((property, index) => (
                 <motion.div
                   key={property.id}
@@ -411,48 +411,48 @@ export default function Imoveis() {
                       </div>
                     </div>
                     
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="mb-4">
-                        <h3 className="text-xl font-bold mb-2 line-clamp-2" data-testid={`text-title-${property.id}`}>
+                    <div className="p-3 sm:p-6 flex-1 flex flex-col">
+                      <div className="mb-2 sm:mb-4">
+                        <h3 className="text-base sm:text-xl font-bold mb-1 sm:mb-2 line-clamp-2" data-testid={`text-title-${property.id}`}>
                           {property.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
                           {property.bairro}, {property.municipio}
                         </p>
                       </div>
 
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-4 line-clamp-2 flex-1">
                         {property.description || 'Sem descrição disponível'}
                       </p>
 
-                      <div className="flex flex-wrap gap-4 mb-4 text-sm text-muted-foreground">
+                      <div className="flex flex-wrap gap-2 sm:gap-4 mb-2 sm:mb-4 text-xs sm:text-sm text-muted-foreground">
                         {property.bedrooms > 0 && (
                           <div className="flex items-center gap-1">
-                            <Bed className="h-4 w-4" />
+                            <Bed className="h-3 w-3 sm:h-4 sm:w-4" />
                             <span>{property.bedrooms}</span>
                           </div>
                         )}
                         {property.bathrooms > 0 && (
                           <div className="flex items-center gap-1">
-                            <Bath className="h-4 w-4" />
+                            <Bath className="h-3 w-3 sm:h-4 sm:w-4" />
                             <span>{property.bathrooms}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-1">
-                          <Maximize2 className="h-4 w-4" />
+                          <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span>{property.area}m²</span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="flex items-center justify-between pt-2 sm:pt-4 border-t">
                         <div>
-                          <p className="text-sm text-muted-foreground">Preço</p>
-                          <p className="text-2xl font-bold text-primary" data-testid={`text-price-${property.id}`}>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Preço</p>
+                          <p className="text-lg sm:text-2xl font-bold text-primary" data-testid={`text-price-${property.id}`}>
                             {Number(property.price).toLocaleString('pt-AO')} AOA
                           </p>
                         </div>
-                        <Badge variant="outline" data-testid={`badge-category-${property.id}`}>
+                        <Badge variant="outline" className="text-xs" data-testid={`badge-category-${property.id}`}>
                           {property.category}
                         </Badge>
                       </div>
