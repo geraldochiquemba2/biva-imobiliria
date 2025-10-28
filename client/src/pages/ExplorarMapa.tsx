@@ -553,7 +553,7 @@ export default function ExplorarMapa() {
                           }
                         }}
                       >
-                        <SelectTrigger className="w-[200px]" data-testid="select-provincia">
+                        <SelectTrigger className="w-full sm:w-[180px]" data-testid="select-provincia">
                           <MapPin className="h-4 w-4 mr-2" />
                           <SelectValue placeholder="Todas as Províncias" />
                         </SelectTrigger>
@@ -578,7 +578,7 @@ export default function ExplorarMapa() {
                         }}
                         disabled={!selectedProvincia || selectedProvincia === "all"}
                       >
-                        <SelectTrigger className="w-[200px]" data-testid="select-municipio">
+                        <SelectTrigger className="w-full sm:w-[180px]" data-testid="select-municipio">
                           <MapPin className="h-4 w-4 mr-2" />
                           <SelectValue placeholder="Todos os Municípios" />
                         </SelectTrigger>
@@ -612,8 +612,8 @@ export default function ExplorarMapa() {
                 <CardContent className="p-6">
                   <div 
                     ref={mapContainerRef} 
-                    className="w-full rounded-md border h-[400px] sm:h-[450px]"
-                    style={{ minHeight: '300px', position: 'relative' }}
+                    className="w-full rounded-md border h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]"
+                    style={{ minHeight: '280px', position: 'relative' }}
                     data-testid="map-container"
                   />
                   
