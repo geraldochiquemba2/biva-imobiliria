@@ -19,7 +19,7 @@ export default function Imoveis() {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
-  // Load filters from URL on mount
+  // Load filters from URL on mount and when location changes
   useEffect(() => {
     const params = new URLSearchParams(location.split('?')[1] || '');
     const urlFilters: SearchPropertyParams = {};
@@ -42,8 +42,13 @@ export default function Imoveis() {
     
     if (Object.keys(urlFilters).length > 0) {
       setFilters(urlFilters);
+    } else {
+      // Se não há filtros na URL, limpar os filtros
+      setFilters({});
+      setMinPrice('');
+      setMaxPrice('');
     }
-  }, []);
+  }, [location]);
 
   const availableMunicipios = useMemo(() => {
     if (!filters.provincia) return [];
