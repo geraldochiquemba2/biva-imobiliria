@@ -381,7 +381,7 @@ export default function Imoveis() {
                       className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer h-full flex flex-col"
                       data-testid={`card-property-${property.id}`}
                     >
-                      <div className="relative h-64 overflow-hidden">
+                      <div className="relative w-full aspect-[4/3] sm:aspect-video overflow-hidden">
                         {property.images && property.images.length > 0 ? (
                           <img 
                             src={property.images[0]} 
@@ -399,12 +399,12 @@ export default function Imoveis() {
                             <Home className="h-16 w-16 text-muted-foreground" />
                           </div>
                         )}
-                      <div className="absolute top-4 left-4 flex gap-2">
-                        <Badge className="bg-primary text-primary-foreground" data-testid={`badge-type-${property.id}`}>
+                      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col sm:flex-row gap-2">
+                        <Badge className="bg-primary text-primary-foreground text-xs sm:text-sm" data-testid={`badge-type-${property.id}`}>
                           {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
                         </Badge>
                         {property.featured && (
-                          <Badge variant="secondary" data-testid={`badge-featured-${property.id}`}>
+                          <Badge variant="secondary" className="text-xs sm:text-sm" data-testid={`badge-featured-${property.id}`}>
                             Destaque
                           </Badge>
                         )}
