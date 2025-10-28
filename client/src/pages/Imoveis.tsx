@@ -14,7 +14,7 @@ import { angolaProvinces } from "@shared/angola-locations";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 export default function Imoveis() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [filters, setFilters] = useState<SearchPropertyParams>({});
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -160,7 +160,7 @@ export default function Imoveis() {
           <div className="flex gap-3 mb-6">
             <Button
               variant={filters.type === 'Arrendar' ? 'default' : 'outline'}
-              onClick={() => setFilters(prev => ({ ...prev, type: 'Arrendar' }))}
+              onClick={() => setLocation('/imoveis?type=Arrendar')}
               className="flex-1 transition-all duration-300"
               data-testid="button-arrendar"
             >
@@ -168,7 +168,7 @@ export default function Imoveis() {
             </Button>
             <Button
               variant={filters.type === 'Vender' ? 'default' : 'outline'}
-              onClick={() => setFilters(prev => ({ ...prev, type: 'Vender' }))}
+              onClick={() => setLocation('/imoveis?type=Vender')}
               className="flex-1 transition-all duration-300"
               data-testid="button-vender"
             >
