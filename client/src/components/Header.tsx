@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
@@ -21,6 +21,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const { toast } = useToast();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const { data: currentUser } = useQuery<UserType | null>({
     queryKey: ['/api/auth/me'],
@@ -60,6 +61,19 @@ export default function Header() {
     logoutMutation.mutate();
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuOpen && mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
+
   const navItems = [
     { label: 'Início', path: '/' },
     { label: 'Imóveis', path: '/imoveis' },
@@ -71,7 +85,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6" ref={mobileMenuRef}>
         <div className="flex items-center justify-between h-24">
           <Link href="/" data-testid="link-logo">
             <div 
