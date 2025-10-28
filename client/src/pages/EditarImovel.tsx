@@ -18,7 +18,7 @@ import { ArrowLeft, Building2, Upload, X, Save, AlertCircle, Lock } from "lucide
 import type { User, Property } from "@shared/schema";
 import { z } from "zod";
 import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
-import { angolaProvinces } from "@shared/angola-locations";
+import { angolaProvinces, findClosestLocation } from "@shared/angola-locations";
 
 interface PropertyWithEditInfo extends Property {
   hasActiveVisits?: boolean;
@@ -145,10 +145,32 @@ export default function EditarImovel() {
   const latitude = watch("latitude");
   const longitude = watch("longitude");
   const provincia = watch("provincia");
+  const municipio = watch("municipio");
   
   const availableMunicipalities = selectedProvince 
     ? angolaProvinces.find(p => p.name === selectedProvince)?.municipalities || []
     : [];
+
+  useEffect(() => {
+    if (provincia && provincia !== selectedProvince) {
+      const province = angolaProvinces.find(p => p.name === provincia);
+      if (province?.coordinates) {
+        setValue("latitude", province.coordinates.lat);
+        setValue("longitude", province.coordinates.lng);
+      }
+    }
+  }, [provincia, selectedProvince, setValue]);
+
+  useEffect(() => {
+    if (municipio && selectedProvince) {
+      const province = angolaProvinces.find(p => p.name === selectedProvince);
+      const municipality = province?.municipalities.find(m => m.name === municipio);
+      if (municipality?.coordinates) {
+        setValue("latitude", municipality.coordinates.lat);
+        setValue("longitude", municipality.coordinates.lng);
+      }
+    }
+  }, [municipio, selectedProvince, setValue]);
 
   const updatePropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
@@ -515,6 +537,11 @@ export default function EditarImovel() {
                       onLocationChange={(lat, lng) => {
                         setValue("latitude", lat);
                         setValue("longitude", lng);
+                      }}
+                      onLocationSelect={(provincia, municipio) => {
+                        setValue("provincia", provincia);
+                        setSelectedProvince(provincia);
+                        setValue("municipio", municipio);
                       }}
                     />
                   </div>

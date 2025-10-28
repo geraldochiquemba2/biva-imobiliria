@@ -14,12 +14,14 @@ interface InteractiveLocationPickerProps {
   latitude: number;
   longitude: number;
   onLocationChange: (lat: number, lng: number, isFromGeolocation?: boolean) => void;
+  onLocationSelect?: (provincia: string, municipio: string) => void;
 }
 
 export default function InteractiveLocationPicker({ 
   latitude, 
   longitude, 
-  onLocationChange 
+  onLocationChange,
+  onLocationSelect
 }: InteractiveLocationPickerProps) {
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
@@ -65,6 +67,13 @@ export default function InteractiveLocationPicker({
         const { lat, lng } = e.latlng;
         marker.setLatLng([lat, lng]);
         onLocationChange(lat, lng);
+        
+        if (onLocationSelect) {
+          import('@shared/angola-locations').then(({ findClosestLocation }) => {
+            const { province, municipality } = findClosestLocation(lat, lng);
+            onLocationSelect(province, municipality);
+          });
+        }
       });
 
       mapRef.current = map;
