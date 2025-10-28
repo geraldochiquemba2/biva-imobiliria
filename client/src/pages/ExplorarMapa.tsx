@@ -233,8 +233,8 @@ export default function ExplorarMapa() {
           iconAnchor: [15, 30],
         });
 
-        const hasImage = property.images != null && Array.isArray(property.images) && property.images.length > 0;
-        let imageUrl = hasImage && property.images ? property.images[0] : '';
+        const thumbnail = (property as any).thumbnail;
+        let imageUrl = thumbnail || '';
         
         // Ensure image URL is valid
         if (imageUrl && !imageUrl.startsWith('data:') && !imageUrl.startsWith('http')) {
@@ -656,14 +656,14 @@ export default function ExplorarMapa() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {selectedProperty.images && selectedProperty.images.length > 0 ? (
+                      {(selectedProperty as any).thumbnail ? (
                         <div className="relative w-full h-48 rounded-md overflow-hidden">
                           <img
-                            src={selectedProperty.images[0]}
+                            src={(selectedProperty as any).thumbnail}
                             alt={selectedProperty.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              console.log('ERROR loading image:', selectedProperty.images?.[0]?.substring(0, 100));
+                              console.log('ERROR loading image:', (selectedProperty as any).thumbnail?.substring(0, 100));
                               e.currentTarget.style.display = 'none';
                             }}
                             onLoad={() => console.log('Image loaded successfully!')}
@@ -677,7 +677,7 @@ export default function ExplorarMapa() {
                           />
                         </div>
                       ) : (
-                        <div className="w-full h-48 bg-muted flex items-center justify-center rounded-md">
+                        <div className="w-full h-48 bg-muted flex flex-col items-center justify-center rounded-md">
                           <Home className="h-16 w-16 text-muted-foreground" />
                           <p className="text-xs text-muted-foreground mt-2">Sem imagem disponível</p>
                         </div>
