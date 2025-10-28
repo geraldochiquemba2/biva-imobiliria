@@ -260,6 +260,16 @@ export default function ImovelDetalhes() {
   const hasImages = images.length > 0;
   const isOwner = currentUser && property.ownerId === currentUser.id;
 
+  // Debug: verificar o que está chegando
+  console.log('Property data:', { 
+    id: property.id, 
+    title: property.title,
+    images: property.images,
+    imagesLength: images.length,
+    hasImages,
+    thumbnail: (property as any).thumbnail 
+  });
+
   const hasConfirmedVisit = userVisits?.some(
     visit => visit.propertyId === property.id && visit.status === 'agendada'
   );
