@@ -175,3 +175,65 @@ Preferred communication style: Simple, everyday language.
 - Marker clustering for property density
 - Geocoding for address-to-coordinates conversion
 - Integration mentioned in design guidelines but not yet implemented
+
+## Performance Optimizations
+
+### Database Optimizations (October 2025)
+
+**Composite Indexes**
+- Optimized indexes to match actual query patterns
+- Removed ineffective indexes (bairro ILIKE, single-field price/featured)
+- Added strategic composite indexes:
+  - `status + featured` - Common filter combination
+  - `type + status` - Property type with availability
+  - `status + createdAt` - Sorting recent available properties
+- Maintained single-field indexes on frequently queried equality fields:
+  - `ownerId`, `status`, `type`, `category`, `municipio`, `provincia`, `createdAt`
+
+**Query Limits**
+- Properties listing: 200 items max
+- Notifications: 100 items max
+- Unread notifications: 50 items max
+- Prevents excessive data transfer on Neon free tier
+
+**Field Selection**
+- Property listings return only thumbnails (first image) instead of full image arrays
+- Contracts, visits, and proposals queries exclude unnecessary fields
+- Reduces bandwidth and speeds up serialization
+
+### HTTP Caching Strategy
+
+**Cache-Control Headers**
+- Properties: 120s max-age (private cache)
+- Virtual tours: 300s max-age (private cache)
+- No volatile ETags to ensure browser cache effectiveness
+
+**Benefits**
+- Reduces server load on Render free tier
+- Minimizes cold starts by reducing request frequency
+- Enables browser caching for repeated visits
+
+### React Query Configuration
+
+**Aggressive Caching**
+- `staleTime`: 10 minutes (data considered fresh)
+- `gcTime`: 30 minutes (cached data retention)
+- Disabled automatic refetch on window focus and reconnect
+- Critical views can override these defaults when real-time data is needed
+
+**Benefits**
+- Dramatically reduces API requests
+- Works well with Render free tier cold starts
+- Balances freshness with performance
+
+### Hosting Considerations
+
+**Render Free Tier**
+- Server spins down after inactivity
+- Compression middleware enabled for all responses
+- Keep-alive health check endpoint for uptime monitoring
+
+**Neon Free Tier**
+- Connection pooling via serverless driver
+- Optimized query patterns to minimize database load
+- Indexed queries to reduce CPU usage
