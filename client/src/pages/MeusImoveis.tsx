@@ -437,11 +437,23 @@ export default function MeusImoveis() {
                                           {property.status !== 'disponivel' && (
                                             <DropdownMenuItem
                                               onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'disponivel' })}
-                                              disabled={updateStatusMutation.isPending}
+                                              disabled={updateStatusMutation.isPending || property.status === 'arrendado'}
                                               data-testid={`action-available-${property.id}`}
                                             >
-                                              <CheckCircle className="h-4 w-4 mr-2" />
-                                              {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Disponível'}
+                                              {property.status === 'arrendado' ? (
+                                                <>
+                                                  <Lock className="h-4 w-4 mr-2" />
+                                                  Marcar como Disponível
+                                                  <span className="text-xs text-muted-foreground ml-2">
+                                                    (Arrendado)
+                                                  </span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                                  {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Disponível'}
+                                                </>
+                                              )}
                                             </DropdownMenuItem>
                                           )}
                                           {property.status !== 'arrendado' && property.type === 'Arrendar' && (
@@ -456,20 +468,32 @@ export default function MeusImoveis() {
                                           {property.status !== 'vendido' && property.type === 'Vender' && (
                                             <DropdownMenuItem
                                               onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'vendido' })}
-                                              disabled={updateStatusMutation.isPending}
+                                              disabled={updateStatusMutation.isPending || property.status === 'arrendado'}
                                               data-testid={`action-sold-${property.id}`}
                                             >
-                                              <CheckCircle className="h-4 w-4 mr-2" />
-                                              {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Vendido'}
+                                              {property.status === 'arrendado' ? (
+                                                <>
+                                                  <Lock className="h-4 w-4 mr-2" />
+                                                  Marcar como Vendido
+                                                  <span className="text-xs text-muted-foreground ml-2">
+                                                    (Arrendado)
+                                                  </span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                                  {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Vendido'}
+                                                </>
+                                              )}
                                             </DropdownMenuItem>
                                           )}
                                           {property.status !== 'indisponivel' && (
                                             <DropdownMenuItem
                                               onClick={() => updateStatusMutation.mutate({ id: property.id, status: 'indisponivel' })}
-                                              disabled={updateStatusMutation.isPending || property.canEdit === false}
+                                              disabled={updateStatusMutation.isPending || property.canEdit === false || property.status === 'arrendado'}
                                               data-testid={`action-unavailable-${property.id}`}
                                             >
-                                              {property.canEdit === false ? (
+                                              {property.canEdit === false || property.status === 'arrendado' ? (
                                                 <>
                                                   <Lock className="h-4 w-4 mr-2" />
                                                   Marcar como Indisponível
@@ -488,11 +512,11 @@ export default function MeusImoveis() {
                                           <DropdownMenuSeparator />
                                           <DropdownMenuItem
                                             onClick={() => setDeletePropertyId(property.id)}
-                                            disabled={deletePropertyMutation.isPending || property.canEdit === false}
+                                            disabled={deletePropertyMutation.isPending || property.canEdit === false || property.status === 'arrendado'}
                                             className="text-destructive focus:text-destructive"
                                             data-testid={`action-delete-${property.id}`}
                                           >
-                                            {property.canEdit === false ? (
+                                            {property.canEdit === false || property.status === 'arrendado' ? (
                                               <>
                                                 <Lock className="h-4 w-4 mr-2" />
                                                 Eliminar

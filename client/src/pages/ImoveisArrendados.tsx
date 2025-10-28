@@ -335,52 +335,33 @@ export default function ImoveisArrendados() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem asChild data-testid={`action-edit-${property.id}`}>
-                                <Link href={`/editar-imovel/${property.id}`}>
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Editar Imóvel
-                                </Link>
+                              <DropdownMenuItem disabled data-testid={`action-edit-${property.id}`}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar Imóvel
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'disponivel' })}
-                                disabled={updateStatusMutation.isPending}
+                                disabled
                                 data-testid={`action-available-${property.id}`}
                               >
                                 <CheckCircle className="h-4 w-4 mr-2" />
-                                {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Disponível'}
+                                Marcar como Disponível
                               </DropdownMenuItem>
-                              {property.type === 'Vender' && (
-                                <DropdownMenuItem
-                                  onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'vendido' })}
-                                  disabled={updateStatusMutation.isPending}
-                                  data-testid={`action-sold-${property.id}`}
-                                >
-                                  <ShoppingCart className="h-4 w-4 mr-2" />
-                                  {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Vendido'}
-                                </DropdownMenuItem>
-                              )}
                               <DropdownMenuItem
-                                onClick={() => updateStatusMutation.mutate({ propertyId: property.id, status: 'indisponivel' })}
-                                disabled={updateStatusMutation.isPending}
+                                disabled
                                 data-testid={`action-unavailable-${property.id}`}
                               >
                                 <XCircle className="h-4 w-4 mr-2" />
-                                {updateStatusMutation.isPending ? 'Atualizando...' : 'Marcar como Indisponível'}
+                                Marcar como Indisponível
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                onClick={() => {
-                                  if (confirm("Tem certeza que deseja eliminar este imóvel?")) {
-                                    deletePropertyMutation.mutate(property.id);
-                                  }
-                                }}
-                                disabled={deletePropertyMutation.isPending}
+                                disabled
                                 className="text-destructive focus:text-destructive"
                                 data-testid={`action-delete-${property.id}`}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                {deletePropertyMutation.isPending ? 'Eliminando...' : 'Eliminar'}
+                                Eliminar
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
