@@ -101,8 +101,41 @@ export default function Header() {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
+          <nav className="hidden md:flex items-center gap-6">
+            <Link 
+              href="/"
+              className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                location === '/' ? 'text-primary' : 'text-muted-foreground'
+              }`}
+              data-testid="link-início"
+            >
+              Início
+            </Link>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigate('/imoveis?type=Arrendar');
+                setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
+              }}
+              data-testid="button-arrendar"
+            >
+              Arrendar
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigate('/imoveis?type=Vender');
+                setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
+              }}
+              data-testid="button-comprar"
+            >
+              Comprar
+            </Button>
+            
+            {navItems.slice(1).map((item) => (
               <Link 
                 key={item.path} 
                 href={item.path}
@@ -117,30 +150,6 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4">
-            <div className="hidden lg:flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  navigate('/imoveis?type=Arrendar');
-                  setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
-                }}
-                data-testid="button-arrendar"
-              >
-                Arrendar
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  navigate('/imoveis?type=Vender');
-                  setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
-                }}
-                data-testid="button-comprar"
-              >
-                Comprar
-              </Button>
-            </div>
 
             <Button
               variant="ghost"
@@ -240,7 +249,45 @@ export default function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <nav className="flex flex-col gap-4">
-              {navItems.map((item) => (
+              <Link 
+                href="/"
+                className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                  location === '/' ? 'text-primary' : 'text-muted-foreground'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+                data-testid="link-mobile-início"
+              >
+                Início
+              </Link>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate('/imoveis?type=Arrendar');
+                  setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
+                }}
+                data-testid="button-mobile-arrendar"
+              >
+                Arrendar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate('/imoveis?type=Vender');
+                  setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
+                }}
+                data-testid="button-mobile-comprar"
+              >
+                Comprar
+              </Button>
+              
+              {navItems.slice(1).map((item) => (
                 <Link 
                   key={item.path} 
                   href={item.path}
@@ -253,34 +300,6 @@ export default function Header() {
                   {item.label}
                 </Link>
               ))}
-              <div className="flex flex-col gap-2 pt-2 border-t">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate('/imoveis?type=Arrendar');
-                    setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
-                  }}
-                  data-testid="button-mobile-arrendar"
-                >
-                  Arrendar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate('/imoveis?type=Vender');
-                    setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
-                  }}
-                  data-testid="button-mobile-comprar"
-                >
-                  Comprar
-                </Button>
-              </div>
               <div className="flex flex-col gap-2 pt-2 border-t">
                 {currentUser ? (
                   <>
