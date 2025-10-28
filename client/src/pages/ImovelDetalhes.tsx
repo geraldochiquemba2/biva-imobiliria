@@ -318,28 +318,17 @@ export default function ImovelDetalhes() {
                       className="w-full h-full"
                     />
 
-                    {/* Setas de navegação */}
+                    {/* Botão de navegação */}
                     {images.length > 1 && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white z-10"
-                          onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-                          data-testid="button-prev-image"
-                        >
-                          <ChevronLeft className="h-6 w-6" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white z-10"
-                          onClick={() => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-                          data-testid="button-next-image"
-                        >
-                          <ChevronRight className="h-6 w-6" />
-                        </Button>
-                      </>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white z-10"
+                        onClick={() => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+                        data-testid="button-next-image"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </Button>
                     )}
                   </div>
 
