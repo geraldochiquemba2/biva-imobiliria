@@ -49,17 +49,14 @@ export const properties = pgTable("properties", {
 }, (table) => ({
   ownerIdx: index("properties_owner_idx").on(table.ownerId),
   statusIdx: index("properties_status_idx").on(table.status),
-  featuredIdx: index("properties_featured_idx").on(table.featured),
   typeIdx: index("properties_type_idx").on(table.type),
   categoryIdx: index("properties_category_idx").on(table.category),
-  bairroIdx: index("properties_bairro_idx").on(table.bairro),
   municipioIdx: index("properties_municipio_idx").on(table.municipio),
   provinciaIdx: index("properties_provincia_idx").on(table.provincia),
-  priceIdx: index("properties_price_idx").on(table.price),
   createdAtIdx: index("properties_created_at_idx").on(table.createdAt),
   statusFeaturedIdx: index("properties_status_featured_idx").on(table.status, table.featured),
   typeStatusIdx: index("properties_type_status_idx").on(table.type, table.status),
-  municipioTypeIdx: index("properties_municipio_type_idx").on(table.municipio, table.type),
+  statusCreatedAtIdx: index("properties_status_created_at_idx").on(table.status, table.createdAt),
 }));
 
 // Contracts table

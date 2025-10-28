@@ -101,8 +101,7 @@ async function getVisitsWithAutoComplete() {
 function cacheControl(maxAge: number) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'GET') {
-      res.set('Cache-Control', `private, max-age=${maxAge}, must-revalidate`);
-      res.set('ETag', `W/"${Date.now()}"`);
+      res.set('Cache-Control', `private, max-age=${maxAge}`);
     }
     next();
   };
