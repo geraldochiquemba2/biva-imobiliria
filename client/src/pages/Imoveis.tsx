@@ -160,7 +160,10 @@ export default function Imoveis() {
           <div className="flex gap-3 mb-6">
             <Button
               variant={filters.type === 'Arrendar' ? 'default' : 'outline'}
-              onClick={() => setLocation('/imoveis?type=Arrendar')}
+              onClick={() => {
+                setFilters(prev => ({ ...prev, type: 'Arrendar' }));
+                window.history.pushState({}, '', '/imoveis?type=Arrendar');
+              }}
               className="flex-1 transition-all duration-300"
               data-testid="button-arrendar"
             >
@@ -168,7 +171,10 @@ export default function Imoveis() {
             </Button>
             <Button
               variant={filters.type === 'Vender' ? 'default' : 'outline'}
-              onClick={() => setLocation('/imoveis?type=Vender')}
+              onClick={() => {
+                setFilters(prev => ({ ...prev, type: 'Vender' }));
+                window.history.pushState({}, '', '/imoveis?type=Vender');
+              }}
               className="flex-1 transition-all duration-300"
               data-testid="button-vender"
             >
