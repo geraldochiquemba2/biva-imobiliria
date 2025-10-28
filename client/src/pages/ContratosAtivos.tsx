@@ -601,6 +601,18 @@ function ContractCard({
                 : 'Ver Contrato'}
             </Button>
 
+            {contract.contractContent && (
+              <Button
+                variant="outline"
+                onClick={() => handleDownloadPDF(contract, contract.property!)}
+                data-testid={`button-download-pdf-${contract.id}`}
+                className="w-full sm:w-auto"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Baixar PDF
+              </Button>
+            )}
+
             {canCancelContract && (
               <Button
                 variant="outline"
