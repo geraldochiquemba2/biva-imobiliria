@@ -324,7 +324,7 @@ export default function ImovelDetalhes() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute left-2 top-[calc(50%-20px)] h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white"
+                          className="absolute left-4 top-[calc(50%-20px)] h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white"
                           onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
                           data-testid="button-prev-image"
                         >
@@ -333,7 +333,7 @@ export default function ImovelDetalhes() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute right-2 top-[calc(50%-20px)] h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white"
+                          className="absolute right-4 top-[calc(50%-20px)] h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white"
                           onClick={() => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
                           data-testid="button-next-image"
                         >
