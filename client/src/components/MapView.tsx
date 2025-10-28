@@ -22,34 +22,78 @@ export default function MapView({ latitude, longitude, title, userLocation, onRo
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const routeLayerRef = useRef<L.Polyline | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
+  const propertyMarkerRef = useRef<L.Marker | null>(null);
+  const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+    if (!mapContainerRef.current) return;
 
-    const map = L.map(mapContainerRef.current).setView([latitude, longitude], 15);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    const destinationIcon = L.divIcon({
-      html: '<div style="background-color: #ef4444; width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      className: 'custom-marker'
-    });
-
-    const marker = L.marker([latitude, longitude], { icon: destinationIcon }).addTo(map);
-    
-    if (title) {
-      marker.bindPopup(`<strong>${title}</strong>`).openPopup();
+    // Clear any pending initialization
+    if (initTimeoutRef.current) {
+      clearTimeout(initTimeoutRef.current);
     }
 
-    mapRef.current = map;
+    // Cleanup existing map if any
+    if (mapRef.current) {
+      try {
+        mapRef.current.remove();
+      } catch (e) {
+        console.error('Error removing existing map:', e);
+      }
+      mapRef.current = null;
+    }
+
+    // Wait for DOM to settle before creating new map
+    initTimeoutRef.current = setTimeout(() => {
+      if (!mapContainerRef.current) return;
+
+      try {
+        const map = L.map(mapContainerRef.current).setView([latitude, longitude], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19
+        }).addTo(map);
+
+        const destinationIcon = L.divIcon({
+          html: '<div style="background-color: #ef4444; width: 32px; height: 32px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          className: 'custom-marker'
+        });
+
+        const marker = L.marker([latitude, longitude], { icon: destinationIcon }).addTo(map);
+        propertyMarkerRef.current = marker;
+        
+        if (title) {
+          marker.bindPopup(`<strong>${title}</strong>`).openPopup();
+        }
+
+        mapRef.current = map;
+
+        // Force map to recalculate size after tiles load
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        }, 100);
+      } catch (error) {
+        console.error('Error initializing map:', error);
+      }
+    }, 300);
 
     return () => {
-      map.remove();
-      mapRef.current = null;
+      if (initTimeoutRef.current) {
+        clearTimeout(initTimeoutRef.current);
+      }
+      if (mapRef.current) {
+        try {
+          mapRef.current.remove();
+        } catch (e) {
+          console.error('Error cleaning up map:', e);
+        }
+        mapRef.current = null;
+      }
     };
   }, [latitude, longitude, title]);
 
