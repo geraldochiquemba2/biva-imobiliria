@@ -28,6 +28,7 @@ import {
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import PropertyImage from "@/components/PropertyImage";
 
 export default function ImoveisVendidos() {
   const [, setLocation] = useLocation();
@@ -264,18 +265,16 @@ export default function ImoveisVendidos() {
               {soldProperties.map((property) => (
                 <Card key={property.id} className="hover-elevate overflow-hidden">
                   <div className="flex gap-4">
-                    <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
+                    <div className="w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
                       {property.images && property.images.length > 0 ? (
-                        <img
+                        <PropertyImage
                           src={property.images[0]}
                           alt={property.title}
-                          className="w-full h-full object-cover"
                         />
                       ) : (property as any).thumbnail ? (
-                        <img
+                        <PropertyImage
                           src={(property as any).thumbnail}
                           alt={property.title}
-                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full bg-muted flex items-center justify-center">

@@ -51,6 +51,7 @@ import {
 } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
 import { RentalContractDialog } from "@/components/RentalContractDialog";
+import PropertyImage from "@/components/PropertyImage";
 
 interface PropertyWithEditInfo extends Property {
   hasActiveVisits?: boolean;
@@ -324,20 +325,16 @@ export default function MeusImoveis() {
                       {statusProperties.map((property) => (
                         <Card key={property.id} className="hover-elevate overflow-hidden">
                           <div className="flex gap-4">
-                            <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden rounded-md">
+                            <div className="w-32 h-32 flex-shrink-0 overflow-hidden rounded-md" data-testid={`img-property-${property.id}`}>
                               {property.images && property.images.length > 0 ? (
-                                <img
+                                <PropertyImage
                                   src={property.images[0]}
                                   alt={property.title}
-                                  className="w-full h-full object-cover"
-                                  data-testid={`img-property-${property.id}`}
                                 />
                               ) : property.thumbnail ? (
-                                <img
+                                <PropertyImage
                                   src={property.thumbnail}
                                   alt={property.title}
-                                  className="w-full h-full object-cover"
-                                  data-testid={`img-property-${property.id}`}
                                 />
                               ) : (
                                 <div className="w-full h-full bg-muted flex items-center justify-center">
