@@ -656,11 +656,13 @@ export default function ExplorarMapa() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {selectedProperty.images && selectedProperty.images.length > 0 ? (
-                        <PropertyImage
-                          src={selectedProperty.images[0]} 
-                          alt={selectedProperty.title}
-                          className="w-full h-48 rounded-md overflow-hidden"
-                        />
+                        <div className="w-full h-48 rounded-md overflow-hidden">
+                          <PropertyImage
+                            src={selectedProperty.images[0]} 
+                            alt={selectedProperty.title}
+                            className="w-full h-full"
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-48 bg-muted flex items-center justify-center rounded-md">
                           <Home className="h-16 w-16 text-muted-foreground" />
