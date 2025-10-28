@@ -21,7 +21,7 @@ export default function Imoveis() {
 
   // Load filters from URL on mount and when location changes
   useEffect(() => {
-    const params = new URLSearchParams(location.split('?')[1] || '');
+    const params = new URLSearchParams(window.location.search);
     const urlFilters: SearchPropertyParams = {};
     
     if (params.get('type')) urlFilters.type = params.get('type') as any;
@@ -42,8 +42,8 @@ export default function Imoveis() {
     
     if (Object.keys(urlFilters).length > 0) {
       setFilters(urlFilters);
-    } else {
-      // Se não há filtros na URL, limpar os filtros
+    } else if (window.location.search === '') {
+      // Se não há query string na URL, limpar os filtros
       setFilters({});
       setMinPrice('');
       setMaxPrice('');
