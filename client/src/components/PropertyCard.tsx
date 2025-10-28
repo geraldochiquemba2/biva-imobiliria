@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Bed, Bath, Maximize, Home } from "lucide-react";
 import type { Property } from "@shared/schema";
+import PropertyImage from "@/components/PropertyImage";
 
 interface PropertyCardProps {
   property: Property;
@@ -25,16 +26,16 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
         >
         <div className="relative aspect-square overflow-hidden">
           {property.images && property.images.length > 0 ? (
-            <img
+            <PropertyImage
               src={property.images[0]}
               alt={property.title}
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+              className="transition-transform duration-500 hover:scale-110"
             />
           ) : (property as any).thumbnail ? (
-            <img
+            <PropertyImage
               src={(property as any).thumbnail}
               alt={property.title}
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+              className="transition-transform duration-500 hover:scale-110"
             />
           ) : (
             <div className="w-full h-full bg-muted flex items-center justify-center">
