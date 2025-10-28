@@ -190,11 +190,37 @@ export default function ExplorarMapa() {
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
-    // Add markers for all properties
+    // Group properties by location to handle overlapping markers
+    const locationGroups = new Map<string, Property[]>();
     properties.forEach((property) => {
       if (property.latitude && property.longitude) {
         const lat = parseFloat(property.latitude);
         const lng = parseFloat(property.longitude);
+        const key = `${lat.toFixed(6)},${lng.toFixed(6)}`;
+        
+        if (!locationGroups.has(key)) {
+          locationGroups.set(key, []);
+        }
+        locationGroups.get(key)!.push(property);
+      }
+    });
+
+    // Add markers for all properties with offset for overlapping locations
+    locationGroups.forEach((propertiesAtLocation, locationKey) => {
+      const [lat, lng] = locationKey.split(',').map(parseFloat);
+      
+      propertiesAtLocation.forEach((property, index) => {
+        // Calculate offset for overlapping markers in a circle pattern
+        let markerLat = lat;
+        let markerLng = lng;
+        
+        if (propertiesAtLocation.length > 1) {
+          // Spread markers in a circle around the original location
+          const radius = 0.0015; // Small radius in degrees (~150m)
+          const angle = (index / propertiesAtLocation.length) * 2 * Math.PI;
+          markerLat = lat + (radius * Math.cos(angle));
+          markerLng = lng + (radius * Math.sin(angle));
+        }
 
         // Create custom icon based on property type
         const iconColor = property.type === 'Vender' ? '#dc2626' : '#2563eb';
@@ -209,7 +235,7 @@ export default function ExplorarMapa() {
           ? `<img src="${property.images[0]}" alt="${property.title}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;" />`
           : '';
 
-        const marker = L.marker([lat, lng], { icon: customIcon })
+        const marker = L.marker([markerLat, markerLng], { icon: customIcon })
           .addTo(mapRef.current!)
           .bindPopup(`
             <div style="min-width: 220px; max-width: 250px;">
@@ -226,7 +252,7 @@ export default function ExplorarMapa() {
         });
 
         markersRef.current.push(marker);
-      }
+      });
     });
 
     // Fit map to show all properties
