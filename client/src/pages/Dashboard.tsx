@@ -35,6 +35,8 @@ export default function Dashboard() {
   const myOwnProperties = properties.filter(p => p.ownerId === (currentUser?.id || ''));
   
   const allSystemProperties = properties;
+  
+  const availableProperties = properties.filter(p => p.status === 'disponivel');
 
   const { data: userContracts = [], isLoading: userContractsLoading } = useQuery<Contract[]>({
     queryKey: [`/api/users/${currentUser?.id}/contracts`],
@@ -52,36 +54,19 @@ export default function Dashboard() {
     ? allContracts 
     : userContracts;
 
-  const { data: clientVisits = [] } = useQuery<Visit[]>({
-    queryKey: [`/api/users/${currentUser?.id}/visits`],
-    queryFn: async () => {
-      const response = await fetch(`/api/users/${currentUser?.id}/visits`);
-      if (!response.ok) throw new Error('Failed to fetch visits');
-      return response.json();
-    },
-    enabled: !!currentUser?.id && hasRole('cliente') && !hasRole('admin'),
+  const { data: userVisits = [] } = useQuery<Visit[]>({
+    queryKey: [`/api/visits`],
+    enabled: !!currentUser?.id && !hasRole('admin'),
     staleTime: 30000,
   });
 
-  const { data: propertyVisits = [] } = useQuery<Visit[]>({
-    queryKey: [`/api/properties/visits`, myOwnProperties.map(p => p.id)],
-    queryFn: async () => {
-      if (myOwnProperties.length === 0) return [];
-      const allVisits: Visit[] = [];
-      for (const property of myOwnProperties) {
-        const response = await fetch(`/api/properties/${property.id}/visits`);
-        if (response.ok) {
-          const visits = await response.json();
-          allVisits.push(...visits);
-        }
-      }
-      return allVisits;
-    },
-    enabled: !!currentUser?.id && (hasRole('proprietario') || hasRole('admin')) && myOwnProperties.length > 0 && !propertiesLoading,
+  const { data: allSystemVisits = [] } = useQuery<Visit[]>({
+    queryKey: [`/api/visits`],
+    enabled: !!currentUser?.id && hasRole('admin'),
     staleTime: 30000,
   });
 
-  const allVisits = [...clientVisits, ...propertyVisits];
+  const allVisits = hasRole('admin') ? allSystemVisits : userVisits;
 
   if (userLoading) {
     return (
@@ -228,7 +213,7 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-2xl font-bold" data-testid="text-properties-count">
-                      {propertiesLoading ? '...' : properties.length}
+                      {propertiesLoading ? '...' : availableProperties.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Para explorar
