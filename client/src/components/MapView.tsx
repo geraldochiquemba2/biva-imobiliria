@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -24,9 +24,13 @@ export default function MapView({ latitude, longitude, title, userLocation, onRo
   const userMarkerRef = useRef<L.Marker | null>(null);
   const propertyMarkerRef = useRef<L.Marker | null>(null);
   const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const initAttempts = useRef<number>(0);
 
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    if (!mapContainerRef.current) {
+      console.log('MapView: Container not ready');
+      return;
+    }
 
     // Clear any pending initialization
     if (initTimeoutRef.current) {
@@ -45,14 +49,25 @@ export default function MapView({ latitude, longitude, title, userLocation, onRo
 
     // Wait for DOM to settle before creating new map
     initTimeoutRef.current = setTimeout(() => {
-      if (!mapContainerRef.current) return;
+      if (!mapContainerRef.current) {
+        console.log('MapView: Container disappeared before initialization');
+        return;
+      }
 
       try {
-        const map = L.map(mapContainerRef.current).setView([latitude, longitude], 15);
+        console.log(`MapView: Initializing map at [${latitude}, ${longitude}]`);
+        
+        const map = L.map(mapContainerRef.current, {
+          center: [latitude, longitude],
+          zoom: 15,
+          scrollWheelZoom: true,
+          zoomControl: true,
+        });
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19
+          maxZoom: 19,
+          minZoom: 3
         }).addTo(map);
 
         const destinationIcon = L.divIcon({
@@ -70,15 +85,36 @@ export default function MapView({ latitude, longitude, title, userLocation, onRo
         }
 
         mapRef.current = map;
+        initAttempts.current = 0;
+        console.log('MapView: Map initialized successfully');
 
         // Force map to recalculate size after tiles load
         setTimeout(() => {
           if (mapRef.current) {
             mapRef.current.invalidateSize();
+            console.log('MapView: Map size invalidated');
           }
         }, 100);
+        
+        setTimeout(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        }, 500);
       } catch (error) {
-        console.error('Error initializing map:', error);
+        console.error('MapView: Error initializing map:', error);
+        initAttempts.current++;
+        
+        // Retry up to 3 times
+        if (initAttempts.current < 3) {
+          console.log(`MapView: Retrying initialization (attempt ${initAttempts.current + 1})`);
+          setTimeout(() => {
+            if (mapContainerRef.current && !mapRef.current) {
+              const event = new Event('retry-map-init');
+              mapContainerRef.current.dispatchEvent(event);
+            }
+          }, 500);
+        }
       }
     }, 300);
 
@@ -167,7 +203,8 @@ export default function MapView({ latitude, longitude, title, userLocation, onRo
   return (
     <div 
       ref={mapContainerRef} 
-      className="w-full h-[400px] rounded-md overflow-hidden border relative z-0"
+      className="w-full rounded-md border relative"
+      style={{ height: '400px', minHeight: '400px' }}
       data-testid="map-view"
     />
   );
