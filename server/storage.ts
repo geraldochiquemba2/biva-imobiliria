@@ -181,6 +181,7 @@ export class DatabaseStorage implements IStorage {
         area: properties.area,
         latitude: properties.latitude,
         longitude: properties.longitude,
+        images: properties.images,
         amenities: properties.amenities,
         featured: properties.featured,
         status: properties.status,
