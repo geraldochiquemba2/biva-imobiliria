@@ -232,7 +232,7 @@ export default function ExplorarMapa() {
         });
 
         const imageHtml = property.images && property.images.length > 0 
-          ? `<img src="${property.images[0]}" alt="${property.title}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;" />`
+          ? `<img src="${property.images[0]}" alt="${property.title}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px; margin-bottom: 8px;" />`
           : '';
 
         const marker = L.marker([markerLat, markerLng], { icon: customIcon })
