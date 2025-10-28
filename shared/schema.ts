@@ -108,7 +108,11 @@ export const proposals = pgTable("proposals", {
   mensagem: text("mensagem"),
   status: text("status").notNull().default('pendente'), // 'pendente', 'aceita', 'recusada'
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  propertyIdx: index("proposals_property_idx").on(table.propertyId),
+  clienteIdx: index("proposals_cliente_idx").on(table.clienteId),
+  statusIdx: index("proposals_status_idx").on(table.status),
+}));
 
 // Payments table
 export const payments = pgTable("payments", {
@@ -120,7 +124,10 @@ export const payments = pgTable("payments", {
   status: text("status").notNull().default('pendente'), // 'pendente', 'pago', 'atrasado'
   observacoes: text("observacoes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  contractIdx: index("payments_contract_idx").on(table.contractId),
+  statusIdx: index("payments_status_idx").on(table.status),
+}));
 
 // Notifications table
 export const notifications = pgTable("notifications", {
@@ -133,7 +140,10 @@ export const notifications = pgTable("notifications", {
   payload: text("payload"), // JSON string with additional data
   readAt: timestamp("read_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  userIdx: index("notifications_user_idx").on(table.userId),
+  readAtIdx: index("notifications_read_at_idx").on(table.readAt),
+}));
 
 // Virtual Tours table
 export const virtualTours = pgTable("virtual_tours", {
