@@ -269,7 +269,7 @@ export class DatabaseStorage implements IStorage {
       query = query.where(and(...conditions)) as any;
     }
 
-    const results = await query.orderBy(desc(properties.createdAt));
+    const results = await query.orderBy(desc(properties.createdAt)).limit(200);
     return results as any;
   }
 
@@ -761,7 +761,8 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(notifications)
       .where(eq(notifications.userId, userId))
-      .orderBy(desc(notifications.createdAt));
+      .orderBy(desc(notifications.createdAt))
+      .limit(100);
     return results;
   }
 
@@ -773,7 +774,8 @@ export class DatabaseStorage implements IStorage {
         eq(notifications.userId, userId),
         eq(notifications.readAt, null as any)
       ))
-      .orderBy(desc(notifications.createdAt));
+      .orderBy(desc(notifications.createdAt))
+      .limit(50);
     return results;
   }
 

@@ -66,12 +66,15 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes - balance between freshness and performance
-      gcTime: 10 * 60 * 1000, // 10 minutes - keep data in cache longer (was cacheTime in v4)
-      retry: false,
+      refetchOnReconnect: false,
+      staleTime: 10 * 60 * 1000, // 10 minutes - optimized for Render/Neon free tier
+      gcTime: 30 * 60 * 1000, // 30 minutes - keep data in cache longer to reduce DB queries
+      retry: 1,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {
-      retry: false,
+      retry: 1,
+      retryDelay: 1000,
     },
   },
 });
