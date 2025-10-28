@@ -317,14 +317,14 @@ export default function ImovelDetalhes() {
                       alt={property.title}
                       className="w-full h-full"
                     />
-                    
+
                     {/* Setas de navegação */}
                     {images.length > 1 && (
                       <>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white"
                           onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
                           data-testid="button-prev-image"
                         >
@@ -333,7 +333,7 @@ export default function ImovelDetalhes() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white"
                           onClick={() => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
                           data-testid="button-next-image"
                         >
@@ -342,7 +342,7 @@ export default function ImovelDetalhes() {
                       </>
                     )}
                   </div>
-                  
+
                   {images.length > 1 && (
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                       {images.map((image, index) => (
@@ -520,7 +520,7 @@ export default function ImovelDetalhes() {
                         </p>
                       </div>
                     </div>
-                    
+
                     {property.latitude && property.longitude && (
                       <div className="mt-4">
                         <MapView
