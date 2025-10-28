@@ -33,18 +33,24 @@ export default function InteractiveLocationPicker({
     const lng = longitude || 13.2344;
 
     try {
-      const map = L.map(mapContainerRef.current).setView([lat, lng], 13);
+      const map = L.map(mapContainerRef.current, {
+        maxZoom: 17,
+        zoomControl: true,
+        scrollWheelZoom: true,
+      }).setView([lat, lng], 13);
       
       // Camada de satélite (Esri World Imagery)
       const satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: '&copy; Esri',
-        maxZoom: 19
+        maxZoom: 19,
+        minZoom: 3,
       });
 
       // Camada de rótulos claros para sobrepor ao satélite
       const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
-        maxZoom: 20
+        maxZoom: 19,
+        minZoom: 3,
       });
 
       // Criar um grupo de camadas para híbrido (satélite + rótulos)
