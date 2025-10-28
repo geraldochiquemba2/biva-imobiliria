@@ -299,10 +299,11 @@ export default function ImovelDetalhes() {
               {/* Galeria de Imagens */}
               {hasImages ? (
                 <div className="space-y-4">
-                  <div className="aspect-video rounded-md overflow-hidden bg-muted" data-testid="img-main">
+                  <div className="aspect-video rounded-md bg-muted flex items-center justify-center" data-testid="img-main">
                     <PropertyImage
                       src={selectedImageIndex === 0 && (property as any).thumbnail ? (property as any).thumbnail : images[selectedImageIndex]}
                       alt={property.title}
+                      className="w-full h-full"
                     />
                   </div>
                   
@@ -327,10 +328,11 @@ export default function ImovelDetalhes() {
                   )}
                 </div>
               ) : (property as any).thumbnail ? (
-                <div className="aspect-video rounded-md overflow-hidden bg-muted" data-testid="img-main">
+                <div className="aspect-video rounded-md bg-muted flex items-center justify-center" data-testid="img-main">
                   <PropertyImage
                     src={(property as any).thumbnail}
                     alt={property.title}
+                    className="w-full h-full"
                   />
                 </div>
               ) : (

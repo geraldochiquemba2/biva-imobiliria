@@ -14,11 +14,12 @@ export default function PropertyImage({
   variant = 'contain' 
 }: PropertyImageProps) {
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative overflow-hidden ${className}`}>
       <img
         src={src}
         alt={alt}
         className={`w-full h-full object-${variant}`}
+        style={{ objectPosition: 'center' }}
       />
       <img
         src={logoWatermark}
