@@ -484,33 +484,12 @@ export default function ImovelDetalhes() {
                     </div>
                     
                     {property.latitude && property.longitude && (
-                      <div className="mt-4 space-y-3">
+                      <div className="mt-4">
                         <MapView
                           latitude={parseFloat(property.latitude)}
                           longitude={parseFloat(property.longitude)}
                           title={property.title}
-                          userLocation={showRoute ? userLocation : null}
-                          onRouteInfo={(distance, duration) => setRouteInfo({ distance, duration })}
                         />
-                        {routeInfo && showRoute && (
-                          <div className="flex items-center justify-between p-3 bg-primary/10 rounded-md border border-primary/20">
-                            <div className="flex items-center gap-2">
-                              <Navigation className="h-4 w-4 text-primary" />
-                              <span className="text-sm font-medium">Distância: {routeInfo.distance}</span>
-                            </div>
-                            <span className="text-sm font-medium">Tempo: {routeInfo.duration}</span>
-                          </div>
-                        )}
-                        <Button
-                          variant="outline"
-                          className="w-full"
-                          onClick={handleGetDirections}
-                          disabled={loadingLocation}
-                          data-testid="button-get-directions"
-                        >
-                          <Navigation className="h-4 w-4 mr-2" />
-                          {loadingLocation ? "Obtendo localização..." : showRoute ? "Atualizar Rota" : "Ver Rota da Minha Localização"}
-                        </Button>
                       </div>
                     )}
                   </div>
