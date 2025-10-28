@@ -10,7 +10,7 @@ import { Navigation, MapPin, Home, Ruler, DollarSign, X } from "lucide-react";
 import L from "leaflet";
 import type { Property } from "@shared/schema";
 import { formatAOA } from "@/lib/currency";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { angolaProvinces } from "@shared/angola-locations";
 import bgImage from '@assets/stock_images/aerial_view_city_map_83390299.jpg';
 import PropertyImage from "@/components/PropertyImage";
@@ -29,6 +29,7 @@ interface PropertyWithDistance extends Property {
 
 export default function ExplorarMapa() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.Marker[]>([]);
@@ -265,7 +266,7 @@ export default function ExplorarMapa() {
                   <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${property.bairro}, ${property.municipio}</span>
                 </p>
                 <p style="margin: 0 0 8px 0; font-weight: 700; font-size: 14px; color: ${iconColor};">${formatAOA(property.price)}</p>
-                <a href="/imoveis/${property.id}" style="display: inline-block; background-color: ${iconColor}; color: white; padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 500; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Ver</a>
+                <a href="/imoveis/${property.id}" data-property-link="${property.id}" style="display: inline-block; background-color: ${iconColor}; color: white; padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 500; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Ver</a>
               </div>
             </div>
           `, {
@@ -287,6 +288,25 @@ export default function ExplorarMapa() {
       mapRef.current.fitBounds(group.getBounds().pad(0.2), { maxZoom: 13 });
     }
   }, [properties, mapInitialized]);
+
+  // Intercept clicks on property links in popups
+  useEffect(() => {
+    const handlePropertyLinkClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A' && target.hasAttribute('data-property-link')) {
+        e.preventDefault();
+        const propertyId = target.getAttribute('data-property-link');
+        if (propertyId) {
+          setLocation(`/imoveis/${propertyId}`);
+        }
+      }
+    };
+
+    document.addEventListener('click', handlePropertyLinkClick);
+    return () => {
+      document.removeEventListener('click', handlePropertyLinkClick);
+    };
+  }, [setLocation]);
 
   // Get user's current location
   const getUserLocation = () => {
