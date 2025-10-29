@@ -320,6 +320,7 @@ export default function CadastrarImovel() {
   const [mapLatitude, setMapLatitude] = useState<number>(-8.8383);
   const [mapLongitude, setMapLongitude] = useState<number>(13.2344);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [formattedPrice, setFormattedPrice] = useState<string>('');
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -473,6 +474,26 @@ export default function CadastrarImovel() {
         ? prev.filter(a => a !== amenity)
         : [...prev, amenity]
     );
+  };
+
+  const formatPriceInput = (value: string): string => {
+    const numericValue = value.replace(/\D/g, '');
+    if (!numericValue) return '';
+    
+    const number = parseInt(numericValue, 10);
+    return number.toLocaleString('pt-AO').replace(/,/g, ' ');
+  };
+
+  const handlePriceChange = (value: string, onChange: (value: number) => void) => {
+    const formatted = formatPriceInput(value);
+    setFormattedPrice(formatted);
+    
+    const numericValue = value.replace(/\D/g, '');
+    if (numericValue) {
+      onChange(parseInt(numericValue, 10));
+    } else {
+      onChange(0);
+    }
   };
 
   const createPropertyMutation = useMutation({
@@ -810,13 +831,20 @@ export default function CadastrarImovel() {
                     <Label htmlFor="price">Preço (AOA)</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="price"
-                        type="number"
-                        placeholder="350000"
-                        className="pl-10"
-                        {...register("price")}
-                        data-testid="input-price"
+                      <Controller
+                        name="price"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            id="price"
+                            type="text"
+                            placeholder="350 000"
+                            className="pl-10"
+                            value={formattedPrice}
+                            onChange={(e) => handlePriceChange(e.target.value, field.onChange)}
+                            data-testid="input-price"
+                          />
+                        )}
                       />
                     </div>
                     {errors.price && (
