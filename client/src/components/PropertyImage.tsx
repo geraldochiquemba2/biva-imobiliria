@@ -95,7 +95,7 @@ export default function PropertyImage({
                 src={src}
                 alt={alt}
                 className="max-w-full max-h-full object-contain"
-                loading="lazy"
+                fetchpriority="high"
                 decoding="async"
                 data-testid="img-property-modal"
               />
@@ -104,7 +104,6 @@ export default function PropertyImage({
                 alt="BIVA Imobiliária"
                 className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none w-1/4 max-w-[300px] select-none"
                 style={{ mixBlendMode: 'normal' }}
-                loading="lazy"
                 decoding="async"
                 draggable={false}
                 data-testid="img-watermark-modal"
