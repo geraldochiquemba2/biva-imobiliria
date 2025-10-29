@@ -50,31 +50,17 @@ export default function Dashboard() {
   // Filtrar apenas imóveis aprovados para exibir no contador
   const approvedProperties = myOwnProperties.filter(p => p.approvalStatus === 'aprovado');
 
-  const { data: userContracts = [], isLoading: userContractsLoading } = useQuery<Contract[]>({
+  // Get user's own contracts (as client or owner)
+  const { data: contracts = [], isLoading: contractsLoading } = useQuery<Contract[]>({
     queryKey: [`/api/users/${currentUser?.id}/contracts`],
-    enabled: !!currentUser?.id && (hasRole('cliente') || hasRole('proprietario')),
+    enabled: !!currentUser?.id,
   });
 
-  const { data: allContracts = [], isLoading: allContractsLoading } = useQuery<Contract[]>({
-    queryKey: ['/api/contracts'],
-    enabled: !!currentUser?.id && hasRole('admin'),
-  });
-
-  const contracts = hasRole('admin')
-    ? allContracts 
-    : userContracts;
-
-  const { data: userVisits = [] } = useQuery<Visit[]>({
+  // Get user's own visits (as client or property owner)
+  const { data: visits = [] } = useQuery<Visit[]>({
     queryKey: [`/api/visits`],
-    enabled: !!currentUser?.id && !hasRole('admin'),
+    enabled: !!currentUser?.id,
   });
-
-  const { data: allSystemVisits = [] } = useQuery<Visit[]>({
-    queryKey: [`/api/visits`],
-    enabled: !!currentUser?.id && hasRole('admin'),
-  });
-
-  const allVisits = hasRole('admin') ? allSystemVisits : userVisits;
 
   if (userLoading) {
     return (
@@ -103,7 +89,7 @@ export default function Dashboard() {
     c.status === 'assinado_proprietario' ||
     c.status === 'assinado_cliente'
   );
-  const scheduledVisits = allVisits.filter(v => 
+  const scheduledVisits = visits.filter(v => 
     v.status === 'agendada' || 
     v.status === 'pendente_proprietario' || 
     v.status === 'pendente_cliente'
