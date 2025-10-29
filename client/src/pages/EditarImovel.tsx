@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -255,9 +256,23 @@ export default function EditarImovel() {
     },
   });
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length + existingImages.length + newImages.length > 10) {
+    
+    // Validate file types
+    const validFiles = files.filter(file => {
+      const isValid = file.type.startsWith('image/');
+      if (!isValid) {
+        toast({
+          title: "Arquivo inválido",
+          description: `${file.name} não é uma imagem válida`,
+          variant: "destructive",
+        });
+      }
+      return isValid;
+    });
+    
+    if (validFiles.length + existingImages.length + newImages.length > 10) {
       toast({
         title: "Limite de imagens excedido",
         description: "Você pode adicionar no máximo 10 imagens",
@@ -266,10 +281,29 @@ export default function EditarImovel() {
       return;
     }
 
-    setNewImages([...newImages, ...files]);
+    // Compress images
+    try {
+      const compressedFiles = await Promise.all(
+        validFiles.map(file => compressImage(file))
+      );
+      
+      setNewImages([...newImages, ...compressedFiles]);
 
-    const urls = files.map(file => URL.createObjectURL(file));
-    setPreviewUrls([...previewUrls, ...urls]);
+      const urls = compressedFiles.map(file => URL.createObjectURL(file));
+      setPreviewUrls([...previewUrls, ...urls]);
+      
+      toast({
+        title: "Imagens adicionadas",
+        description: `${compressedFiles.length} imagem(ns) comprimida(s) e pronta(s) para envio`,
+      });
+    } catch (error) {
+      console.error('Erro ao comprimir imagens:', error);
+      toast({
+        title: "Erro ao processar imagens",
+        description: "Ocorreu um erro ao comprimir as imagens. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const removeExistingImage = (index: number) => {

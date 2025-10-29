@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Home, MapPin, Search, Bed, Bath, Maximize2, RotateCcw, Sofa, UtensilsCrossed } from "lucide-react";
-import type { Property, SearchPropertyParams } from "@shared/schema";
+import type { Property, SearchPropertyParams, PaginatedPropertiesResponse } from "@shared/schema";
 import { angolaProvinces } from "@shared/angola-locations";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
@@ -71,7 +71,7 @@ export default function Imoveis() {
     return selectedProvince?.municipalities || [];
   }, [filters.provincia]);
 
-  const { data: allProperties, isLoading } = useQuery<Property[]>({
+  const { data: allProperties, isLoading } = useQuery<PaginatedPropertiesResponse>({
     queryKey: ['/api/properties', filters],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -99,7 +99,7 @@ export default function Imoveis() {
   });
 
   // Filtrar apenas imóveis disponíveis para páginas públicas
-  const properties = allProperties?.filter(property => property.status === 'disponivel') || [];
+  const properties = (allProperties?.data || []).filter(property => property.status === 'disponivel');
 
   const handleSearch = () => {
     const newFilters: SearchPropertyParams = {};

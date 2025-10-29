@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { User, Property } from "@shared/schema";
+import type { User, Property, PaginatedPropertiesResponse } from "@shared/schema";
 import {
   Building2,
   ArrowLeft,
@@ -25,9 +25,11 @@ export default function AdminImoveis() {
     queryKey: ['/api/auth/me'],
   });
 
-  const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
+  const { data: propertiesResponse, isLoading: propertiesLoading } = useQuery<PaginatedPropertiesResponse>({
     queryKey: ['/api/properties'],
   });
+
+  const properties = propertiesResponse?.data || [];
 
   const { data: pendingProperties = [], isLoading: pendingPropertiesLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties/pending'],

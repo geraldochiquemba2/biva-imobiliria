@@ -35,6 +35,14 @@ import {
 import { db } from "./db";
 import { eq, and, or, gte, lte, ilike, desc, aliasedTable, sql } from "drizzle-orm";
 
+export interface PaginatedProperties {
+  data: Property[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface IStorage {
   // User methods
   getUser(id: string): Promise<User | undefined>;
@@ -47,7 +55,7 @@ export interface IStorage {
   
   // Property methods
   getProperty(id: string): Promise<any | undefined>;
-  listProperties(params?: SearchPropertyParams): Promise<Property[]>;
+  listProperties(params?: SearchPropertyParams): Promise<PaginatedProperties>;
   createProperty(property: InsertProperty): Promise<Property>;
   updateProperty(id: string, property: Partial<InsertProperty>): Promise<Property | undefined>;
   deleteProperty(id: string): Promise<boolean>;
@@ -239,7 +247,7 @@ export class DatabaseStorage implements IStorage {
     return result[0].images || [];
   }
 
-  async listProperties(params?: SearchPropertyParams): Promise<Property[]> {
+  async listProperties(params?: SearchPropertyParams): Promise<PaginatedProperties> {
     const conditions = [];
     
     // IMPORTANTE: Apenas imóveis aprovados são listados publicamente
@@ -303,6 +311,25 @@ export class DatabaseStorage implements IStorage {
       }
     }
 
+    // Pagination parameters with defaults
+    const page = params?.page ?? 1;
+    const limit = Math.min(params?.limit ?? 30, 200); // Default 30, max 200
+    const offset = (page - 1) * limit;
+
+    // Build WHERE clause
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    // Get total count
+    const countQuery = db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(properties);
+    
+    const countResult = await (whereClause 
+      ? countQuery.where(whereClause)
+      : countQuery);
+    
+    const total = countResult[0]?.count ?? 0;
+
     // Select only necessary fields, exclude images array to reduce bandwidth
     let query = db.select({
       id: properties.id,
@@ -334,12 +361,24 @@ export class DatabaseStorage implements IStorage {
       thumbnail: sql<string | null>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ${properties.images}[1] ELSE NULL END`,
     }).from(properties);
 
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions)) as any;
+    if (whereClause) {
+      query = query.where(whereClause) as any;
     }
 
-    const results = await query.orderBy(desc(properties.createdAt)).limit(200);
-    return results as any;
+    const results = await query
+      .orderBy(desc(properties.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: results as any,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   async createProperty(insertProperty: InsertProperty): Promise<Property> {

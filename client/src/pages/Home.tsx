@@ -8,7 +8,7 @@ import PropertyCard from "@/components/PropertyCard";
 import FeaturesSection from "@/components/FeaturesSection";
 import InteractiveMapSection from "@/components/InteractiveMapSection";
 import CTASection from "@/components/CTASection";
-import type { Property } from "@shared/schema";
+import type { Property, PaginatedPropertiesResponse } from "@shared/schema";
 import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
 
 const userProfiles = [
@@ -54,7 +54,7 @@ export default function Home() {
     .map(([key, value]) => `${key}=${encodeURIComponent(value!)}`)
     .join('&');
 
-  const { data: allProperties = [], isLoading, error } = useQuery<Property[]>({
+  const { data: allProperties, isLoading, error } = useQuery<PaginatedPropertiesResponse>({
     queryKey: ['/api/properties', queryString],
     queryFn: async () => {
       const url = queryString ? `/api/properties?${queryString}` : '/api/properties';
@@ -68,7 +68,7 @@ export default function Home() {
   });
 
   // Filtrar apenas imóveis disponíveis para páginas públicas
-  const properties = allProperties.filter(property => property.status === 'disponivel');
+  const properties = (allProperties?.data || []).filter(property => property.status === 'disponivel');
 
   const handleSearch = (params: {
     type: 'Arrendar' | 'Vender';

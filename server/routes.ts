@@ -347,9 +347,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
         featured: req.query.featured === 'true' ? true : req.query.featured === 'false' ? false : undefined,
         status: req.query.status as string | undefined,
+        page: req.query.page ? Number(req.query.page) : undefined,
+        limit: req.query.limit ? Number(req.query.limit) : undefined,
       });
       
-      const properties = await storage.listProperties(searchParams);
+      const paginatedResult = await storage.listProperties(searchParams);
       
       // Get all active visits (with auto-complete) to check which properties can be edited
       const allVisits = await getVisitsWithAutoComplete();
@@ -361,7 +363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Add edit information to each property
-      const propertiesWithEditInfo = properties.map(property => {
+      const propertiesWithEditInfo = paginatedResult.data.map(property => {
         const hasActiveVisits = activeVisitsByProperty.get(property.id) || false;
         const isRented = property.status === 'arrendado';
         const canEdit = !hasActiveVisits && !isRented;
@@ -374,7 +376,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       });
       
-      res.json(propertiesWithEditInfo);
+      res.json({
+        data: propertiesWithEditInfo,
+        total: paginatedResult.total,
+        page: paginatedResult.page,
+        limit: paginatedResult.limit,
+        totalPages: paginatedResult.totalPages,
+      });
     } catch (error) {
       console.error('Error listing properties:', error);
       res.status(400).json({ error: "Parâmetros de busca inválidos" });

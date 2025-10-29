@@ -348,6 +348,8 @@ export const searchPropertySchema = z.object({
   maxPrice: z.number().optional(),
   featured: z.boolean().optional(),
   status: z.string().optional(),
+  page: z.number().optional(),
+  limit: z.number().optional(),
 });
 
 export const insertContractSchema = createInsertSchema(contracts).omit({
@@ -437,3 +439,12 @@ export type VirtualTourWithRooms = VirtualTour & {
     hotspotsFrom: TourHotspot[];
   })[];
 };
+
+// Paginated response type for properties
+export interface PaginatedPropertiesResponse {
+  data: Property[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

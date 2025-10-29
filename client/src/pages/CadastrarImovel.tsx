@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -404,7 +405,7 @@ export default function CadastrarImovel() {
     setMapLongitude(coords.lon);
   }, [selectedProvince, selectedMunicipio]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
     // Validate file types
@@ -420,13 +421,13 @@ export default function CadastrarImovel() {
       return isValid;
     });
 
-    // Validate file sizes
+    // Validate file sizes (before compression)
     const validSizedFiles = validFiles.filter(file => {
-      const isValidSize = file.size <= 5 * 1024 * 1024; // 5 MB
+      const isValidSize = file.size <= 10 * 1024 * 1024; // 10 MB (antes da compressão)
       if (!isValidSize) {
         toast({
           title: "Arquivo muito grande",
-          description: `${file.name} excede o tamanho máximo de 5 MB`,
+          description: `${file.name} excede o tamanho máximo de 10 MB`,
           variant: "destructive",
         });
       }
@@ -444,11 +445,30 @@ export default function CadastrarImovel() {
       return;
     }
 
-    // Create preview URLs
-    const newPreviewUrls = validSizedFiles.map(file => URL.createObjectURL(file));
-    
-    setSelectedFiles([...selectedFiles, ...validSizedFiles]);
-    setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+    // Compress images
+    try {
+      const compressedFiles = await Promise.all(
+        validSizedFiles.map(file => compressImage(file))
+      );
+      
+      // Create preview URLs from compressed files
+      const newPreviewUrls = compressedFiles.map(file => URL.createObjectURL(file));
+      
+      setSelectedFiles([...selectedFiles, ...compressedFiles]);
+      setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+      
+      toast({
+        title: "Imagens adicionadas",
+        description: `${compressedFiles.length} imagem(ns) comprimida(s) e pronta(s) para envio`,
+      });
+    } catch (error) {
+      console.error('Erro ao comprimir imagens:', error);
+      toast({
+        title: "Erro ao processar imagens",
+        description: "Ocorreu um erro ao comprimir as imagens. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const removeFile = (index: number) => {

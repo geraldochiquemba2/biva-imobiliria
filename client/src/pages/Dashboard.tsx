@@ -4,7 +4,7 @@ import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { User, Property, Contract, Visit } from "@shared/schema";
+import type { User, Property, Contract, Visit, PaginatedPropertiesResponse } from "@shared/schema";
 import { Building2, Calendar, FileText, Plus, Home, Users, Clock } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
 import calendarImg from '@assets/stock_images/calendar_schedule_pl_ee22d3c7.jpg';
@@ -21,10 +21,12 @@ export default function Dashboard() {
 
   const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
 
-  const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
+  const { data: propertiesResponse, isLoading: propertiesLoading } = useQuery<PaginatedPropertiesResponse>({
     queryKey: ['/api/properties'],
     staleTime: 30000,
   });
+
+  const properties = propertiesResponse?.data || [];
 
   const { data: myOwnProperties = [], isLoading: myPropertiesLoading } = useQuery<Property[]>({
     queryKey: [`/api/users/${currentUser?.id}/properties`],

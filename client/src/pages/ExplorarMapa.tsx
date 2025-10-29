@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Navigation, MapPin, Home, Ruler, DollarSign, X } from "lucide-react";
 import L from "leaflet";
-import type { Property } from "@shared/schema";
+import type { Property, PaginatedPropertiesResponse } from "@shared/schema";
 import { formatAOA } from "@/lib/currency";
 import { Link, useLocation } from "wouter";
 import { angolaProvinces } from "@shared/angola-locations";
@@ -43,13 +43,13 @@ export default function ExplorarMapa() {
   const [selectedProvincia, setSelectedProvincia] = useState<string>("");
   const [selectedMunicipio, setSelectedMunicipio] = useState<string>("");
 
-  const { data: allProperties, isLoading } = useQuery<Property[]>({
+  const { data: allProperties, isLoading } = useQuery<PaginatedPropertiesResponse>({
     queryKey: ['/api/properties'],
   });
 
   // Filtrar imóveis disponíveis e por província/município
   const properties = useMemo(() => {
-    let filtered = allProperties?.filter(property => property.status === 'disponivel') || [];
+    let filtered = (allProperties?.data || []).filter(property => property.status === 'disponivel');
     
     if (selectedProvincia && selectedProvincia !== "all") {
       filtered = filtered.filter(p => p.provincia === selectedProvincia);
