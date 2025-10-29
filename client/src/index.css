@@ -422,8 +422,13 @@ input[type="search"]::-webkit-search-cancel-button {
   inset: -1px;
 }
 
-/* Serif font for headings */
-h1, h2, h3, h4, h5, h6, .font-serif {
+/* Sans-serif font for everything including headings for modern look */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.font-serif {
   font-family: var(--font-serif);
 }
 
