@@ -1905,7 +1905,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update proposal (corretor can accept/reject, property owner too)
+  // Update proposal (only property owner can accept/reject)
   app.patch("/api/proposals/:id", requireAuth, async (req, res) => {
     try {
       const existingProposal = await storage.getProposal(req.params.id);
@@ -1913,12 +1913,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Proposta não encontrada" });
       }
       
-      // Only corretor and property owner can update proposals
-      if (!hasRole(req.session, 'corretor')) {
-        const property = await storage.getProperty(existingProposal.propertyId);
-        if (!property || property.ownerId !== req.session.userId) {
-          return res.status(403).json({ error: "Acesso negado" });
-        }
+      // Only property owner can update proposals
+      const property = await storage.getProperty(existingProposal.propertyId);
+      if (!property || property.ownerId !== req.session.userId) {
+        return res.status(403).json({ error: "Acesso negado" });
       }
       
       const updates = req.body;
@@ -1932,17 +1930,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Payment Routes
   
-  // Get all payments (corretor only)
-  app.get("/api/payments", requireRole('corretor'), async (req, res) => {
-    try {
-      const payments = await storage.listPayments();
-      res.json(payments);
-    } catch (error) {
-      console.error('Error listing payments:', error);
-      res.status(500).json({ error: "Falha ao buscar pagamentos" });
-    }
-  });
-
   // Get payment by ID
   app.get("/api/payments/:id", requireAuth, async (req, res) => {
     try {
@@ -1950,6 +1937,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!payment) {
         return res.status(404).json({ error: "Pagamento não encontrado" });
       }
+      
+      // Verify user has access to this payment's contract
+      const contract = await storage.getContract(payment.contractId);
+      if (!contract) {
+        return res.status(404).json({ error: "Contrato não encontrado" });
+      }
+      
+      // User must be client or owner of the contract
+      if (contract.clienteId !== req.session.userId && 
+          contract.proprietarioId !== req.session.userId) {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+      
       res.json(payment);
     } catch (error) {
       console.error('Error getting payment:', error);
@@ -1960,6 +1960,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get payments by contract
   app.get("/api/contracts/:contractId/payments", requireAuth, async (req, res) => {
     try {
+      // Verify user has access to this contract
+      const contract = await storage.getContract(req.params.contractId);
+      if (!contract) {
+        return res.status(404).json({ error: "Contrato não encontrado" });
+      }
+      
+      // User must be client or owner of the contract
+      if (contract.clienteId !== req.session.userId && 
+          contract.proprietarioId !== req.session.userId) {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+      
       const payments = await storage.getPaymentsByContract(req.params.contractId);
       res.json(payments);
     } catch (error) {
@@ -1968,10 +1980,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new payment (corretor only)
-  app.post("/api/payments", requireRole('corretor'), async (req, res) => {
+  // Create new payment (property owner only)
+  app.post("/api/payments", requireAuth, async (req, res) => {
     try {
       const paymentData = insertPaymentSchema.parse(req.body);
+      
+      // Verify user owns the contract's property
+      const contract = await storage.getContract(paymentData.contractId);
+      if (!contract) {
+        return res.status(404).json({ error: "Contrato não encontrado" });
+      }
+      
+      if (contract.proprietarioId !== req.session.userId) {
+        return res.status(403).json({ error: "Apenas o proprietário pode registrar pagamentos" });
+      }
+      
       const payment = await storage.createPayment(paymentData);
       res.status(201).json(payment);
     } catch (error) {
@@ -1983,14 +2006,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update payment (corretor only)
-  app.patch("/api/payments/:id", requireRole('corretor'), async (req, res) => {
+  // Update payment (property owner only)
+  app.patch("/api/payments/:id", requireAuth, async (req, res) => {
     try {
-      const updates = req.body;
-      const payment = await storage.updatePayment(req.params.id, updates);
-      if (!payment) {
+      const existingPayment = await storage.getPayment(req.params.id);
+      if (!existingPayment) {
         return res.status(404).json({ error: "Pagamento não encontrado" });
       }
+      
+      // Verify user owns the contract's property
+      const contract = await storage.getContract(existingPayment.contractId);
+      if (!contract) {
+        return res.status(404).json({ error: "Contrato não encontrado" });
+      }
+      
+      if (contract.proprietarioId !== req.session.userId) {
+        return res.status(403).json({ error: "Apenas o proprietário pode atualizar pagamentos" });
+      }
+      
+      const updates = req.body;
+      const payment = await storage.updatePayment(req.params.id, updates);
       res.json(payment);
     } catch (error) {
       console.error('Error updating payment:', error);
