@@ -2,7 +2,7 @@
 
 ## Overview
 
-BIVA is a modern real estate platform for Angola that connects property owners, tenants, buyers, and real estate agents. The platform enables property listings, search functionality, contract management, visit scheduling, and proposal handling. Built with a focus on user experience, the application features smooth animations, an interactive map integration, and a sophisticated tech startup aesthetic inspired by modern PropTech platforms like Zillow and Redfin combined with SaaS design patterns from Linear and Stripe.
+BIVA is a real estate platform for Angola connecting property owners, tenants, buyers, and agents. It facilitates property listings, search, contract management, visit scheduling, and proposal handling. The platform emphasizes a strong user experience with smooth animations, interactive maps, and a modern PropTech aesthetic inspired by Zillow, Redfin, Linear, and Stripe.
 
 ## User Preferences
 
@@ -10,325 +10,68 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
+### Frontend
 
-**Framework & Build System**
-- React 18+ with TypeScript for type safety and modern component patterns
-- Vite as the build tool and development server for fast HMR and optimized production builds
-- Wouter for lightweight client-side routing
-- React Query (TanStack Query) for server state management and API data fetching
+- **Framework**: React 18+ with TypeScript, Vite for build.
+- **UI**: Shadcn/ui (Radix UI), Tailwind CSS (custom design system), Framer Motion for animations.
+- **State Management**: React Query for server state, Wouter for routing, React Hook Form with Zod for forms.
+- **Design**: Professional blue primary color, Inter/Plus Jakarta Sans fonts, consistent spacing, max 1280px container width.
+- **Key Features**: Animated hero, advanced property search, interactive cards, responsive design, property approval workflow.
 
-**UI Component Library**
-- Shadcn/ui components built on Radix UI primitives for accessible, customizable UI elements
-- Tailwind CSS for utility-first styling with a custom design system
-- CSS variables for theming support (light/dark mode)
-- Framer Motion for smooth animations and micro-interactions
+### Backend
 
-**Design System**
-- Professional blue primary color (#0066FF or similar)
-- Inter or Plus Jakarta Sans typography
-- Consistent spacing using Tailwind units (p-4, m-8, gap-12)
-- Max container width of 1280px (max-w-7xl)
-- Component-based architecture with reusable UI elements
-
-**Key Features**
-- Animated hero section with Angola map visualization
-- Advanced property search with multiple filters (location, price, bedrooms, property type)
-- Interactive property cards with hover effects
-- Responsive design for mobile and desktop
-- Form validation using React Hook Form with Zod schemas
-- Property approval workflow (pending → admin review → approved/rejected)
-
-### Backend Architecture
-
-**Server Framework**
-- Express.js with TypeScript for the REST API
-- Session-based authentication using express-session
-- Bcrypt for password hashing (currently simplified for demo, ready for production upgrade)
-
-**API Design**
-- RESTful endpoints under `/api` prefix
-- Authentication middleware for protected routes
-- Role-based authorization (proprietario, cliente, corretor)
-- Zod schemas for request validation matching database schema
-
-**Key Endpoints**
-- `/api/auth/*` - Authentication (login, register, logout, session management)
-- `/api/properties` - Property CRUD operations with advanced search
-- `/api/contracts` - Contract management
-- `/api/visits` - Visit scheduling
-- `/api/proposals` - Property proposals
-- `/api/payments` - Payment tracking
+- **Framework**: Express.js with TypeScript for REST API.
+- **Authentication**: Session-based using `express-session`, Bcrypt for password hashing, phone number as identifier.
+- **Authorization**: Role-based (proprietario, cliente, corretor) with middleware.
+- **API Design**: RESTful endpoints, Zod for request validation.
+- **Key Endpoints**: `/api/auth/*`, `/api/properties`, `/api/contracts`, `/api/visits`, `/api/proposals`, `/api/payments`.
 
 ### Data Storage
 
-**Database**
-- PostgreSQL as the primary database (via Neon serverless)
-- Drizzle ORM for type-safe database queries and schema management
-- WebSocket support for serverless PostgreSQL connections
-
-**Database Schema**
-- `users` - User accounts with types (proprietario, cliente, corretor)
-- `properties` - Property listings with location, pricing, and features
-  - Approval fields: `approvalStatus` (pendente/aprovado/recusado), `rejectionMessage`, `rejectionAcknowledged`
-- `contracts` - Rental and sale agreements
-- `visits` - Scheduled property viewings
-- `proposals` - Purchase/rental offers
-- `payments` - Payment records linked to contracts
-
-**Data Layer Pattern**
-- Storage abstraction layer (`storage.ts`) providing clean interface to database operations
-- Centralized database connection management (`db.ts`)
-- Migration support via Drizzle Kit
+- **Database**: PostgreSQL (Neon serverless) via Drizzle ORM.
+- **Schema**: `users`, `properties` (with approval status), `contracts`, `visits`, `proposals`, `payments`.
+- **Data Layer**: Storage abstraction, centralized connection management, Drizzle Kit for migrations.
 
 ### Authentication & Authorization
 
-**Authentication Strategy**
-- Session-based authentication using express-session with PostgreSQL session store (connect-pg-simple)
-- Phone number as primary identifier (format: +244XXXXXXXXX for Angola)
-- Bcrypt password hashing (10 rounds in production)
-- Session data stored in database for persistence across server restarts
+- **Authentication**: Session-based with `express-session` and `connect-pg-simple`. Phone number as ID.
+- **Authorization**: Three roles (proprietario, cliente, corretor), middleware-based role checking.
+- **Security**: CSRF protection, credential-based API calls, Zod for password validation.
 
-**Authorization Model**
-- Three user roles: proprietario (property owner), cliente (client/tenant), corretor (broker/agent)
-- Middleware-based role checking (`requireAuth`, `requireRole`)
-- Admin corretor account for platform management
+### Property Approval System
 
-**Security Considerations**
-- CSRF protection implicit through session cookies
-- Credential-based fetch requests for API calls
-- Password requirements enforced via Zod validation (minimum 6 characters)
+- **Workflow**: `pendente` (awaiting admin), `aprovado` (public), `recusado` (admin rejected).
+- **Features**: New properties are `pendente`, public only sees `aprovado`, owners view all their properties, admins approve/reject with feedback, owners acknowledge rejections.
+- **API**: Endpoints for fetching pending, approving, rejecting, and acknowledging rejections.
+- **Frontend Pages**: `/imoveis-pendentes` (owner), `/admin/aprovar-imoveis` (admin).
 
-### Property Approval System (October 2025)
+### Performance Optimizations
 
-**Workflow States**
-- `pendente` - Default state when property is created, awaits admin review
-- `aprovado` - Admin approved, visible to all users in public listings
-- `recusado` - Admin rejected with feedback, requires owner acknowledgement
-
-**Key Features**
-- New properties automatically enter "pendente" state
-- Pending properties are completely isolated from public queries and counters
-- Only approved properties appear in search results and public listings
-- Property owners can view their own pending/rejected properties
-- Admins can approve or reject properties with detailed feedback messages
-- Rejected properties require owner acknowledgement before resubmission
-
-**Security & Data Isolation**
-- Public property queries filter by `approvalStatus = 'aprovado'`
-- Pending/rejected properties excluded from system counters
-- Role-based access: only admins can approve/reject, only owners can acknowledge
-- Notifications sent on status changes to keep users informed
-
-**API Endpoints**
-- `GET /api/properties/pending` - Admin-only endpoint to fetch pending properties
-- `POST /api/properties/:id/approve` - Admin approves a property
-- `POST /api/properties/:id/reject` - Admin rejects with message
-- `POST /api/properties/:id/acknowledge-rejection` - Owner acknowledges rejection
-
-**Frontend Pages**
-- `/imoveis-pendentes` - Property owners track approval status and acknowledge rejections
-- `/admin/aprovar-imoveis` - Admin dashboard to review and approve/reject pending properties
-
-### Development Workflow
-
-**Database Management**
-- `npm run db:push` - Push schema changes to database
-- Automatic database seeding in development with demo users
-- Demo credentials: admin@gmail.com/123456789 (corretor), proprietario@biva.ao/demo123, cliente@biva.ao/demo123
-
-**Development Server**
-- Hot module replacement via Vite
-- Concurrent Express API server
-- Automatic TypeScript compilation
-- Development-only error overlays and debugging tools
-
-**Build & Deployment**
-- Production build: `npm run build`
-- Separate client (Vite) and server (esbuild) bundling
-- Static assets served from `/dist/public`
-- Environment variable configuration for database connection
+- **Connection Pooling**: Neon free tier optimized with 3 max connections, 30s idle timeout.
+- **Pagination**: Default 30 items per page (93% reduction), max 200 items, custom response structure.
+- **Image Optimization**: Lazy loading (`loading="lazy"`, `decoding="async"`), client-side compression (1200px max width, 75% JPEG quality) reducing size by 70-80%.
+- **Database Optimizations**: Strategic composite indexes (`status + featured`, `type + status`, `status + createdAt`, `approvalStatus + ownerId`), query limits, field selection (e.g., property listings return only thumbnails).
+- **HTTP Caching**: `Cache-Control` headers for properties (120s) and virtual tours (300s).
+- **React Query**: `staleTime: 0`, `gcTime: 5m`, disabled auto-refetch, parallel `invalidateQueries` on mutations for instant UI updates.
 
 ## External Dependencies
 
 ### Third-Party Services
 
-**Database Hosting**
-- Neon serverless PostgreSQL for cloud-hosted database
-- WebSocket-based connection pooling for serverless compatibility
-- Requires `DATABASE_URL` environment variable
-
-**Font Services**
-- Google Fonts for Inter and Playfair Display typefaces
-- Preconnect hints for performance optimization
+- **Database Hosting**: Neon serverless PostgreSQL.
+- **Font Services**: Google Fonts (Inter, Plus Jakarta Sans).
 
 ### Key NPM Packages
 
-**UI & Styling**
-- `@radix-ui/*` - Accessible component primitives (dialogs, dropdowns, forms, etc.)
-- `tailwindcss` - Utility-first CSS framework
-- `framer-motion` - Animation library for React
-- `class-variance-authority` - Type-safe variant styles
-- `embla-carousel-react` - Carousel component for hero section
-
-**Data & State Management**
-- `@tanstack/react-query` - Server state and caching
-- `react-hook-form` - Form state management
-- `@hookform/resolvers` - Form validation integration
-- `zod` - Schema validation library
-- `drizzle-orm` - TypeScript ORM
-- `drizzle-kit` - Database migrations and schema management
-
-**Backend**
-- `express` - Web server framework
-- `express-session` - Session middleware
-- `connect-pg-simple` - PostgreSQL session store
-- `bcrypt` - Password hashing
-- `@neondatabase/serverless` - Neon database driver
-
-**Developer Tools**
-- `typescript` - Type checking
-- `vite` - Build tool and dev server
-- `esbuild` - Fast JavaScript bundler
-- `tsx` - TypeScript execution for Node.js
-- `wouter` - Lightweight routing library
+- **UI & Styling**: `@radix-ui/*`, `tailwindcss`, `framer-motion`, `class-variance-authority`, `embla-carousel-react`.
+- **Data & State Management**: `@tanstack/react-query`, `react-hook-form`, `@hookform/resolvers`, `zod`, `drizzle-orm`, `drizzle-kit`.
+- **Backend**: `express`, `express-session`, `connect-pg-simple`, `bcrypt`, `@neondatabase/serverless`.
+- **Developer Tools**: `typescript`, `vite`, `esbuild`, `tsx`, `wouter`.
 
 ### Asset Management
 
-**Image Storage**
-- Stock images stored in `attached_assets/stock_images/`
-- Generated images in `attached_assets/generated_images/`
-- Vite alias `@assets` for clean imports
-- Property images support via image URLs or local paths
+- **Images**: Stock images in `attached_assets/stock_images/`, generated images in `attached_assets/generated_images/`, Vite alias `@assets`.
 
 ### Future Integration Considerations
 
-**Map Integration** (Planned)
-- Google Maps or Mapbox for interactive property location visualization
-- Marker clustering for property density
-- Geocoding for address-to-coordinates conversion
-- Integration mentioned in design guidelines but not yet implemented
-
-## Performance Optimizations
-
-### Connection Pool Optimization (October 29, 2025)
-
-**Neon Free Tier Configuration** (`server/db.ts`)
-- **Max connections**: 3 (prevents exceeding free tier limits)
-- **Idle timeout**: 30 seconds (frees resources quickly)
-- **Connection timeout**: 10 seconds (fails fast on connection issues)
-- **Max uses**: 50 connections per client (rotates frequently to prevent stale connections)
-- **Pipeline connect**: Disabled (reduces resource usage on serverless)
-- **Allow exit on idle**: Enabled (graceful shutdown)
-- **Development monitoring**: Pool statistics logged every minute
-
-**Benefits**
-- Prevents connection exhaustion on Neon free tier (max 3 concurrent connections)
-- Reduces cold start latency by freeing idle connections quickly
-- Automatic connection rotation prevents timeout issues
-- Real-time monitoring helps debug connection problems
-
-### Pagination System (October 29, 2025)
-
-**Backend Implementation**
-- Default page size: **30 items** (reduced from 200, **93% reduction** in data transfer)
-- Maximum page size: 200 items (hard cap to prevent abuse)
-- Paginated response structure: `{ data: Property[], total: number, page: number, limit: number, totalPages: number }`
-- Separate COUNT query for efficient total calculation
-- All filters work with pagination (type, status, location, price, etc.)
-
-**Frontend Integration**
-- Centralized `PaginatedPropertiesResponse` type in `shared/schema.ts`
-- Updated 5 major pages: Home, Imoveis, Dashboard, ExplorarMapa, AdminImoveis
-- Backward compatible: non-paginated endpoints still return arrays
-
-**Benefits**
-- **Massive data reduction**: First page load reduced from ~200 properties to 30
-- **Faster queries**: Smaller result sets process faster in PostgreSQL
-- **Lower bandwidth**: 93% less data transferred on initial load
-- **Better UX**: Pages load almost instantly, especially on mobile
-
-### Image Optimization (October 29, 2025)
-
-**Lazy Loading** (`client/src/components/PropertyImage.tsx`)
-- Native browser lazy loading: `loading="lazy"` on all images
-- Async image decoding: `decoding="async"` for non-blocking rendering
-- Skeleton placeholder during image load
-- Error handling with fallback UI
-- Images only load when scrolled into viewport
-
-**Image Compression** (`client/src/lib/utils.ts`)
-- Automatic compression before base64 conversion
-- Max width: 1200px (maintains aspect ratio)
-- JPEG quality: 75% (good balance of quality vs size)
-- Canvas API for client-side processing
-- **Expected reduction**: 70-80% smaller file sizes
-- Applied to both property creation and editing
-
-**Benefits**
-- **Faster page loads**: Off-screen images don't load until needed
-- **Lower bandwidth**: Compressed images are 70-80% smaller
-- **Better mobile experience**: Less data usage on cellular networks
-- **Preserved quality**: 75% JPEG quality maintains visual fidelity
-
-### Database Optimizations (October 2025)
-
-**Composite Indexes**
-- Optimized indexes to match actual query patterns
-- Removed ineffective indexes (bairro ILIKE, single-field price/featured)
-- Added strategic composite indexes:
-  - `status + featured` - Common filter combination
-  - `type + status` - Property type with availability
-  - `status + createdAt` - Sorting recent available properties
-  - `approvalStatus + ownerId` - Owner's pending properties
-- Maintained single-field indexes on frequently queried equality fields:
-  - `ownerId`, `status`, `type`, `category`, `municipio`, `provincia`, `createdAt`, `approvalStatus`
-
-**Query Limits**
-- Properties listing: 30 items default, 200 max (reduced from 200 default)
-- Notifications: 100 items max
-- Unread notifications: 50 items max
-- Prevents excessive data transfer on Neon free tier
-
-**Field Selection**
-- Property listings return only thumbnails (first image) instead of full image arrays
-- Contracts, visits, and proposals queries exclude unnecessary fields
-- Reduces bandwidth and speeds up serialization
-
-### HTTP Caching Strategy
-
-**Cache-Control Headers**
-- Properties: 120s max-age (private cache)
-- Virtual tours: 300s max-age (private cache)
-- No volatile ETags to ensure browser cache effectiveness
-
-**Benefits**
-- Reduces server load on Render free tier
-- Minimizes cold starts by reducing request frequency
-- Enables browser caching for repeated visits
-
-### React Query Configuration
-
-**Aggressive Caching**
-- `staleTime`: 10 minutes (data considered fresh)
-- `gcTime`: 30 minutes (cached data retention)
-- Disabled automatic refetch on window focus and reconnect
-- Critical views can override these defaults when real-time data is needed
-
-**Benefits**
-- Dramatically reduces API requests
-- Works well with Render free tier cold starts
-- Balances freshness with performance
-
-### Hosting Considerations
-
-**Render Free Tier**
-- Server spins down after inactivity
-- Compression middleware enabled for all responses
-- Keep-alive health check endpoint for uptime monitoring
-
-**Neon Free Tier**
-- Connection pooling optimized for 3 concurrent connections
-- Optimized query patterns to minimize database load
-- Indexed queries to reduce CPU usage
-- Pagination reduces per-query data transfer
+- **Map Integration**: Planned for Google Maps or Mapbox with marker clustering and geocoding.
