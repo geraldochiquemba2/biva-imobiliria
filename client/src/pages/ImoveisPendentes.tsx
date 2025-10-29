@@ -34,7 +34,8 @@ import {
   XCircle,
   AlertCircle,
   Eye,
-  Edit
+  Edit,
+  Trash2
 } from "lucide-react";
 import PropertyImage from "@/components/PropertyImage";
 import { formatAOA } from "@/lib/currency";
@@ -50,6 +51,7 @@ export default function ImoveisPendentes() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [rejectionDialogProperty, setRejectionDialogProperty] = useState<PropertyWithEditInfo | null>(null);
+  const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -82,6 +84,33 @@ export default function ImoveisPendentes() {
       toast({
         title: "Erro ao reconhecer",
         description: "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      const res = await apiRequest('DELETE', `/api/properties/${propertyId}`, {});
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Falha ao eliminar imóvel');
+      }
+      return;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Pedido eliminado!",
+        description: "O pedido de imóvel foi eliminado com sucesso.",
+      });
+      setDeletePropertyId(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao eliminar",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -191,7 +220,7 @@ export default function ImoveisPendentes() {
                   </CardHeader>
 
                   <CardContent className="mt-auto pt-0">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <Button
                         data-testid={`button-view-${property.id}`}
                         variant="outline"
@@ -226,6 +255,18 @@ export default function ImoveisPendentes() {
                           Editar
                         </Button>
                       ) : null}
+
+                      {property.approvalStatus === 'pendente' && (
+                        <Button
+                          data-testid={`button-delete-${property.id}`}
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setDeletePropertyId(property.id)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Eliminar
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -271,6 +312,41 @@ export default function ImoveisPendentes() {
               disabled={acknowledgeRejectionMutation.isPending}
             >
               {acknowledgeRejectionMutation.isPending ? 'Reconhecendo...' : 'OK, Entendi'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Property Confirmation Dialog */}
+      <AlertDialog open={!!deletePropertyId} onOpenChange={(open) => !open && setDeletePropertyId(null)}>
+        <AlertDialogContent data-testid="dialog-delete-property">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="w-5 h-5 text-destructive" />
+              Eliminar Pedido de Imóvel
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-left">
+              <div className="space-y-3 mt-2">
+                <p className="text-foreground">
+                  Tem certeza que deseja eliminar este pedido de imóvel?
+                </p>
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <p className="text-sm text-foreground">
+                    <strong>Atenção:</strong> Esta ação não pode ser desfeita. O imóvel será permanentemente removido do sistema.
+                  </p>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              data-testid="button-confirm-delete"
+              onClick={() => deletePropertyId && deletePropertyMutation.mutate(deletePropertyId)}
+              disabled={deletePropertyMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletePropertyMutation.isPending ? 'Eliminando...' : 'Sim, Eliminar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
