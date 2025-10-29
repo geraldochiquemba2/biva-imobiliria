@@ -72,8 +72,19 @@ export default function AdminAprovarImoveis() {
       const res = await apiRequest('POST', `/api/properties/${propertyId}/approve`, {});
       return await res.json();
     },
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'] });
+    onMutate: async (propertyId) => {
+      await queryClient.cancelQueries({ queryKey: ['/api/properties/pending'] });
+      
+      const previousProperties = queryClient.getQueryData<Property[]>(['/api/properties/pending']);
+      
+      queryClient.setQueryData<Property[]>(
+        ['/api/properties/pending'],
+        (old = []) => old.filter(p => p.id !== propertyId)
+      );
+      
+      return { previousProperties };
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
         title: "Imóvel aprovado!",
@@ -81,12 +92,18 @@ export default function AdminAprovarImoveis() {
       });
       setApprovePropertyId(null);
     },
-    onError: () => {
+    onError: (_error, _propertyId, context) => {
+      if (context?.previousProperties) {
+        queryClient.setQueryData(['/api/properties/pending'], context.previousProperties);
+      }
       toast({
         title: "Erro ao aprovar",
         description: "Tente novamente mais tarde",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'] });
     },
   });
 
@@ -95,8 +112,19 @@ export default function AdminAprovarImoveis() {
       const res = await apiRequest('POST', `/api/properties/${propertyId}/reject`, { message });
       return await res.json();
     },
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'] });
+    onMutate: async ({ propertyId }) => {
+      await queryClient.cancelQueries({ queryKey: ['/api/properties/pending'] });
+      
+      const previousProperties = queryClient.getQueryData<Property[]>(['/api/properties/pending']);
+      
+      queryClient.setQueryData<Property[]>(
+        ['/api/properties/pending'],
+        (old = []) => old.filter(p => p.id !== propertyId)
+      );
+      
+      return { previousProperties };
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
         title: "Imóvel recusado",
@@ -105,12 +133,18 @@ export default function AdminAprovarImoveis() {
       setRejectPropertyId(null);
       setRejectionMessage("");
     },
-    onError: () => {
+    onError: (_error, _vars, context) => {
+      if (context?.previousProperties) {
+        queryClient.setQueryData(['/api/properties/pending'], context.previousProperties);
+      }
       toast({
         title: "Erro ao recusar",
         description: "Tente novamente mais tarde",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'] });
     },
   });
 
