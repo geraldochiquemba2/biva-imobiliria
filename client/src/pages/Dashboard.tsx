@@ -24,6 +24,12 @@ export default function Dashboard() {
     staleTime: 30000,
   });
 
+  const { data: myOwnProperties = [], isLoading: myPropertiesLoading } = useQuery<Property[]>({
+    queryKey: [`/api/users/${currentUser?.id}/properties`],
+    enabled: !!currentUser?.id && (hasRole('proprietario') || hasRole('corretor')),
+    staleTime: 30000,
+  });
+
   useEffect(() => {
     if (!userLoading && !currentUser) {
       setLocation('/login');
@@ -31,8 +37,6 @@ export default function Dashboard() {
   }, [currentUser, userLoading, setLocation]);
 
   const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
-  
-  const myOwnProperties = properties.filter(p => p.ownerId === (currentUser?.id || ''));
   
   const allSystemProperties = properties;
   
@@ -135,7 +139,7 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-2xl font-bold" data-testid="text-properties-count">
-                      {propertiesLoading ? '...' : myOwnProperties.length}
+                      {myPropertiesLoading ? '...' : myOwnProperties.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Imóveis cadastrados
@@ -340,7 +344,7 @@ export default function Dashboard() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="relative z-10">
-                    {propertiesLoading ? (
+                    {myPropertiesLoading ? (
                       <div className="flex justify-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                       </div>
