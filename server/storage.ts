@@ -52,6 +52,10 @@ export interface IStorage {
   updateProperty(id: string, property: Partial<InsertProperty>): Promise<Property | undefined>;
   deleteProperty(id: string): Promise<boolean>;
   getUserProperties(userId: string): Promise<Property[]>;
+  getPendingProperties(): Promise<Property[]>;
+  approveProperty(id: string): Promise<Property | undefined>;
+  rejectProperty(id: string, message: string): Promise<Property | undefined>;
+  acknowledgeRejection(id: string): Promise<Property | undefined>;
   
   // Contract methods
   getContract(id: string): Promise<Contract | undefined>;
@@ -186,6 +190,9 @@ export class DatabaseStorage implements IStorage {
         featured: properties.featured,
         status: properties.status,
         ownerId: properties.ownerId,
+        approvalStatus: properties.approvalStatus,
+        rejectionMessage: properties.rejectionMessage,
+        rejectionAcknowledged: properties.rejectionAcknowledged,
         createdAt: properties.createdAt,
         updatedAt: properties.updatedAt,
         thumbnail: sql<string | null>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ${properties.images}[1] ELSE NULL END`,
@@ -234,6 +241,10 @@ export class DatabaseStorage implements IStorage {
 
   async listProperties(params?: SearchPropertyParams): Promise<Property[]> {
     const conditions = [];
+    
+    // IMPORTANTE: Apenas imóveis aprovados são listados publicamente
+    // Imóveis pendentes e recusados não devem aparecer para outros usuários
+    conditions.push(eq(properties.approvalStatus, 'aprovado'));
     
     if (params) {
       if (params.type) {
@@ -314,6 +325,9 @@ export class DatabaseStorage implements IStorage {
       featured: properties.featured,
       status: properties.status,
       ownerId: properties.ownerId,
+      approvalStatus: properties.approvalStatus,
+      rejectionMessage: properties.rejectionMessage,
+      rejectionAcknowledged: properties.rejectionAcknowledged,
       createdAt: properties.createdAt,
       updatedAt: properties.updatedAt,
       // Get only first image as thumbnail
@@ -377,6 +391,9 @@ export class DatabaseStorage implements IStorage {
         featured: properties.featured,
         status: properties.status,
         ownerId: properties.ownerId,
+        approvalStatus: properties.approvalStatus,
+        rejectionMessage: properties.rejectionMessage,
+        rejectionAcknowledged: properties.rejectionAcknowledged,
         createdAt: properties.createdAt,
         updatedAt: properties.updatedAt,
         // Get only first image as thumbnail
@@ -386,6 +403,55 @@ export class DatabaseStorage implements IStorage {
       .where(eq(properties.ownerId, userId))
       .orderBy(desc(properties.createdAt));
     return results as any;
+  }
+
+  async getPendingProperties(): Promise<Property[]> {
+    const results = await db
+      .select()
+      .from(properties)
+      .where(eq(properties.approvalStatus, 'pendente'))
+      .orderBy(desc(properties.createdAt));
+    return results;
+  }
+
+  async approveProperty(id: string): Promise<Property | undefined> {
+    const [property] = await db
+      .update(properties)
+      .set({ 
+        approvalStatus: 'aprovado',
+        rejectionMessage: null,
+        rejectionAcknowledged: false,
+        updatedAt: new Date()
+      })
+      .where(eq(properties.id, id))
+      .returning();
+    return property || undefined;
+  }
+
+  async rejectProperty(id: string, message: string): Promise<Property | undefined> {
+    const [property] = await db
+      .update(properties)
+      .set({ 
+        approvalStatus: 'recusado',
+        rejectionMessage: message,
+        rejectionAcknowledged: false,
+        updatedAt: new Date()
+      })
+      .where(eq(properties.id, id))
+      .returning();
+    return property || undefined;
+  }
+
+  async acknowledgeRejection(id: string): Promise<Property | undefined> {
+    const [property] = await db
+      .update(properties)
+      .set({ 
+        rejectionAcknowledged: true,
+        updatedAt: new Date()
+      })
+      .where(eq(properties.id, id))
+      .returning();
+    return property || undefined;
   }
 
   // Contract methods

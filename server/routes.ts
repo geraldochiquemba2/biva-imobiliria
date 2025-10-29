@@ -651,6 +651,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Property Approval Routes
+  
+  // Get pending properties (admin only)
+  app.get("/api/properties/pending", requireRole('admin'), async (req, res) => {
+    try {
+      const properties = await storage.getPendingProperties();
+      res.json(properties);
+    } catch (error) {
+      console.error('Error getting pending properties:', error);
+      res.status(500).json({ error: "Falha ao buscar imóveis pendentes" });
+    }
+  });
+
+  // Approve property (admin only)
+  app.post("/api/properties/:id/approve", requireRole('admin'), async (req, res) => {
+    try {
+      const property = await storage.getProperty(req.params.id);
+      if (!property) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+
+      if (property.approvalStatus !== 'pendente') {
+        return res.status(400).json({ error: "Este imóvel não está pendente de aprovação" });
+      }
+
+      const updatedProperty = await storage.approveProperty(req.params.id);
+      
+      // Send notification to property owner
+      await storage.createNotification({
+        userId: property.ownerId,
+        type: 'property_approved',
+        title: 'Imóvel Aprovado',
+        message: `O seu imóvel "${property.title}" foi aprovado e está agora publicado.`,
+        entityId: property.id,
+      });
+
+      res.json(updatedProperty);
+    } catch (error) {
+      console.error('Error approving property:', error);
+      res.status(500).json({ error: "Falha ao aprovar imóvel" });
+    }
+  });
+
+  // Reject property (admin only)
+  app.post("/api/properties/:id/reject", requireRole('admin'), async (req, res) => {
+    try {
+      const { message } = req.body;
+      
+      if (!message || message.trim() === '') {
+        return res.status(400).json({ error: "Mensagem de rejeição é obrigatória" });
+      }
+
+      const property = await storage.getProperty(req.params.id);
+      if (!property) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+
+      if (property.approvalStatus !== 'pendente') {
+        return res.status(400).json({ error: "Este imóvel não está pendente de aprovação" });
+      }
+
+      const updatedProperty = await storage.rejectProperty(req.params.id, message);
+      
+      // Send notification to property owner
+      await storage.createNotification({
+        userId: property.ownerId,
+        type: 'property_rejected',
+        title: 'Imóvel Recusado',
+        message: `O seu imóvel "${property.title}" foi recusado. Por favor, veja a mensagem do administrador e faça as correções necessárias.`,
+        entityId: property.id,
+      });
+
+      res.json(updatedProperty);
+    } catch (error) {
+      console.error('Error rejecting property:', error);
+      res.status(500).json({ error: "Falha ao recusar imóvel" });
+    }
+  });
+
+  // Acknowledge rejection (property owner only)
+  app.post("/api/properties/:id/acknowledge-rejection", requireAuth, async (req, res) => {
+    try {
+      const property = await storage.getProperty(req.params.id);
+      if (!property) {
+        return res.status(404).json({ error: "Imóvel não encontrado" });
+      }
+
+      // Only the property owner can acknowledge
+      if (property.ownerId !== req.session.userId) {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+
+      if (property.approvalStatus !== 'recusado') {
+        return res.status(400).json({ error: "Este imóvel não foi recusado" });
+      }
+
+      if (property.rejectionAcknowledged) {
+        return res.status(400).json({ error: "Rejeição já reconhecida" });
+      }
+
+      const updatedProperty = await storage.acknowledgeRejection(req.params.id);
+      res.json(updatedProperty);
+    } catch (error) {
+      console.error('Error acknowledging rejection:', error);
+      res.status(500).json({ error: "Falha ao reconhecer rejeição" });
+    }
+  });
+
   // Virtual Tour Routes
   
   // Create a virtual tour for a property

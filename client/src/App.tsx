@@ -19,8 +19,10 @@ import ContratosAtivos from "@/pages/ContratosAtivos";
 import VisitasAgendadas from "@/pages/VisitasAgendadas";
 import ImovelDetalhes from "@/pages/ImovelDetalhes";
 import AdminImoveis from "@/pages/AdminImoveis";
+import AdminAprovarImoveis from "@/pages/AdminAprovarImoveis";
 import AdminUsuarios from "@/pages/AdminUsuarios";
 import MeusImoveis from "@/pages/MeusImoveis";
+import ImoveisPendentes from "@/pages/ImoveisPendentes";
 import EditarImovel from "@/pages/EditarImovel";
 import ImoveisDisponiveis from "@/pages/ImoveisDisponiveis";
 import ImoveisArrendados from "@/pages/ImoveisArrendados";
@@ -63,12 +65,14 @@ function Router() {
         <Route path="/contratos/:id/assinar" component={ContractSign} />
         <Route path="/visitas-agendadas" component={VisitasAgendadas} />
         <Route path="/meus-imoveis" component={MeusImoveis} />
+        <Route path="/imoveis-pendentes" component={ImoveisPendentes} />
         <Route path="/editar-imovel/:id" component={EditarImovel} />
         <Route path="/imoveis-disponiveis" component={ImoveisDisponiveis} />
         <Route path="/imoveis-arrendados" component={ImoveisArrendados} />
         <Route path="/imoveis-vendidos" component={ImoveisVendidos} />
         <Route path="/imoveis-indisponiveis" component={ImoveisIndisponiveis} />
         <Route path="/admin/imoveis" component={AdminImoveis} />
+        <Route path="/admin/aprovar-imoveis" component={AdminAprovarImoveis} />
         <Route path="/admin/usuarios" component={AdminUsuarios} />
         <Route component={NotFound} />
       </Switch>

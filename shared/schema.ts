@@ -44,6 +44,9 @@ export const properties = pgTable("properties", {
   featured: boolean("featured").default(false),
   status: text("status").notNull().default('disponivel'), // 'disponivel', 'arrendado', 'vendido', 'indisponivel'
   ownerId: varchar("owner_id").notNull().references(() => users.id),
+  approvalStatus: text("approval_status").notNull().default('pendente'), // 'pendente', 'aprovado', 'recusado'
+  rejectionMessage: text("rejection_message"), // Mensagem do admin ao recusar
+  rejectionAcknowledged: boolean("rejection_acknowledged").default(false), // Se o proprietário viu a rejeição
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
@@ -57,6 +60,8 @@ export const properties = pgTable("properties", {
   statusFeaturedIdx: index("properties_status_featured_idx").on(table.status, table.featured),
   typeStatusIdx: index("properties_type_status_idx").on(table.type, table.status),
   statusCreatedAtIdx: index("properties_status_created_at_idx").on(table.status, table.createdAt),
+  approvalStatusIdx: index("properties_approval_status_idx").on(table.approvalStatus),
+  approvalStatusOwnerIdx: index("properties_approval_status_owner_idx").on(table.approvalStatus, table.ownerId),
 }));
 
 // Contracts table
@@ -324,6 +329,9 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  approvalStatus: true,
+  rejectionMessage: true,
+  rejectionAcknowledged: true,
 });
 
 export const searchPropertySchema = z.object({
