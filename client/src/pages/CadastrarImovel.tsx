@@ -352,10 +352,10 @@ export default function CadastrarImovel() {
   } = useForm<PropertyFormData>({
     resolver: zodResolver(propertyFormSchema),
     defaultValues: {
-      bedrooms: 0,
-      bathrooms: 0,
-      livingRooms: 0,
-      kitchens: 0,
+      bedrooms: undefined,
+      bathrooms: undefined,
+      livingRooms: undefined,
+      kitchens: undefined,
     },
   });
 
