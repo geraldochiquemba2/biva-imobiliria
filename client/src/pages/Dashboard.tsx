@@ -47,6 +47,9 @@ export default function Dashboard() {
   const allSystemProperties = properties;
   
   const availableProperties = properties.filter(p => p.status === 'disponivel');
+  
+  // Filtrar apenas imóveis aprovados para exibir no contador
+  const approvedProperties = myOwnProperties.filter(p => p.approvalStatus === 'aprovado');
 
   const { data: userContracts = [], isLoading: userContractsLoading } = useQuery<Contract[]>({
     queryKey: [`/api/users/${currentUser?.id}/contracts`],
@@ -145,10 +148,10 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-2xl font-bold" data-testid="text-properties-count">
-                      {myPropertiesLoading ? '...' : myOwnProperties.length}
+                      {myPropertiesLoading ? '...' : approvedProperties.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Imóveis cadastrados
+                      Imóveis aprovados
                     </p>
                   </CardContent>
                 </Card>
@@ -404,20 +407,20 @@ export default function Dashboard() {
                       <div className="flex justify-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                       </div>
-                    ) : myOwnProperties.length === 0 ? (
+                    ) : approvedProperties.length === 0 ? (
                       <div className="text-center py-12">
                         <Home className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                         <h3 className="text-lg font-semibold mb-2">
-                          Nenhum imóvel cadastrado
+                          Nenhum imóvel aprovado
                         </h3>
                         <p className="text-muted-foreground">
-                          Clique aqui para começar a cadastrar seus imóveis
+                          Clique aqui para ver seus imóveis
                         </p>
                       </div>
                     ) : (
                       <div className="space-y-4">
                         <p className="text-center text-muted-foreground">
-                          Clique para ver todos os seus {myOwnProperties.length} {myOwnProperties.length === 1 ? 'imóvel' : 'imóveis'}
+                          Clique para ver todos os seus {approvedProperties.length} {approvedProperties.length === 1 ? 'imóvel aprovado' : 'imóveis aprovados'}
                         </p>
                       </div>
                     )}
