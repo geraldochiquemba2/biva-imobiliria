@@ -1467,76 +1467,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Visit Routes
   
-  // Get visits (returns client visits, owner visits, or all visits depending on user role)
+  // Get visits (returns only user's own visits - as client or owner)
+  // Note: Even corretores see only their own visits here. Use admin endpoints for full access.
   app.get("/api/visits", requireAuth, async (req, res) => {
     try {
       // First, auto-complete all old visits
       await getVisitsWithAutoComplete();
       
-      // Then fetch user-specific visits
-      let visits;
+      // Fetch user-specific visits (client + owner visits)
       const userId = req.session.userId!;
       
-      console.log('DEBUG /api/visits - userId:', userId);
-      console.log('DEBUG /api/visits - userTypes:', req.session.userTypes);
+      // Combine both client and owner visits for the logged-in user
+      const clientVisits = await storage.getVisitsByClient(userId);
+      const ownerVisits = await storage.getVisitsByOwner(userId);
       
-      if (hasRole(req.session, 'corretor')) {
-        visits = await storage.listVisits();
-        console.log('DEBUG - Corretor, retornando todas as visitas:', visits.length);
-      } else {
-        // For regular users, combine both client and owner visits
-        const clientVisits = await storage.getVisitsByClient(userId);
-        const ownerVisits = await storage.getVisitsByOwner(userId);
-        
-        console.log('DEBUG - clientVisits count:', clientVisits.length);
-        console.log('DEBUG - ownerVisits count:', ownerVisits.length);
-        
-        if (clientVisits.length > 0) {
-          console.log('DEBUG - First clientVisit:', JSON.stringify({
-            id: clientVisits[0].id,
-            clienteId: clientVisits[0].clienteId,
-            propertyId: clientVisits[0].propertyId,
-            ownerId: (clientVisits[0] as any).property?.ownerId
-          }));
+      // Create a Set to track unique visit IDs
+      const visitIds = new Set<string>();
+      const visits = [];
+      
+      // Add all client visits
+      for (const visit of clientVisits) {
+        if (!visitIds.has(visit.id)) {
+          visitIds.add(visit.id);
+          visits.push(visit);
         }
-        
-        if (ownerVisits.length > 0) {
-          console.log('DEBUG - First ownerVisit:', JSON.stringify({
-            id: ownerVisits[0].id,
-            clienteId: ownerVisits[0].clienteId,
-            propertyId: ownerVisits[0].propertyId,
-            ownerId: (ownerVisits[0] as any).property?.ownerId
-          }));
-        }
-        
-        // Create a Set to track unique visit IDs
-        const visitIds = new Set<string>();
-        visits = [];
-        
-        // Add all client visits
-        for (const visit of clientVisits) {
-          if (!visitIds.has(visit.id)) {
-            visitIds.add(visit.id);
-            visits.push(visit);
-          }
-        }
-        
-        // Add all owner visits (avoiding duplicates)
-        for (const visit of ownerVisits) {
-          if (!visitIds.has(visit.id)) {
-            visitIds.add(visit.id);
-            visits.push(visit);
-          }
-        }
-        
-        // Sort by creation date (most recent first)
-        visits.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       }
       
-      if (visits && visits.length > 0) {
-        console.log('DEBUG - Total visits retornadas:', visits.length);
-        console.log('DEBUG - Primeira visita retornada:', JSON.stringify(visits[0], null, 2).substring(0, 500));
+      // Add all owner visits (avoiding duplicates)
+      for (const visit of ownerVisits) {
+        if (!visitIds.has(visit.id)) {
+          visitIds.add(visit.id);
+          visits.push(visit);
+        }
       }
+      
+      // Sort by creation date (most recent first)
+      visits.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       
       res.json(visits);
     } catch (error) {
