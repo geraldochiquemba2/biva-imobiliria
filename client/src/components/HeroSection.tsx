@@ -4,16 +4,16 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import img1 from '@assets/stock_images/vibrant_colorful_mod_2a07b7e7.jpg';
-import img2 from '@assets/stock_images/vibrant_colorful_mod_d064a5c3.jpg';
-import img3 from '@assets/stock_images/beautiful_sunny_beac_468df792.jpg';
-import img4 from '@assets/stock_images/beautiful_sunny_beac_2e91ae06.jpg';
-import img5 from '@assets/stock_images/colorful_modern_city_7c1cdea1.jpg';
-import img6 from '@assets/stock_images/colorful_modern_city_cf8eaa54.jpg';
-import img7 from '@assets/stock_images/bright_luxury_villa__d99e81ca.jpg';
-import img8 from '@assets/stock_images/bright_luxury_villa__d68bc00f.jpg';
-import img9 from '@assets/stock_images/vibrant_tropical_res_31997d71.jpg';
-import img10 from '@assets/stock_images/vibrant_tropical_res_9c2d2da1.jpg';
+import img1 from '@assets/stock_images/luxury_modern_apartm_d0631b09.jpg';
+import img2 from '@assets/stock_images/luxury_modern_apartm_6d19a69a.jpg';
+import img3 from '@assets/stock_images/beautiful_modern_hou_b9e08fe1.jpg';
+import img4 from '@assets/stock_images/beautiful_modern_hou_f99ca0b1.jpg';
+import img5 from '@assets/stock_images/elegant_apartment_bu_bd7e0cfa.jpg';
+import img6 from '@assets/stock_images/elegant_apartment_bu_0fefac55.jpg';
+import img7 from '@assets/stock_images/cozy_bedroom_interio_f0d4b53b.jpg';
+import img8 from '@assets/stock_images/cozy_bedroom_interio_dd980b2a.jpg';
+import img9 from '@assets/stock_images/luxury_villa_propert_380b5f22.jpg';
+import img10 from '@assets/stock_images/luxury_villa_propert_b4ba8611.jpg';
 
 interface AngolaMapPoint {
   x: number;

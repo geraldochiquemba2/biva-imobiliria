@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Building2, DollarSign, Upload, X, Star } from "lucide-react";
 import type { User } from "@shared/schema";
 import { z } from "zod";
-import backgroundImage from "@assets/stock_images/vibrant_colorful_mod_2a07b7e7.jpg";
+import backgroundImage from "@assets/stock_images/luxury_modern_apartm_d0631b09.jpg";
 import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
 
 // Províncias e Municípios de Angola
