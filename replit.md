@@ -37,6 +37,7 @@ Preferred communication style: Simple, everyday language.
 - Interactive property cards with hover effects
 - Responsive design for mobile and desktop
 - Form validation using React Hook Form with Zod schemas
+- Property approval workflow (pending → admin review → approved/rejected)
 
 ### Backend Architecture
 
@@ -69,6 +70,7 @@ Preferred communication style: Simple, everyday language.
 **Database Schema**
 - `users` - User accounts with types (proprietario, cliente, corretor)
 - `properties` - Property listings with location, pricing, and features
+  - Approval fields: `approvalStatus` (pendente/aprovado/recusado), `rejectionMessage`, `rejectionAcknowledged`
 - `contracts` - Rental and sale agreements
 - `visits` - Scheduled property viewings
 - `proposals` - Purchase/rental offers
@@ -96,6 +98,37 @@ Preferred communication style: Simple, everyday language.
 - CSRF protection implicit through session cookies
 - Credential-based fetch requests for API calls
 - Password requirements enforced via Zod validation (minimum 6 characters)
+
+### Property Approval System (October 2025)
+
+**Workflow States**
+- `pendente` - Default state when property is created, awaits admin review
+- `aprovado` - Admin approved, visible to all users in public listings
+- `recusado` - Admin rejected with feedback, requires owner acknowledgement
+
+**Key Features**
+- New properties automatically enter "pendente" state
+- Pending properties are completely isolated from public queries and counters
+- Only approved properties appear in search results and public listings
+- Property owners can view their own pending/rejected properties
+- Admins can approve or reject properties with detailed feedback messages
+- Rejected properties require owner acknowledgement before resubmission
+
+**Security & Data Isolation**
+- Public property queries filter by `approvalStatus = 'aprovado'`
+- Pending/rejected properties excluded from system counters
+- Role-based access: only admins can approve/reject, only owners can acknowledge
+- Notifications sent on status changes to keep users informed
+
+**API Endpoints**
+- `GET /api/properties/pending` - Admin-only endpoint to fetch pending properties
+- `POST /api/properties/:id/approve` - Admin approves a property
+- `POST /api/properties/:id/reject` - Admin rejects with message
+- `POST /api/properties/:id/acknowledge-rejection` - Owner acknowledges rejection
+
+**Frontend Pages**
+- `/imoveis-pendentes` - Property owners track approval status and acknowledge rejections
+- `/admin/aprovar-imoveis` - Admin dashboard to review and approve/reject pending properties
 
 ### Development Workflow
 
