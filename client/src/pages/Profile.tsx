@@ -50,7 +50,7 @@ export default function Profile() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'], refetchType: 'all' }),
       ]);
       toast({
         title: "Perfil atualizado",

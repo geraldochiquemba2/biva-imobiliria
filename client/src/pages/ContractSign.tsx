@@ -68,7 +68,7 @@ export default function ContractSign() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'all' }),
       ]);
       toast({
         title: "Contrato assinado com sucesso!",
@@ -94,7 +94,7 @@ export default function ContractSign() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'all' }),
       ]);
       toast({
         title: "Contrato confirmado com sucesso!",
@@ -118,8 +118,8 @@ export default function ContractSign() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/contracts'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts'], refetchType: 'all' }),
       ]);
       toast({
         title: "Contrato cancelado",

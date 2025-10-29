@@ -108,7 +108,7 @@ export default function ImovelDetalhes() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' }),
       ]);
       setShowScheduleDialog(false);
       setSelectedDate("");
@@ -136,7 +136,7 @@ export default function ImovelDetalhes() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' }),
       ]);
       toast({
         title: "Agendamento cancelado",

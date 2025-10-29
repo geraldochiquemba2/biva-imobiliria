@@ -87,7 +87,7 @@ export function RentalContractDialog({
     },
     onSuccess: async (updatedUser) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'], refetchType: 'all' }),
       ]);
       toast({
         title: "BI atualizado!",
@@ -127,9 +127,9 @@ export function RentalContractDialog({
     },
     onSuccess: async (contract) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser.id, 'properties'], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/contracts'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser.id, 'properties'], refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts'], refetchType: 'all' }),
       ]);
       
       toast({

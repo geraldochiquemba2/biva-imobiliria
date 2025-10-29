@@ -84,10 +84,8 @@ export default function VisitasAgendadas() {
       });
       return await res.json();
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'active' }),
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' });
       toast({
         title: "Visita cancelada",
         description: "A visita foi cancelada com sucesso",
@@ -107,10 +105,8 @@ export default function VisitasAgendadas() {
       const res = await apiRequest('POST', `/api/visits/${visitId}/client-response`, { action });
       return await res.json();
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'active' }),
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' });
       toast({
         title: "Resposta enviada",
         description: "Sua resposta foi enviada ao proprietário",
@@ -139,10 +135,8 @@ export default function VisitasAgendadas() {
       });
       return await res.json();
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'active' }),
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' });
       setShowProposeDialog(false);
       setProposedDate("");
       setProposedTime("");

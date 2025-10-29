@@ -594,9 +594,9 @@ export default function CadastrarImovel() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'all' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'all' }),
       ]);
       toast({
         title: "Imóvel cadastrado com sucesso!",

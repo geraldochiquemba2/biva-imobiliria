@@ -50,7 +50,7 @@ export default function TourVirtualManager() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'all' }),
       ]);
       toast({ title: "Tour virtual criado com sucesso!" });
       setTourName("");
@@ -77,7 +77,7 @@ export default function TourVirtualManager() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'all' }),
       ]);
       toast({ title: "Cômodo adicionado com sucesso!" });
       setRoomName("");
@@ -99,7 +99,7 @@ export default function TourVirtualManager() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'all' }),
       ]);
       toast({ title: "Cômodo removido com sucesso!" });
     },
