@@ -592,8 +592,12 @@ export default function CadastrarImovel() {
       const res = await apiRequest('POST', '/api/properties', propertyData);
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
+      ]);
       toast({
         title: "Imóvel cadastrado com sucesso!",
         description: "Seu imóvel já está disponível na plataforma",

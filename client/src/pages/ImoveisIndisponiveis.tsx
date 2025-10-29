@@ -52,9 +52,12 @@ export default function ImoveisIndisponiveis() {
     mutationFn: async ({ propertyId, status }: { propertyId: string; status: string }) => {
       return await apiRequest('PATCH', `/api/properties/${propertyId}`, { status });
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
+      ]);
       const statusMessages: Record<string, string> = {
         'disponivel': 'disponível',
         'indisponivel': 'indisponível',
@@ -79,9 +82,12 @@ export default function ImoveisIndisponiveis() {
     mutationFn: async (propertyId: string) => {
       return await apiRequest('DELETE', `/api/properties/${propertyId}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
+      ]);
       toast({
         title: "Sucesso",
         description: "Imóvel eliminado com sucesso",

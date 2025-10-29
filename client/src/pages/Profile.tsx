@@ -48,8 +48,10 @@ export default function Profile() {
       const res = await apiRequest('PATCH', '/api/auth/profile', data);
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'], refetchType: 'active' }),
+      ]);
       toast({
         title: "Perfil atualizado",
         description: "Suas informações foram atualizadas com sucesso.",

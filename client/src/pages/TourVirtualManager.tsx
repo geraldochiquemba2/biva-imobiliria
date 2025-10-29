@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, Edit2, ArrowLeft, Image as ImageIcon } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { VirtualTourWithRooms, TourRoom } from "@shared/schema";
+import type { VirtualTourWithRooms, TourRoom, Property } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -35,24 +35,23 @@ export default function TourVirtualManager() {
     enabled: !!propertyId,
   });
 
-  const { data: property } = useQuery({
+  const { data: property } = useQuery<Property>({
     queryKey: [`/api/properties/${propertyId}`],
     enabled: !!propertyId,
   });
 
   const createTourMutation = useMutation({
     mutationFn: async (data: { name: string; description: string }) => {
-      return await apiRequest(`/api/virtual-tours`, {
-        method: "POST",
-        body: JSON.stringify({
-          propertyId,
-          name: data.name,
-          description: data.description || null,
-        }),
+      return await apiRequest("POST", `/api/virtual-tours`, {
+        propertyId,
+        name: data.name,
+        description: data.description || null,
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'active' }),
+      ]);
       toast({ title: "Tour virtual criado com sucesso!" });
       setTourName("");
       setTourDescription("");
@@ -76,8 +75,10 @@ export default function TourVirtualManager() {
         return res.json();
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'active' }),
+      ]);
       toast({ title: "Cômodo adicionado com sucesso!" });
       setRoomName("");
       setRoomImage(null);
@@ -94,12 +95,12 @@ export default function TourVirtualManager() {
 
   const deleteRoomMutation = useMutation({
     mutationFn: async (roomId: string) => {
-      return await apiRequest(`/api/tour-rooms/${roomId}`, {
-        method: "DELETE",
-      });
+      return await apiRequest("DELETE", `/api/tour-rooms/${roomId}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["/api/virtual-tours/property", propertyId], refetchType: 'active' }),
+      ]);
       toast({ title: "Cômodo removido com sucesso!" });
     },
     onError: (error: any) => {

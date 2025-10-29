@@ -106,8 +106,10 @@ export default function ImovelDetalhes() {
       });
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'active' }),
+      ]);
       setShowScheduleDialog(false);
       setSelectedDate("");
       setSelectedTime("");
@@ -132,8 +134,10 @@ export default function ImovelDetalhes() {
       });
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'active' }),
+      ]);
       toast({
         title: "Agendamento cancelado",
         description: "Sua solicitação de visita foi cancelada",

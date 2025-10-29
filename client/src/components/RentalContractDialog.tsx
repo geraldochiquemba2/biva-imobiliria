@@ -85,8 +85,10 @@ export function RentalContractDialog({
       const res = await apiRequest('PATCH', `/api/users/${currentUser.id}`, { bi: data.bi });
       return await res.json();
     },
-    onSuccess: (updatedUser) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+    onSuccess: async (updatedUser) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/me'], refetchType: 'active' }),
+      ]);
       toast({
         title: "BI atualizado!",
         description: "Seu número de BI foi registrado com sucesso",
@@ -123,10 +125,12 @@ export function RentalContractDialog({
       
       return await res.json();
     },
-    onSuccess: (contract) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser.id, 'properties'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/contracts'] });
+    onSuccess: async (contract) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser.id, 'properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts'], refetchType: 'active' }),
+      ]);
       
       toast({
         title: "Contrato criado!",

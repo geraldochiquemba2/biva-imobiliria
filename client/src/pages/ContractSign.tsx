@@ -66,12 +66,14 @@ export default function ContractSign() {
 
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'active' }),
+      ]);
       toast({
         title: "Contrato assinado com sucesso!",
         description: "A sua assinatura digital foi registada. Agora você pode confirmar.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/contracts', id] });
       setSignDialogOpen(false);
       setBiNumber("");
     },
@@ -90,12 +92,14 @@ export default function ContractSign() {
       const response = await apiRequest('POST', `/api/contracts/${contractId}/confirm`, {});
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'active' }),
+      ]);
       toast({
         title: "Contrato confirmado com sucesso!",
         description: "Aguardando confirmação da outra parte.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/contracts', id] });
     },
     onError: (error: any) => {
       toast({
@@ -112,13 +116,15 @@ export default function ContractSign() {
       const response = await apiRequest('POST', `/api/contracts/${contractId}/cancel`, {});
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/contracts'], refetchType: 'active' }),
+      ]);
       toast({
         title: "Contrato cancelado",
         description: "O contrato foi cancelado com sucesso.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/contracts', id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/contracts'] });
     },
     onError: (error: any) => {
       toast({

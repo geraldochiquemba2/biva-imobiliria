@@ -168,8 +168,12 @@ export default function EditarImovel() {
       }
       return id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
+      ]);
       toast({
         title: "Imóvel eliminado!",
         description: "O imóvel foi eliminado com sucesso.",
@@ -233,10 +237,12 @@ export default function EditarImovel() {
       const res = await apiRequest('PATCH', `/api/properties/${params!.id}`, propertyData);
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/properties', params!.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
+      ]);
       
       const wasRejected = property?.approvalStatus === 'recusado';
       toast({
