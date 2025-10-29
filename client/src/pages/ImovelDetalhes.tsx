@@ -323,7 +323,7 @@ export default function ImovelDetalhes() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 text-white z-10 hover:bg-black/50 active:bg-black/50 shadow-none hover:shadow-none active:shadow-none transition-none"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 text-white z-10 hover:bg-black/70 active:bg-black/70 no-default-hover-elevate no-default-active-elevate transform-none"
                         onClick={() => setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
                         data-testid="button-next-image"
                       >
