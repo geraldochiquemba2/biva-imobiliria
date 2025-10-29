@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { PropertyWithOwner, User, Visit, VirtualTourWithRooms } from "@shared/schema";
+import type { PropertyWithOwner, User, VirtualTourWithRooms } from "@shared/schema";
 import MapView from "@/components/MapView";
 import VirtualTourViewer from "@/components/VirtualTourViewer";
 import PropertyImage from "@/components/PropertyImage";
@@ -37,6 +37,21 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+
+interface Visit {
+  id: string;
+  propertyId: string;
+  clienteId: string;
+  requestedDateTime: string;
+  scheduledDateTime?: string | null;
+  ownerProposedDateTime?: string | null;
+  status: string;
+  lastActionBy?: string | null;
+  clientMessage?: string | null;
+  ownerMessage?: string | null;
+  observacoes: string | null;
+  createdAt: string;
+}
 
 export default function ImovelDetalhes() {
   const [, params] = useRoute("/imoveis/:id");
