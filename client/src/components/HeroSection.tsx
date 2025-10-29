@@ -3,16 +3,16 @@ import { useEffect, useState } from "react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { Link } from "wouter";
 
-import img1 from '@assets/stock_images/luanda_angola_citysc_aec45cde.jpg';
-import img2 from '@assets/stock_images/luanda_angola_citysc_a8f88487.jpg';
-import img3 from '@assets/stock_images/luanda_angola_citysc_b817267d.jpg';
-import img4 from '@assets/stock_images/luanda_angola_citysc_c24fc28d.jpg';
-import img5 from '@assets/stock_images/luanda_angola_citysc_a6349193.jpg';
-import img6 from '@assets/stock_images/luxury_modern_apartm_6ccf2c5c.jpg';
-import img7 from '@assets/stock_images/luxury_modern_apartm_4005877c.jpg';
-import img8 from '@assets/stock_images/luxury_modern_apartm_ad76face.jpg';
-import img9 from '@assets/stock_images/beautiful_residentia_88154250.jpg';
-import img10 from '@assets/stock_images/beautiful_residentia_1c7cb456.jpg';
+import img1 from '@assets/stock_images/vibrant_colorful_mod_2a07b7e7.jpg';
+import img2 from '@assets/stock_images/vibrant_colorful_mod_d064a5c3.jpg';
+import img3 from '@assets/stock_images/beautiful_sunny_beac_468df792.jpg';
+import img4 from '@assets/stock_images/beautiful_sunny_beac_2e91ae06.jpg';
+import img5 from '@assets/stock_images/colorful_modern_city_7c1cdea1.jpg';
+import img6 from '@assets/stock_images/colorful_modern_city_cf8eaa54.jpg';
+import img7 from '@assets/stock_images/bright_luxury_villa__d99e81ca.jpg';
+import img8 from '@assets/stock_images/bright_luxury_villa__d68bc00f.jpg';
+import img9 from '@assets/stock_images/vibrant_tropical_res_31997d71.jpg';
+import img10 from '@assets/stock_images/vibrant_tropical_res_9c2d2da1.jpg';
 
 interface AngolaMapPoint {
   x: number;
