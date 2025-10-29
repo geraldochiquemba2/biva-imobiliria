@@ -72,9 +72,12 @@ export default function AdminAprovarImoveis() {
       const res = await apiRequest('POST', `/api/properties/${propertyId}/approve`, {});
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
+      ]);
       toast({
         title: "Imóvel aprovado!",
         description: "O imóvel foi aprovado e agora está publicado.",
@@ -95,9 +98,12 @@ export default function AdminAprovarImoveis() {
       const res = await apiRequest('POST', `/api/properties/${propertyId}/reject`, { message });
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
+      ]);
       toast({
         title: "Imóvel recusado",
         description: "O proprietário foi notificado e pode fazer as correções.",

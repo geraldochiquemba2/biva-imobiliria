@@ -23,7 +23,6 @@ export default function Dashboard() {
 
   const { data: propertiesResponse, isLoading: propertiesLoading } = useQuery<PaginatedPropertiesResponse>({
     queryKey: ['/api/properties'],
-    staleTime: 30000,
   });
 
   const properties = propertiesResponse?.data || [];
@@ -31,13 +30,11 @@ export default function Dashboard() {
   const { data: myOwnProperties = [], isLoading: myPropertiesLoading } = useQuery<Property[]>({
     queryKey: [`/api/users/${currentUser?.id}/properties`],
     enabled: !!currentUser?.id && (hasRole('proprietario') || hasRole('corretor')),
-    staleTime: 30000,
   });
 
   const { data: pendingProperties = [], isLoading: pendingPropertiesLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties/pending'],
     enabled: !!currentUser?.id && hasRole('admin'),
-    staleTime: 30000,
   });
 
   useEffect(() => {
@@ -56,13 +53,11 @@ export default function Dashboard() {
   const { data: userContracts = [], isLoading: userContractsLoading } = useQuery<Contract[]>({
     queryKey: [`/api/users/${currentUser?.id}/contracts`],
     enabled: !!currentUser?.id && (hasRole('cliente') || hasRole('proprietario')),
-    staleTime: 30000,
   });
 
   const { data: allContracts = [], isLoading: allContractsLoading } = useQuery<Contract[]>({
     queryKey: ['/api/contracts'],
     enabled: !!currentUser?.id && hasRole('admin'),
-    staleTime: 30000,
   });
 
   const contracts = hasRole('admin')
@@ -72,13 +67,11 @@ export default function Dashboard() {
   const { data: userVisits = [] } = useQuery<Visit[]>({
     queryKey: [`/api/visits`],
     enabled: !!currentUser?.id && !hasRole('admin'),
-    staleTime: 30000,
   });
 
   const { data: allSystemVisits = [] } = useQuery<Visit[]>({
     queryKey: [`/api/visits`],
     enabled: !!currentUser?.id && hasRole('admin'),
-    staleTime: 30000,
   });
 
   const allVisits = hasRole('admin') ? allSystemVisits : userVisits;
