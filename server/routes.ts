@@ -509,8 +509,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const propertyData = insertPropertySchema.parse(req.body);
       
-      // If proprietario (and not corretor), must use their own ID as ownerId
-      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && propertyData.ownerId !== req.session.userId) {
+      // Proprietarios must use their own ID as ownerId
+      if (hasRole(req.session, 'proprietario') && propertyData.ownerId !== req.session.userId) {
         return res.status(403).json({ error: "Você só pode criar imóveis para si mesmo" });
       }
       
@@ -534,8 +534,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Imóvel não encontrado" });
       }
       
-      // Proprietarios (without corretor role) can only update their own properties
-      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && existingProperty.ownerId !== req.session.userId) {
+      // Proprietarios can only update their own properties
+      if (hasRole(req.session, 'proprietario') && existingProperty.ownerId !== req.session.userId) {
         return res.status(403).json({ error: "Você só pode atualizar seus próprios imóveis" });
       }
       
@@ -546,8 +546,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if property is rented
       const isRented = existingProperty.status === 'arrendado';
       
-      // Proprietarios (without corretor role) cannot edit properties with active visits or that are rented
-      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor')) {
+      // Proprietarios cannot edit properties with active visits or that are rented
+      if (hasRole(req.session, 'proprietario')) {
         if (hasActiveVisits) {
           return res.status(403).json({ 
             error: "Não é possível editar imóvel com visitas confirmadas",
@@ -601,8 +601,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Imóvel não encontrado" });
       }
       
-      // Proprietarios (without corretor role) can only delete their own properties
-      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && existingProperty.ownerId !== req.session.userId) {
+      // Proprietarios can only delete their own properties
+      if (hasRole(req.session, 'proprietario') && existingProperty.ownerId !== req.session.userId) {
         return res.status(403).json({ error: "Você só pode deletar seus próprios imóveis" });
       }
       
@@ -613,8 +613,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if property is rented
       const isRented = existingProperty.status === 'arrendado';
       
-      // Proprietarios (without corretor role) cannot delete properties with active visits or that are rented
-      if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor')) {
+      // Proprietarios cannot delete properties with active visits or that are rented
+      if (hasRole(req.session, 'proprietario')) {
         if (hasActiveVisits) {
           return res.status(403).json({ 
             error: "Não é possível eliminar imóvel com visitas confirmadas",
@@ -640,8 +640,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get properties by user
   app.get("/api/users/:userId/properties", requireAuth, cacheControl(120), async (req, res) => {
     try {
-      // Users can only see their own properties, unless they're corretor or admin
-      if (!hasRole(req.session, 'corretor') && !hasRole(req.session, 'admin') && req.params.userId !== req.session.userId) {
+      // Users can only see their own properties, unless they're admin
+      if (!hasRole(req.session, 'admin') && req.params.userId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
@@ -1565,8 +1565,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const visitData = insertVisitSchema.parse(req.body);
       
-      // Clientes (without corretor role) must use their own ID
-      if (hasRole(req.session, 'cliente') && !hasRole(req.session, 'corretor') && visitData.clienteId !== req.session.userId) {
+      // Clientes must use their own ID
+      if (hasRole(req.session, 'cliente') && visitData.clienteId !== req.session.userId) {
         return res.status(403).json({ error: "Você só pode agendar visitas para si mesmo" });
       }
       
@@ -1616,8 +1616,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Visita não encontrada" });
       }
       
-      // Users can only update their own visits, unless they're corretor
-      if (!hasRole(req.session, 'corretor') && existingVisit.clienteId !== req.session.userId) {
+      // Users can only update their own visits (as client or property owner)
+      if (existingVisit.clienteId !== req.session.userId) {
         const property = await storage.getProperty(existingVisit.propertyId);
         if (!property || property.ownerId !== req.session.userId) {
           return res.status(403).json({ error: "Acesso negado" });
@@ -1805,8 +1805,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Visita não encontrada" });
       }
       
-      // Users can only delete their own visits, unless they're corretor or property owner
-      if (!hasRole(req.session, 'corretor') && existingVisit.clienteId !== req.session.userId) {
+      // Users can only delete their own visits (as client or property owner)
+      if (existingVisit.clienteId !== req.session.userId) {
         const property = await storage.getProperty(existingVisit.propertyId);
         if (!property || property.ownerId !== req.session.userId) {
           return res.status(403).json({ error: "Acesso negado" });
