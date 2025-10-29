@@ -106,10 +106,29 @@ export default function ImovelDetalhes() {
       });
       return await res.json();
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' }),
-      ]);
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['/api/visits'] });
+      
+      const previousVisits = queryClient.getQueryData<Visit[]>(['/api/visits']);
+      
+      const newVisit: Visit = {
+        id: 'temp-' + Date.now(),
+        propertyId: property!.id,
+        clienteId: currentUser!.id,
+        requestedDateTime: new Date(`${selectedDate}T${selectedTime}`).toISOString(),
+        status: 'pendente_proprietario',
+        observacoes: null,
+        createdAt: new Date().toISOString(),
+      };
+      
+      queryClient.setQueryData<Visit[]>(
+        ['/api/visits'],
+        (old = []) => [newVisit, ...old]
+      );
+      
+      return { previousVisits };
+    },
+    onSuccess: () => {
       setShowScheduleDialog(false);
       setSelectedDate("");
       setSelectedTime("");
@@ -118,12 +137,18 @@ export default function ImovelDetalhes() {
         description: "O proprietário receberá sua solicitação de visita e responderá em breve",
       });
     },
-    onError: (error: any) => {
+    onError: (error: any, _vars, context) => {
+      if (context?.previousVisits) {
+        queryClient.setQueryData(['/api/visits'], context.previousVisits);
+      }
       toast({
         title: "Erro ao solicitar visita",
         description: error.message || "Tente novamente mais tarde",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
     },
   });
 
@@ -134,21 +159,36 @@ export default function ImovelDetalhes() {
       });
       return await res.json();
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' }),
-      ]);
+    onMutate: async (visitId) => {
+      await queryClient.cancelQueries({ queryKey: ['/api/visits'] });
+      
+      const previousVisits = queryClient.getQueryData<Visit[]>(['/api/visits']);
+      
+      queryClient.setQueryData<Visit[]>(
+        ['/api/visits'],
+        (old = []) => old.map(v => v.id === visitId ? { ...v, status: 'cancelada' } : v)
+      );
+      
+      return { previousVisits };
+    },
+    onSuccess: () => {
       toast({
         title: "Agendamento cancelado",
         description: "Sua solicitação de visita foi cancelada",
       });
     },
-    onError: () => {
+    onError: (_error, _vars, context) => {
+      if (context?.previousVisits) {
+        queryClient.setQueryData(['/api/visits'], context.previousVisits);
+      }
       toast({
         title: "Erro ao cancelar agendamento",
         description: "Não foi possível cancelar. Tente novamente.",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
     },
   });
 
