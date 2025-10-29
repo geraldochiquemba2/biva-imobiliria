@@ -1823,17 +1823,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Proposal Routes
   
-  // Get all proposals (corretor only)
-  app.get("/api/proposals", requireRole('corretor'), async (req, res) => {
-    try {
-      const proposals = await storage.listProposals();
-      res.json(proposals);
-    } catch (error) {
-      console.error('Error listing proposals:', error);
-      res.status(500).json({ error: "Falha ao buscar propostas" });
-    }
-  });
-
   // Get proposal by ID
   app.get("/api/proposals/:id", requireAuth, async (req, res) => {
     try {
@@ -1842,8 +1831,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Proposta não encontrada" });
       }
       
-      // Users can only see their own proposals, unless they're corretor or property owner
-      if (!hasRole(req.session, 'corretor') && proposal.clienteId !== req.session.userId) {
+      // Users can only see their own proposals (as client or property owner)
+      if (proposal.clienteId !== req.session.userId) {
         const property = await storage.getProperty(proposal.propertyId);
         if (!property || property.ownerId !== req.session.userId) {
           return res.status(403).json({ error: "Acesso negado" });
@@ -1860,8 +1849,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get proposals by client
   app.get("/api/users/:clienteId/proposals", requireAuth, async (req, res) => {
     try {
-      // Users can only see their own proposals, unless they're corretor
-      if (!hasRole(req.session, 'corretor') && req.params.clienteId !== req.session.userId) {
+      // Users can only see their own proposals
+      if (req.params.clienteId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
@@ -1882,7 +1871,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Imóvel não encontrado" });
       }
       
-      if (!hasRole(req.session, 'corretor') && property.ownerId !== req.session.userId) {
+      // Only property owner can see proposals for their property
+      if (property.ownerId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
