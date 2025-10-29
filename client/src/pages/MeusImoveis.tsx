@@ -149,7 +149,8 @@ export default function MeusImoveis() {
 
   const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
   
-  const userProperties = properties;
+  // Filtrar apenas imóveis aprovados (não mostrar pendentes ou recusados)
+  const userProperties = properties.filter(p => p.approvalStatus === 'aprovado');
 
   const propertiesByStatus = {
     disponivel: userProperties.filter(p => p.status === 'disponivel'),

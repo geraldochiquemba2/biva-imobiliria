@@ -400,10 +400,7 @@ export class DatabaseStorage implements IStorage {
         thumbnail: sql<string | null>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ${properties.images}[1] ELSE NULL END`,
       })
       .from(properties)
-      .where(and(
-        eq(properties.ownerId, userId),
-        eq(properties.approvalStatus, 'aprovado')
-      ))
+      .where(eq(properties.ownerId, userId))
       .orderBy(desc(properties.createdAt));
     return results as any;
   }

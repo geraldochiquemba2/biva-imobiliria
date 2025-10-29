@@ -954,7 +954,7 @@ export default function CadastrarImovel() {
                         <Input
                           id="bedrooms"
                           type="number"
-                          placeholder="3"
+                          placeholder="0"
                           {...register("bedrooms")}
                           data-testid="input-bedrooms"
                         />
@@ -968,7 +968,7 @@ export default function CadastrarImovel() {
                         <Input
                           id="livingRooms"
                           type="number"
-                          placeholder="1"
+                          placeholder="0"
                           {...register("livingRooms")}
                           data-testid="input-livingrooms"
                         />
@@ -982,7 +982,7 @@ export default function CadastrarImovel() {
                         <Input
                           id="kitchens"
                           type="number"
-                          placeholder="1"
+                          placeholder="0"
                           {...register("kitchens")}
                           data-testid="input-kitchens"
                         />
@@ -996,7 +996,7 @@ export default function CadastrarImovel() {
                         <Input
                           id="bathrooms"
                           type="number"
-                          placeholder="2"
+                          placeholder="0"
                           {...register("bathrooms")}
                           data-testid="input-bathrooms"
                         />
