@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { Link } from "wouter";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import img1 from '@assets/stock_images/vibrant_colorful_mod_2a07b7e7.jpg';
 import img2 from '@assets/stock_images/vibrant_colorful_mod_d064a5c3.jpg';
@@ -24,6 +25,8 @@ const carouselImages = [img1, img2, img3, img4, img5, img6, img7, img8, img9, im
 
 export default function HeroSection() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [isFirstImageLoaded, setIsFirstImageLoaded] = useState(false);
   const [mapPoints] = useState<AngolaMapPoint[]>([
     { x: 45, y: 35, delay: 0.2 },
     { x: 52, y: 42, delay: 0.4 },
@@ -35,22 +38,64 @@ export default function HeroSection() {
   ]);
 
   useEffect(() => {
+    const preloadImage = (src: string, index: number) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          setLoadedImages(prev => new Set(prev).add(index));
+          if (index === 0) {
+            setIsFirstImageLoaded(true);
+          }
+          resolve();
+        };
+        img.onerror = () => {
+          setLoadedImages(prev => new Set(prev).add(index));
+          if (index === 0) {
+            setIsFirstImageLoaded(true);
+          }
+          resolve();
+        };
+        img.src = src;
+      });
+    };
+
+    preloadImage(carouselImages[0], 0).then(() => {
+      carouselImages.forEach((src, index) => {
+        if (index !== 0) {
+          preloadImage(src, index);
+        }
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isFirstImageLoaded) return;
+
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isFirstImageLoaded]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {!isFirstImageLoaded && (
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-primary/10 animate-pulse" />
+      )}
+      
       <AnimatePresence initial={false}>
         <motion.div
           key={currentImageIndex}
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${carouselImages[currentImageIndex]})` }}
+          style={{ 
+            backgroundImage: loadedImages.has(currentImageIndex) 
+              ? `url(${carouselImages[currentImageIndex]})` 
+              : 'none',
+            backgroundColor: loadedImages.has(currentImageIndex) ? 'transparent' : 'hsl(var(--muted))'
+          }}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: loadedImages.has(currentImageIndex) ? 1 : 0.3 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1, ease: "easeInOut" }}
         />
