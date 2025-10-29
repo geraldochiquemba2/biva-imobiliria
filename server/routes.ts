@@ -1479,10 +1479,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (hasRole(req.session, 'corretor')) {
         visits = await storage.listVisits();
-      } else if (hasRole(req.session, 'proprietario')) {
-        visits = await storage.getVisitsByOwner(userId);
       } else {
-        visits = await storage.getVisitsByClient(userId);
+        // For regular users, combine both client and owner visits
+        const clientVisits = await storage.getVisitsByClient(userId);
+        const ownerVisits = await storage.getVisitsByOwner(userId);
+        
+        // Create a Set to track unique visit IDs
+        const visitIds = new Set<string>();
+        visits = [];
+        
+        // Add all client visits
+        for (const visit of clientVisits) {
+          if (!visitIds.has(visit.id)) {
+            visitIds.add(visit.id);
+            visits.push(visit);
+          }
+        }
+        
+        // Add all owner visits (avoiding duplicates)
+        for (const visit of ownerVisits) {
+          if (!visitIds.has(visit.id)) {
+            visitIds.add(visit.id);
+            visits.push(visit);
+          }
+        }
+        
+        // Sort by creation date (most recent first)
+        visits.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       }
       
       if (visits && visits.length > 0) {
