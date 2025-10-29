@@ -1477,12 +1477,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let visits;
       const userId = req.session.userId!;
       
+      console.log('DEBUG /api/visits - userId:', userId);
+      console.log('DEBUG /api/visits - userTypes:', req.session.userTypes);
+      
       if (hasRole(req.session, 'corretor')) {
         visits = await storage.listVisits();
+        console.log('DEBUG - Corretor, retornando todas as visitas:', visits.length);
       } else {
         // For regular users, combine both client and owner visits
         const clientVisits = await storage.getVisitsByClient(userId);
         const ownerVisits = await storage.getVisitsByOwner(userId);
+        
+        console.log('DEBUG - clientVisits count:', clientVisits.length);
+        console.log('DEBUG - ownerVisits count:', ownerVisits.length);
+        
+        if (clientVisits.length > 0) {
+          console.log('DEBUG - First clientVisit:', JSON.stringify({
+            id: clientVisits[0].id,
+            clienteId: clientVisits[0].clienteId,
+            propertyId: clientVisits[0].propertyId,
+            ownerId: (clientVisits[0] as any).property?.ownerId
+          }));
+        }
+        
+        if (ownerVisits.length > 0) {
+          console.log('DEBUG - First ownerVisit:', JSON.stringify({
+            id: ownerVisits[0].id,
+            clienteId: ownerVisits[0].clienteId,
+            propertyId: ownerVisits[0].propertyId,
+            ownerId: (ownerVisits[0] as any).property?.ownerId
+          }));
+        }
         
         // Create a Set to track unique visit IDs
         const visitIds = new Set<string>();
@@ -1509,6 +1534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if (visits && visits.length > 0) {
+        console.log('DEBUG - Total visits retornadas:', visits.length);
         console.log('DEBUG - Primeira visita retornada:', JSON.stringify(visits[0], null, 2).substring(0, 500));
       }
       
