@@ -392,6 +392,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get pending properties (admin only) - MUST BE BEFORE :id route
+  app.get("/api/properties/pending", requireRole('admin'), async (req, res) => {
+    try {
+      const properties = await storage.getPendingProperties();
+      res.json(properties);
+    } catch (error) {
+      console.error('Error getting pending properties:', error);
+      res.status(500).json({ error: "Falha ao buscar imóveis pendentes" });
+    }
+  });
+
   // Get single property
   app.get("/api/properties/:id", cacheControl(180), async (req, res) => {
     try {
@@ -660,17 +671,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Property Approval Routes
   
-  // Get pending properties (admin only)
-  app.get("/api/properties/pending", requireRole('admin'), async (req, res) => {
-    try {
-      const properties = await storage.getPendingProperties();
-      res.json(properties);
-    } catch (error) {
-      console.error('Error getting pending properties:', error);
-      res.status(500).json({ error: "Falha ao buscar imóveis pendentes" });
-    }
-  });
-
   // Approve property (admin only)
   app.post("/api/properties/:id/approve", requireRole('admin'), async (req, res) => {
     try {
