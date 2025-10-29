@@ -19,6 +19,8 @@ export default function Dashboard() {
     queryKey: ['/api/auth/me'],
   });
 
+  const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
+
   const { data: properties = [], isLoading: propertiesLoading } = useQuery<Property[]>({
     queryKey: ['/api/properties'],
     staleTime: 30000,
@@ -35,8 +37,6 @@ export default function Dashboard() {
       setLocation('/login');
     }
   }, [currentUser, userLoading, setLocation]);
-
-  const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
   
   const allSystemProperties = properties;
   
