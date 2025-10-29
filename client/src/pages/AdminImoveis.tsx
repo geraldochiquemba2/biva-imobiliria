@@ -14,7 +14,8 @@ import {
   Bath,
   Maximize,
   Eye,
-  Home, // Import Home icon
+  Home,
+  Clock,
 } from "lucide-react";
 
 export default function AdminImoveis() {
@@ -28,6 +29,10 @@ export default function AdminImoveis() {
     queryKey: ['/api/properties'],
   });
 
+  const { data: pendingProperties = [], isLoading: pendingPropertiesLoading } = useQuery<Property[]>({
+    queryKey: ['/api/properties/pending'],
+  });
+
   useEffect(() => {
     if (!userLoading && !currentUser) {
       setLocation('/login');
@@ -36,7 +41,7 @@ export default function AdminImoveis() {
     }
   }, [currentUser, userLoading, setLocation]);
 
-  if (userLoading || propertiesLoading) {
+  if (userLoading || propertiesLoading || pendingPropertiesLoading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -85,7 +90,26 @@ export default function AdminImoveis() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+            <Link href="/admin/aprovar-imoveis">
+              <Card className="hover-elevate active-elevate-2 cursor-pointer h-full">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Pendentes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-600" data-testid="text-pending-count">
+                    {pendingProperties.length}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Aguardando aprovação
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Disponíveis</CardTitle>
