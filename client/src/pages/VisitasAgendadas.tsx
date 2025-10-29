@@ -84,19 +84,36 @@ export default function VisitasAgendadas() {
       });
       return await res.json();
     },
+    onMutate: async (visitId) => {
+      await queryClient.cancelQueries({ queryKey: ['/api/visits'] });
+      
+      const previousVisits = queryClient.getQueryData<Visit[]>(['/api/visits']);
+      
+      queryClient.setQueryData<Visit[]>(
+        ['/api/visits'],
+        (old = []) => old.map(v => v.id === visitId ? { ...v, status: 'cancelada' } : v)
+      );
+      
+      return { previousVisits };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' });
       toast({
         title: "Visita cancelada",
         description: "A visita foi cancelada com sucesso",
       });
     },
-    onError: () => {
+    onError: (_error, _vars, context) => {
+      if (context?.previousVisits) {
+        queryClient.setQueryData(['/api/visits'], context.previousVisits);
+      }
       toast({
         title: "Erro ao cancelar visita",
         description: "Não foi possível cancelar a visita. Tente novamente.",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
     },
   });
 
@@ -105,19 +122,45 @@ export default function VisitasAgendadas() {
       const res = await apiRequest('POST', `/api/visits/${visitId}/client-response`, { action });
       return await res.json();
     },
+    onMutate: async ({ visitId, action }) => {
+      await queryClient.cancelQueries({ queryKey: ['/api/visits'] });
+      
+      const previousVisits = queryClient.getQueryData<Visit[]>(['/api/visits']);
+      
+      queryClient.setQueryData<Visit[]>(
+        ['/api/visits'],
+        (old = []) => old.map(v => {
+          if (v.id === visitId) {
+            if (action === 'accept') {
+              return { ...v, status: 'agendada', scheduledDateTime: v.ownerProposedDateTime };
+            } else {
+              return { ...v, status: 'cancelada' };
+            }
+          }
+          return v;
+        })
+      );
+      
+      return { previousVisits };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' });
       toast({
         title: "Resposta enviada",
         description: "Sua resposta foi enviada ao proprietário",
       });
     },
-    onError: () => {
+    onError: (_error, _vars, context) => {
+      if (context?.previousVisits) {
+        queryClient.setQueryData(['/api/visits'], context.previousVisits);
+      }
       toast({
         title: "Erro ao enviar resposta",
         description: "Não foi possível enviar sua resposta. Tente novamente.",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
     },
   });
 
@@ -135,8 +178,30 @@ export default function VisitasAgendadas() {
       });
       return await res.json();
     },
+    onMutate: async ({ visitId, action, proposedDateTime, message }) => {
+      await queryClient.cancelQueries({ queryKey: ['/api/visits'] });
+      
+      const previousVisits = queryClient.getQueryData<Visit[]>(['/api/visits']);
+      
+      queryClient.setQueryData<Visit[]>(
+        ['/api/visits'],
+        (old = []) => old.map(v => {
+          if (v.id === visitId) {
+            if (action === 'accept') {
+              return { ...v, status: 'agendada', scheduledDateTime: v.requestedDateTime };
+            } else if (action === 'reject') {
+              return { ...v, status: 'cancelada' };
+            } else if (action === 'propose') {
+              return { ...v, status: 'pendente_cliente', ownerProposedDateTime: proposedDateTime, ownerMessage: message };
+            }
+          }
+          return v;
+        })
+      );
+      
+      return { previousVisits };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/visits'], refetchType: 'all' });
       setShowProposeDialog(false);
       setProposedDate("");
       setProposedTime("");
@@ -146,12 +211,18 @@ export default function VisitasAgendadas() {
         description: "Sua resposta foi enviada ao cliente",
       });
     },
-    onError: () => {
+    onError: (_error, _vars, context) => {
+      if (context?.previousVisits) {
+        queryClient.setQueryData(['/api/visits'], context.previousVisits);
+      }
       toast({
         title: "Erro ao enviar resposta",
         description: "Não foi possível enviar sua resposta. Tente novamente.",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
     },
   });
 
