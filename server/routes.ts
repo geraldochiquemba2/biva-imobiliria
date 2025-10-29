@@ -1147,17 +1147,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get all contracts (corretor only)
-  app.get("/api/contracts", requireRole('corretor'), async (req, res) => {
-    try {
-      const contracts = await storage.listContracts();
-      res.json(contracts);
-    } catch (error) {
-      console.error('Error listing contracts:', error);
-      res.status(500).json({ error: "Falha ao buscar contratos" });
-    }
-  });
-
   // Get contract by ID
   app.get("/api/contracts/:id", requireAuth, async (req, res) => {
     try {
@@ -1166,9 +1155,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Contrato não encontrado" });
       }
       
-      // Users can only see their own contracts, unless they're corretor
-      if (!hasRole(req.session, 'corretor') && 
-          contract.clienteId !== req.session.userId && 
+      // Users can only see their own contracts (as client or owner)
+      if (contract.clienteId !== req.session.userId && 
           contract.proprietarioId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
@@ -1180,11 +1168,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get contracts by user
+  // Get contracts by user (returns contracts where user is client or owner)
   app.get("/api/users/:userId/contracts", requireAuth, async (req, res) => {
     try {
-      // Users can only see their own contracts, unless they're corretor
-      if (!hasRole(req.session, 'corretor') && req.params.userId !== req.session.userId) {
+      // Users can only see their own contracts
+      if (req.params.userId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
@@ -1205,7 +1193,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Imóvel não encontrado" });
       }
       
-      if (!hasRole(req.session, 'corretor') && property.ownerId !== req.session.userId) {
+      // Only property owner can see contracts for their property
+      if (property.ownerId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
