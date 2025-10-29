@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, Building2, Upload, X, Save, AlertCircle, Lock } from "lucide-react";
+import { ArrowLeft, Building2, Upload, X, Save, AlertCircle, Lock, Trash2 } from "lucide-react";
 import type { User, Property } from "@shared/schema";
 import { z } from "zod";
 import InteractiveLocationPicker from "@/components/InteractiveLocationPicker";
@@ -152,8 +152,45 @@ export default function EditarImovel() {
     : [];
 
 
+  const acknowledgeRejectionMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      const res = await apiRequest('POST', `/api/properties/${propertyId}/acknowledge-rejection`);
+      return await res.json();
+    },
+  });
+
+  const deletePropertyMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest('DELETE', `/api/properties/${id}`);
+      if (!res.ok) {
+        throw new Error('Falha ao eliminar imóvel');
+      }
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      toast({
+        title: "Imóvel eliminado!",
+        description: "O imóvel foi eliminado com sucesso.",
+      });
+      navigate('/meus-imoveis');
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao eliminar imóvel",
+        description: "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    },
+  });
+
   const updatePropertyMutation = useMutation({
     mutationFn: async (data: PropertyFormData) => {
+      // If property is rejected and not yet acknowledged, acknowledge it first
+      if (property?.approvalStatus === 'recusado' && !property?.rejectionAcknowledged) {
+        await acknowledgeRejectionMutation.mutateAsync(params!.id);
+      }
+
       let finalImageUrls = [...existingImages];
 
       // Upload new images if any
@@ -198,9 +235,14 @@ export default function EditarImovel() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       queryClient.invalidateQueries({ queryKey: ['/api/properties', params!.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/users', currentUser?.id, 'properties'] });
+      
+      const wasRejected = property?.approvalStatus === 'recusado';
       toast({
-        title: "Imóvel atualizado!",
-        description: "As alterações foram salvas com sucesso.",
+        title: wasRejected ? "Imóvel reenviado!" : "Imóvel atualizado!",
+        description: wasRejected 
+          ? "As alterações foram salvas e o imóvel foi reenviado para aprovação." 
+          : "As alterações foram salvas com sucesso.",
       });
       navigate('/meus-imoveis');
     },
@@ -300,6 +342,22 @@ export default function EditarImovel() {
                 {!property.hasActiveVisits && property.isRented && (
                   "Este imóvel não pode ser editado pois está arrendado."
                 )}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {property?.approvalStatus === 'recusado' && (
+            <Alert variant="destructive" className="mb-6" data-testid="alert-rejected">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Imóvel Recusado</AlertTitle>
+              <AlertDescription>
+                <p className="mb-2">Este imóvel foi recusado pelo administrador.</p>
+                {property.rejectionMessage && (
+                  <p className="font-medium">Motivo: {property.rejectionMessage}</p>
+                )}
+                <p className="mt-2 text-sm">
+                  Faça as correções necessárias e clique em "Tentar Novamente" para reenviar o imóvel para aprovação.
+                </p>
               </AlertDescription>
             </Alert>
           )}
@@ -728,25 +786,57 @@ export default function EditarImovel() {
                 </div>
 
                 <div className="flex gap-4">
-                  <Button
-                    type="submit"
-                    size="lg"
-                    disabled={isEditBlocked || updatePropertyMutation.isPending || uploadingImages}
-                    className="flex-1"
-                    data-testid="button-save"
-                  >
-                    <Save className="h-5 w-5 mr-2" />
-                    {updatePropertyMutation.isPending || uploadingImages ? "Salvando..." : "Salvar Alterações"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    asChild
-                    data-testid="button-cancel"
-                  >
-                    <Link href="/meus-imoveis">Cancelar</Link>
-                  </Button>
+                  {property?.approvalStatus === 'recusado' ? (
+                    <>
+                      <Button
+                        type="submit"
+                        size="lg"
+                        disabled={isEditBlocked || updatePropertyMutation.isPending || uploadingImages}
+                        className="flex-1"
+                        data-testid="button-resubmit"
+                      >
+                        <Save className="h-5 w-5 mr-2" />
+                        {updatePropertyMutation.isPending || uploadingImages ? "Reenviando..." : "Tentar Novamente"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="lg"
+                        onClick={() => {
+                          if (window.confirm('Tem certeza que deseja eliminar este imóvel? Esta ação não pode ser desfeita.')) {
+                            deletePropertyMutation.mutate(params!.id);
+                          }
+                        }}
+                        disabled={deletePropertyMutation.isPending}
+                        data-testid="button-delete"
+                      >
+                        <Trash2 className="h-5 w-5 mr-2" />
+                        {deletePropertyMutation.isPending ? "Eliminando..." : "Eliminar"}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        type="submit"
+                        size="lg"
+                        disabled={isEditBlocked || updatePropertyMutation.isPending || uploadingImages}
+                        className="flex-1"
+                        data-testid="button-save"
+                      >
+                        <Save className="h-5 w-5 mr-2" />
+                        {updatePropertyMutation.isPending || uploadingImages ? "Salvando..." : "Salvar Alterações"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        asChild
+                        data-testid="button-cancel"
+                      >
+                        <Link href="/meus-imoveis">Cancelar</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               </form>
             </CardContent>

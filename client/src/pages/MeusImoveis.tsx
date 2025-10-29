@@ -149,8 +149,9 @@ export default function MeusImoveis() {
 
   const hasRole = (role: string) => currentUser?.userTypes?.includes(role) || false;
   
-  // Filtrar apenas imóveis aprovados (não mostrar pendentes ou recusados)
+  // Filtrar imóveis aprovados e recusados separadamente
   const userProperties = properties.filter(p => p.approvalStatus === 'aprovado');
+  const rejectedProperties = properties.filter(p => p.approvalStatus === 'recusado');
 
   const propertiesByStatus = {
     disponivel: userProperties.filter(p => p.status === 'disponivel'),
@@ -547,6 +548,94 @@ export default function MeusImoveis() {
                   </div>
                 );
               })}
+
+              {/* Imóveis Recusados Section */}
+              {rejectedProperties.length > 0 && (
+                <div className="mt-8">
+                  <h2 className="text-2xl font-bold mb-4 text-destructive">Imóveis Recusados</h2>
+                  <div className="grid gap-4">
+                    {rejectedProperties.map((property) => (
+                      <Card key={property.id} className="hover-elevate overflow-hidden border-destructive/50">
+                        <div className="flex gap-4">
+                          <div className="w-32 h-32 flex-shrink-0 overflow-hidden rounded-md" data-testid={`img-property-${property.id}`}>
+                            {property.images && property.images.length > 0 ? (
+                              <PropertyImage
+                                src={property.images[0]}
+                                alt={property.title}
+                              />
+                            ) : (property as any).thumbnail ? (
+                              <PropertyImage
+                                src={(property as any).thumbnail}
+                                alt={property.title}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-muted flex items-center justify-center">
+                                <Home className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="flex-1 flex flex-col min-w-0">
+                            <CardHeader className="pb-3">
+                              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                                <div className="flex-1 min-w-0">
+                                  <CardTitle className="text-xl mb-1" data-testid={`text-title-${property.id}`}>
+                                    {property.title}
+                                  </CardTitle>
+                                  <CardDescription className="flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" />
+                                    {property.bairro}, {property.municipio}
+                                  </CardDescription>
+                                </div>
+                                <Badge variant="destructive" data-testid={`badge-status-${property.id}`}>
+                                  Recusado
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-3">
+                                {property.rejectionMessage && (
+                                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                                    <p className="text-sm font-medium text-destructive mb-1">Motivo da Recusa:</p>
+                                    <p className="text-sm text-muted-foreground">{property.rejectionMessage}</p>
+                                  </div>
+                                )}
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-muted-foreground">Preço</p>
+                                    <p className="text-sm sm:text-lg font-bold truncate" data-testid={`text-price-${property.id}`}>
+                                      {Number(property.price).toLocaleString('pt-AO', {
+                                        style: 'currency',
+                                        currency: 'AOA',
+                                      })}
+                                    </p>
+                                  </div>
+                                  <div className="flex gap-1 flex-shrink-0">
+                                    <Button variant="default" size="icon" className="h-8 w-8" asChild data-testid={`button-edit-${property.id}`}>
+                                      <Link href={`/editar-imovel/${property.id}`}>
+                                        <Edit className="h-3 w-3" />
+                                      </Link>
+                                    </Button>
+                                    <Button 
+                                      variant="destructive" 
+                                      size="icon" 
+                                      className="h-8 w-8" 
+                                      onClick={() => setDeletePropertyId(property.id)}
+                                      data-testid={`button-delete-${property.id}`}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </motion.div>
