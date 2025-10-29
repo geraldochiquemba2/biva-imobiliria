@@ -85,7 +85,10 @@ export default function AdminAprovarImoveis() {
       return { previousProperties };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/properties'],
+        refetchType: 'all'
+      });
       toast({
         title: "Imóvel aprovado!",
         description: "O imóvel foi aprovado e agora está publicado.",
@@ -125,7 +128,10 @@ export default function AdminAprovarImoveis() {
       return { previousProperties };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/properties'],
+        refetchType: 'all'
+      });
       toast({
         title: "Imóvel recusado",
         description: "O proprietário foi notificado e pode fazer as correções.",

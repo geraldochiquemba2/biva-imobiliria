@@ -64,7 +64,9 @@ export default function Home() {
         throw new Error(errorData.error || 'Failed to fetch properties');
       }
       return response.json();
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   // Filtrar apenas imóveis disponíveis para páginas públicas
