@@ -95,7 +95,7 @@ export default function PropertyImage({
                 src={src}
                 alt={alt}
                 className="max-w-full max-h-full object-contain"
-                fetchpriority="high"
+                fetchPriority="high"
                 decoding="async"
                 data-testid="img-property-modal"
               />
