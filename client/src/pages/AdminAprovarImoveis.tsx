@@ -73,11 +73,8 @@ export default function AdminAprovarImoveis() {
       return await res.json();
     },
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
-      ]);
+      queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
         title: "Imóvel aprovado!",
         description: "O imóvel foi aprovado e agora está publicado.",
@@ -99,11 +96,8 @@ export default function AdminAprovarImoveis() {
       return await res.json();
     },
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/properties'], refetchType: 'active' }),
-        queryClient.invalidateQueries({ queryKey: ['/api/users'], refetchType: 'active' }),
-      ]);
+      queryClient.invalidateQueries({ queryKey: ['/api/properties/pending'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
       toast({
         title: "Imóvel recusado",
         description: "O proprietário foi notificado e pode fazer as correções.",
@@ -192,7 +186,7 @@ export default function AdminAprovarImoveis() {
                   <Card data-testid={`card-property-${property.id}`} className="hover-elevate overflow-hidden h-full flex flex-col">
                     <div className="relative h-48 overflow-hidden">
                       <PropertyImage
-                        src={(property.images && property.images.length > 0) ? property.images[0] : ''}
+                        src={(property as any).thumbnail || ''}
                         alt={property.title}
                         className="w-full h-full object-cover"
                       />

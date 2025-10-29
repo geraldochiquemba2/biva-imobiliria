@@ -446,11 +446,39 @@ export class DatabaseStorage implements IStorage {
 
   async getPendingProperties(): Promise<Property[]> {
     const results = await db
-      .select()
+      .select({
+        id: properties.id,
+        title: properties.title,
+        description: properties.description,
+        type: properties.type,
+        category: properties.category,
+        price: properties.price,
+        bairro: properties.bairro,
+        municipio: properties.municipio,
+        provincia: properties.provincia,
+        bedrooms: properties.bedrooms,
+        bathrooms: properties.bathrooms,
+        livingRooms: properties.livingRooms,
+        kitchens: properties.kitchens,
+        area: properties.area,
+        latitude: properties.latitude,
+        longitude: properties.longitude,
+        amenities: properties.amenities,
+        featured: properties.featured,
+        status: properties.status,
+        ownerId: properties.ownerId,
+        approvalStatus: properties.approvalStatus,
+        rejectionMessage: properties.rejectionMessage,
+        rejectionAcknowledged: properties.rejectionAcknowledged,
+        createdAt: properties.createdAt,
+        updatedAt: properties.updatedAt,
+        // Get only first image as thumbnail instead of all images
+        thumbnail: sql<string | null>`CASE WHEN array_length(${properties.images}, 1) > 0 THEN ${properties.images}[1] ELSE NULL END`,
+      })
       .from(properties)
       .where(eq(properties.approvalStatus, 'pendente'))
       .orderBy(desc(properties.createdAt));
-    return results;
+    return results as any;
   }
 
   async approveProperty(id: string): Promise<Property | undefined> {
