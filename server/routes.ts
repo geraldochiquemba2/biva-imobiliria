@@ -558,6 +558,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // If property was rejected and acknowledged, reset to pending for re-approval
+      if (existingProperty.approvalStatus === 'recusado' && existingProperty.rejectionAcknowledged) {
+        updates.approvalStatus = 'pendente';
+        updates.rejectionMessage = null;
+        updates.rejectionAcknowledged = false;
+      }
+      
       const property = await storage.updateProperty(req.params.id, updates);
       res.json(property);
     } catch (error) {
