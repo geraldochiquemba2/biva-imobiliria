@@ -20,6 +20,7 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import multer from "multer";
 import { generateRentalContract } from "./contractGenerator";
+import { uploadImage, getImage } from "./objectStorage";
 
 // Extend Express session type
 declare module 'express-session' {
@@ -466,6 +467,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve images from Object Storage
+  app.get("/api/storage/properties/:filename", cacheControl(86400), async (req, res) => {
+    try {
+      const filename = `properties/${req.params.filename}`;
+      const imageBuffer = await getImage(filename);
+
+      if (!imageBuffer) {
+        return res.status(404).json({ error: "Imagem não encontrada" });
+      }
+
+      // Detect content type from filename
+      const ext = req.params.filename.split('.').pop()?.toLowerCase();
+      let contentType = 'image/jpeg';
+      if (ext === 'png') contentType = 'image/png';
+      else if (ext === 'webp') contentType = 'image/webp';
+      else if (ext === 'gif') contentType = 'image/gif';
+
+      res.set('Content-Type', contentType);
+      res.set('Cache-Control', 'public, max-age=86400'); // 1 day
+      res.send(imageBuffer);
+    } catch (error) {
+      console.error('Error serving image:', error);
+      res.status(500).json({ error: "Erro ao carregar imagem" });
+    }
+  });
+
   // Upload property images (proprietarios and corretores only)
   app.post("/api/properties/upload", requireRole('proprietario', 'corretor'), upload.array('images', 10), async (req, res) => {
     try {
@@ -473,22 +500,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
       }
 
-      const uploadedBase64: string[] = [];
+      const uploadedUrls: string[] = [];
+      const errors: string[] = [];
 
       for (const file of req.files as Express.Multer.File[]) {
-        // Convert buffer to base64 (images are in memory)
-        const base64Data = file.buffer.toString('base64');
-        const mimeType = file.mimetype;
+        const result = await uploadImage(file.buffer, file.originalname, file.mimetype);
         
-        // Create data URL format: data:image/jpeg;base64,/9j/4AAQ...
-        const dataUrl = `data:${mimeType};base64,${base64Data}`;
-        uploadedBase64.push(dataUrl);
+        if (result.success && result.url) {
+          // Create full URL with protocol and host
+          const fullUrl = `${req.protocol}://${req.get('host')}${result.url}`;
+          uploadedUrls.push(fullUrl);
+        } else {
+          errors.push(result.error || 'Erro desconhecido');
+        }
+      }
+
+      if (uploadedUrls.length === 0) {
+        return res.status(500).json({ 
+          error: "Nenhuma imagem foi carregada com sucesso",
+          details: errors
+        });
       }
 
       res.status(200).json({ 
         success: true, 
-        urls: uploadedBase64,
-        count: uploadedBase64.length
+        urls: uploadedUrls,
+        count: uploadedUrls.length,
+        errors: errors.length > 0 ? errors : undefined
       });
     } catch (error) {
       console.error('Error uploading images:', error);
