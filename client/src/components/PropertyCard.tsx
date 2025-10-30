@@ -93,44 +93,13 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
               {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
             </Badge>
           </div>
-          <div className="absolute top-1.5 right-1.5 flex gap-1.5">
-            {property.featured && (
+          {property.featured && (
+            <div className="absolute top-1.5 right-1.5">
               <Badge className="bg-yellow-500 text-yellow-950 border-yellow-600 text-[10px] px-1.5 py-0.5">
                 Destaque
               </Badge>
-            )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="h-6 w-6 rounded-full bg-white/90 hover:bg-white shadow-sm"
-                  data-testid={`button-share-${property.id}`}
-                >
-                  <Share2 className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                <DropdownMenuItem onClick={handleShare('copy')} data-testid="button-copy-link">
-                  <Link2 className="h-4 w-4" />
-                  <span>Copiar link</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleShare('whatsapp')} data-testid="button-share-whatsapp">
-                  <SiWhatsapp className="h-4 w-4" />
-                  <span>WhatsApp</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleShare('facebook')} data-testid="button-share-facebook">
-                  <SiFacebook className="h-4 w-4" />
-                  <span>Facebook</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleShare('email')} data-testid="button-share-email">
-                  <Mail className="h-4 w-4" />
-                  <span>Email</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+            </div>
+          )}
         </div>
         
         <CardContent className="p-3">
@@ -161,9 +130,44 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
             </div>
           </div>
 
-          <div className="text-base font-bold text-primary" data-testid={`text-price-${property.id}`}>
-            {parseFloat(property.price).toLocaleString('pt-AO')} Kz
-            {property.type === 'Arrendar' && <span className="text-xs font-normal text-muted-foreground">/mês</span>}
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-base font-bold text-primary" data-testid={`text-price-${property.id}`}>
+              {parseFloat(property.price).toLocaleString('pt-AO')} Kz
+              {property.type === 'Arrendar' && <span className="text-xs font-normal text-muted-foreground">/mês</span>}
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2 gap-1"
+                  data-testid={`button-share-${property.id}`}
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                  <span className="text-xs">Partilhar</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem onClick={handleShare('copy')} data-testid="button-copy-link">
+                  <Link2 className="h-4 w-4" />
+                  <span>Copiar link</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleShare('whatsapp')} data-testid="button-share-whatsapp">
+                  <SiWhatsapp className="h-4 w-4" />
+                  <span>WhatsApp</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShare('facebook')} data-testid="button-share-facebook">
+                  <SiFacebook className="h-4 w-4" />
+                  <span>Facebook</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShare('email')} data-testid="button-share-email">
+                  <Mail className="h-4 w-4" />
+                  <span>Email</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardContent>
       </Card>
