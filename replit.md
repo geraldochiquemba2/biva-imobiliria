@@ -71,6 +71,12 @@ Preferred communication style: Simple, everyday language.
 ### Asset Management
 
 - **Images**: Stock images in `attached_assets/stock_images/`, generated images in `attached_assets/generated_images/`, Vite alias `@assets`.
+- **Property Images**: Stored in Replit Object Storage with automatic base64 fallback.
+  - **Primary**: Replit Object Storage (`@replit/object-storage`) for scalable file hosting.
+  - **Fallback**: Base64 encoding when Object Storage is unavailable.
+  - **URL Generation**: Full shareable URLs (`https://yourapp.replit.app/api/storage/properties/...`) for Object Storage, data URLs for base64.
+  - **Serving**: Images served via `/api/storage/properties/:filename` endpoint with 24h cache.
+  - **Configuration**: Lazy initialization, automatic fallback, 5MB file limit, 10 files max per upload.
 
 ### Future Integration Considerations
 

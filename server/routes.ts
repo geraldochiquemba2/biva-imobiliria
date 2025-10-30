@@ -507,8 +507,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const result = await uploadImage(file.buffer, file.originalname, file.mimetype);
         
         if (result.success && result.url) {
-          // Create full URL with protocol and host
-          const fullUrl = `${req.protocol}://${req.get('host')}${result.url}`;
+          // If it's a base64 data URL, use as-is. Otherwise, create full URL with protocol and host
+          const fullUrl = result.url.startsWith('data:') 
+            ? result.url 
+            : `${req.protocol}://${req.get('host')}${result.url}`;
           uploadedUrls.push(fullUrl);
         } else {
           errors.push(result.error || 'Erro desconhecido');
