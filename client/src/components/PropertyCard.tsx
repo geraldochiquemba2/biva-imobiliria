@@ -2,9 +2,19 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Bed, Bath, Maximize, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Bed, Bath, Maximize, Home, Share2, Link2, Mail } from "lucide-react";
+import { SiWhatsapp, SiFacebook } from "react-icons/si";
 import type { Property } from "@shared/schema";
 import PropertyImage from "@/components/PropertyImage";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 interface PropertyCardProps {
   property: Property;
@@ -12,6 +22,42 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property, index }: PropertyCardProps) {
+  const { toast } = useToast();
+
+  const getPropertyUrl = () => {
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}/imoveis/${property.id}`;
+    }
+    return '';
+  };
+
+  const handleShare = (platform: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const url = getPropertyUrl();
+    const text = `${property.title} - ${property.bairro}, ${property.municipio}`;
+    
+    switch (platform) {
+      case 'copy':
+        navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copiado!",
+          description: "O link foi copiado para a área de transferência.",
+        });
+        break;
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        break;
+      case 'email':
+        window.location.href = `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(url)}`;
+        break;
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -47,13 +93,44 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
               {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
             </Badge>
           </div>
-          {property.featured && (
-            <div className="absolute top-1.5 right-1.5">
+          <div className="absolute top-1.5 right-1.5 flex gap-1.5">
+            {property.featured && (
               <Badge className="bg-yellow-500 text-yellow-950 border-yellow-600 text-[10px] px-1.5 py-0.5">
                 Destaque
               </Badge>
-            </div>
-          )}
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="h-6 w-6 rounded-full bg-white/90 hover:bg-white shadow-sm"
+                  data-testid={`button-share-${property.id}`}
+                >
+                  <Share2 className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem onClick={handleShare('copy')} data-testid="button-copy-link">
+                  <Link2 className="h-4 w-4" />
+                  <span>Copiar link</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleShare('whatsapp')} data-testid="button-share-whatsapp">
+                  <SiWhatsapp className="h-4 w-4" />
+                  <span>WhatsApp</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShare('facebook')} data-testid="button-share-facebook">
+                  <SiFacebook className="h-4 w-4" />
+                  <span>Facebook</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShare('email')} data-testid="button-share-email">
+                  <Mail className="h-4 w-4" />
+                  <span>Email</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         
         <CardContent className="p-3">
