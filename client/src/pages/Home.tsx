@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { angolaProvinces } from "@shared/angola-locations";
 import { X } from "lucide-react";
 
@@ -263,6 +264,24 @@ export default function Home() {
                   </Select>
                 )}
 
+                <Input
+                  type="number"
+                  placeholder="Preço mínimo (Kz)"
+                  value={searchParams.minPrice || ''}
+                  onChange={(e) => handleFilterChange('minPrice', e.target.value || undefined)}
+                  className="w-[180px]"
+                  data-testid="input-preco-minimo"
+                />
+
+                <Input
+                  type="number"
+                  placeholder="Preço máximo (Kz)"
+                  value={searchParams.maxPrice || ''}
+                  onChange={(e) => handleFilterChange('maxPrice', e.target.value || undefined)}
+                  className="w-[180px]"
+                  data-testid="input-preco-maximo"
+                />
+
                 {hasActiveFilters && (
                   <Button
                     variant="ghost"
@@ -293,6 +312,16 @@ export default function Home() {
                   {searchParams.municipio && (
                     <span className="px-2 py-1 bg-primary/10 text-primary rounded-sm">
                       {searchParams.municipio}
+                    </span>
+                  )}
+                  {searchParams.minPrice && (
+                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-sm">
+                      Min: {parseFloat(searchParams.minPrice).toLocaleString('pt-AO')} Kz
+                    </span>
+                  )}
+                  {searchParams.maxPrice && (
+                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-sm">
+                      Max: {parseFloat(searchParams.maxPrice).toLocaleString('pt-AO')} Kz
                     </span>
                   )}
                 </div>
