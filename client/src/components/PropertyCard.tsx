@@ -41,9 +41,10 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
     switch (platform) {
       case 'copy':
         navigator.clipboard.writeText(url);
+        console.log('Link copiado:', url);
         toast({
           title: "Link copiado!",
-          description: "O link foi copiado para a área de transferência.",
+          description: url,
         });
         break;
       case 'whatsapp':
