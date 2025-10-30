@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Bed, Bath, Maximize, Home, Share2, Link2, Mail } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, Home, Share2, Mail } from "lucide-react";
 import { SiWhatsapp, SiFacebook } from "react-icons/si";
 import type { Property } from "@shared/schema";
 import PropertyImage from "@/components/PropertyImage";
@@ -11,7 +11,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
@@ -39,14 +38,6 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
     const text = `${property.title} - ${property.bairro}, ${property.municipio}`;
     
     switch (platform) {
-      case 'copy':
-        navigator.clipboard.writeText(url);
-        console.log('Link copiado:', url);
-        toast({
-          title: "Link copiado!",
-          description: url,
-        });
-        break;
       case 'whatsapp':
         window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
         break;
@@ -150,11 +141,6 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                <DropdownMenuItem onClick={handleShare('copy')} data-testid="button-copy-link">
-                  <Link2 className="h-4 w-4" />
-                  <span>Copiar link</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleShare('whatsapp')} data-testid="button-share-whatsapp">
                   <SiWhatsapp className="h-4 w-4" />
                   <span>WhatsApp</span>
