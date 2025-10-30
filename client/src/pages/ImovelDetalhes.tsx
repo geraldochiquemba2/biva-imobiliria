@@ -104,6 +104,60 @@ export default function ImovelDetalhes() {
     }
   }, [property, currentUser, setLocation, toast]);
 
+  // Adicionar meta tags Open Graph para partilha social
+  useEffect(() => {
+    if (!property) return;
+
+    const url = window.location.href;
+    const imageUrl = property.images && property.images.length > 0 
+      ? property.images[0] 
+      : '';
+    const description = property.description || `${property.title} - ${property.bairro}, ${property.municipio}`;
+    const price = `${parseFloat(property.price).toLocaleString('pt-AO')} Kz${property.type === 'Arrendar' ? '/mês' : ''}`;
+
+    // Atualizar título da página
+    document.title = `${property.title} - BIVA Imobiliária`;
+
+    // Função para atualizar ou criar meta tag
+    const setMetaTag = (property: string, content: string, isProperty = true) => {
+      const attribute = isProperty ? 'property' : 'name';
+      let meta = document.querySelector(`meta[${attribute}="${property}"]`) as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute(attribute, property);
+        document.head.appendChild(meta);
+      }
+      meta.content = content;
+    };
+
+    // Open Graph tags
+    setMetaTag('og:title', property.title);
+    setMetaTag('og:description', `${description} - ${price}`);
+    setMetaTag('og:url', url);
+    setMetaTag('og:type', 'website');
+    if (imageUrl) {
+      setMetaTag('og:image', imageUrl);
+      setMetaTag('og:image:width', '1200');
+      setMetaTag('og:image:height', '630');
+    }
+
+    // Twitter Card tags
+    setMetaTag('twitter:card', 'summary_large_image', false);
+    setMetaTag('twitter:title', property.title, false);
+    setMetaTag('twitter:description', `${description} - ${price}`, false);
+    if (imageUrl) {
+      setMetaTag('twitter:image', imageUrl, false);
+    }
+
+    // Meta description padrão
+    setMetaTag('description', `${description} - ${price}`, false);
+
+    // Cleanup: remover meta tags ao desmontar
+    return () => {
+      document.title = 'BIVA Imobiliária';
+    };
+  }, [property]);
+
   const createVisitMutation = useMutation({
     mutationFn: async () => {
       const requestedDateTime = new Date(`${selectedDate}T${selectedTime}`).toISOString();
