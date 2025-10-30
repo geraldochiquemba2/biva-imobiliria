@@ -90,7 +90,7 @@ export default function Cadastro() {
         sessionStorage.removeItem('returnUrl');
         setLocation(returnUrl);
       } else {
-        setLocation('/imobiliaria');
+        setLocation('/');
       }
     },
     onError: (error: any) => {
