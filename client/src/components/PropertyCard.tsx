@@ -144,8 +144,8 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
                   className="h-7 px-2 gap-1"
                   data-testid={`button-share-${property.id}`}
                 >
-                  <Share2 className="h-3.5 w-3.5" />
-                  <span className="text-xs">Partilhar</span>
+                  <Share2 className="h-3.5 w-3.5 flex-shrink-0" />
+                  <span className="text-xs hidden sm:inline">Partilhar</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
