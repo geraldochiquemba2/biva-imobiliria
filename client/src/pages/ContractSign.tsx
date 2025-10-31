@@ -37,16 +37,35 @@ export default function ContractSign() {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [saveSignature, setSaveSignature] = useState(false);
+  const [useReuseDialog, setUseReuseDialog] = useState(false);
 
   // Get current user
   const { data: currentUser, isLoading: isLoadingUser } = useQuery<User>({
     queryKey: ['/api/auth/me'],
   });
 
+  // Get saved signature
+  const { data: savedSignatureData } = useQuery<{ savedSignature: string | null }>({
+    queryKey: ['/api/auth/signature'],
+    enabled: !!currentUser,
+  });
+
   // Get contract
   const { data: contract, isLoading: isLoadingContract } = useQuery<Contract>({
     queryKey: ['/api/contracts', id],
     enabled: !!id,
+  });
+
+  // Save signature mutation
+  const saveSignatureMutation = useMutation({
+    mutationFn: async (signatureImage: string) => {
+      const response = await apiRequest('POST', '/api/auth/signature', { signatureImage });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/signature'] });
+    },
   });
 
   // Sign contract mutation
@@ -66,7 +85,12 @@ export default function ContractSign() {
 
       return response.json();
     },
-    onSuccess: async () => {
+    onSuccess: async (data, variables) => {
+      // Save signature if checkbox was checked
+      if (saveSignature && uploadedSignature) {
+        await saveSignatureMutation.mutateAsync(uploadedSignature);
+      }
+
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['/api/contracts', id], refetchType: 'all' }),
       ]);
@@ -76,6 +100,7 @@ export default function ContractSign() {
       });
       setSignDialogOpen(false);
       setBiNumber("");
+      setSaveSignature(false);
     },
     onError: (error: any) => {
       toast({
@@ -179,6 +204,26 @@ export default function ContractSign() {
       setBiNumber(currentUser.bi);
     }
     setUploadedSignature(null);
+    setSaveSignature(false);
+    
+    // Check if user has a saved signature
+    if (savedSignatureData?.savedSignature) {
+      setUseReuseDialog(true);
+    } else {
+      setSignDialogOpen(true);
+    }
+  };
+
+  const handleReuseSignature = () => {
+    if (savedSignatureData?.savedSignature) {
+      setUploadedSignature(savedSignatureData.savedSignature);
+    }
+    setUseReuseDialog(false);
+    setSignDialogOpen(true);
+  };
+
+  const handleCreateNewSignature = () => {
+    setUseReuseDialog(false);
     setSignDialogOpen(true);
   };
 
@@ -986,6 +1031,22 @@ export default function ContractSign() {
                   )}
             </div>
 
+            {uploadedSignature && !savedSignatureData?.savedSignature && (
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="save-signature"
+                  checked={saveSignature}
+                  onChange={(e) => setSaveSignature(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300"
+                  data-testid="checkbox-save-signature"
+                />
+                <Label htmlFor="save-signature" className="text-sm cursor-pointer">
+                  Salvar esta assinatura para uso futuro
+                </Label>
+              </div>
+            )}
+
             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
               <div className="flex gap-2">
                 <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -1026,6 +1087,50 @@ export default function ContractSign() {
               </Button>
             </DialogFooter>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reuse Signature Dialog */}
+      <Dialog open={useReuseDialog} onOpenChange={setUseReuseDialog}>
+        <DialogContent data-testid="dialog-reuse-signature">
+          <DialogHeader>
+            <DialogTitle>Reutilizar Assinatura?</DialogTitle>
+            <DialogDescription>
+              Você já possui uma assinatura salva. Deseja reutilizá-la ou criar uma nova?
+            </DialogDescription>
+          </DialogHeader>
+
+          {savedSignatureData?.savedSignature && (
+            <div className="my-4">
+              <Label className="mb-2 block">Sua assinatura salva:</Label>
+              <div className="border-2 border-muted-foreground/30 rounded-lg bg-background p-4">
+                <img 
+                  src={savedSignatureData.savedSignature} 
+                  alt="Assinatura salva" 
+                  className="max-h-32 mx-auto object-contain"
+                  data-testid="img-saved-signature-preview"
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCreateNewSignature}
+              className="flex-1"
+              data-testid="button-create-new-signature"
+            >
+              Criar Nova
+            </Button>
+            <Button
+              onClick={handleReuseSignature}
+              className="flex-1"
+              data-testid="button-reuse-signature"
+            >
+              Reutilizar
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
