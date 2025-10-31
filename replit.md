@@ -28,7 +28,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Storage
 
-- **Database**: PostgreSQL (Neon serverless) via Drizzle ORM.
+- **Database**: PostgreSQL (Supabase) via Drizzle ORM.
 - **Schema**: `users`, `properties` (with approval status), `contracts`, `visits`, `proposals`, `payments`.
 - **Data Layer**: Storage abstraction, centralized connection management, Drizzle Kit for migrations.
 
@@ -47,7 +47,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Performance Optimizations
 
-- **Connection Pooling**: Neon free tier optimized with 3 max connections, 30s idle timeout.
+- **Connection Pooling**: Optimized with 3 max connections, 30s idle timeout for efficient resource usage.
 - **Pagination**: Default 30 items per page (93% reduction), max 200 items, custom response structure.
 - **Image Optimization**: Lazy loading (`loading="lazy"`, `decoding="async"`), client-side compression (1200px max width, 75% JPEG quality) reducing size by 70-80%.
 - **Database Optimizations**: Strategic composite indexes (`status + featured`, `type + status`, `status + createdAt`, `approvalStatus + ownerId`), query limits, field selection (e.g., property listings return only thumbnails).
@@ -58,7 +58,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Third-Party Services
 
-- **Database Hosting**: Neon serverless PostgreSQL.
+- **Database Hosting**: Supabase PostgreSQL.
 - **Font Services**: Google Fonts (Inter, Plus Jakarta Sans).
 
 ### Key NPM Packages
