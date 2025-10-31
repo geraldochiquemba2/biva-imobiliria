@@ -49,11 +49,15 @@ Preferred communication style: Simple, everyday language.
 
 ### Performance Optimizations
 
-- **Connection Pooling**: Optimized with 10 max connections (Supabase free tier supports up to 15), 30s idle timeout, SSL enabled for secure connections.
+- **Connection Pooling**: Advanced configuration with 10 max connections, 2 min idle, keep-alive enabled (10s initial delay), 30-minute max lifetime, statement/query timeouts (30s), graceful shutdown handlers, event monitoring for debugging.
+- **In-Memory Caching**: Multi-layer caching system with automatic TTL expiration (5 minutes), pattern-based invalidation, dedicated user cache (5m TTL) with exact key invalidation on profile/status changes.
+- **HTTP Compression**: Gzip compression (level 6) for responses >1KB, reducing bandwidth usage by 60-80%.
+- **ETag Support**: MD5-based ETags for efficient browser caching with HTTP 304 Not Modified responses, reducing unnecessary data transfer.
+- **Rate Limiting**: Per-client rate limiting (200 req/min per IP) with automatic cleanup, proxy-aware configuration (`trust proxy`) for Render deployment.
 - **Pagination**: Default 30 items per page (93% reduction), max 200 items, custom response structure.
-- **Image Optimization**: Lazy loading (`loading="lazy"`, `decoding="async"`), client-side compression (1200px max width, 75% JPEG quality) reducing size by 70-80%.
-- **Database Optimizations**: Strategic composite indexes (`status + featured`, `type + status`, `status + createdAt`, `approvalStatus + ownerId`), query limits, field selection (e.g., property listings return only thumbnails).
-- **HTTP Caching**: `Cache-Control` headers for properties (120s) and virtual tours (300s).
+- **Image Optimization**: Lazy loading (`loading="lazy"`, `decoding="async"`), client-side compression (1200px max width, 75% JPEG quality) reducing size by 70-80%, separate endpoint for images with 24h cache.
+- **Database Optimizations**: Strategic composite indexes including new additions (`users: phone+status`, `proposals: property+status, cliente+status`, `payments: contract+status, status+vencimento`), query limits, field selection (listings return only thumbnails).
+- **HTTP Caching**: `Cache-Control` headers for properties (120s), virtual tours (300s), and images (24h).
 - **React Query**: `staleTime: 0`, `gcTime: 5m`, disabled auto-refetch, parallel `invalidateQueries` on mutations for instant UI updates.
 
 ## External Dependencies
