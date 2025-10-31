@@ -202,6 +202,24 @@ export const tourHotspots = pgTable("tour_hotspots", {
   toRoomIdx: index("tour_hotspots_to_room_idx").on(table.toRoomId),
 }));
 
+// Advertisements table
+export const advertisements = pgTable("advertisements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description"),
+  image: text("image").notNull(), // Base64 ou URL da imagem
+  link: text("link"), // URL de destino ao clicar no anúncio
+  active: boolean("active").default(true),
+  orderIndex: integer("order_index").notNull().default(0), // Ordem de exibição
+  createdById: varchar("created_by_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  activeIdx: index("advertisements_active_idx").on(table.active),
+  orderIdx: index("advertisements_order_idx").on(table.orderIndex),
+  activeOrderIdx: index("advertisements_active_order_idx").on(table.active, table.orderIndex),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   ownedProperties: many(properties),
@@ -209,6 +227,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   visits: many(visits),
   proposals: many(proposals),
   notifications: many(notifications),
+  advertisements: many(advertisements),
 }));
 
 export const propertiesRelations = relations(properties, ({ one, many }) => ({
@@ -301,6 +320,13 @@ export const tourHotspotsRelations = relations(tourHotspots, ({ one }) => ({
     fields: [tourHotspots.toRoomId],
     references: [tourRooms.id],
     relationName: "to_room",
+  }),
+}));
+
+export const advertisementsRelations = relations(advertisements, ({ one }) => ({
+  createdBy: one(users, {
+    fields: [advertisements.createdById],
+    references: [users.id],
   }),
 }));
 
@@ -397,6 +423,12 @@ export const insertTourHotspotSchema = createInsertSchema(tourHotspots).omit({
   createdAt: true,
 });
 
+export const insertAdvertisementSchema = createInsertSchema(advertisements).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -429,6 +461,9 @@ export type TourRoom = typeof tourRooms.$inferSelect;
 
 export type InsertTourHotspot = z.infer<typeof insertTourHotspotSchema>;
 export type TourHotspot = typeof tourHotspots.$inferSelect;
+
+export type InsertAdvertisement = z.infer<typeof insertAdvertisementSchema>;
+export type Advertisement = typeof advertisements.$inferSelect;
 
 export type PropertyWithOwner = Property & {
   owner: Omit<User, 'password'>;
