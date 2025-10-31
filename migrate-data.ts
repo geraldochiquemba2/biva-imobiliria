@@ -28,7 +28,12 @@ async function migrateData() {
 
   // Conectar aos dois bancos (Neon com driver serverless, Supabase com pg)
   const neonPool = new NeonPool({ connectionString: NEON_URL });
-  const supabasePool = new PgPool({ connectionString: SUPABASE_URL });
+  const supabasePool = new PgPool({ 
+    connectionString: SUPABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
 
   const neonDb = drizzleNeon({ client: neonPool, schema });
   const supabaseDb = drizzlePg({ client: supabasePool, schema });
