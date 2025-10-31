@@ -28,9 +28,11 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Storage
 
-- **Database**: PostgreSQL (Supabase) via Drizzle ORM.
-- **Schema**: `users`, `properties` (with approval status), `contracts`, `visits`, `proposals`, `payments`.
+- **Database**: PostgreSQL (Supabase) via Drizzle ORM with `pg` driver.
+- **Connection**: Supabase Session Pooler (IPv4-compatible) at `aws-1-sa-east-1.pooler.supabase.com`.
+- **Schema**: `users`, `properties` (with approval status), `contracts`, `visits`, `proposals`, `payments`, `notifications`, `virtualTours`, `tourRooms`, `tourHotspots`, `advertisements`.
 - **Data Layer**: Storage abstraction, centralized connection management, Drizzle Kit for migrations.
+- **Migration**: Migrated from Neon to Supabase (October 2025) using Session Pooler for IPv4 compatibility with Replit.
 
 ### Authentication & Authorization
 
@@ -47,7 +49,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Performance Optimizations
 
-- **Connection Pooling**: Optimized with 3 max connections, 30s idle timeout for efficient resource usage.
+- **Connection Pooling**: Optimized with 10 max connections (Supabase free tier supports up to 15), 30s idle timeout, SSL enabled for secure connections.
 - **Pagination**: Default 30 items per page (93% reduction), max 200 items, custom response structure.
 - **Image Optimization**: Lazy loading (`loading="lazy"`, `decoding="async"`), client-side compression (1200px max width, 75% JPEG quality) reducing size by 70-80%.
 - **Database Optimizations**: Strategic composite indexes (`status + featured`, `type + status`, `status + createdAt`, `approvalStatus + ownerId`), query limits, field selection (e.g., property listings return only thumbnails).
@@ -65,8 +67,8 @@ Preferred communication style: Simple, everyday language.
 
 - **UI & Styling**: `@radix-ui/*`, `tailwindcss`, `framer-motion`, `class-variance-authority`, `embla-carousel-react`.
 - **Data & State Management**: `@tanstack/react-query`, `react-hook-form`, `@hookform/resolvers`, `zod`, `drizzle-orm`, `drizzle-kit`.
-- **Backend**: `express`, `express-session`, `connect-pg-simple`, `bcrypt`, `@neondatabase/serverless`.
-- **Developer Tools**: `typescript`, `vite`, `esbuild`, `tsx`, `wouter`.
+- **Backend**: `express`, `express-session`, `connect-pg-simple`, `bcrypt`, `pg` (node-postgres).
+- **Developer Tools**: `typescript`, `vite`, `esbuild`, `tsx`, `wouter`, `drizzle-kit`.
 
 ### Asset Management
 
