@@ -1,37 +1,37 @@
 // Reference: blueprint:javascript_database
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
+// Construir a URL do Supabase usando a senha da variável de ambiente
+const SUPABASE_PASSWORD = process.env.SUPABASE_PASSWORD;
 
-// Otimização para free tier do Neon: reduzir pipelining para minimizar uso de recursos
-neonConfig.pipelineConnect = false;
-
-if (!process.env.DATABASE_URL) {
+if (!SUPABASE_PASSWORD) {
   throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
+    "SUPABASE_PASSWORD must be set. Please add it to your environment variables.",
   );
 }
 
-// Configuração otimizada do Connection Pool para Neon free tier + Render free tier
-// Estas configurações reduzem drasticamente o tempo de conexão e evitam timeouts
+// Encode password para URL (lidar com caracteres especiais)
+const encodedPassword = encodeURIComponent(SUPABASE_PASSWORD);
+const DATABASE_URL = `postgresql://postgres.wxagguvpbkegwjeqthge:${encodedPassword}@aws-1-sa-east-1.pooler.supabase.com:5432/postgres`;
+
+// Configuração otimizada do Connection Pool para Supabase
 export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
+  connectionString: DATABASE_URL,
   
-  // Limitar conexões simultâneas para free tier do Neon (máx 3 conexões)
-  max: 3,
+  // SSL é obrigatório para Supabase
+  ssl: {
+    rejectUnauthorized: false
+  },
   
-  // Tempo máximo que uma conexão pode existir (5 minutos)
-  // Neon free tier pode encerrar conexões idle, então rotacionamos frequentemente
-  maxUses: 50,
+  // Limitar conexões simultâneas (Supabase free tier suporta até 15 conexões)
+  max: 10,
   
   // Tempo máximo de espera para obter conexão do pool (10 segundos)
   connectionTimeoutMillis: 10000,
   
   // Tempo que uma conexão pode ficar idle antes de ser fechada (30 segundos)
-  // Reduzido para liberar recursos rapidamente no free tier
   idleTimeoutMillis: 30000,
   
   // Verificar conexão está viva antes de usar
