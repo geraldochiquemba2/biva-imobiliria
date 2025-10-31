@@ -17,6 +17,7 @@ export const users = pgTable("users", {
   address: text("address"),
   bi: text("bi"),
   profileImage: text("profile_image"),
+  savedSignature: text("saved_signature"), // Assinatura digital salva do usuário
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lastLoginAt: timestamp("last_login_at"),
 });
