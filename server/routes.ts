@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
+import compression from "compression";
 import { storage } from "./storage";
 import { 
   insertPropertySchema, 
@@ -108,7 +109,83 @@ function cacheControl(maxAge: number) {
   };
 }
 
+// In-memory cache for frequently accessed data
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
+
+class MemoryCache {
+  private cache: Map<string, CacheEntry<any>> = new Map();
+  
+  set<T>(key: string, data: T, ttlSeconds: number = 120): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl: ttlSeconds * 1000
+    });
+  }
+  
+  get<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    
+    const age = Date.now() - entry.timestamp;
+    if (age > entry.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return entry.data as T;
+  }
+  
+  invalidate(pattern?: string): void {
+    if (!pattern) {
+      this.cache.clear();
+      return;
+    }
+    
+    const keys = Array.from(this.cache.keys());
+    keys.forEach(key => {
+      if (key.includes(pattern)) {
+        this.cache.delete(key);
+      }
+    });
+  }
+  
+  size(): number {
+    return this.cache.size;
+  }
+}
+
+const memoryCache = new MemoryCache();
+
+// Clear old cache entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  const keys = Array.from(memoryCache['cache'].keys());
+  keys.forEach(key => {
+    const entry = memoryCache['cache'].get(key);
+    if (entry && (now - entry.timestamp > entry.ttl)) {
+      memoryCache['cache'].delete(key);
+    }
+  });
+}, 5 * 60 * 1000);
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Enable HTTP compression for faster responses
+  app.use(compression({
+    filter: (req, res) => {
+      if (req.headers['x-no-compression']) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+    level: 6, // Balance between speed and compression ratio
+    threshold: 1024, // Only compress responses > 1KB
+  }));
+
   // Health check endpoint for keep-alive
   app.get("/api/health", (_req, res) => {
     res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
@@ -417,6 +494,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         limit: req.query.limit ? Number(req.query.limit) : undefined,
       });
       
+      // Generate cache key from search params
+      const cacheKey = `properties:${JSON.stringify(searchParams)}`;
+      
+      // Check cache first
+      const cachedResult = memoryCache.get(cacheKey);
+      if (cachedResult) {
+        return res.json(cachedResult);
+      }
+      
       const paginatedResult = await storage.listProperties(searchParams);
       
       // Get all active visits (with auto-complete) to check which properties can be edited
@@ -442,13 +528,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       });
       
-      res.json({
+      const result = {
         data: propertiesWithEditInfo,
         total: paginatedResult.total,
         page: paginatedResult.page,
         limit: paginatedResult.limit,
         totalPages: paginatedResult.totalPages,
-      });
+      };
+      
+      // Cache result for 2 minutes
+      memoryCache.set(cacheKey, result, 120);
+      
+      res.json(result);
     } catch (error) {
       console.error('Error listing properties:', error);
       res.status(400).json({ error: "Parâmetros de busca inválidos" });
@@ -458,7 +549,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get featured properties
   app.get("/api/properties/featured", cacheControl(180), async (req, res) => {
     try {
+      // Check cache first
+      const cacheKey = 'properties:featured';
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       const properties = await storage.listProperties({ featured: true });
+      
+      // Cache for 3 minutes
+      memoryCache.set(cacheKey, properties, 180);
+      
       res.json(properties);
     } catch (error) {
       console.error('Error getting featured properties:', error);
