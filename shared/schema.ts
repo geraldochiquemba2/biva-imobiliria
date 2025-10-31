@@ -20,7 +20,10 @@ export const users = pgTable("users", {
   savedSignature: text("saved_signature"), // Assinatura digital salva do usuário
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lastLoginAt: timestamp("last_login_at"),
-});
+}, (table) => ({
+  phoneStatusIdx: index("users_phone_status_idx").on(table.phone, table.status),
+  statusIdx: index("users_status_idx").on(table.status),
+}));
 
 // Properties table
 export const properties = pgTable("properties", {
@@ -128,6 +131,8 @@ export const proposals = pgTable("proposals", {
   propertyIdx: index("proposals_property_idx").on(table.propertyId),
   clienteIdx: index("proposals_cliente_idx").on(table.clienteId),
   statusIdx: index("proposals_status_idx").on(table.status),
+  propertyStatusIdx: index("proposals_property_status_idx").on(table.propertyId, table.status),
+  clienteStatusIdx: index("proposals_cliente_status_idx").on(table.clienteId, table.status),
 }));
 
 // Payments table
@@ -143,6 +148,8 @@ export const payments = pgTable("payments", {
 }, (table) => ({
   contractIdx: index("payments_contract_idx").on(table.contractId),
   statusIdx: index("payments_status_idx").on(table.status),
+  contractStatusIdx: index("payments_contract_status_idx").on(table.contractId, table.status),
+  statusVencimentoIdx: index("payments_status_vencimento_idx").on(table.status, table.dataVencimento),
 }));
 
 // Notifications table

@@ -22,6 +22,7 @@ import session from "express-session";
 import multer from "multer";
 import { generateRentalContract } from "./contractGenerator";
 import { uploadImage, getImage } from "./objectStorage";
+import crypto from "crypto";
 
 // Extend Express session type
 declare module 'express-session' {
@@ -109,6 +110,98 @@ function cacheControl(maxAge: number) {
   };
 }
 
+// ETag middleware for efficient caching
+function generateETag(data: any): string {
+  const hash = crypto.createHash('md5');
+  hash.update(JSON.stringify(data));
+  return `"${hash.digest('hex')}"`;
+}
+
+function etagMiddleware(req: Request, res: Response, next: NextFunction) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return next();
+  }
+
+  const originalJson = res.json.bind(res);
+  res.json = function(data: any) {
+    const etag = generateETag(data);
+    res.set('ETag', etag);
+    
+    const clientETag = req.headers['if-none-match'];
+    if (clientETag && clientETag === etag) {
+      return res.status(304).end();
+    }
+    
+    return originalJson(data);
+  };
+  
+  next();
+}
+
+// Rate limiting middleware to prevent abuse
+interface RateLimitEntry {
+  count: number;
+  resetTime: number;
+}
+
+class RateLimiter {
+  private limits: Map<string, RateLimitEntry> = new Map();
+  private readonly maxRequests: number;
+  private readonly windowMs: number;
+  
+  constructor(maxRequests: number = 100, windowMs: number = 60000) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+    
+    setInterval(() => this.cleanup(), windowMs);
+  }
+  
+  isAllowed(identifier: string): boolean {
+    const now = Date.now();
+    const entry = this.limits.get(identifier);
+    
+    if (!entry || now > entry.resetTime) {
+      this.limits.set(identifier, {
+        count: 1,
+        resetTime: now + this.windowMs
+      });
+      return true;
+    }
+    
+    if (entry.count >= this.maxRequests) {
+      return false;
+    }
+    
+    entry.count++;
+    return true;
+  }
+  
+  private cleanup() {
+    const now = Date.now();
+    const keys = Array.from(this.limits.keys());
+    keys.forEach(key => {
+      const entry = this.limits.get(key);
+      if (entry && now > entry.resetTime) {
+        this.limits.delete(key);
+      }
+    });
+  }
+}
+
+const rateLimiter = new RateLimiter(200, 60000);
+
+function rateLimitMiddleware(req: Request, res: Response, next: NextFunction) {
+  const identifier = req.ip || req.socket.remoteAddress || 'unknown';
+  
+  if (!rateLimiter.isAllowed(identifier)) {
+    return res.status(429).json({ 
+      error: "Muitas requisições. Tente novamente em alguns instantes." 
+    });
+  }
+  
+  next();
+}
+
 // In-memory cache for frequently accessed data
 interface CacheEntry<T> {
   data: T;
@@ -148,10 +241,15 @@ class MemoryCache {
     
     const keys = Array.from(this.cache.keys());
     keys.forEach(key => {
-      if (key.includes(pattern)) {
+      // Exact match or prefix match with colon separator
+      if (key === pattern || key.startsWith(pattern + ':')) {
         this.cache.delete(key);
       }
     });
+  }
+  
+  invalidateExact(key: string): void {
+    this.cache.delete(key);
   }
   
   size(): number {
@@ -174,6 +272,12 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Trust proxy to get correct IP addresses (required for Render)
+  app.set('trust proxy', 1);
+
+  // Enable rate limiting globally
+  app.use(rateLimitMiddleware);
+
   // Enable HTTP compression for faster responses
   app.use(compression({
     filter: (req, res) => {
@@ -185,6 +289,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     level: 6, // Balance between speed and compression ratio
     threshold: 1024, // Only compress responses > 1KB
   }));
+
+  // Enable ETag support for efficient caching
+  app.use(etagMiddleware);
 
   // Health check endpoint for keep-alive
   app.get("/api/health", (_req, res) => {
@@ -309,14 +416,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get current user
   app.get("/api/auth/me", requireAuth, async (req, res) => {
     try {
-      const user = await storage.getUser(req.session.userId!);
+      const userId = req.session.userId!;
+      const cacheKey = `user:${userId}`;
+      
+      // Check cache first
+      let user = memoryCache.get<any>(cacheKey);
+      
       if (!user) {
-        return res.status(404).json({ error: "Usuário não encontrado" });
+        // If not in cache, fetch from database
+        user = await storage.getUser(userId);
+        if (!user) {
+          return res.status(404).json({ error: "Usuário não encontrado" });
+        }
+        
+        // Cache user for 5 minutes
+        memoryCache.set(cacheKey, user, 300);
       }
       
       // Check if user is blocked
       if (user.status === 'bloqueado') {
-        // Destroy session for blocked users
+        // Invalidate cache and destroy session for blocked users
+        memoryCache.invalidateExact(`user:${userId}`);
         req.session.destroy(() => {});
         return res.status(403).json({ error: "Sua conta foi bloqueada. Entre em contato com o administrador." });
       }
@@ -343,6 +463,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
+      
+      // Invalidate user cache after update
+      memoryCache.invalidateExact(`user:${req.session.userId}`);
       
       const { password, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
@@ -397,6 +520,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
+      
+      // Invalidate user cache after status change (critical for blocked users)
+      memoryCache.invalidateExact(`user:${req.params.id}`);
       
       const { password, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
