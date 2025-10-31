@@ -7,6 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Header from "@/components/Header";
 import Home from "@/pages/Home";
 import Imoveis from "@/pages/Imoveis";
+import Arrendar from "@/pages/Arrendar";
+import Comprar from "@/pages/Comprar";
 import Servicos from "@/pages/Servicos";
 import Sobre from "@/pages/Sobre";
 import Contacto from "@/pages/Contacto";
@@ -50,6 +52,8 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/imoveis" component={Imoveis} />
+        <Route path="/arrendar" component={Arrendar} />
+        <Route path="/comprar" component={Comprar} />
         <Route path="/imoveis/:id" component={ImovelDetalhes} />
         <Route path="/imoveis/:propertyId/tour-virtual" component={TourVirtualManager} />
         <Route path="/explorar-mapa" component={ExplorarMapa} />

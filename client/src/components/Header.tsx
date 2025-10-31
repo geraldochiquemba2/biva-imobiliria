@@ -112,26 +112,24 @@ export default function Header() {
               Início
             </Link>
             
-            <span
-              className="text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-              onClick={() => {
-                navigate('/imoveis?type=Arrendar');
-                setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
-              }}
+            <Link
+              href="/arrendar"
+              className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                location === '/arrendar' ? 'text-primary' : 'text-muted-foreground'
+              }`}
               data-testid="link-arrendar"
             >
               Arrendar
-            </span>
-            <span
-              className="text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-              onClick={() => {
-                navigate('/imoveis?type=Vender');
-                setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
-              }}
+            </Link>
+            <Link
+              href="/comprar"
+              className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                location === '/comprar' ? 'text-primary' : 'text-muted-foreground'
+              }`}
               data-testid="link-comprar"
             >
               Comprar
-            </span>
+            </Link>
             
             {navItems.slice(1).map((item) => (
               <Link 
@@ -258,28 +256,26 @@ export default function Header() {
                 Início
               </Link>
               
-              <span
-                className="text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate('/imoveis?type=Arrendar');
-                  setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
-                }}
+              <Link
+                href="/arrendar"
+                className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                  location === '/arrendar' ? 'text-primary' : 'text-muted-foreground'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
                 data-testid="link-mobile-arrendar"
               >
                 Arrendar
-              </span>
-              <span
-                className="text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate('/imoveis?type=Vender');
-                  setTimeout(() => window.dispatchEvent(new Event('filterchange')), 100);
-                }}
+              </Link>
+              <Link
+                href="/comprar"
+                className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                  location === '/comprar' ? 'text-primary' : 'text-muted-foreground'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
                 data-testid="link-mobile-comprar"
               >
                 Comprar
-              </span>
+              </Link>
               
               {navItems.slice(1).map((item) => (
                 <Link 
