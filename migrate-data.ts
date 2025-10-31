@@ -1,5 +1,7 @@
-import { Pool } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool as NeonPool } from '@neondatabase/serverless';
+import { Pool as PgPool } from 'pg';
+import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
+import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
 import ws from "ws";
 import { neonConfig } from '@neondatabase/serverless';
 import * as schema from "./shared/schema";
@@ -13,17 +15,19 @@ if (!SUPABASE_PASSWORD) {
   throw new Error('SUPABASE_PASSWORD não encontrada nas variáveis de ambiente');
 }
 
-const SUPABASE_URL = `postgresql://postgres:${SUPABASE_PASSWORD}@db.wxagguvpbkegwjeqthge.supabase.co:5432/postgres`;
+// Encode password for URL (handle special characters like #)
+const encodedPassword = encodeURIComponent(SUPABASE_PASSWORD);
+const SUPABASE_URL = `postgresql://postgres:${encodedPassword}@db.wxagguvpbkegwjeqthge.supabase.co:5432/postgres`;
 
 async function migrateData() {
   console.log('🔄 Iniciando migração de dados do Neon para Supabase...\n');
 
-  // Conectar aos dois bancos
-  const neonPool = new Pool({ connectionString: NEON_URL });
-  const supabasePool = new Pool({ connectionString: SUPABASE_URL });
+  // Conectar aos dois bancos (Neon com driver serverless, Supabase com pg)
+  const neonPool = new NeonPool({ connectionString: NEON_URL });
+  const supabasePool = new PgPool({ connectionString: SUPABASE_URL });
 
-  const neonDb = drizzle({ client: neonPool, schema });
-  const supabaseDb = drizzle({ client: supabasePool, schema });
+  const neonDb = drizzleNeon({ client: neonPool, schema });
+  const supabaseDb = drizzlePg({ client: supabasePool, schema });
 
   try {
     // 1. Exportar dados do Neon
