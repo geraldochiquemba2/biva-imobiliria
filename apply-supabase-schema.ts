@@ -10,7 +10,7 @@ if (!SUPABASE_PASSWORD) {
 }
 
 const encodedPassword = encodeURIComponent(SUPABASE_PASSWORD);
-const SUPABASE_URL = `postgresql://postgres:${encodedPassword}@db.wxagguvpbkegwjeqthge.supabase.co:5432/postgres`;
+const SUPABASE_URL = `postgresql://postgres.wxagguvpbkegwjeqthge:${encodedPassword}@aws-1-sa-east-1.pooler.supabase.com:5432/postgres`;
 
 async function applySchema() {
   console.log('🔧 Aplicando schema no Supabase...\n');
