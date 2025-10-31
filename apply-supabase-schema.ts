@@ -15,7 +15,12 @@ const SUPABASE_URL = `postgresql://postgres:${encodedPassword}@db.wxagguvpbkegwj
 async function applySchema() {
   console.log('🔧 Aplicando schema no Supabase...\n');
 
-  const pool = new Pool({ connectionString: SUPABASE_URL });
+  const pool = new Pool({ 
+    connectionString: SUPABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
   const db = drizzle({ client: pool, schema });
 
   try {
