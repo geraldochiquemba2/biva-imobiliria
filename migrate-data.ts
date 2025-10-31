@@ -8,8 +8,12 @@ import * as schema from "./shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-const NEON_URL = 'postgresql://neondb_owner:npg_pdgUT2wB3chC@ep-rough-sunset-adppxbbd-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require';
+const NEON_URL = process.env.DATABASE_URL;
 const SUPABASE_PASSWORD = process.env.SUPABASE_PASSWORD;
+
+if (!NEON_URL) {
+  throw new Error('DATABASE_URL não encontrada nas variáveis de ambiente');
+}
 
 if (!SUPABASE_PASSWORD) {
   throw new Error('SUPABASE_PASSWORD não encontrada nas variáveis de ambiente');
