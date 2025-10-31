@@ -329,6 +329,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user's saved signature (authenticated user only - their own signature)
+  app.get("/api/auth/signature", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      res.json({ savedSignature: user.savedSignature || null });
+    } catch (error) {
+      console.error('Error getting saved signature:', error);
+      res.status(500).json({ error: "Falha ao buscar assinatura salva" });
+    }
+  });
+
+  // Save user's signature (authenticated user only - their own signature)
+  app.post("/api/auth/signature", requireAuth, async (req, res) => {
+    try {
+      const { signatureImage } = req.body;
+      
+      if (!signatureImage) {
+        return res.status(400).json({ error: "Assinatura é obrigatória" });
+      }
+
+      // Validate that it's a base64 image
+      if (!signatureImage.startsWith('data:image/')) {
+        return res.status(400).json({ error: "Formato de assinatura inválido" });
+      }
+      
+      const user = await storage.updateUser(req.session.userId!, { 
+        savedSignature: signatureImage 
+      });
+      
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      res.json({ 
+        message: "Assinatura salva com sucesso",
+        savedSignature: user.savedSignature 
+      });
+    } catch (error) {
+      console.error('Error saving signature:', error);
+      res.status(500).json({ error: "Falha ao salvar assinatura" });
+    }
+  });
+
+  // Delete user's saved signature (authenticated user only - their own signature)
+  app.delete("/api/auth/signature", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.updateUser(req.session.userId!, { 
+        savedSignature: null 
+      });
+      
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      res.json({ message: "Assinatura removida com sucesso" });
+    } catch (error) {
+      console.error('Error deleting signature:', error);
+      res.status(500).json({ error: "Falha ao remover assinatura" });
+    }
+  });
+
   // Property Routes
   
   // Get all properties with optional filters
