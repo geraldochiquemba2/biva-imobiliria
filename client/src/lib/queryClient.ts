@@ -67,14 +67,16 @@ export const queryClient = new QueryClient({
       refetchInterval: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      staleTime: 1 * 60 * 1000, // 1 minute - reduce unnecessary refetches
-      gcTime: 5 * 60 * 1000,
-      retry: 1,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 5 * 60 * 1000, // 5 minutes - real estate data doesn't change frequently
+      gcTime: 10 * 60 * 1000, // 10 minutes - keep cached data longer
+      retry: 2, // Retry twice to handle transient errors on free tier hosting
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff: 1s, 2s, max 5s
+      networkMode: 'online', // Only run queries when online
     },
     mutations: {
       retry: 1,
       retryDelay: 1000,
+      networkMode: 'online',
     },
   },
 });

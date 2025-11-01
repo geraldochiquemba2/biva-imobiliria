@@ -21,10 +21,13 @@ export async function compressImage(file: File): Promise<File> {
         let width = img.width;
         let height = img.height;
         
-        const MAX_WIDTH = 1200;
-        if (width > MAX_WIDTH) {
-          height = (height * MAX_WIDTH) / width;
-          width = MAX_WIDTH;
+        const MAX_WIDTH = 1920;
+        const MAX_HEIGHT = 1080;
+        
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
         }
         
         canvas.width = width;
@@ -36,7 +39,13 @@ export async function compressImage(file: File): Promise<File> {
           return;
         }
         
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
+        
+        const supportsWebP = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+        const mimeType = supportsWebP ? 'image/webp' : 'image/jpeg';
+        const quality = supportsWebP ? 0.85 : 0.82;
         
         canvas.toBlob(
           (blob) => {
@@ -45,15 +54,18 @@ export async function compressImage(file: File): Promise<File> {
               return;
             }
             
-            const compressedFile = new File([blob], file.name, {
-              type: 'image/jpeg',
+            const extension = mimeType === 'image/webp' ? '.webp' : '.jpg';
+            const newName = file.name.replace(/\.[^/.]+$/, extension);
+            
+            const compressedFile = new File([blob], newName, {
+              type: mimeType,
               lastModified: Date.now(),
             });
             
             resolve(compressedFile);
           },
-          'image/jpeg',
-          0.75
+          mimeType,
+          quality
         );
       };
       
