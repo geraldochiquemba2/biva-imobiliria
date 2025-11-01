@@ -82,6 +82,20 @@ export default function ImovelDetalhes() {
     enabled: !!params?.id,
   });
 
+  // Prefetch similar properties for better navigation UX
+  useEffect(() => {
+    if (property) {
+      // Prefetch similar properties based on location and type
+      queryClient.prefetchQuery({
+        queryKey: ['/api/properties', { 
+          municipio: property.municipio,
+          type: property.type,
+          limit: 6,
+        }],
+      });
+    }
+  }, [property]);
+
   const { data: visitsResponse } = useQuery<{ data: Visit[] }>({
     queryKey: ['/api/properties', params?.id, 'visits'],
     queryFn: async () => {
