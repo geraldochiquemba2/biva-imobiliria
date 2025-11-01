@@ -738,37 +738,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get single property
   app.get("/api/properties/:id", cacheControl(180), async (req, res) => {
     try {
-      const property = await storage.getProperty(req.params.id);
+      const cacheKey = `property:${req.params.id}`;
+      
+      // Check cache first
+      let property = memoryCache.get<any>(cacheKey);
+      
       if (!property) {
-        return res.status(404).json({ error: "Imóvel não encontrado" });
+        property = await storage.getProperty(req.params.id);
+        if (!property) {
+          return res.status(404).json({ error: "Imóvel não encontrado" });
+        }
+        
+        // Cache for 3 minutes
+        memoryCache.set(cacheKey, property, 180);
       }
-      
-      // Check if property has active scheduled visits
-      const propertyVisits = await storage.getVisitsByProperty(req.params.id, { status: 'agendada', limit: 1 });
-      const hasActiveVisits = propertyVisits.data.length > 0;
-      
-      // Check if property is rented
-      const isRented = property.status === 'arrendado';
-      
-      // Determine if editing is blocked
-      const canEdit = !hasActiveVisits && !isRented;
       
       if (property.owner) {
         const { password, ...ownerWithoutPassword } = property.owner;
         res.json({ 
           ...property, 
-          owner: ownerWithoutPassword,
-          hasActiveVisits,
-          isRented,
-          canEdit
+          owner: ownerWithoutPassword
         });
       } else {
-        res.json({ 
-          ...property,
-          hasActiveVisits,
-          isRented,
-          canEdit
-        });
+        res.json(property);
       }
     } catch (error) {
       console.error('Error getting property:', error);
