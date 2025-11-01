@@ -5,6 +5,7 @@ import { Moon, Sun, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react"
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { usePrefetch } from "@/hooks/use-prefetch";
 import type { User as UserType } from "@shared/schema";
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ export default function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const { toast } = useToast();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const { prefetchOnHover } = usePrefetch();
 
   const { data: currentUser } = useQuery<UserType | null>({
     queryKey: ['/api/auth/me'],
@@ -108,6 +110,7 @@ export default function Header() {
                 location === '/' ? 'text-primary' : 'text-muted-foreground'
               }`}
               data-testid="link-início"
+              {...prefetchOnHover('/')}
             >
               Início
             </Link>
@@ -118,6 +121,7 @@ export default function Header() {
                 location === '/arrendar' ? 'text-primary' : 'text-muted-foreground'
               }`}
               data-testid="link-arrendar"
+              {...prefetchOnHover('/arrendar')}
             >
               Arrendar
             </Link>
@@ -127,6 +131,7 @@ export default function Header() {
                 location === '/comprar' ? 'text-primary' : 'text-muted-foreground'
               }`}
               data-testid="link-comprar"
+              {...prefetchOnHover('/comprar')}
             >
               Comprar
             </Link>
@@ -139,6 +144,7 @@ export default function Header() {
                   location === item.path ? 'text-primary' : 'text-muted-foreground'
                 }`}
                 data-testid={`link-${item.label.toLowerCase()}`}
+                {...prefetchOnHover(item.path)}
               >
                 {item.label}
               </Link>
@@ -169,7 +175,7 @@ export default function Header() {
                   className="hidden md:flex"
                   data-testid="button-dashboard"
                 >
-                  <Link href="/dashboard">
+                  <Link href="/dashboard" {...prefetchOnHover('/dashboard')}>
                     <LayoutDashboard className="h-4 w-4 mr-2" />
                     Dashboard
                   </Link>
@@ -213,7 +219,7 @@ export default function Header() {
                   asChild
                   data-testid="button-login"
                 >
-                  <Link href="/login">Entrar</Link>
+                  <Link href="/login" {...prefetchOnHover('/login')}>Entrar</Link>
                 </Button>
 
                 <Button
@@ -221,7 +227,7 @@ export default function Header() {
                   asChild
                   data-testid="button-register"
                 >
-                  <Link href="/cadastro">Cadastro</Link>
+                  <Link href="/cadastro" {...prefetchOnHover('/cadastro')}>Cadastro</Link>
                 </Button>
               </>
             )}

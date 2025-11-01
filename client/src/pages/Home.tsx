@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { useCriticalDataPreload } from "@/hooks/use-critical-data-preload";
 import HeroSection from "@/components/HeroSection";
 import IntroSection from "@/components/IntroSection";
 import SearchBar from "@/components/SearchBar";
@@ -46,6 +47,8 @@ const userProfiles = [
 ];
 
 export default function Home() {
+  useCriticalDataPreload();
+  
   const [searchParams, setSearchParams] = useState<{
     type?: 'Arrendar' | 'Vender';
     provincia?: string;

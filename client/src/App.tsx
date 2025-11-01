@@ -1,10 +1,11 @@
 import { Switch, Route, useLocation } from "wouter";
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, startTransition } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Header from "@/components/Header";
+import PageTransition from "@/components/PageTransition";
 import { Loader2 } from "lucide-react";
 
 const Home = lazy(() => import("@/pages/Home"));
@@ -49,7 +50,9 @@ function ScrollToTop() {
   const [location] = useLocation();
   
   useEffect(() => {
-    window.scrollTo(0, 0);
+    startTransition(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
   }, [location]);
   
   return null;
@@ -60,37 +63,39 @@ function Router() {
     <>
       <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/imoveis" component={Imoveis} />
-          <Route path="/arrendar" component={Arrendar} />
-          <Route path="/comprar" component={Comprar} />
-          <Route path="/imoveis/:id" component={ImovelDetalhes} />
-          <Route path="/imoveis/:propertyId/tour-virtual" component={TourVirtualManager} />
-          <Route path="/explorar-mapa" component={ExplorarMapa} />
-          <Route path="/servicos" component={Servicos} />
-          <Route path="/sobre" component={Sobre} />
-          <Route path="/contacto" component={Contacto} />
-          <Route path="/login" component={Login} />
-          <Route path="/cadastro" component={Cadastro} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/cadastrar-imovel" component={CadastrarImovel} />
-          <Route path="/perfil" component={Profile} />
-          <Route path="/contratos-ativos" component={ContratosAtivos} />
-          <Route path="/contratos/:id/assinar" component={ContractSign} />
-          <Route path="/visitas-agendadas" component={VisitasAgendadas} />
-          <Route path="/meus-imoveis" component={MeusImoveis} />
-          <Route path="/imoveis-pendentes" component={ImoveisPendentes} />
-          <Route path="/editar-imovel/:id" component={EditarImovel} />
-          <Route path="/imoveis-disponiveis" component={ImoveisDisponiveis} />
-          <Route path="/imoveis-arrendados" component={ImoveisArrendados} />
-          <Route path="/imoveis-vendidos" component={ImoveisVendidos} />
-          <Route path="/imoveis-indisponiveis" component={ImoveisIndisponiveis} />
-          <Route path="/admin/imoveis" component={AdminImoveis} />
-          <Route path="/admin/aprovar-imoveis" component={AdminAprovarImoveis} />
-          <Route path="/admin/usuarios" component={AdminUsuarios} />
-          <Route component={NotFound} />
-        </Switch>
+        <PageTransition>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/imoveis" component={Imoveis} />
+            <Route path="/arrendar" component={Arrendar} />
+            <Route path="/comprar" component={Comprar} />
+            <Route path="/imoveis/:id" component={ImovelDetalhes} />
+            <Route path="/imoveis/:propertyId/tour-virtual" component={TourVirtualManager} />
+            <Route path="/explorar-mapa" component={ExplorarMapa} />
+            <Route path="/servicos" component={Servicos} />
+            <Route path="/sobre" component={Sobre} />
+            <Route path="/contacto" component={Contacto} />
+            <Route path="/login" component={Login} />
+            <Route path="/cadastro" component={Cadastro} />
+            <Route path="/dashboard" component={Dashboard} />
+            <Route path="/cadastrar-imovel" component={CadastrarImovel} />
+            <Route path="/perfil" component={Profile} />
+            <Route path="/contratos-ativos" component={ContratosAtivos} />
+            <Route path="/contratos/:id/assinar" component={ContractSign} />
+            <Route path="/visitas-agendadas" component={VisitasAgendadas} />
+            <Route path="/meus-imoveis" component={MeusImoveis} />
+            <Route path="/imoveis-pendentes" component={ImoveisPendentes} />
+            <Route path="/editar-imovel/:id" component={EditarImovel} />
+            <Route path="/imoveis-disponiveis" component={ImoveisDisponiveis} />
+            <Route path="/imoveis-arrendados" component={ImoveisArrendados} />
+            <Route path="/imoveis-vendidos" component={ImoveisVendidos} />
+            <Route path="/imoveis-indisponiveis" component={ImoveisIndisponiveis} />
+            <Route path="/admin/imoveis" component={AdminImoveis} />
+            <Route path="/admin/aprovar-imoveis" component={AdminAprovarImoveis} />
+            <Route path="/admin/usuarios" component={AdminUsuarios} />
+            <Route component={NotFound} />
+          </Switch>
+        </PageTransition>
       </Suspense>
     </>
   );
