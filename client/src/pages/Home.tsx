@@ -167,6 +167,7 @@ export default function Home() {
           alt="" 
           className="w-1/3 max-w-md object-contain dark:brightness-0 dark:invert opacity-40"
           aria-hidden="true"
+          loading="lazy"
         />
       </div>
       
@@ -396,6 +397,7 @@ export default function Home() {
                 src={logoImage} 
                 alt="BIVA Imobiliária" 
                 className="h-16 w-auto mb-4 dark:brightness-0 dark:invert transition-all"
+                loading="lazy"
               />
               <p className="text-muted-foreground">
                 Simplificando a gestão imobiliária em Angola

@@ -387,12 +387,14 @@ export default function Imoveis() {
                             src={property.images[0]} 
                             alt={property.title}
                             className="w-full h-full object-contain"
+                            loading="lazy"
                           />
                         ) : (property as any).thumbnail ? (
                           <img 
                             src={(property as any).thumbnail} 
                             alt={property.title}
                             className="w-full h-full object-contain"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-full h-full bg-muted flex items-center justify-center">
