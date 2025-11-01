@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle, Check, X, Eye, Mail, Phone } from "lucide-react";
+import { Building2, Calendar, Clock, MapPin, User, ArrowLeft, XCircle, Check, X, Eye, Mail, Phone, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { User as UserType } from "@shared/schema";
@@ -49,6 +49,14 @@ interface Visit {
   };
 }
 
+interface PaginatedVisits {
+  data: Visit[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export default function VisitasAgendadas() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -57,15 +65,26 @@ export default function VisitasAgendadas() {
   const [proposedDate, setProposedDate] = useState("");
   const [proposedTime, setProposedTime] = useState("");
   const [ownerMessage, setOwnerMessage] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit] = useState(20);
   
   const { data: currentUser } = useQuery<UserType>({
     queryKey: ['/api/auth/me'],
   });
 
-  const { data: visits, isLoading } = useQuery<Visit[]>({
-    queryKey: ['/api/visits'],
+  const { data: paginatedVisits, isLoading } = useQuery<PaginatedVisits>({
+    queryKey: ['/api/visits', { page: currentPage, limit }],
+    queryFn: async () => {
+      const res = await fetch(`/api/visits?page=${currentPage}&limit=${limit}`, {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch visits');
+      return res.json();
+    },
     enabled: !!currentUser,
   });
+
+  const visits = paginatedVisits?.data || [];
 
   useEffect(() => {
     if (visits) {
@@ -85,16 +104,22 @@ export default function VisitasAgendadas() {
       return await res.json();
     },
     onMutate: async (visitId) => {
-      await queryClient.cancelQueries({ queryKey: ['/api/visits'] });
+      const queryKey = ['/api/visits', { page: currentPage, limit }];
+      await queryClient.cancelQueries({ queryKey });
       
-      const previousVisits = queryClient.getQueryData<Visit[]>(['/api/visits']);
+      const previousData = queryClient.getQueryData<PaginatedVisits>(queryKey);
       
-      queryClient.setQueryData<Visit[]>(
-        ['/api/visits'],
-        (old = []) => old.map(v => v.id === visitId ? { ...v, status: 'cancelada' } : v)
-      );
+      if (previousData) {
+        queryClient.setQueryData<PaginatedVisits>(
+          queryKey,
+          {
+            ...previousData,
+            data: previousData.data.map(v => v.id === visitId ? { ...v, status: 'cancelada' } : v)
+          }
+        );
+      }
       
-      return { previousVisits };
+      return { previousData };
     },
     onSuccess: () => {
       toast({
@@ -103,8 +128,8 @@ export default function VisitasAgendadas() {
       });
     },
     onError: (_error, _vars, context) => {
-      if (context?.previousVisits) {
-        queryClient.setQueryData(['/api/visits'], context.previousVisits);
+      if (context?.previousData) {
+        queryClient.setQueryData(['/api/visits', { page: currentPage, limit }], context.previousData);
       }
       toast({
         title: "Erro ao cancelar visita",
@@ -113,7 +138,11 @@ export default function VisitasAgendadas() {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+      // Invalidate all visit queries (all pages)
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/visits'],
+        exact: false,
+      });
     },
   });
 
@@ -123,25 +152,31 @@ export default function VisitasAgendadas() {
       return await res.json();
     },
     onMutate: async ({ visitId, action }) => {
-      await queryClient.cancelQueries({ queryKey: ['/api/visits'] });
+      const queryKey = ['/api/visits', { page: currentPage, limit }];
+      await queryClient.cancelQueries({ queryKey });
       
-      const previousVisits = queryClient.getQueryData<Visit[]>(['/api/visits']);
+      const previousData = queryClient.getQueryData<PaginatedVisits>(queryKey);
       
-      queryClient.setQueryData<Visit[]>(
-        ['/api/visits'],
-        (old = []) => old.map(v => {
-          if (v.id === visitId) {
-            if (action === 'accept') {
-              return { ...v, status: 'agendada', scheduledDateTime: v.ownerProposedDateTime };
-            } else {
-              return { ...v, status: 'cancelada' };
-            }
+      if (previousData) {
+        queryClient.setQueryData<PaginatedVisits>(
+          queryKey,
+          {
+            ...previousData,
+            data: previousData.data.map(v => {
+              if (v.id === visitId) {
+                if (action === 'accept') {
+                  return { ...v, status: 'agendada', scheduledDateTime: v.ownerProposedDateTime };
+                } else {
+                  return { ...v, status: 'cancelada' };
+                }
+              }
+              return v;
+            })
           }
-          return v;
-        })
-      );
+        );
+      }
       
-      return { previousVisits };
+      return { previousData };
     },
     onSuccess: () => {
       toast({
@@ -150,8 +185,8 @@ export default function VisitasAgendadas() {
       });
     },
     onError: (_error, _vars, context) => {
-      if (context?.previousVisits) {
-        queryClient.setQueryData(['/api/visits'], context.previousVisits);
+      if (context?.previousData) {
+        queryClient.setQueryData(['/api/visits', { page: currentPage, limit }], context.previousData);
       }
       toast({
         title: "Erro ao enviar resposta",
@@ -160,7 +195,11 @@ export default function VisitasAgendadas() {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+      // Invalidate all visit queries (all pages)
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/visits'],
+        exact: false,
+      });
     },
   });
 
@@ -179,27 +218,33 @@ export default function VisitasAgendadas() {
       return await res.json();
     },
     onMutate: async ({ visitId, action, proposedDateTime, message }) => {
-      await queryClient.cancelQueries({ queryKey: ['/api/visits'] });
+      const queryKey = ['/api/visits', { page: currentPage, limit }];
+      await queryClient.cancelQueries({ queryKey });
       
-      const previousVisits = queryClient.getQueryData<Visit[]>(['/api/visits']);
+      const previousData = queryClient.getQueryData<PaginatedVisits>(queryKey);
       
-      queryClient.setQueryData<Visit[]>(
-        ['/api/visits'],
-        (old = []) => old.map(v => {
-          if (v.id === visitId) {
-            if (action === 'accept') {
-              return { ...v, status: 'agendada', scheduledDateTime: v.requestedDateTime };
-            } else if (action === 'reject') {
-              return { ...v, status: 'cancelada' };
-            } else if (action === 'propose') {
-              return { ...v, status: 'pendente_cliente', ownerProposedDateTime: proposedDateTime, ownerMessage: message };
-            }
+      if (previousData) {
+        queryClient.setQueryData<PaginatedVisits>(
+          queryKey,
+          {
+            ...previousData,
+            data: previousData.data.map(v => {
+              if (v.id === visitId) {
+                if (action === 'accept') {
+                  return { ...v, status: 'agendada', scheduledDateTime: v.requestedDateTime };
+                } else if (action === 'reject') {
+                  return { ...v, status: 'cancelada' };
+                } else if (action === 'propose') {
+                  return { ...v, status: 'pendente_cliente', ownerProposedDateTime: proposedDateTime, ownerMessage: message };
+                }
+              }
+              return v;
+            })
           }
-          return v;
-        })
-      );
+        );
+      }
       
-      return { previousVisits };
+      return { previousData };
     },
     onSuccess: () => {
       setShowProposeDialog(false);
@@ -212,8 +257,8 @@ export default function VisitasAgendadas() {
       });
     },
     onError: (_error, _vars, context) => {
-      if (context?.previousVisits) {
-        queryClient.setQueryData(['/api/visits'], context.previousVisits);
+      if (context?.previousData) {
+        queryClient.setQueryData(['/api/visits', { page: currentPage, limit }], context.previousData);
       }
       toast({
         title: "Erro ao enviar resposta",
@@ -222,7 +267,11 @@ export default function VisitasAgendadas() {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/visits'] });
+      // Invalidate all visit queries (all pages)
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/visits'],
+        exact: false,
+      });
     },
   });
 
@@ -801,6 +850,36 @@ export default function VisitasAgendadas() {
             </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {paginatedVisits && paginatedVisits.totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1 || isLoading}
+                data-testid="button-prev-page"
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Anterior
+              </Button>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground" data-testid="text-pagination-info">
+                  Página {currentPage} de {paginatedVisits.totalPages}
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(paginatedVisits.totalPages, prev + 1))}
+                disabled={currentPage === paginatedVisits.totalPages || isLoading}
+                data-testid="button-next-page"
+              >
+                Próxima
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
             </div>
           )}
         </motion.div>

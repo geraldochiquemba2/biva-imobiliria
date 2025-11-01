@@ -83,24 +83,35 @@ const upload = multer({
 
 // Helper function to auto-complete visits that are more than 1 day old
 async function getVisitsWithAutoComplete() {
-  const visits = await storage.listVisits();
   const now = new Date();
   const oneDayInMs = 24 * 60 * 60 * 1000;
+  let allVisits: any[] = [];
+  let currentPage = 1;
+  let hasMore = true;
   
-  for (const visit of visits) {
-    if (visit.status === 'agendada' && visit.scheduledDateTime) {
-      const visitDate = new Date(visit.scheduledDateTime);
-      const timeSinceVisit = now.getTime() - visitDate.getTime();
-      
-      // If visit was more than 1 day ago, mark as completed
-      if (timeSinceVisit > oneDayInMs) {
-        await storage.updateVisit(visit.id, { status: 'concluida' });
-        visit.status = 'concluida';
+  // Fetch all visits by paginating through them
+  while (hasMore) {
+    const paginatedVisits = await storage.listVisits({ page: currentPage, limit: 100, status: 'agendada' });
+    
+    for (const visit of paginatedVisits.data) {
+      if (visit.scheduledDateTime) {
+        const visitDate = new Date(visit.scheduledDateTime);
+        const timeSinceVisit = now.getTime() - visitDate.getTime();
+        
+        // If visit was more than 1 day ago, mark as completed
+        if (timeSinceVisit > oneDayInMs) {
+          await storage.updateVisit(visit.id, { status: 'concluida' });
+          visit.status = 'concluida';
+        }
       }
     }
+    
+    allVisits = allVisits.concat(paginatedVisits.data);
+    hasMore = currentPage < paginatedVisits.totalPages;
+    currentPage++;
   }
   
-  return visits;
+  return allVisits;
 }
 
 // Cache control middleware for GET requests
@@ -733,8 +744,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if property has active scheduled visits
-      const propertyVisits = await storage.getVisitsByProperty(req.params.id);
-      const hasActiveVisits = propertyVisits.some(visit => visit.status === 'agendada');
+      const propertyVisits = await storage.getVisitsByProperty(req.params.id, { status: 'agendada', limit: 1 });
+      const hasActiveVisits = propertyVisits.data.length > 0;
       
       // Check if property is rented
       const isRented = property.status === 'arrendado';
@@ -892,8 +903,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if property has active scheduled visits
-      const propertyVisits = await storage.getVisitsByProperty(req.params.id);
-      const hasActiveVisits = propertyVisits.some(visit => visit.status === 'agendada');
+      const propertyVisits = await storage.getVisitsByProperty(req.params.id, { status: 'agendada', limit: 1 });
+      const hasActiveVisits = propertyVisits.data.length > 0;
       
       // Check if property is rented
       const isRented = existingProperty.status === 'arrendado';
@@ -959,8 +970,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if property has active scheduled visits
-      const propertyVisits = await storage.getVisitsByProperty(req.params.id);
-      const hasActiveVisits = propertyVisits.some(visit => visit.status === 'agendada');
+      const propertyVisits = await storage.getVisitsByProperty(req.params.id, { status: 'agendada', limit: 1 });
+      const hasActiveVisits = propertyVisits.data.length > 0;
       
       // Check if property is rented
       const isRented = existingProperty.status === 'arrendado';
@@ -1866,7 +1877,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/visits", requireAuth, cacheControl(60), async (req, res) => {
     try {
       const userId = req.session.userId!;
-      const cacheKey = `visits:user:${userId}`;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const status = req.query.status as string | undefined;
+      
+      const cacheKey = `visits:user:${userId}:page:${page}:limit:${limit}:status:${status || 'all'}`;
       
       // Check cache first
       const cached = memoryCache.get(cacheKey);
@@ -1877,16 +1892,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // First, auto-complete all old visits
       await getVisitsWithAutoComplete();
       
-      // Fetch user-specific visits (client + owner visits)
-      const clientVisits = await storage.getVisitsByClient(userId);
-      const ownerVisits = await storage.getVisitsByOwner(userId);
+      // Fetch user-specific visits with pagination (client + owner visits)
+      const params = { page, limit, status };
+      const clientVisits = await storage.getVisitsByClient(userId, params);
+      const ownerVisits = await storage.getVisitsByOwner(userId, params);
       
-      // Create a Set to track unique visit IDs
+      // Merge results, avoiding duplicates
       const visitIds = new Set<string>();
       const visits = [];
       
       // Add all client visits
-      for (const visit of clientVisits) {
+      for (const visit of clientVisits.data) {
         if (!visitIds.has(visit.id)) {
           visitIds.add(visit.id);
           visits.push(visit);
@@ -1894,7 +1910,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Add all owner visits (avoiding duplicates)
-      for (const visit of ownerVisits) {
+      for (const visit of ownerVisits.data) {
         if (!visitIds.has(visit.id)) {
           visitIds.add(visit.id);
           visits.push(visit);
@@ -1904,10 +1920,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Sort by creation date (most recent first)
       visits.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       
-      // Cache for 1 minute
-      memoryCache.set(cacheKey, visits, 60);
+      // Calculate combined total
+      const total = clientVisits.total + ownerVisits.total - visits.length;
+      const totalPages = Math.ceil(total / limit);
       
-      res.json(visits);
+      const result = {
+        data: visits,
+        total,
+        page,
+        limit,
+        totalPages,
+      };
+      
+      // Cache for 1 minute
+      memoryCache.set(cacheKey, result, 60);
+      
+      res.json(result);
     } catch (error) {
       console.error('Error listing visits:', error);
       res.status(500).json({ error: "Falha ao buscar visitas" });
@@ -1945,7 +1973,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
-      const cacheKey = `visits:client:${req.params.clienteId}`;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const status = req.query.status as string | undefined;
+      
+      const cacheKey = `visits:client:${req.params.clienteId}:page:${page}:limit:${limit}:status:${status || 'all'}`;
       
       // Check cache first
       const cached = memoryCache.get(cacheKey);
@@ -1953,7 +1985,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cached);
       }
       
-      const visits = await storage.getVisitsByClient(req.params.clienteId);
+      const visits = await storage.getVisitsByClient(req.params.clienteId, { page, limit, status });
       
       // Cache for 1 minute
       memoryCache.set(cacheKey, visits, 60);
@@ -1968,7 +2000,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get visits by property
   app.get("/api/properties/:propertyId/visits", requireAuth, cacheControl(60), async (req, res) => {
     try {
-      const cacheKey = `visits:property:${req.params.propertyId}`;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const status = req.query.status as string | undefined;
+      
+      const cacheKey = `visits:property:${req.params.propertyId}:page:${page}:limit:${limit}:status:${status || 'all'}`;
       
       // Check cache first
       const cached = memoryCache.get(cacheKey);
@@ -1986,7 +2022,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
-      const visits = await storage.getVisitsByProperty(req.params.propertyId);
+      const visits = await storage.getVisitsByProperty(req.params.propertyId, { page, limit, status });
       
       // Cache for 1 minute
       memoryCache.set(cacheKey, visits, 60);

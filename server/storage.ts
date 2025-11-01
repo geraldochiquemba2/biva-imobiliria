@@ -43,6 +43,20 @@ export interface PaginatedProperties {
   totalPages: number;
 }
 
+export interface PaginatedVisits {
+  data: Visit[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface VisitListParams {
+  page?: number;
+  limit?: number;
+  status?: string;
+}
+
 export interface IStorage {
   // User methods
   getUser(id: string): Promise<User | undefined>;
@@ -75,13 +89,13 @@ export interface IStorage {
   
   // Visit methods
   getVisit(id: string): Promise<Visit | undefined>;
-  listVisits(): Promise<Visit[]>;
+  listVisits(params?: VisitListParams): Promise<PaginatedVisits>;
   createVisit(visit: InsertVisit): Promise<Visit>;
   updateVisit(id: string, visit: Partial<InsertVisit>): Promise<Visit | undefined>;
   deleteVisit(id: string): Promise<boolean>;
-  getVisitsByClient(clienteId: string): Promise<Visit[]>;
-  getVisitsByProperty(propertyId: string): Promise<Visit[]>;
-  getVisitsByOwner(ownerId: string): Promise<Visit[]>;
+  getVisitsByClient(clienteId: string, params?: VisitListParams): Promise<PaginatedVisits>;
+  getVisitsByProperty(propertyId: string, params?: VisitListParams): Promise<PaginatedVisits>;
+  getVisitsByOwner(ownerId: string, params?: VisitListParams): Promise<PaginatedVisits>;
   getVisitByClientAndProperty(clienteId: string, propertyId: string): Promise<Visit | undefined>;
   
   // Proposal methods
@@ -657,14 +671,31 @@ export class DatabaseStorage implements IStorage {
     return visit || undefined;
   }
 
-  async listVisits(): Promise<Visit[]> {
+  async listVisits(params?: VisitListParams): Promise<PaginatedVisits> {
     const cliente = aliasedTable(users, 'cliente');
     const owner = aliasedTable(users, 'owner');
     
-    const results = await db
+    const page = params?.page ?? 1;
+    const limit = Math.min(params?.limit ?? 20, 100);
+    const offset = (page - 1) * limit;
+
+    const conditions = [];
+    if (params?.status) {
+      conditions.push(eq(visits.status, params.status));
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(visits)
+      .where(whereClause);
+
+    const total = Number(count) || 0;
+    
+    let query = db
       .select({
         visit: visits,
-        // Select only essential property fields, exclude images to reduce bandwidth
         property: {
           id: properties.id,
           title: properties.title,
@@ -691,10 +722,18 @@ export class DatabaseStorage implements IStorage {
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
       .leftJoin(cliente, eq(visits.clienteId, cliente.id))
-      .leftJoin(owner, eq(properties.ownerId, owner.id))
-      .orderBy(desc(visits.createdAt));
+      .leftJoin(owner, eq(properties.ownerId, owner.id));
+
+    if (whereClause) {
+      query = query.where(whereClause) as any;
+    }
+
+    const results = await query
+      .orderBy(desc(visits.createdAt))
+      .limit(limit)
+      .offset(offset);
     
-    return results.map((r) => ({
+    const data = results.map((r) => ({
       ...r.visit,
       property: {
         ...r.property,
@@ -702,6 +741,16 @@ export class DatabaseStorage implements IStorage {
       },
       cliente: r.cliente?.id ? r.cliente : undefined,
     })) as any;
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   async createVisit(insertVisit: InsertVisit): Promise<Visit> {
@@ -729,13 +778,30 @@ export class DatabaseStorage implements IStorage {
     return result.length > 0;
   }
 
-  async getVisitsByClient(clienteId: string): Promise<Visit[]> {
+  async getVisitsByClient(clienteId: string, params?: VisitListParams): Promise<PaginatedVisits> {
     const owner = aliasedTable(users, 'owner');
+    
+    const page = params?.page ?? 1;
+    const limit = Math.min(params?.limit ?? 20, 100);
+    const offset = (page - 1) * limit;
+
+    const conditions = [eq(visits.clienteId, clienteId)];
+    if (params?.status) {
+      conditions.push(eq(visits.status, params.status));
+    }
+
+    const whereClause = and(...conditions);
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(visits)
+      .where(whereClause);
+
+    const total = Number(count) || 0;
     
     const results = await db
       .select({
         visit: visits,
-        // Select only essential property fields, exclude images to reduce bandwidth
         property: {
           id: properties.id,
           title: properties.title,
@@ -757,25 +823,54 @@ export class DatabaseStorage implements IStorage {
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
       .leftJoin(owner, eq(properties.ownerId, owner.id))
-      .where(eq(visits.clienteId, clienteId))
-      .orderBy(desc(visits.createdAt));
+      .where(whereClause)
+      .orderBy(desc(visits.createdAt))
+      .limit(limit)
+      .offset(offset);
     
-    return results.map((r) => ({
+    const data = results.map((r) => ({
       ...r.visit,
       property: {
         ...r.property,
         owner: r.owner?.id ? r.owner : undefined,
       },
     })) as any;
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
-  async getVisitsByProperty(propertyId: string): Promise<Visit[]> {
+  async getVisitsByProperty(propertyId: string, params?: VisitListParams): Promise<PaginatedVisits> {
     const cliente = aliasedTable(users, 'cliente');
+    
+    const page = params?.page ?? 1;
+    const limit = Math.min(params?.limit ?? 20, 100);
+    const offset = (page - 1) * limit;
+
+    const conditions = [eq(visits.propertyId, propertyId)];
+    if (params?.status) {
+      conditions.push(eq(visits.status, params.status));
+    }
+
+    const whereClause = and(...conditions);
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(visits)
+      .where(whereClause);
+
+    const total = Number(count) || 0;
     
     const results = await db
       .select({
         visit: visits,
-        // Select only essential property fields, exclude images to reduce bandwidth
         property: {
           id: properties.id,
           title: properties.title,
@@ -796,21 +891,51 @@ export class DatabaseStorage implements IStorage {
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
       .leftJoin(cliente, eq(visits.clienteId, cliente.id))
-      .where(eq(visits.propertyId, propertyId))
-      .orderBy(desc(visits.createdAt));
+      .where(whereClause)
+      .orderBy(desc(visits.createdAt))
+      .limit(limit)
+      .offset(offset);
     
-    return results.map((r) => ({
+    const data = results.map((r) => ({
       ...r.visit,
       property: r.property,
       cliente: r.cliente?.id ? r.cliente : undefined,
     })) as any;
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
-  async getVisitsByOwner(ownerId: string): Promise<Visit[]> {
+  async getVisitsByOwner(ownerId: string, params?: VisitListParams): Promise<PaginatedVisits> {
+    const page = params?.page ?? 1;
+    const limit = Math.min(params?.limit ?? 20, 100);
+    const offset = (page - 1) * limit;
+
+    const conditions = [eq(properties.ownerId, ownerId)];
+    if (params?.status) {
+      conditions.push(eq(visits.status, params.status));
+    }
+
+    const whereClause = and(...conditions);
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(visits)
+      .innerJoin(properties, eq(visits.propertyId, properties.id))
+      .where(whereClause);
+
+    const total = Number(count) || 0;
+
     const results = await db
       .select({
         visit: visits,
-        // Select only essential property fields, exclude images to reduce bandwidth
         property: {
           id: properties.id,
           title: properties.title,
@@ -831,14 +956,26 @@ export class DatabaseStorage implements IStorage {
       .from(visits)
       .innerJoin(properties, eq(visits.propertyId, properties.id))
       .leftJoin(users, eq(visits.clienteId, users.id))
-      .where(eq(properties.ownerId, ownerId))
-      .orderBy(desc(visits.createdAt));
+      .where(whereClause)
+      .orderBy(desc(visits.createdAt))
+      .limit(limit)
+      .offset(offset);
     
-    return results.map((r) => ({
+    const data = results.map((r) => ({
       ...r.visit,
       property: r.property,
       cliente: r.cliente?.id ? r.cliente : undefined,
     })) as any;
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   async getVisitByClientAndProperty(clienteId: string, propertyId: string): Promise<Visit | undefined> {

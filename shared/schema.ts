@@ -3,6 +3,14 @@ import { pgTable, text, varchar, integer, decimal, boolean, timestamp, index } f
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export interface PaginatedVisits {
+  data: Visit[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 // Users table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
