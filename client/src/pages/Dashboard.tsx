@@ -57,10 +57,12 @@ export default function Dashboard() {
   });
 
   // Get user's own visits (as client or property owner)
-  const { data: visits = [] } = useQuery<Visit[]>({
+  const { data: visitsResponse } = useQuery<{ data: Visit[]; total: number; page: number; limit: number; totalPages: number }>({
     queryKey: [`/api/visits`],
     enabled: !!currentUser?.id,
   });
+
+  const visits = visitsResponse?.data || [];
 
   if (userLoading) {
     return (
