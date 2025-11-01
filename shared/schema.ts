@@ -93,6 +93,9 @@ export const contracts = pgTable("contracts", {
   clienteIdx: index("contracts_cliente_idx").on(table.clienteId),
   propertyIdx: index("contracts_property_idx").on(table.propertyId),
   statusIdx: index("contracts_status_idx").on(table.status),
+  propertyStatusIdx: index("contracts_property_status_idx").on(table.propertyId, table.status),
+  proprietarioStatusIdx: index("contracts_proprietario_status_idx").on(table.proprietarioId, table.status),
+  clienteStatusIdx: index("contracts_cliente_status_idx").on(table.clienteId, table.status),
 }));
 
 // Visits table

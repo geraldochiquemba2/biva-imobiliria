@@ -2,6 +2,9 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import compression from "compression";
 import { storage } from "./storage";
+import { db } from "./db";
+import { visits } from "@shared/schema";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import { 
   insertPropertySchema, 
   searchPropertySchema,
@@ -631,14 +634,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const paginatedResult = await storage.listProperties(searchParams);
       
-      // Get all active visits (with auto-complete) to check which properties can be edited
-      const allVisits = await getVisitsWithAutoComplete();
+      // First auto-complete old visits (important to prevent stale visits from blocking edits)
+      await getVisitsWithAutoComplete();
+      
+      // Optimize: Only check active visits for the properties in this page
+      // instead of fetching ALL visits again after auto-complete
+      const propertyIds = paginatedResult.data.map(p => p.id);
       const activeVisitsByProperty = new Map();
-      allVisits.forEach(visit => {
-        if (visit.status === 'agendada') {
-          activeVisitsByProperty.set(visit.propertyId, true);
-        }
-      });
+      
+      if (propertyIds.length > 0) {
+        // Batch query to check for active visits only for returned properties
+        const activeVisitsQuery = await db
+          .select({ propertyId: visits.propertyId })
+          .from(visits)
+          .where(
+            and(
+              inArray(visits.propertyId, propertyIds),
+              eq(visits.status, 'agendada')
+            )
+          );
+        
+        activeVisitsQuery.forEach((v: { propertyId: string }) => {
+          activeVisitsByProperty.set(v.propertyId, true);
+        });
+      }
       
       // Add edit information to each property
       const propertiesWithEditInfo = paginatedResult.data.map(property => {
@@ -980,14 +999,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const properties = await storage.getUserProperties(req.params.userId);
       
-      // Get all active visits (with auto-complete) to check which properties can be edited
-      const allVisits = await getVisitsWithAutoComplete();
+      // Optimize: Only check active visits for the user's properties
+      const propertyIds = properties.map(p => p.id);
       const activeVisitsByProperty = new Map();
-      allVisits.forEach(visit => {
-        if (visit.status === 'agendada') {
-          activeVisitsByProperty.set(visit.propertyId, true);
-        }
-      });
+      
+      if (propertyIds.length > 0) {
+        // Batch query to check for active visits only for user's properties
+        const activeVisitsQuery = await db
+          .select({ propertyId: visits.propertyId })
+          .from(visits)
+          .where(
+            and(
+              inArray(visits.propertyId, propertyIds),
+              eq(visits.status, 'agendada')
+            )
+          );
+        
+        activeVisitsQuery.forEach((v: { propertyId: string }) => {
+          activeVisitsByProperty.set(v.propertyId, true);
+        });
+      }
       
       // Add edit information to each property
       const propertiesWithEditInfo = properties.map(property => {
@@ -1473,6 +1504,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contractContent,
       });
       
+      // Invalidate contract caches
+      memoryCache.invalidate('contracts');
+      
       res.status(201).json(contract);
     } catch (error) {
       console.error('Error creating rental contract:', error);
@@ -1515,7 +1549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get contracts by user (returns contracts where user is client or owner)
-  app.get("/api/users/:userId/contracts", requireAuth, async (req, res) => {
+  app.get("/api/users/:userId/contracts", requireAuth, cacheControl(90), async (req, res) => {
     try {
       // Admin can see all user contracts, users can only see their own
       const isAdmin = hasRole(req.session, 'admin');
@@ -1523,7 +1557,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
+      const cacheKey = `contracts:user:${req.params.userId}`;
+      
+      // Check cache first
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       const contracts = await storage.getContractsByUser(req.params.userId);
+      
+      // Cache for 1.5 minutes
+      memoryCache.set(cacheKey, contracts, 90);
+      
       res.json(contracts);
     } catch (error) {
       console.error('Error getting user contracts:', error);
@@ -1606,6 +1652,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateProperty(contractData.propertyId, { status: 'arrendado' });
       }
       
+      // Invalidate contract and property caches
+      memoryCache.invalidate('contracts');
+      memoryCache.invalidate('properties');
+      
       res.status(201).json(contract);
     } catch (error) {
       console.error('Error creating contract:', error);
@@ -1645,6 +1695,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update contract status to cancelled
       const updatedContract = await storage.updateContract(contractId, { status: 'cancelado' });
       
+      // Invalidate contract caches
+      memoryCache.invalidate('contracts');
+      
       res.json(updatedContract);
     } catch (error) {
       console.error('Error cancelling contract:', error);
@@ -1660,6 +1713,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!contract) {
         return res.status(404).json({ error: "Contrato não encontrado" });
       }
+      
+      // Invalidate contract caches
+      memoryCache.invalidate('contracts');
+      
       res.json(contract);
     } catch (error) {
       console.error('Error updating contract:', error);
@@ -1806,15 +1863,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Get visits (returns only user's own visits - as client or owner)
   // Note: Even corretores see only their own visits here. Use admin endpoints for full access.
-  app.get("/api/visits", requireAuth, async (req, res) => {
+  app.get("/api/visits", requireAuth, cacheControl(60), async (req, res) => {
     try {
+      const userId = req.session.userId!;
+      const cacheKey = `visits:user:${userId}`;
+      
+      // Check cache first
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       // First, auto-complete all old visits
       await getVisitsWithAutoComplete();
       
       // Fetch user-specific visits (client + owner visits)
-      const userId = req.session.userId!;
-      
-      // Combine both client and owner visits for the logged-in user
       const clientVisits = await storage.getVisitsByClient(userId);
       const ownerVisits = await storage.getVisitsByOwner(userId);
       
@@ -1840,6 +1903,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Sort by creation date (most recent first)
       visits.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      // Cache for 1 minute
+      memoryCache.set(cacheKey, visits, 60);
       
       res.json(visits);
     } catch (error) {
@@ -1872,14 +1938,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get visits by client
-  app.get("/api/users/:clienteId/visits", requireAuth, async (req, res) => {
+  app.get("/api/users/:clienteId/visits", requireAuth, cacheControl(60), async (req, res) => {
     try {
       // Users can only see their own visits, unless they're corretor
       if (!hasRole(req.session, 'corretor') && req.params.clienteId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
+      const cacheKey = `visits:client:${req.params.clienteId}`;
+      
+      // Check cache first
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       const visits = await storage.getVisitsByClient(req.params.clienteId);
+      
+      // Cache for 1 minute
+      memoryCache.set(cacheKey, visits, 60);
+      
       res.json(visits);
     } catch (error) {
       console.error('Error getting client visits:', error);
@@ -1888,8 +1966,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get visits by property
-  app.get("/api/properties/:propertyId/visits", requireAuth, async (req, res) => {
+  app.get("/api/properties/:propertyId/visits", requireAuth, cacheControl(60), async (req, res) => {
     try {
+      const cacheKey = `visits:property:${req.params.propertyId}`;
+      
+      // Check cache first
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       // Verify user has access to this property
       const property = await storage.getProperty(req.params.propertyId);
       if (!property) {
@@ -1901,6 +1987,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const visits = await storage.getVisitsByProperty(req.params.propertyId);
+      
+      // Cache for 1 minute
+      memoryCache.set(cacheKey, visits, 60);
+      
       res.json(visits);
     } catch (error) {
       console.error('Error getting property visits:', error);
@@ -1932,6 +2022,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const visit = await storage.createVisit(newVisit);
+      
+      // Invalidate visit caches
+      memoryCache.invalidate('visits');
       
       // Get property to notify owner
       const property = await storage.getProperty(visit.propertyId);
@@ -1974,6 +2067,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const updates = req.body;
       const visit = await storage.updateVisit(req.params.id, updates);
+      
+      // Invalidate visit caches
+      memoryCache.invalidate('visits');
+      
       res.json(visit);
     } catch (error) {
       console.error('Error updating visit:', error);
@@ -2012,6 +2109,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           entityId: visit.id,
         });
         
+        // Invalidate visit caches
+        memoryCache.invalidate('visits');
+        
         return res.json(updatedVisit);
       }
       
@@ -2029,6 +2129,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: `O proprietário recusou sua solicitação de visita`,
           entityId: visit.id,
         });
+        
+        // Invalidate visit caches
+        memoryCache.invalidate('visits');
         
         return res.json(updatedVisit);
       }
@@ -2048,6 +2151,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: `O proprietário propôs uma nova data para a visita`,
           entityId: visit.id,
         });
+        
+        // Invalidate visit caches
+        memoryCache.invalidate('visits');
         
         return res.json(updatedVisit);
       }
@@ -2092,6 +2198,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
+        // Invalidate visit caches
+        memoryCache.invalidate('visits');
+        
         return res.json(updatedVisit);
       }
       
@@ -2112,6 +2221,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             entityId: visit.id,
           });
         }
+        
+        // Invalidate visit caches
+        memoryCache.invalidate('visits');
         
         return res.json(updatedVisit);
       }
@@ -2134,6 +2246,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             entityId: visit.id,
           });
         }
+        
+        // Invalidate visit caches
+        memoryCache.invalidate('visits');
         
         return res.json(updatedVisit);
       }
@@ -2162,6 +2277,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const success = await storage.deleteVisit(req.params.id);
+      
+      // Invalidate visit caches
+      memoryCache.invalidate('visits');
+      
       res.status(204).send();
     } catch (error) {
       console.error('Error deleting visit:', error);
@@ -2195,14 +2314,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get proposals by client
-  app.get("/api/users/:clienteId/proposals", requireAuth, async (req, res) => {
+  app.get("/api/users/:clienteId/proposals", requireAuth, cacheControl(60), async (req, res) => {
     try {
       // Users can only see their own proposals
       if (req.params.clienteId !== req.session.userId) {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
+      const cacheKey = `proposals:client:${req.params.clienteId}`;
+      
+      // Check cache first
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       const proposals = await storage.getProposalsByClient(req.params.clienteId);
+      
+      // Cache for 1 minute
+      memoryCache.set(cacheKey, proposals, 60);
+      
       res.json(proposals);
     } catch (error) {
       console.error('Error getting client proposals:', error);
@@ -2211,8 +2342,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get proposals by property
-  app.get("/api/properties/:propertyId/proposals", requireAuth, async (req, res) => {
+  app.get("/api/properties/:propertyId/proposals", requireAuth, cacheControl(60), async (req, res) => {
     try {
+      const cacheKey = `proposals:property:${req.params.propertyId}`;
+      
+      // Check cache first
+      const cached = memoryCache.get(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       // Verify user has access to this property
       const property = await storage.getProperty(req.params.propertyId);
       if (!property) {
@@ -2225,6 +2364,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const proposals = await storage.getProposalsByProperty(req.params.propertyId);
+      
+      // Cache for 1 minute
+      memoryCache.set(cacheKey, proposals, 60);
+      
       res.json(proposals);
     } catch (error) {
       console.error('Error getting property proposals:', error);
@@ -2243,6 +2386,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const proposal = await storage.createProposal(proposalData);
+      
+      // Invalidate proposal caches
+      memoryCache.invalidate('proposals');
+      
       res.status(201).json(proposal);
     } catch (error) {
       console.error('Error creating proposal:', error);
@@ -2269,6 +2416,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const updates = req.body;
       const proposal = await storage.updateProposal(req.params.id, updates);
+      
+      // Invalidate proposal caches
+      memoryCache.invalidate('proposals');
+      
       res.json(proposal);
     } catch (error) {
       console.error('Error updating proposal:', error);
