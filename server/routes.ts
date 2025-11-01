@@ -285,6 +285,16 @@ setInterval(() => {
   });
 }, 5 * 60 * 1000);
 
+// Auto-complete old visits every 30 minutes instead of on every request
+setInterval(async () => {
+  try {
+    await getVisitsWithAutoComplete();
+    console.log('Auto-completed old visits successfully');
+  } catch (error) {
+    console.error('Error auto-completing visits:', error);
+  }
+}, 30 * 60 * 1000);
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Trust proxy to get correct IP addresses (required for Render)
   app.set('trust proxy', 1);
@@ -645,11 +655,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const paginatedResult = await storage.listProperties(searchParams);
       
-      // First auto-complete old visits (important to prevent stale visits from blocking edits)
-      await getVisitsWithAutoComplete();
-      
       // Optimize: Only check active visits for the properties in this page
-      // instead of fetching ALL visits again after auto-complete
       const propertyIds = paginatedResult.data.map(p => p.id);
       const activeVisitsByProperty = new Map();
       
@@ -1880,9 +1886,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (cached) {
         return res.json(cached);
       }
-      
-      // First, auto-complete all old visits
-      await getVisitsWithAutoComplete();
       
       // Fetch user-specific visits with pagination (client + owner visits)
       const params = { page, limit, status };
