@@ -85,13 +85,16 @@ export default function ImovelDetalhes() {
   // Prefetch similar properties for better navigation UX
   useEffect(() => {
     if (property) {
+      // Build query string for similar properties
+      const params = new URLSearchParams({
+        municipio: property.municipio,
+        type: property.type,
+        limit: '6',
+      });
+      
       // Prefetch similar properties based on location and type
       queryClient.prefetchQuery({
-        queryKey: ['/api/properties', { 
-          municipio: property.municipio,
-          type: property.type,
-          limit: 6,
-        }],
+        queryKey: [`/api/properties?${params.toString()}`],
       });
     }
   }, [property]);
