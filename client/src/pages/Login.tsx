@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Phone, Lock, LogIn } from "lucide-react";
+import { Phone, Lock, LogIn, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
@@ -84,7 +84,11 @@ export default function Login() {
   };
 
   if (currentUser) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" data-testid="loader-redirect" />
+      </div>
+    );
   }
 
   return (
