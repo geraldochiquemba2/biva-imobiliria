@@ -443,8 +443,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ error: "Usuário não encontrado" });
         }
         
-        // Cache user for 5 minutes
-        memoryCache.set(cacheKey, user, 300);
+        // Cache user for 15 minutes
+        memoryCache.set(cacheKey, user, 900);
       }
       
       // Check if user is blocked
@@ -614,7 +614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Property Routes
   
   // Get all properties with optional filters
-  app.get("/api/properties", cacheControl(120), async (req, res) => {
+  app.get("/api/properties", cacheControl(300), async (req, res) => {
     try {
       const searchParams = searchPropertySchema.parse({
         type: req.query.type,
@@ -692,8 +692,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPages: paginatedResult.totalPages,
       };
       
-      // Cache result for 2 minutes
-      memoryCache.set(cacheKey, result, 120);
+      // Cache result for 5 minutes
+      memoryCache.set(cacheKey, result, 300);
       
       res.json(result);
     } catch (error) {
@@ -703,7 +703,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get featured properties
-  app.get("/api/properties/featured", cacheControl(180), async (req, res) => {
+  app.get("/api/properties/featured", cacheControl(600), async (req, res) => {
     try {
       // Check cache first
       const cacheKey = 'properties:featured';
@@ -714,8 +714,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const properties = await storage.listProperties({ featured: true });
       
-      // Cache for 3 minutes
-      memoryCache.set(cacheKey, properties, 180);
+      // Cache for 10 minutes
+      memoryCache.set(cacheKey, properties, 600);
       
       res.json(properties);
     } catch (error) {
@@ -736,7 +736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get single property
-  app.get("/api/properties/:id", cacheControl(180), async (req, res) => {
+  app.get("/api/properties/:id", cacheControl(600), async (req, res) => {
     try {
       const cacheKey = `property:${req.params.id}`;
       
@@ -749,8 +749,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ error: "Imóvel não encontrado" });
         }
         
-        // Cache for 3 minutes
-        memoryCache.set(cacheKey, property, 180);
+        // Cache for 10 minutes
+        memoryCache.set(cacheKey, property, 600);
       }
       
       if (property.owner) {
