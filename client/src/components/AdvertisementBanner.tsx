@@ -131,8 +131,19 @@ export default function AdvertisementBanner() {
             </Button>
           </div>
 
-          <div className="relative">
-            <Card className="overflow-hidden">
+          <div className="flex items-center gap-4">
+            {activeAds.length > 1 && (
+              <button
+                onClick={prevSlide}
+                className="w-12 h-12 rounded-full bg-card border hover-elevate active-elevate-2 flex items-center justify-center transition-all"
+                data-testid="button-prev-ad"
+                aria-label="Anúncio anterior"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+            )}
+
+            <Card className="overflow-hidden flex-1">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentIndex}
@@ -200,43 +211,35 @@ export default function AdvertisementBanner() {
                 </AnimatePresence>
 
                 {activeAds.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevSlide}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover-elevate active-elevate-2 flex items-center justify-center transition-all z-10"
-                      data-testid="button-prev-ad"
-                      aria-label="Anúncio anterior"
-                    >
-                      <ChevronLeft className="h-6 w-6" />
-                    </button>
-                    <button
-                      onClick={nextSlide}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover-elevate active-elevate-2 flex items-center justify-center transition-all z-10"
-                      data-testid="button-next-ad"
-                      aria-label="Próximo anúncio"
-                    >
-                      <ChevronRight className="h-6 w-6" />
-                    </button>
-
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                      {activeAds.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentIndex(index)}
-                          className={`w-2 h-2 rounded-full transition-all ${
-                            index === currentIndex 
-                              ? 'bg-white w-8' 
-                              : 'bg-white/50 hover:bg-white/70'
-                          }`}
-                          data-testid={`ad-indicator-${index}`}
-                          aria-label={`Ir para anúncio ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </>
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    {activeAds.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all ${
+                          index === currentIndex 
+                            ? 'bg-white w-8' 
+                            : 'bg-white/50 hover:bg-white/70'
+                        }`}
+                        data-testid={`ad-indicator-${index}`}
+                        aria-label={`Ir para anúncio ${index + 1}`}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             </Card>
+
+            {activeAds.length > 1 && (
+              <button
+                onClick={nextSlide}
+                className="w-12 h-12 rounded-full bg-card border hover-elevate active-elevate-2 flex items-center justify-center transition-all"
+                data-testid="button-next-ad"
+                aria-label="Próximo anúncio"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            )}
           </div>
         </div>
       </div>
