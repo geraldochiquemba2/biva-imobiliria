@@ -17,6 +17,7 @@ import {
   insertVirtualTourSchema,
   insertTourRoomSchema,
   insertTourHotspotSchema,
+  insertAdvertisementSchema,
   type Contract
 } from "@shared/schema";
 import { z } from "zod";
@@ -2609,6 +2610,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
       res.status(500).json({ error: "Falha ao marcar todas notificações como lidas" });
+    }
+  });
+
+  // Advertisement Routes
+  
+  // Get all active advertisements (public)
+  app.get("/api/advertisements", async (req, res) => {
+    try {
+      const advertisements = await storage.listActiveAdvertisements();
+      res.json(advertisements);
+    } catch (error) {
+      console.error('Error getting advertisements:', error);
+      res.status(500).json({ error: "Falha ao buscar anúncios" });
+    }
+  });
+
+  // Get all advertisements (admin only)
+  app.get("/api/advertisements/all", requireRole('admin'), async (req, res) => {
+    try {
+      const advertisements = await storage.listAdvertisements();
+      res.json(advertisements);
+    } catch (error) {
+      console.error('Error getting all advertisements:', error);
+      res.status(500).json({ error: "Falha ao buscar anúncios" });
+    }
+  });
+
+  // Create advertisement (admin only)
+  app.post("/api/advertisements", requireRole('admin'), upload.single('image'), async (req, res) => {
+    try {
+      const advertisementData = {
+        ...req.body,
+        orderIndex: parseInt(req.body.orderIndex) || 0,
+        active: req.body.active === 'true' || req.body.active === true,
+        createdById: req.session.userId!
+      };
+
+      // Handle image upload
+      if (req.file) {
+        const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        advertisementData.image = base64Image;
+      }
+
+      const validated = insertAdvertisementSchema.parse(advertisementData);
+      const advertisement = await storage.createAdvertisement(validated);
+      res.status(201).json(advertisement);
+    } catch (error) {
+      console.error('Error creating advertisement:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Dados do anúncio inválidos", details: error.errors });
+      }
+      res.status(500).json({ error: "Falha ao criar anúncio" });
+    }
+  });
+
+  // Update advertisement (admin only)
+  app.patch("/api/advertisements/:id", requireRole('admin'), upload.single('image'), async (req, res) => {
+    try {
+      const updates: any = {
+        ...req.body
+      };
+
+      if (req.body.orderIndex !== undefined) {
+        updates.orderIndex = parseInt(req.body.orderIndex);
+      }
+
+      if (req.body.active !== undefined) {
+        updates.active = req.body.active === 'true' || req.body.active === true;
+      }
+
+      // Handle image upload
+      if (req.file) {
+        const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+        updates.image = base64Image;
+      }
+
+      const advertisement = await storage.updateAdvertisement(req.params.id, updates);
+      if (!advertisement) {
+        return res.status(404).json({ error: "Anúncio não encontrado" });
+      }
+      res.json(advertisement);
+    } catch (error) {
+      console.error('Error updating advertisement:', error);
+      res.status(500).json({ error: "Falha ao atualizar anúncio" });
+    }
+  });
+
+  // Delete advertisement (admin only)
+  app.delete("/api/advertisements/:id", requireRole('admin'), async (req, res) => {
+    try {
+      const success = await storage.deleteAdvertisement(req.params.id);
+      if (!success) {
+        return res.status(404).json({ error: "Anúncio não encontrado" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting advertisement:', error);
+      res.status(500).json({ error: "Falha ao deletar anúncio" });
     }
   });
 
