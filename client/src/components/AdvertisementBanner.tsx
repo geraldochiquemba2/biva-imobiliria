@@ -52,23 +52,27 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
         
         <div className="grid md:grid-cols-3 gap-4 mt-6">
           {contacts.map((contact, index) => (
-            <Card key={contact.title} className="p-6 text-center relative overflow-hidden" data-testid={`contact-card-${index}`}>
+            <Card key={contact.title} className="p-6 text-center relative overflow-hidden min-h-[200px]" data-testid={`contact-card-${index}`}>
               {/* Imagem de fundo */}
               <div 
-                className="absolute inset-0 bg-cover bg-center opacity-20"
-                style={{ backgroundImage: `url(${contact.backgroundImage})` }}
+                className="absolute inset-0 bg-cover bg-center opacity-30"
+                style={{ 
+                  backgroundImage: `url(${contact.backgroundImage})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
               />
               {/* Overlay para melhor legibilidade */}
-              <div className="absolute inset-0 bg-gradient-to-br from-background/60 to-background/80 backdrop-blur-sm" />
+              <div className="absolute inset-0 bg-gradient-to-br from-background/85 via-background/90 to-background/95" />
               
               {/* Conteúdo */}
               <div className="relative z-10">
-                <div className="w-16 h-16 rounded-full bg-primary/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-lg border border-primary/20">
+                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-primary/30">
                   <contact.icon className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-2">{contact.title}</h3>
-                <p className="text-sm font-medium mb-1" data-testid={`contact-info-${index}`}>{contact.info}</p>
-                <p className="text-xs text-muted-foreground">{contact.description}</p>
+                <h3 className="font-bold text-base mb-2 text-foreground">{contact.title}</h3>
+                <p className="text-sm font-semibold mb-1 text-foreground" data-testid={`contact-info-${index}`}>{contact.info}</p>
+                <p className="text-xs text-muted-foreground font-medium">{contact.description}</p>
               </div>
             </Card>
           ))}
