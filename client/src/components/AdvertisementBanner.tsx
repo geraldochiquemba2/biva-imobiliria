@@ -155,43 +155,33 @@ export default function AdvertisementBanner() {
             )}
 
             <Card className="overflow-hidden flex-1">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <div className="p-6 border-b">
-                    <h3 className="text-xl font-bold mb-2" data-testid={`ad-title-${currentIndex}`}>
-                      {currentAd.title}
-                    </h3>
-                    {currentAd.description && (
-                      <p className="text-muted-foreground text-sm mb-3" data-testid={`ad-description-${currentIndex}`}>
-                        {currentAd.description}
-                      </p>
-                    )}
-                    {currentAd.link && (
-                      <a 
-                        href={currentAd.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        data-testid={`ad-visit-button-${currentIndex}`}
-                      >
-                        <Button 
-                          variant="default"
-                          size="sm"
-                          className="gap-2"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Visitar
-                        </Button>
-                      </a>
-                    )}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+              <div className="p-4 border-b min-h-[100px]">
+                <h3 className="text-lg font-bold mb-1 line-clamp-1" data-testid={`ad-title-${currentIndex}`}>
+                  {currentAd.title}
+                </h3>
+                {currentAd.description && (
+                  <p className="text-muted-foreground text-sm mb-2 line-clamp-2" data-testid={`ad-description-${currentIndex}`}>
+                    {currentAd.description}
+                  </p>
+                )}
+                {currentAd.link && (
+                  <a 
+                    href={currentAd.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    data-testid={`ad-visit-button-${currentIndex}`}
+                  >
+                    <Button 
+                      variant="default"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Visitar
+                    </Button>
+                  </a>
+                )}
+              </div>
 
               <div className="relative w-full aspect-square">
                 <AnimatePresence mode="wait">
