@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Phone } from "lucide-react";
+import { ChevronLeft, ChevronRight, Phone, Mail, MapPin } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import type { Advertisement } from "@shared/schema";
 
@@ -21,13 +21,13 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
       description: "Seg - Sex, 8h às 18h"
     },
     {
-      icon: "✉️",
+      icon: Mail,
       title: "Email",
       info: "contacto@biva.ao",
       description: "Respondemos em 24h"
     },
     {
-      icon: "📍",
+      icon: MapPin,
       title: "Localização",
       info: "Luanda, Angola",
       description: "Talatona, Rua Principal"
@@ -48,11 +48,7 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
           {contacts.map((contact, index) => (
             <Card key={contact.title} className="p-6 text-center" data-testid={`contact-card-${index}`}>
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                {typeof contact.icon === 'string' ? (
-                  <span className="text-2xl">{contact.icon}</span>
-                ) : (
-                  <contact.icon className="h-6 w-6 text-primary" />
-                )}
+                <contact.icon className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">{contact.title}</h3>
               <p className="text-sm font-medium mb-1" data-testid={`contact-info-${index}`}>{contact.info}</p>
