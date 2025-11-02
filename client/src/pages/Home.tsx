@@ -9,6 +9,7 @@ import PropertyCard from "@/components/PropertyCard";
 import FeaturesSection from "@/components/FeaturesSection";
 import InteractiveMapSection from "@/components/InteractiveMapSection";
 import CTASection from "@/components/CTASection";
+import AdvertisementBanner from "@/components/AdvertisementBanner";
 import type { Property, PaginatedPropertiesResponse } from "@shared/schema";
 import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
 import { Button } from "@/components/ui/button";
@@ -176,6 +177,8 @@ export default function Home() {
       
       <div className="relative z-10">
         <HeroSection />
+      
+      <AdvertisementBanner />
       
       <IntroSection />
       
