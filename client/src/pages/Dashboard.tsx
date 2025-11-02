@@ -441,7 +441,7 @@ export default function Dashboard() {
                   </Card>
                 </Link>
 
-                <Link href="/cadastrar-imovel">
+                <Link href="/cadastrar-imovel-curta-duracao">
                   <Card className="hover-elevate active-elevate-2 cursor-pointer h-full">
                     <CardContent className="flex flex-col items-center justify-center text-center py-8">
                       <div className="rounded-full bg-blue-500/10 p-4 mb-4">

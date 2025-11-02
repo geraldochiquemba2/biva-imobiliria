@@ -21,6 +21,7 @@ const Login = lazy(() => import("@/pages/Login"));
 const Cadastro = lazy(() => import("@/pages/Cadastro"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const CadastrarImovel = lazy(() => import("@/pages/CadastrarImovel"));
+const CadastrarImovelCurtaDuracao = lazy(() => import("@/pages/CadastrarImovelCurtaDuracao"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const ContratosAtivos = lazy(() => import("@/pages/ContratosAtivos"));
 const VisitasAgendadas = lazy(() => import("@/pages/VisitasAgendadas"));
@@ -83,6 +84,7 @@ function Router() {
             <Route path="/cadastro" component={Cadastro} />
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/cadastrar-imovel" component={CadastrarImovel} />
+            <Route path="/cadastrar-imovel-curta-duracao" component={CadastrarImovelCurtaDuracao} />
             <Route path="/perfil" component={Profile} />
             <Route path="/contratos-ativos" component={ContratosAtivos} />
             <Route path="/contratos/:id/assinar" component={ContractSign} />
