@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { User, Property, Contract, Visit, PaginatedPropertiesResponse } from "@shared/schema";
-import { Building2, Calendar, FileText, Plus, Home, Users, Clock } from "lucide-react";
+import { Building2, Calendar, FileText, Plus, Home, Users, Clock, Megaphone } from "lucide-react";
 import buildingImg from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
 import calendarImg from '@assets/stock_images/calendar_schedule_pl_ee22d3c7.jpg';
 import contractImg from '@assets/stock_images/contract_document_bu_dc6f6b53.jpg';
@@ -362,6 +362,30 @@ export default function Dashboard() {
                       </div>
                       <p className="text-xs text-muted-foreground">
                         Acessar gerenciamento
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
+
+                <Link href="/admin/anuncios">
+                  <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center opacity-20"
+                      style={{ backgroundImage: `url(${buildingImg})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                    <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                      <CardTitle className="text-sm font-medium">
+                        Gerenciar Anúncios
+                      </CardTitle>
+                      <Megaphone className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent className="relative z-10">
+                      <div className="text-2xl font-bold" data-testid="text-advertisements-count">
+                        •••
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Banners publicitários
                       </p>
                     </CardContent>
                   </Card>
