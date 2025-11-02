@@ -223,11 +223,11 @@ export default function AdminAnuncios() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {advertisements.map((ad) => (
               <Card key={ad.id} className="overflow-hidden" data-testid={`ad-card-${ad.id}`}>
-                <div className="relative h-48">
+                <div className="relative h-48 bg-muted/30">
                   <img
                     src={ad.image}
                     alt={ad.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     loading="lazy"
                   />
                   <div className="absolute top-2 right-2 flex gap-2">
