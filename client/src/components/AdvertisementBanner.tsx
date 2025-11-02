@@ -36,7 +36,7 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl" data-testid="dialog-contact">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-contact">
         <DialogHeader>
           <DialogTitle className="text-2xl">Entre em Contacto</DialogTitle>
           <DialogDescription>
