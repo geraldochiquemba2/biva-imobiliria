@@ -123,7 +123,7 @@ export default function AdvertisementBanner() {
 
           <div className="relative">
             <Card className="overflow-hidden">
-              <div className="relative w-full aspect-square bg-muted">
+              <div className="relative w-full aspect-square">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentIndex}
@@ -133,10 +133,19 @@ export default function AdvertisementBanner() {
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0"
                   >
+                    {/* Background desfocado */}
+                    <img
+                      src={currentAd.image}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+                      loading="lazy"
+                      aria-hidden="true"
+                    />
+                    {/* Imagem principal */}
                     <img
                       src={currentAd.image}
                       alt={currentAd.title}
-                      className="w-full h-full object-contain"
+                      className="relative w-full h-full object-contain z-10"
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
