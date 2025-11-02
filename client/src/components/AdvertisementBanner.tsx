@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Phone, Mail, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Phone, Mail, MapPin, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import type { Advertisement } from "@shared/schema";
 
@@ -133,51 +133,39 @@ export default function AdvertisementBanner() {
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0"
                   >
-                    {currentAd.link ? (
-                      <a 
-                        href={currentAd.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="block h-full"
-                        data-testid={`ad-link-${currentIndex}`}
-                      >
-                        <img
-                          src={currentAd.image}
-                          alt={currentAd.title}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                          <h3 className="text-white text-xl font-bold mb-2" data-testid={`ad-title-${currentIndex}`}>
-                            {currentAd.title}
-                          </h3>
-                          {currentAd.description && (
-                            <p className="text-white/90 text-sm" data-testid={`ad-description-${currentIndex}`}>
-                              {currentAd.description}
-                            </p>
-                          )}
-                        </div>
-                      </a>
-                    ) : (
-                      <div className="h-full">
-                        <img
-                          src={currentAd.image}
-                          alt={currentAd.title}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                          <h3 className="text-white text-xl font-bold mb-2" data-testid={`ad-title-${currentIndex}`}>
-                            {currentAd.title}
-                          </h3>
-                          {currentAd.description && (
-                            <p className="text-white/90 text-sm" data-testid={`ad-description-${currentIndex}`}>
-                              {currentAd.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                    <img
+                      src={currentAd.image}
+                      alt={currentAd.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                      <h3 className="text-white text-xl font-bold mb-2" data-testid={`ad-title-${currentIndex}`}>
+                        {currentAd.title}
+                      </h3>
+                      {currentAd.description && (
+                        <p className="text-white/90 text-sm mb-3" data-testid={`ad-description-${currentIndex}`}>
+                          {currentAd.description}
+                        </p>
+                      )}
+                      {currentAd.link && (
+                        <a 
+                          href={currentAd.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          data-testid={`ad-visit-button-${currentIndex}`}
+                        >
+                          <Button 
+                            variant="default"
+                            size="sm"
+                            className="gap-2"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                            Visitar
+                          </Button>
+                        </a>
+                      )}
+                    </div>
                   </motion.div>
                 </AnimatePresence>
 
