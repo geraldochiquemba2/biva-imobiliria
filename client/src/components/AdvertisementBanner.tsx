@@ -202,21 +202,34 @@ export default function AdvertisementBanner() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="absolute inset-0 flex items-center justify-center"
+                    className="absolute inset-0"
                   >
                     {imageErrors.has(currentIndex) ? (
-                      <div className="text-center p-4">
-                        <p className="text-muted-foreground text-sm">
-                          Imagem não disponível
-                        </p>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-center p-4">
+                          <p className="text-muted-foreground text-sm">
+                            Imagem não disponível
+                          </p>
+                        </div>
                       </div>
                     ) : (
-                      <img
-                        src={currentAd.image}
-                        alt={currentAd.title || "Anúncio"}
-                        className="w-full h-full object-contain"
-                        onError={() => handleImageError(currentIndex)}
-                      />
+                      <>
+                        {/* Imagem de fundo desfocada */}
+                        <div 
+                          className="absolute inset-0 bg-cover bg-center blur-xl scale-110"
+                          style={{ backgroundImage: `url(${currentAd.image})` }}
+                          aria-hidden="true"
+                        />
+                        {/* Imagem principal */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <img
+                            src={currentAd.image}
+                            alt={currentAd.title || "Anúncio"}
+                            className="relative w-full h-full object-contain z-10"
+                            onError={() => handleImageError(currentIndex)}
+                          />
+                        </div>
+                      </>
                     )}
                   </motion.div>
                 </AnimatePresence>
