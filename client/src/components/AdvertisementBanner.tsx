@@ -73,7 +73,6 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
 export default function AdvertisementBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
 
   const { data: advertisements, isLoading } = useQuery<Advertisement[]>({
@@ -98,42 +97,6 @@ export default function AdvertisementBanner() {
     setImageErrors(prev => new Set(prev).add(index));
   };
 
-  // Pré-carregar apenas a primeira imagem, carregar as outras sob demanda
-  useEffect(() => {
-    if (activeAds.length === 0) return;
-
-    setImagesLoaded(false);
-    setImageErrors(new Set());
-
-    // Carregar apenas a primeira imagem
-    const firstImg = new Image();
-    
-    const handleLoad = () => {
-      setImagesLoaded(true);
-    };
-
-    const handleError = () => {
-      setImageErrors(new Set([0]));
-      setImagesLoaded(true);
-    };
-
-    firstImg.onload = handleLoad;
-    firstImg.onerror = handleError;
-    
-    // Adicionar timeout para evitar travamento infinito
-    const timeout = setTimeout(() => {
-      setImagesLoaded(true);
-    }, 5000);
-
-    firstImg.src = activeAds[0]?.image;
-
-    return () => {
-      clearTimeout(timeout);
-      firstImg.onload = null;
-      firstImg.onerror = null;
-    };
-  }, [activeAds]);
-
   // Carrossel automático
   useEffect(() => {
     if (activeAds.length <= 1) return;
@@ -145,7 +108,7 @@ export default function AdvertisementBanner() {
     return () => clearInterval(interval);
   }, [activeAds.length, currentIndex]);
 
-  if (isLoading || !imagesLoaded) {
+  if (isLoading) {
     return (
       <div className="w-full py-12 px-6">
         <div className="max-w-7xl mx-auto">
@@ -238,41 +201,22 @@ export default function AdvertisementBanner() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="absolute inset-0"
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0 flex items-center justify-center"
                   >
                     {imageErrors.has(currentIndex) ? (
-                      <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                        <div className="text-center p-4">
-                          <p className="text-muted-foreground text-sm">
-                            Imagem não disponível
-                          </p>
-                        </div>
+                      <div className="text-center p-4">
+                        <p className="text-muted-foreground text-sm">
+                          Imagem não disponível
+                        </p>
                       </div>
                     ) : (
-                      <>
-                        {/* Background desfocado */}
-                        <img
-                          src={currentAd.image}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
-                          aria-hidden="true"
-                          loading="lazy"
-                          onError={() => handleImageError(currentIndex)}
-                        />
-                        {/* Imagem principal */}
-                        <img
-                          src={currentAd.image}
-                          alt={currentAd.title || "Anúncio"}
-                          className="relative w-full h-full object-contain z-10"
-                          loading="lazy"
-                          onError={() => handleImageError(currentIndex)}
-                          style={{
-                            maxWidth: '100%',
-                            maxHeight: '100%',
-                          }}
-                        />
-                      </>
+                      <img
+                        src={currentAd.image}
+                        alt={currentAd.title || "Anúncio"}
+                        className="w-full h-full object-contain"
+                        onError={() => handleImageError(currentIndex)}
+                      />
                     )}
                   </motion.div>
                 </AnimatePresence>
