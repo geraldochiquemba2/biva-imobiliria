@@ -229,6 +229,7 @@ export const advertisements = pgTable("advertisements", {
   image: text("image").notNull(), // Base64 ou URL da imagem
   link: text("link"), // URL de destino ao clicar no anúncio
   active: boolean("active").default(true),
+  expiresAt: timestamp("expires_at").notNull(), // Data de expiração (30 dias após criação/reativação)
   orderIndex: integer("order_index").notNull().default(0), // Ordem de exibição
   createdById: varchar("created_by_id").notNull().references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -237,6 +238,7 @@ export const advertisements = pgTable("advertisements", {
   activeIdx: index("advertisements_active_idx").on(table.active),
   orderIdx: index("advertisements_order_idx").on(table.orderIndex),
   activeOrderIdx: index("advertisements_active_order_idx").on(table.active, table.orderIndex),
+  expiresAtIdx: index("advertisements_expires_at_idx").on(table.expiresAt),
 }));
 
 // Relations
