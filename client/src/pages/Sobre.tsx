@@ -1,11 +1,14 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Target, Eye, Award, Users } from "lucide-react";
+import { Target, Eye, Award, Users, Phone, Mail, MapPin } from "lucide-react";
 import bgImage from '@assets/stock_images/business_team_office_7840ab22.jpg';
 import targetImg from '@assets/stock_images/target_goal_achievem_fa0f4f86.jpg';
 import visionImg from '@assets/stock_images/vision_future_telesc_51bb093f.jpg';
 import awardImg from '@assets/stock_images/award_trophy_excelle_5cd7a8dd.jpg';
 import teamImg from '@assets/stock_images/business_team_collab_38b88751.jpg';
+import phoneImg from '@assets/stock_images/phone_call_customer__d0afec8c.jpg';
+import emailImg from '@assets/stock_images/email_envelope_messa_22f5584e.jpg';
+import locationImg from '@assets/stock_images/office_building_loca_47ac5ee4.jpg';
 
 export default function Sobre() {
   const values = [
@@ -107,6 +110,65 @@ export default function Sobre() {
               </motion.div>
             ))}
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Entre em Contacto</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: Phone,
+                  title: "Telefone",
+                  info: "+244 923 456 789",
+                  description: "Seg - Sex, 8h às 18h",
+                  image: phoneImg
+                },
+                {
+                  icon: Mail,
+                  title: "Email",
+                  info: "contacto@biva.ao",
+                  description: "Respondemos em 24h",
+                  image: emailImg
+                },
+                {
+                  icon: MapPin,
+                  title: "Localização",
+                  info: "Luanda, Angola",
+                  description: "Talatona, Rua Principal",
+                  image: locationImg
+                }
+              ].map((contact, index) => (
+                <motion.div
+                  key={contact.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="relative p-6 h-full hover-elevate transition-all duration-300 overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${contact.image})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/75" />
+                    
+                    <div className="relative z-10 flex flex-col items-center text-center">
+                      <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-white/20">
+                        <contact.icon className="h-7 w-7 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2 text-white">{contact.title}</h3>
+                      <p className="font-medium mb-1 text-white">{contact.info}</p>
+                      <p className="text-sm text-white/80">{contact.description}</p>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
     </div>

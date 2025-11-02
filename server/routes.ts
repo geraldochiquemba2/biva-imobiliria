@@ -1411,6 +1411,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Imóvel não encontrado" });
       }
       
+      // Check if property is short-term rental
+      if (property.shortTerm) {
+        return res.status(400).json({ 
+          error: "Imóveis de curta duração não permitem contratos formais. Este tipo de imóvel é destinado para arrendamentos temporários sem contrato." 
+        });
+      }
+      
       // Verify ownership (proprietarios can only create contracts for their own properties)
       if (hasRole(req.session, 'proprietario') && !hasRole(req.session, 'corretor') && property.ownerId !== req.session.userId) {
         return res.status(403).json({ error: "Você só pode criar contratos para seus próprios imóveis" });

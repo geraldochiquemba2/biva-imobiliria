@@ -49,6 +49,9 @@ export default function Dashboard() {
   
   // Filtrar apenas imóveis aprovados para exibir no contador
   const approvedProperties = myOwnProperties.filter(p => p.approvalStatus === 'aprovado');
+  
+  // Filtrar imóveis de curta duração
+  const shortTermProperties = myOwnProperties.filter(p => p.approvalStatus === 'aprovado' && p.shortTerm);
 
   // Get user's own contracts (as client or owner)
   const { data: contracts = [], isLoading: contractsLoading } = useQuery<Contract[]>({
@@ -135,6 +138,32 @@ export default function Dashboard() {
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Imóveis aprovados
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            )}
+
+            {(hasRole('proprietario') || hasRole('corretor')) && shortTermProperties.length > 0 && (
+              <Link href="/imoveis-curta-duracao">
+                <Card className="hover-elevate active-elevate-2 cursor-pointer relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-20"
+                    style={{ backgroundImage: `url(${buildingImg})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
+                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
+                    <CardTitle className="text-sm font-medium">
+                      Imóveis de Curta Duração
+                    </CardTitle>
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <div className="text-2xl font-bold" data-testid="text-short-term-count">
+                      {shortTermProperties.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Arrendamentos flexíveis
                     </p>
                   </CardContent>
                 </Card>

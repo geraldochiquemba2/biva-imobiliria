@@ -52,6 +52,7 @@ const propertySchema = z.object({
   description: z.string().min(20, "Descrição deve ter no mínimo 20 caracteres"),
   type: z.enum(["Arrendar", "Vender"]),
   category: z.enum(["Apartamento", "Casa", "Comercial", "Terreno"]),
+  shortTerm: z.boolean().optional(),
   price: z.string().min(1, "Preço é obrigatório"),
   provincia: z.string().min(1, "Província é obrigatória"),
   municipio: z.string().min(1, "Município é obrigatório"),
@@ -78,6 +79,7 @@ export default function EditarImovel() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState<string>("");
+  const [isShortTerm, setIsShortTerm] = useState<boolean>(false);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -131,6 +133,8 @@ export default function EditarImovel() {
       setValue("longitude", property.longitude ? parseFloat(property.longitude) : 13.2344);
       setValue("amenities", property.amenities || []);
       setValue("status", property.status as any);
+      setValue("shortTerm", property.shortTerm || false);
+      setIsShortTerm(property.shortTerm || false);
       setExistingImages(property.images || []);
       setSelectedProvince(property.provincia);
     }
@@ -218,6 +222,7 @@ export default function EditarImovel() {
         description: data.description,
         type: data.type,
         category: data.category,
+        shortTerm: data.shortTerm || false,
         price: data.price.toString(),
         provincia: data.provincia,
         municipio: data.municipio,
@@ -523,6 +528,30 @@ export default function EditarImovel() {
                         <p className="text-sm text-destructive">{errors.price.message}</p>
                       )}
                     </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="shortTerm"
+                        checked={isShortTerm}
+                        onCheckedChange={(checked) => {
+                          setIsShortTerm(checked as boolean);
+                          setValue("shortTerm", checked as boolean);
+                        }}
+                        disabled={isEditBlocked}
+                        data-testid="checkbox-short-term"
+                      />
+                      <label
+                        htmlFor="shortTerm"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Imóvel de Curta Duração
+                      </label>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Marque esta opção se o imóvel é para arrendamento de curta duração (hospedagem temporária, férias, etc.). Imóveis de curta duração não permitem contratos formais.
+                    </p>
                   </div>
                 </div>
 

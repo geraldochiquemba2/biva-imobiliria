@@ -295,6 +295,7 @@ const propertyFormSchema = z.object({
   category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno'], {
     required_error: "Selecione a categoria",
   }),
+  shortTerm: z.boolean().optional(),
   price: z.coerce.number().positive("Preço deve ser maior que zero"),
   bairro: z.string().min(2, "Bairro é obrigatório"),
   municipio: z.string().min(2, "Município é obrigatório"),
@@ -322,6 +323,7 @@ export default function CadastrarImovel() {
   const [mapLongitude, setMapLongitude] = useState<number>(13.2344);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [formattedPrice, setFormattedPrice] = useState<string>('');
+  const [isShortTerm, setIsShortTerm] = useState<boolean>(false);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -565,6 +567,7 @@ export default function CadastrarImovel() {
         description: data.description,
         type: data.type,
         category: data.category,
+        shortTerm: data.shortTerm || false,
         price: data.price.toString(),
         bairro: data.bairro,
         municipio: data.municipio,
@@ -849,6 +852,29 @@ export default function CadastrarImovel() {
                         <p className="text-sm text-destructive">{errors.category.message}</p>
                       )}
                     </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="shortTerm"
+                        checked={isShortTerm}
+                        onCheckedChange={(checked) => {
+                          setIsShortTerm(checked as boolean);
+                          setValue("shortTerm", checked as boolean);
+                        }}
+                        data-testid="checkbox-short-term"
+                      />
+                      <label
+                        htmlFor="shortTerm"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Imóvel de Curta Duração
+                      </label>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Marque esta opção se o imóvel é para arrendamento de curta duração (hospedagem temporária, férias, etc.). Imóveis de curta duração não permitem contratos formais.
+                    </p>
                   </div>
 
                   <div className="space-y-2">
