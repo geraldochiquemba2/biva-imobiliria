@@ -123,7 +123,7 @@ export default function AdvertisementBanner() {
 
           <div className="relative">
             <Card className="overflow-hidden">
-              <div className="relative h-64 md:h-80 lg:h-96">
+              <div className="relative h-64 md:h-80 lg:h-96 bg-muted">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentIndex}
@@ -136,7 +136,7 @@ export default function AdvertisementBanner() {
                     <img
                       src={currentAd.image}
                       alt={currentAd.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                       loading="lazy"
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
