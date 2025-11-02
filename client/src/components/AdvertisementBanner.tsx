@@ -183,7 +183,7 @@ export default function AdvertisementBanner() {
                 )}
               </div>
 
-              <div className="relative w-full aspect-square">
+              <div className="relative w-full aspect-square overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentIndex}
