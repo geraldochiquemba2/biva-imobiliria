@@ -74,6 +74,7 @@ export default function AdvertisementBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
 
   const { data: advertisements, isLoading } = useQuery<Advertisement[]>({
     queryKey: ['/api/advertisements'],
@@ -93,30 +94,44 @@ export default function AdvertisementBanner() {
     }
   };
 
-  // Pré-carregar todas as imagens
+  const handleImageError = (index: number) => {
+    setImageErrors(prev => new Set(prev).add(index));
+  };
+
+  // Pré-carregar apenas a primeira imagem, carregar as outras sob demanda
   useEffect(() => {
     if (activeAds.length === 0) return;
 
     setImagesLoaded(false);
-    let loadedCount = 0;
-    const totalImages = activeAds.length;
+    setImageErrors(new Set());
 
-    activeAds.forEach(ad => {
-      const img = new Image();
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          setImagesLoaded(true);
-        }
-      };
-      img.onerror = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          setImagesLoaded(true);
-        }
-      };
-      img.src = ad.image;
-    });
+    // Carregar apenas a primeira imagem
+    const firstImg = new Image();
+    
+    const handleLoad = () => {
+      setImagesLoaded(true);
+    };
+
+    const handleError = () => {
+      setImageErrors(new Set([0]));
+      setImagesLoaded(true);
+    };
+
+    firstImg.onload = handleLoad;
+    firstImg.onerror = handleError;
+    
+    // Adicionar timeout para evitar travamento infinito
+    const timeout = setTimeout(() => {
+      setImagesLoaded(true);
+    }, 5000);
+
+    firstImg.src = activeAds[0]?.image;
+
+    return () => {
+      clearTimeout(timeout);
+      firstImg.onload = null;
+      firstImg.onerror = null;
+    };
   }, [activeAds]);
 
   // Carrossel automático
@@ -216,7 +231,7 @@ export default function AdvertisementBanner() {
                 </AnimatePresence>
               </div>
 
-              <div className="relative w-full h-[200px] sm:h-[250px] md:h-[300px] overflow-hidden">
+              <div className="relative w-full h-[200px] sm:h-[250px] md:h-[300px] overflow-hidden bg-muted">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentIndex}
@@ -226,19 +241,39 @@ export default function AdvertisementBanner() {
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0"
                   >
-                    {/* Background desfocado */}
-                    <img
-                      src={currentAd.image}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
-                      aria-hidden="true"
-                    />
-                    {/* Imagem principal */}
-                    <img
-                      src={currentAd.image}
-                      alt={currentAd.title}
-                      className="relative w-full h-full object-contain z-10"
-                    />
+                    {imageErrors.has(currentIndex) ? (
+                      <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                        <div className="text-center p-4">
+                          <p className="text-muted-foreground text-sm">
+                            Imagem não disponível
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Background desfocado */}
+                        <img
+                          src={currentAd.image}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+                          aria-hidden="true"
+                          loading="lazy"
+                          onError={() => handleImageError(currentIndex)}
+                        />
+                        {/* Imagem principal */}
+                        <img
+                          src={currentAd.image}
+                          alt={currentAd.title || "Anúncio"}
+                          className="relative w-full h-full object-contain z-10"
+                          loading="lazy"
+                          onError={() => handleImageError(currentIndex)}
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                          }}
+                        />
+                      </>
+                    )}
                   </motion.div>
                 </AnimatePresence>
 
