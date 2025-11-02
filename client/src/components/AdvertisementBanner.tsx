@@ -211,7 +211,6 @@ export default function AdvertisementBanner() {
                       src={currentAd.image}
                       alt=""
                       className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
-                      loading="lazy"
                       aria-hidden="true"
                     />
                     {/* Imagem principal */}
@@ -219,7 +218,6 @@ export default function AdvertisementBanner() {
                       src={currentAd.image}
                       alt={currentAd.title}
                       className="relative w-full h-full object-contain z-10"
-                      loading="lazy"
                     />
                   </motion.div>
                 </AnimatePresence>
