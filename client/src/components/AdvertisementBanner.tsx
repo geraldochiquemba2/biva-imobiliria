@@ -150,15 +150,18 @@ export default function AdvertisementBanner() {
     <>
       <div className="w-full py-12 px-6 bg-muted/30" data-testid="advertisement-banner">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Publicidade</h2>
+          <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+            <h2 className="text-xl sm:text-2xl font-bold">Publicidade</h2>
             <Button 
               onClick={() => setContactDialogOpen(true)}
               variant="default"
+              size="sm"
+              className="sm:size-default"
               data-testid="button-advertise-here"
             >
-              <Phone className="h-4 w-4 mr-2" />
-              Quer Anunciar? Clique Aqui
+              <Phone className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">Quer Anunciar? Clique Aqui</span>
+              <span className="sm:hidden ml-2">Anunciar</span>
             </Button>
           </div>
 
