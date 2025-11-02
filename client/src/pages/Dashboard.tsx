@@ -423,6 +423,41 @@ export default function Dashboard() {
             )}
           </div>
 
+          {(hasRole('proprietario') || hasRole('corretor')) && (
+            <div className="my-8">
+              <h2 className="text-2xl font-bold mb-4">Ações Rápidas</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Link href="/cadastrar-imovel">
+                  <Card className="hover-elevate active-elevate-2 cursor-pointer h-full">
+                    <CardContent className="flex flex-col items-center justify-center text-center py-8">
+                      <div className="rounded-full bg-primary/10 p-4 mb-4">
+                        <Plus className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="font-semibold mb-2">Publicar Imóvel</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Adicione um novo imóvel à plataforma
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
+
+                <Link href="/cadastrar-imovel">
+                  <Card className="hover-elevate active-elevate-2 cursor-pointer h-full">
+                    <CardContent className="flex flex-col items-center justify-center text-center py-8">
+                      <div className="rounded-full bg-blue-500/10 p-4 mb-4">
+                        <Calendar className="h-8 w-8 text-blue-500" />
+                      </div>
+                      <h3 className="font-semibold mb-2">Imóvel de Curta Duração</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Publique arrendamento temporário
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {(hasRole('proprietario') || hasRole('corretor')) && (
               <Link href="/meus-imoveis">

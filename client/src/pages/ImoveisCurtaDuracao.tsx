@@ -39,6 +39,7 @@ export default function ImoveisCurtaDuracao() {
     params.append('status', 'disponivel');
     params.append('approvalStatus', 'aprovado');
     params.append('shortTerm', 'true');
+    params.append('type', 'Arrendar');
     
     if (searchLocation) {
       params.append('location', searchLocation);
