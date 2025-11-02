@@ -224,10 +224,10 @@ export const tourHotspots = pgTable("tour_hotspots", {
 // Advertisements table
 export const advertisements = pgTable("advertisements", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  title: text("title").notNull(),
-  description: text("description"),
-  image: text("image").notNull(), // Base64 ou URL da imagem
-  link: text("link"), // URL de destino ao clicar no anúncio
+  title: text("title"), // Título opcional
+  description: text("description"), // Descrição opcional
+  image: text("image").notNull(), // Base64 ou URL da imagem (obrigatório)
+  link: text("link"), // URL de destino ao clicar no anúncio (opcional)
   active: boolean("active").default(true),
   expiresAt: timestamp("expires_at").notNull(), // Data de expiração (30 dias após criação/reativação)
   orderIndex: integer("order_index").notNull().default(0), // Ordem de exibição
