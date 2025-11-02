@@ -9,6 +9,7 @@ import {
   virtualTours,
   tourRooms,
   tourHotspots,
+  advertisements,
   type User, 
   type InsertUser,
   type Property,
@@ -30,7 +31,9 @@ import {
   type InsertTourRoom,
   type TourHotspot,
   type InsertTourHotspot,
-  type VirtualTourWithRooms
+  type VirtualTourWithRooms,
+  type Advertisement,
+  type InsertAdvertisement
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, gte, lte, ilike, desc, aliasedTable, sql } from "drizzle-orm";
@@ -139,6 +142,14 @@ export interface IStorage {
   deleteTourHotspot(id: string): Promise<boolean>;
   getHotspotsByRoom(roomId: string): Promise<TourHotspot[]>;
   deleteHotspotsByRoom(roomId: string): Promise<void>;
+  
+  // Advertisement methods
+  createAdvertisement(advertisement: InsertAdvertisement): Promise<Advertisement>;
+  getAdvertisement(id: string): Promise<Advertisement | undefined>;
+  listAdvertisements(): Promise<Advertisement[]>;
+  listActiveAdvertisements(): Promise<Advertisement[]>;
+  updateAdvertisement(id: string, advertisement: Partial<InsertAdvertisement>): Promise<Advertisement | undefined>;
+  deleteAdvertisement(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1255,6 +1266,57 @@ export class DatabaseStorage implements IStorage {
         eq(tourHotspots.fromRoomId, roomId),
         eq(tourHotspots.toRoomId, roomId)
       ));
+  }
+
+  // Advertisement methods
+  async createAdvertisement(insertAdvertisement: InsertAdvertisement): Promise<Advertisement> {
+    const [advertisement] = await db
+      .insert(advertisements)
+      .values(insertAdvertisement)
+      .returning();
+    return advertisement;
+  }
+
+  async getAdvertisement(id: string): Promise<Advertisement | undefined> {
+    const [advertisement] = await db
+      .select()
+      .from(advertisements)
+      .where(eq(advertisements.id, id));
+    return advertisement || undefined;
+  }
+
+  async listAdvertisements(): Promise<Advertisement[]> {
+    const results = await db
+      .select()
+      .from(advertisements)
+      .orderBy(desc(advertisements.orderIndex), desc(advertisements.createdAt));
+    return results;
+  }
+
+  async listActiveAdvertisements(): Promise<Advertisement[]> {
+    const results = await db
+      .select()
+      .from(advertisements)
+      .where(eq(advertisements.active, true))
+      .orderBy(advertisements.orderIndex, desc(advertisements.createdAt));
+    return results;
+  }
+
+  async updateAdvertisement(id: string, updates: Partial<InsertAdvertisement>): Promise<Advertisement | undefined> {
+    const [advertisement] = await db
+      .update(advertisements)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(advertisements.id, id))
+      .returning();
+    return advertisement || undefined;
+  }
+
+  async deleteAdvertisement(id: string): Promise<boolean> {
+    const result = await db
+      .delete(advertisements)
+      .where(eq(advertisements.id, id))
+      .returning();
+    return result.length > 0;
   }
 }
 
