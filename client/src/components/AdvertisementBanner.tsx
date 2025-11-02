@@ -123,6 +123,44 @@ export default function AdvertisementBanner() {
 
           <div className="relative">
             <Card className="overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="p-6 border-b">
+                    <h3 className="text-xl font-bold mb-2" data-testid={`ad-title-${currentIndex}`}>
+                      {currentAd.title}
+                    </h3>
+                    {currentAd.description && (
+                      <p className="text-muted-foreground text-sm mb-3" data-testid={`ad-description-${currentIndex}`}>
+                        {currentAd.description}
+                      </p>
+                    )}
+                    {currentAd.link && (
+                      <a 
+                        href={currentAd.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        data-testid={`ad-visit-button-${currentIndex}`}
+                      >
+                        <Button 
+                          variant="default"
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Visitar
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
               <div className="relative w-full aspect-square">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -148,33 +186,6 @@ export default function AdvertisementBanner() {
                       className="relative w-full h-full object-contain z-10"
                       loading="lazy"
                     />
-                    <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-6">
-                      <h3 className="text-white text-xl font-bold mb-2" data-testid={`ad-title-${currentIndex}`}>
-                        {currentAd.title}
-                      </h3>
-                      {currentAd.description && (
-                        <p className="text-white/90 text-sm mb-3" data-testid={`ad-description-${currentIndex}`}>
-                          {currentAd.description}
-                        </p>
-                      )}
-                      {currentAd.link && (
-                        <a 
-                          href={currentAd.link} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          data-testid={`ad-visit-button-${currentIndex}`}
-                        >
-                          <Button 
-                            variant="default"
-                            size="sm"
-                            className="gap-2"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                            Visitar
-                          </Button>
-                        </a>
-                      )}
-                    </div>
                   </motion.div>
                 </AnimatePresence>
 
@@ -197,7 +208,7 @@ export default function AdvertisementBanner() {
                       <ChevronRight className="h-6 w-6" />
                     </button>
 
-                    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                       {activeAds.map((_, index) => (
                         <button
                           key={index}
