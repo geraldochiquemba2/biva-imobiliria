@@ -1,47 +1,21 @@
 import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Home, MapPin, Search, Bed, Bath, Maximize2, RotateCcw, Sofa, UtensilsCrossed } from "lucide-react";
-import type { Property, SearchPropertyParams, PaginatedPropertiesResponse } from "@shared/schema";
-import { angolaProvinces } from "@shared/angola-locations";
+import { Home, MapPin, Bed, Bath, Maximize2 } from "lucide-react";
+import type { PaginatedPropertiesResponse } from "@shared/schema";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 export default function Arrendar() {
-  const [filters, setFilters] = useState<SearchPropertyParams>({ type: 'Arrendar' });
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-
-  const availableMunicipios = useMemo(() => {
-    if (!filters.provincia) return [];
-    const selectedProvince = angolaProvinces.find(p => p.name === filters.provincia);
-    return selectedProvince?.municipalities || [];
-  }, [filters.provincia]);
-
   const { data: allProperties, isLoading } = useQuery<PaginatedPropertiesResponse>({
-    queryKey: ['/api/properties', filters],
+    queryKey: ['/api/properties', { type: 'Arrendar' }],
     queryFn: async () => {
       const params = new URLSearchParams();
-      
       params.append('type', 'Arrendar');
-      if (filters.category) params.append('category', filters.category);
-      if (filters.location) params.append('location', filters.location);
-      if (filters.bairro) params.append('bairro', filters.bairro);
-      if (filters.municipio) params.append('municipio', filters.municipio);
-      if (filters.provincia) params.append('provincia', filters.provincia);
-      if (filters.bedrooms !== undefined) params.append('bedrooms', filters.bedrooms.toString());
-      if (filters.minPrice !== undefined) params.append('minPrice', filters.minPrice.toString());
-      if (filters.maxPrice !== undefined) params.append('maxPrice', filters.maxPrice.toString());
-      if (filters.featured !== undefined) params.append('featured', filters.featured.toString());
       
-      const queryString = params.toString();
-      const url = `/api/properties${queryString ? `?${queryString}` : ''}`;
+      const url = `/api/properties?${params.toString()}`;
       
       const res = await fetch(url, { credentials: 'include' });
       if (!res.ok) {
@@ -52,43 +26,6 @@ export default function Arrendar() {
   });
 
   const properties = (allProperties?.data || []).filter(property => property.status === 'disponivel');
-
-  const handleSearch = () => {
-    const newFilters: SearchPropertyParams = { type: 'Arrendar' };
-    
-    if (filters.category) newFilters.category = filters.category;
-    if (filters.provincia) newFilters.provincia = filters.provincia;
-    if (filters.municipio) newFilters.municipio = filters.municipio;
-    if (filters.bedrooms !== undefined) newFilters.bedrooms = filters.bedrooms;
-    if (minPrice) newFilters.minPrice = Number(minPrice);
-    if (maxPrice) newFilters.maxPrice = Number(maxPrice);
-    
-    setFilters(newFilters);
-  };
-
-  const clearFilters = () => {
-    setFilters({ type: 'Arrendar' });
-    setMinPrice('');
-    setMaxPrice('');
-  };
-
-  const handleCategoryChange = (value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      category: value as any
-    }));
-  };
-
-  const handleProvinciaChange = (value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      provincia: value,
-      municipio: ''
-    }));
-  };
-
-  const hasActiveFilters = filters.category || filters.provincia || filters.municipio || filters.bedrooms !== undefined || minPrice || maxPrice;
-  const showRoomFilters = filters.category === 'Casa' || filters.category === 'Apartamento';
 
   return (
     <div className="min-h-screen pt-24">
@@ -115,157 +52,6 @@ export default function Arrendar() {
           </motion.div>
         </div>
       </section>
-
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.3 }}
-        className="relative z-20 px-6 -mt-20"
-      >
-        <Card className="max-w-5xl mx-auto p-8 shadow-2xl">
-          <div className="space-y-4 mb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Select value={filters.provincia || ""} onValueChange={handleProvinciaChange}>
-                <SelectTrigger className="transition-all duration-200" data-testid="select-provincia">
-                  <MapPin className="h-5 w-5 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Província" />
-                </SelectTrigger>
-                <SelectContent>
-                  {angolaProvinces.map((prov) => (
-                    <SelectItem key={prov.name} value={prov.name}>
-                      {prov.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select 
-                value={filters.municipio || ""} 
-                onValueChange={(value) => setFilters(prev => ({ ...prev, municipio: value }))}
-                disabled={!filters.provincia}
-              >
-                <SelectTrigger className="transition-all duration-200" data-testid="select-municipio">
-                  <MapPin className="h-5 w-5 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Município" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableMunicipios.map((mun) => (
-                    <SelectItem key={mun.name} value={mun.name}>
-                      {mun.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={filters.category || ""} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="transition-all duration-200" data-testid="select-category">
-                  <Home className="h-5 w-5 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Tipo de Imóvel" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Apartamento">Apartamento</SelectItem>
-                  <SelectItem value="Casa">Casa</SelectItem>
-                  <SelectItem value="Comercial">Comercial</SelectItem>
-                  <SelectItem value="Terreno">Terreno</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Preço mín (Kz)"
-                  type="number"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  className="transition-all duration-200"
-                  data-testid="input-min-price"
-                />
-                <Input
-                  placeholder="Preço máx (Kz)"
-                  type="number"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="transition-all duration-200"
-                  data-testid="input-max-price"
-                />
-              </div>
-            </div>
-
-            {showRoomFilters && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Select 
-                  value={filters.bedrooms?.toString() || ""} 
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, bedrooms: Number(value) }))}
-                >
-                  <SelectTrigger className="transition-all duration-200" data-testid="select-bedrooms">
-                    <Bed className="h-5 w-5 mr-2 text-muted-foreground" />
-                    <SelectValue placeholder="Quartos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">Estúdio</SelectItem>
-                    <SelectItem value="1">1 Quarto</SelectItem>
-                    <SelectItem value="2">2 Quartos</SelectItem>
-                    <SelectItem value="3">3 Quartos</SelectItem>
-                    <SelectItem value="4">4+ Quartos</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select>
-                  <SelectTrigger className="transition-all duration-200" data-testid="select-living-rooms">
-                    <Sofa className="h-5 w-5 mr-2 text-muted-foreground" />
-                    <SelectValue placeholder="Salas" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 Sala</SelectItem>
-                    <SelectItem value="2">2 Salas</SelectItem>
-                    <SelectItem value="3">3+ Salas</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select>
-                  <SelectTrigger className="transition-all duration-200" data-testid="select-kitchens">
-                    <UtensilsCrossed className="h-5 w-5 mr-2 text-muted-foreground" />
-                    <SelectValue placeholder="Cozinhas" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 Cozinha</SelectItem>
-                    <SelectItem value="2">2 Cozinhas</SelectItem>
-                    <SelectItem value="3">3+ Cozinhas</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            <Button 
-              onClick={handleSearch} 
-              className="w-full" 
-              size="default"
-              data-testid="button-search"
-            >
-              <Search className="h-5 w-5 mr-2" />
-              Pesquisar
-            </Button>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="text-sm text-muted-foreground">
-              Pesquise entre milhares de imóveis para arrendar
-            </div>
-            
-            {hasActiveFilters && (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={clearFilters}
-                className="text-muted-foreground hover-elevate shrink-0"
-                data-testid="button-reset-filters"
-              >
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Redefinir Filtros
-              </Button>
-            )}
-          </div>
-        </Card>
-      </motion.div>
 
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto">
@@ -390,14 +176,9 @@ export default function Arrendar() {
             <Card className="p-12 text-center">
               <Home className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-xl font-bold mb-2">Nenhum imóvel encontrado</h3>
-              <p className="text-muted-foreground mb-6">
-                Tente ajustar os filtros para encontrar mais resultados
+              <p className="text-muted-foreground">
+                Não há imóveis disponíveis para arrendar no momento
               </p>
-              {hasActiveFilters && (
-                <Button onClick={clearFilters} data-testid="button-clear-filters-empty">
-                  Limpar Filtros
-                </Button>
-              )}
             </Card>
           )}
         </div>
