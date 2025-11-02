@@ -54,6 +54,7 @@ export const properties = pgTable("properties", {
   images: text("images").array(), // Array de base64 strings
   amenities: text("amenities").array(),
   featured: boolean("featured").default(false),
+  shortTerm: boolean("short_term").default(false).notNull(),
   status: text("status").notNull().default('disponivel'), // 'disponivel', 'arrendado', 'vendido', 'indisponivel'
   ownerId: varchar("owner_id").notNull().references(() => users.id),
   approvalStatus: text("approval_status").notNull().default('pendente'), // 'pendente', 'aprovado', 'recusado'

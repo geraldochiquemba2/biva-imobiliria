@@ -8,6 +8,13 @@
       "when": 1761941531276,
       "tag": "0000_milky_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1730843600000,
+      "tag": "0001_add_short_term_to_properties",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "properties" ADD COLUMN "short_term" boolean DEFAULT false NOT NULL;
