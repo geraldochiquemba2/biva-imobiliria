@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Phone, Mail, MapPin, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import type { Advertisement } from "@shared/schema";
+import phoneImage from "@assets/stock_images/phone_call_communica_4d92d565.jpg";
+import emailImage from "@assets/stock_images/email_message_inbox__669ca3cf.jpg";
+import locationImage from "@assets/stock_images/map_location_pin_gps_07892162.jpg";
 
 interface ContactDialogProps {
   open: boolean;
@@ -19,21 +22,21 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
       title: "Telefone",
       info: "+244 923 456 789",
       description: "Seg - Sex, 8h às 18h",
-      gradient: "bg-gradient-to-br from-blue-500/10 to-blue-600/20"
+      backgroundImage: phoneImage
     },
     {
       icon: Mail,
       title: "Email",
       info: "contacto@biva.ao",
       description: "Respondemos em 24h",
-      gradient: "bg-gradient-to-br from-green-500/10 to-green-600/20"
+      backgroundImage: emailImage
     },
     {
       icon: MapPin,
       title: "Localização",
       info: "Luanda, Angola",
       description: "Talatona, Rua Principal",
-      gradient: "bg-gradient-to-br from-purple-500/10 to-purple-600/20"
+      backgroundImage: locationImage
     }
   ];
 
@@ -49,13 +52,24 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
         
         <div className="grid md:grid-cols-3 gap-4 mt-6">
           {contacts.map((contact, index) => (
-            <Card key={contact.title} className={`p-6 text-center relative overflow-hidden ${contact.gradient}`} data-testid={`contact-card-${index}`}>
-              <div className="w-16 h-16 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <contact.icon className="h-8 w-8 text-primary" />
+            <Card key={contact.title} className="p-6 text-center relative overflow-hidden" data-testid={`contact-card-${index}`}>
+              {/* Imagem de fundo */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center opacity-20"
+                style={{ backgroundImage: `url(${contact.backgroundImage})` }}
+              />
+              {/* Overlay para melhor legibilidade */}
+              <div className="absolute inset-0 bg-gradient-to-br from-background/60 to-background/80 backdrop-blur-sm" />
+              
+              {/* Conteúdo */}
+              <div className="relative z-10">
+                <div className="w-16 h-16 rounded-full bg-primary/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-lg border border-primary/20">
+                  <contact.icon className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="font-semibold mb-2">{contact.title}</h3>
+                <p className="text-sm font-medium mb-1" data-testid={`contact-info-${index}`}>{contact.info}</p>
+                <p className="text-xs text-muted-foreground">{contact.description}</p>
               </div>
-              <h3 className="font-semibold mb-2">{contact.title}</h3>
-              <p className="text-sm font-medium mb-1" data-testid={`contact-info-${index}`}>{contact.info}</p>
-              <p className="text-xs text-muted-foreground">{contact.description}</p>
             </Card>
           ))}
         </div>
