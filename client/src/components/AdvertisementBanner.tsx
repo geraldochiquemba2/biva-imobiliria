@@ -155,7 +155,7 @@ export default function AdvertisementBanner() {
             )}
 
             <Card className="overflow-hidden flex-1">
-              <div className="p-4 border-b min-h-[100px]">
+              <div className="p-4 border-b min-h-[100px] bg-background">
                 <h3 className="text-lg font-bold mb-1 line-clamp-1" data-testid={`ad-title-${currentIndex}`}>
                   {currentAd.title}
                 </h3>
