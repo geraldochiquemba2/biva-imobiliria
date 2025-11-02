@@ -27,8 +27,8 @@ interface PaginatedPropertiesResponse {
 
 export default function ImoveisCurtaDuracao() {
   const [searchLocation, setSearchLocation] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedBedrooms, setSelectedBedrooms] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedBedrooms, setSelectedBedrooms] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const pageLimit = 12;
 
@@ -43,10 +43,10 @@ export default function ImoveisCurtaDuracao() {
     if (searchLocation) {
       params.append('location', searchLocation);
     }
-    if (selectedCategory) {
+    if (selectedCategory && selectedCategory !== "all") {
       params.append('category', selectedCategory);
     }
-    if (selectedBedrooms) {
+    if (selectedBedrooms && selectedBedrooms !== "all") {
       params.append('bedrooms', selectedBedrooms);
     }
     
@@ -138,7 +138,7 @@ export default function ImoveisCurtaDuracao() {
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas</SelectItem>
+                <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="Apartamento">Apartamento</SelectItem>
                 <SelectItem value="Casa">Casa</SelectItem>
                 <SelectItem value="Comercial">Comercial</SelectItem>
@@ -150,7 +150,7 @@ export default function ImoveisCurtaDuracao() {
                 <SelectValue placeholder="Quartos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="1">1+ Quarto</SelectItem>
                 <SelectItem value="2">2+ Quartos</SelectItem>
                 <SelectItem value="3">3+ Quartos</SelectItem>
@@ -158,12 +158,12 @@ export default function ImoveisCurtaDuracao() {
               </SelectContent>
             </Select>
 
-            {(selectedCategory || selectedBedrooms) && (
+            {(selectedCategory !== "all" || selectedBedrooms !== "all") && (
               <Button
                 variant="ghost"
                 onClick={() => {
-                  setSelectedCategory("");
-                  setSelectedBedrooms("");
+                  setSelectedCategory("all");
+                  setSelectedBedrooms("all");
                   setCurrentPage(1);
                 }}
                 data-testid="button-clear-filters"
@@ -193,8 +193,8 @@ export default function ImoveisCurtaDuracao() {
             </p>
             <Button onClick={() => {
               setSearchLocation("");
-              setSelectedCategory("");
-              setSelectedBedrooms("");
+              setSelectedCategory("all");
+              setSelectedBedrooms("all");
               setCurrentPage(1);
             }} data-testid="button-reset-search">
               Limpar Busca
