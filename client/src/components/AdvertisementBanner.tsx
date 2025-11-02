@@ -123,7 +123,7 @@ export default function AdvertisementBanner() {
 
           <div className="relative">
             <Card className="overflow-hidden">
-              <div className="relative h-64 md:h-80 lg:h-96 bg-muted">
+              <div className="relative w-full aspect-square bg-muted">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentIndex}
