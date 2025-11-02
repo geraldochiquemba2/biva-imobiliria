@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -88,6 +88,16 @@ export default function AdvertisementBanner() {
       setCurrentIndex((prev) => (prev - 1 + activeAds.length) % activeAds.length);
     }
   };
+
+  useEffect(() => {
+    if (activeAds.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % activeAds.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [activeAds.length, currentIndex]);
 
   if (isLoading) {
     return (
