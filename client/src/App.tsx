@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Header from "@/components/Header";
 import PageTransition from "@/components/PageTransition";
 import { Loader2 } from "lucide-react";
+import { usePrefetchData } from "@/hooks/usePrefetchData";
 
 const Home = lazy(() => import("@/pages/Home"));
 const Imoveis = lazy(() => import("@/pages/Imoveis"));
@@ -103,13 +104,23 @@ function Router() {
   );
 }
 
+function AppContent() {
+  usePrefetchData();
+  
+  return (
+    <>
+      <Header />
+      <Toaster />
+      <Router />
+    </>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Header />
-        <Toaster />
-        <Router />
+        <AppContent />
       </TooltipProvider>
     </QueryClientProvider>
   );

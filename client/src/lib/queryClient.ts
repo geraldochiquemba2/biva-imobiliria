@@ -67,8 +67,8 @@ export const queryClient = new QueryClient({
       refetchInterval: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      staleTime: 10 * 60 * 1000, // 10 minutes - dados imobiliários mudam raramente
-      gcTime: 30 * 60 * 1000, // 30 minutes - manter cache mais tempo para velocidade
+      staleTime: 15 * 60 * 1000, // 15 minutos - dados ficam válidos por mais tempo
+      gcTime: 60 * 60 * 1000, // 60 minutos - mantém cache por 1 hora
       retry: 2,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
       networkMode: 'online',
