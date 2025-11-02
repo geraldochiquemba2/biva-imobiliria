@@ -89,6 +89,17 @@ export default function AdvertisementBanner() {
     }
   };
 
+  // Pré-carregar imagens
+  useEffect(() => {
+    if (activeAds.length === 0) return;
+
+    activeAds.forEach(ad => {
+      const img = new Image();
+      img.src = ad.image;
+    });
+  }, [activeAds]);
+
+  // Carrossel automático
   useEffect(() => {
     if (activeAds.length <= 1) return;
 
