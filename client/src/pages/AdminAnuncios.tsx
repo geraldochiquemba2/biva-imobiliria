@@ -363,11 +363,11 @@ export default function AdminAnuncios() {
                   data-testid="input-ad-image"
                 />
                 {imagePreview && (
-                  <div className="mt-2">
+                  <div className="mt-2 bg-muted/30 rounded-md p-2">
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      className="w-full h-48 object-cover rounded-md"
+                      className="w-full h-48 object-contain rounded-md"
                       loading="lazy"
                     />
                   </div>
