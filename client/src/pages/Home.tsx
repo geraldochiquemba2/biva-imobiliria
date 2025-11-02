@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useCriticalDataPreload } from "@/hooks/use-critical-data-preload";
@@ -12,17 +12,6 @@ import CTASection from "@/components/CTASection";
 import AdvertisementBanner from "@/components/AdvertisementBanner";
 import type { Property, PaginatedPropertiesResponse } from "@shared/schema";
 import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { angolaProvinces } from "@shared/angola-locations";
-import { X } from "lucide-react";
 
 const userProfiles = [
   {
@@ -50,114 +39,16 @@ const userProfiles = [
 export default function Home() {
   useCriticalDataPreload();
   
-  const [searchParams, setSearchParams] = useState<{
-    type?: 'Arrendar' | 'Vender';
-    provincia?: string;
-    municipio?: string;
-    category?: string;
-    bedrooms?: string;
-    livingRooms?: string;
-    kitchens?: string;
-    minPrice?: string;
-    maxPrice?: string;
-  }>({});
   const [showAll, setShowAll] = useState(false);
 
-  const availableMunicipalities = useMemo(() => {
-    if (!searchParams.provincia) return [];
-    const province = angolaProvinces.find(p => p.name === searchParams.provincia);
-    return province?.municipalities || [];
-  }, [searchParams.provincia]);
-
-  const handleFilterChange = (key: string, value: string | undefined) => {
-    const newParams = { ...searchParams } as any;
-    
-    if (value) {
-      newParams[key] = value;
-    } else {
-      delete newParams[key];
-    }
-
-    if (key === 'provincia' && newParams.provincia !== searchParams.provincia) {
-      delete newParams.municipio;
-    }
-
-    setSearchParams(newParams);
-  };
-
-  const clearFilters = () => {
-    setSearchParams({});
-  };
-
-  const hasActiveFilters = Object.keys(searchParams).length > 0;
-
-  // Build query string from search params
-  const queryString = Object.entries(searchParams)
-    .filter(([_, value]) => value)
-    .map(([key, value]) => `${key}=${encodeURIComponent(value!)}`)
-    .join('&');
-
   const { data: allProperties, isLoading, error } = useQuery<PaginatedPropertiesResponse>({
-    queryKey: ['/api/properties', queryString],
-    queryFn: async () => {
-      const url = queryString ? `/api/properties?${queryString}` : '/api/properties';
-      const response = await fetch(url);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || 'Failed to fetch properties');
-      }
-      return response.json();
-    },
+    queryKey: ['/api/properties'],
     staleTime: 0,
     refetchOnMount: 'always',
   });
 
   // Filtrar apenas imóveis disponíveis para páginas públicas
   const properties = (allProperties?.data || []).filter(property => property.status === 'disponivel');
-
-  const handleSearch = (params: {
-    type: 'Arrendar' | 'Vender';
-    provincia: string;
-    municipio: string;
-    category: string;
-    bedrooms: string;
-    livingRooms: string;
-    kitchens: string;
-    minPrice: string;
-    maxPrice: string;
-  }) => {
-    const newParams: any = {};
-    
-    if (params.type) {
-      newParams.type = params.type;
-    }
-    if (params.provincia) {
-      newParams.provincia = params.provincia;
-    }
-    if (params.municipio) {
-      newParams.municipio = params.municipio;
-    }
-    if (params.category) {
-      newParams.category = params.category;
-    }
-    if (params.bedrooms) {
-      newParams.bedrooms = params.bedrooms;
-    }
-    if (params.livingRooms) {
-      newParams.livingRooms = params.livingRooms;
-    }
-    if (params.kitchens) {
-      newParams.kitchens = params.kitchens;
-    }
-    if (params.minPrice) {
-      newParams.minPrice = params.minPrice;
-    }
-    if (params.maxPrice) {
-      newParams.maxPrice = params.maxPrice;
-    }
-    
-    setSearchParams(newParams);
-  };
 
   // Limit to 10 properties initially
   const displayedProperties = showAll ? properties : properties.slice(0, 10);
@@ -199,141 +90,6 @@ export default function Home() {
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Descubra as melhores oportunidades de arrendamento e venda em Angola
             </p>
-          </motion.div>
-
-          <motion.div
-            className="mb-8 p-6 bg-card rounded-md border"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex gap-2">
-                  <Button
-                    variant={!searchParams.type ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleFilterChange('type', undefined)}
-                    data-testid="button-filter-todos"
-                  >
-                    Todos
-                  </Button>
-                  <Button
-                    variant={searchParams.type === 'Arrendar' ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleFilterChange('type', 'Arrendar')}
-                    data-testid="button-filter-arrendar"
-                  >
-                    Arrendar
-                  </Button>
-                  <Button
-                    variant={searchParams.type === 'Vender' ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleFilterChange('type', 'Vender')}
-                    data-testid="button-filter-comprar"
-                  >
-                    Comprar
-                  </Button>
-                </div>
-
-                <Select
-                  value={searchParams.provincia}
-                  onValueChange={(value) => handleFilterChange('provincia', value)}
-                >
-                  <SelectTrigger className="w-[200px]" data-testid="select-provincia">
-                    <SelectValue placeholder="Província" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {angolaProvinces.map((province) => (
-                      <SelectItem key={province.name} value={province.name}>
-                        {province.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {searchParams.provincia && (
-                  <Select
-                    value={searchParams.municipio}
-                    onValueChange={(value) => handleFilterChange('municipio', value)}
-                  >
-                    <SelectTrigger className="w-[200px]" data-testid="select-municipio">
-                      <SelectValue placeholder="Município" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableMunicipalities.map((municipality) => (
-                        <SelectItem key={municipality.name} value={municipality.name}>
-                          {municipality.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-
-                <Input
-                  type="number"
-                  placeholder="Preço mínimo (Kz)"
-                  value={searchParams.minPrice || ''}
-                  onChange={(e) => handleFilterChange('minPrice', e.target.value || undefined)}
-                  className="w-[180px]"
-                  data-testid="input-preco-minimo"
-                />
-
-                <Input
-                  type="number"
-                  placeholder="Preço máximo (Kz)"
-                  value={searchParams.maxPrice || ''}
-                  onChange={(e) => handleFilterChange('maxPrice', e.target.value || undefined)}
-                  className="w-[180px]"
-                  data-testid="input-preco-maximo"
-                />
-
-                {hasActiveFilters && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearFilters}
-                    className="gap-1"
-                    data-testid="button-limpar-filtros"
-                  >
-                    <X className="h-4 w-4" />
-                    Limpar Filtros
-                  </Button>
-                )}
-              </div>
-
-              {hasActiveFilters && (
-                <div className="flex flex-wrap gap-2 items-center text-sm text-muted-foreground">
-                  <span>Filtros ativos:</span>
-                  {searchParams.type && (
-                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-sm">
-                      {searchParams.type}
-                    </span>
-                  )}
-                  {searchParams.provincia && (
-                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-sm">
-                      {searchParams.provincia}
-                    </span>
-                  )}
-                  {searchParams.municipio && (
-                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-sm">
-                      {searchParams.municipio}
-                    </span>
-                  )}
-                  {searchParams.minPrice && (
-                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-sm">
-                      Min: {parseFloat(searchParams.minPrice).toLocaleString('pt-AO')} Kz
-                    </span>
-                  )}
-                  {searchParams.maxPrice && (
-                    <span className="px-2 py-1 bg-primary/10 text-primary rounded-sm">
-                      Max: {parseFloat(searchParams.maxPrice).toLocaleString('pt-AO')} Kz
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
           </motion.div>
 
           {isLoading ? (
