@@ -395,6 +395,7 @@ export const searchPropertySchema = z.object({
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
   featured: z.boolean().optional(),
+  shortTerm: z.boolean().optional(),
   status: z.string().optional(),
   page: z.number().optional(),
   limit: z.number().optional(),

@@ -331,6 +331,9 @@ export class DatabaseStorage implements IStorage {
       if (params.featured !== undefined) {
         conditions.push(eq(properties.featured, params.featured));
       }
+      if (params.shortTerm !== undefined) {
+        conditions.push(eq(properties.shortTerm, params.shortTerm));
+      }
       if (params.status) {
         conditions.push(eq(properties.status, params.status));
       }
@@ -375,6 +378,7 @@ export class DatabaseStorage implements IStorage {
       longitude: properties.longitude,
       amenities: properties.amenities,
       featured: properties.featured,
+      shortTerm: properties.shortTerm,
       status: properties.status,
       ownerId: properties.ownerId,
       approvalStatus: properties.approvalStatus,

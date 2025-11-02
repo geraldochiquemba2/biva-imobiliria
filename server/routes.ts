@@ -640,6 +640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
         maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
         featured: req.query.featured === 'true' ? true : req.query.featured === 'false' ? false : undefined,
+        shortTerm: req.query.shortTerm === 'true' ? true : req.query.shortTerm === 'false' ? false : undefined,
         status: req.query.status as string | undefined,
         page: req.query.page ? Number(req.query.page) : undefined,
         limit: req.query.limit ? Number(req.query.limit) : undefined,
