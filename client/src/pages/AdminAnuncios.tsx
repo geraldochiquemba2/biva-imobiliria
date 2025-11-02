@@ -289,14 +289,14 @@ export default function AdminAnuncios() {
         )}
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl" data-testid="dialog-advertisement-form">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-advertisement-form">
             <DialogHeader>
               <DialogTitle>
                 {editingAd ? 'Editar Anúncio' : 'Novo Anúncio'}
               </DialogTitle>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 pb-2">
               <div>
                 <Label htmlFor="title">Título *</Label>
                 <Input
