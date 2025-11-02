@@ -2654,7 +2654,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const validated = insertAdvertisementSchema.parse(advertisementData);
-      const advertisement = await storage.createAdvertisement(validated);
+      
+      // Calculate expiration date (30 days from now)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+      
+      const advertisement = await storage.createAdvertisement({
+        ...validated,
+        expiresAt
+      });
       res.status(201).json(advertisement);
     } catch (error) {
       console.error('Error creating advertisement:', error);
@@ -2678,6 +2686,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (req.body.active !== undefined) {
         updates.active = req.body.active === 'true' || req.body.active === true;
+        
+        // If reactivating the advertisement, extend expiration date by 30 days
+        if (updates.active === true) {
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + 30);
+          updates.expiresAt = expiresAt;
+        }
       }
 
       // Handle image upload

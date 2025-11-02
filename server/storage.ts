@@ -1269,7 +1269,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Advertisement methods
-  async createAdvertisement(insertAdvertisement: InsertAdvertisement): Promise<Advertisement> {
+  async createAdvertisement(insertAdvertisement: InsertAdvertisement & { expiresAt: Date }): Promise<Advertisement> {
     const [advertisement] = await db
       .insert(advertisements)
       .values(insertAdvertisement)

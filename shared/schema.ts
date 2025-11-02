@@ -448,6 +448,7 @@ export const insertAdvertisementSchema = createInsertSchema(advertisements).omit
   id: true,
   createdAt: true,
   updatedAt: true,
+  expiresAt: true, // Será calculado automaticamente no backend (30 dias)
 });
 
 // Types
