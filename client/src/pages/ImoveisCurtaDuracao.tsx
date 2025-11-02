@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, MapPin, Home, Loader2, SlidersHorizontal, Calendar } from "lucide-react";
+import { Search, MapPin, Home, Loader2, SlidersHorizontal, Calendar, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import {
 import PropertyCard from "@/components/PropertyCard";
 import { PropertyCardSkeleton } from "@/components/PropertyCardSkeleton";
 import type { Property } from "@shared/schema";
+import { angolaProvinces } from "@shared/angola-locations";
 import shortTermImage from '@assets/stock_images/modern_apartment_bui_70397924.jpg';
 
 interface PaginatedPropertiesResponse {
@@ -26,11 +27,34 @@ interface PaginatedPropertiesResponse {
 }
 
 export default function ImoveisCurtaDuracao() {
-  const [searchLocation, setSearchLocation] = useState("");
+  const [selectedProvincia, setSelectedProvincia] = useState<string>("all");
+  const [selectedMunicipio, setSelectedMunicipio] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedBedrooms, setSelectedBedrooms] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const pageLimit = 12;
+
+  const availableMunicipios = useMemo(() => {
+    if (selectedProvincia === "all") return [];
+    const province = angolaProvinces.find(p => p.name === selectedProvincia);
+    return province?.municipalities || [];
+  }, [selectedProvincia]);
+
+  const handleProvinciaChange = (value: string) => {
+    setSelectedProvincia(value);
+    setSelectedMunicipio("all");
+    setCurrentPage(1);
+  };
+
+  const clearAllFilters = () => {
+    setSelectedProvincia("all");
+    setSelectedMunicipio("all");
+    setSelectedCategory("all");
+    setSelectedBedrooms("all");
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = selectedProvincia !== "all" || selectedMunicipio !== "all" || selectedCategory !== "all" || selectedBedrooms !== "all";
 
   const buildQueryString = () => {
     const params = new URLSearchParams();
@@ -41,8 +65,11 @@ export default function ImoveisCurtaDuracao() {
     params.append('shortTerm', 'true');
     params.append('type', 'Arrendar');
     
-    if (searchLocation) {
-      params.append('location', searchLocation);
+    if (selectedProvincia && selectedProvincia !== "all") {
+      params.append('provincia', selectedProvincia);
+    }
+    if (selectedMunicipio && selectedMunicipio !== "all") {
+      params.append('municipio', selectedMunicipio);
     }
     if (selectedCategory && selectedCategory !== "all") {
       params.append('category', selectedCategory);
@@ -55,7 +82,7 @@ export default function ImoveisCurtaDuracao() {
   };
 
   const { data: propertiesResponse, isLoading } = useQuery<PaginatedPropertiesResponse>({
-    queryKey: ['/api/properties', currentPage, searchLocation, selectedCategory, selectedBedrooms, 'shortTerm'],
+    queryKey: ['/api/properties', currentPage, selectedProvincia, selectedMunicipio, selectedCategory, selectedBedrooms, 'shortTerm'],
     queryFn: async () => {
       const response = await fetch(`/api/properties?${buildQueryString()}`);
       if (!response.ok) throw new Error('Falha ao buscar imóveis');
@@ -65,10 +92,6 @@ export default function ImoveisCurtaDuracao() {
 
   const properties = propertiesResponse?.data || [];
   const totalPages = propertiesResponse?.totalPages || 1;
-
-  const handleSearch = () => {
-    setCurrentPage(1);
-  };
 
   return (
     <div className="min-h-screen pt-24 pb-12">
@@ -101,25 +124,42 @@ export default function ImoveisCurtaDuracao() {
             </div>
 
             <Card className="p-4 max-w-3xl mx-auto bg-background/95 backdrop-blur-sm">
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="flex-1">
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Localização (cidade, município, bairro)"
-                      value={searchLocation}
-                      onChange={(e) => setSearchLocation(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                      className="pl-10"
-                      data-testid="input-search-location"
-                    />
-                  </div>
-                </div>
-                <Button onClick={handleSearch} size="default" className="md:w-auto" data-testid="button-search">
-                  <Search className="h-4 w-4 mr-2" />
-                  Buscar
-                </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Select value={selectedProvincia} onValueChange={handleProvinciaChange}>
+                  <SelectTrigger data-testid="select-provincia">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Selecione a província" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as províncias</SelectItem>
+                    {angolaProvinces.map((province) => (
+                      <SelectItem key={province.name} value={province.name}>
+                        {province.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={selectedMunicipio} 
+                  onValueChange={(value) => {
+                    setSelectedMunicipio(value);
+                    setCurrentPage(1);
+                  }}
+                  disabled={selectedProvincia === "all"}
+                >
+                  <SelectTrigger data-testid="select-municipio">
+                    <SelectValue placeholder={selectedProvincia === "all" ? "Selecione a província primeiro" : "Selecione o município"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os municípios</SelectItem>
+                    {availableMunicipios.map((municipality) => (
+                      <SelectItem key={municipality.name} value={municipality.name}>
+                        {municipality.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </Card>
           </motion.div>
@@ -133,8 +173,11 @@ export default function ImoveisCurtaDuracao() {
             <span className="font-medium">Filtros:</span>
           </div>
           
-          <div className="flex flex-wrap gap-3 flex-1">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <div className="flex flex-wrap gap-3 flex-1 items-center">
+            <Select value={selectedCategory} onValueChange={(value) => {
+              setSelectedCategory(value);
+              setCurrentPage(1);
+            }}>
               <SelectTrigger className="w-[180px]" data-testid="select-category">
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
@@ -146,7 +189,10 @@ export default function ImoveisCurtaDuracao() {
               </SelectContent>
             </Select>
 
-            <Select value={selectedBedrooms} onValueChange={setSelectedBedrooms}>
+            <Select value={selectedBedrooms} onValueChange={(value) => {
+              setSelectedBedrooms(value);
+              setCurrentPage(1);
+            }}>
               <SelectTrigger className="w-[180px]" data-testid="select-bedrooms">
                 <SelectValue placeholder="Quartos" />
               </SelectTrigger>
@@ -159,16 +205,13 @@ export default function ImoveisCurtaDuracao() {
               </SelectContent>
             </Select>
 
-            {(selectedCategory !== "all" || selectedBedrooms !== "all") && (
+            {hasActiveFilters && (
               <Button
-                variant="ghost"
-                onClick={() => {
-                  setSelectedCategory("all");
-                  setSelectedBedrooms("all");
-                  setCurrentPage(1);
-                }}
+                variant="outline"
+                onClick={clearAllFilters}
                 data-testid="button-clear-filters"
               >
+                <X className="h-4 w-4 mr-2" />
                 Limpar Filtros
               </Button>
             )}
@@ -192,12 +235,8 @@ export default function ImoveisCurtaDuracao() {
             <p className="text-muted-foreground mb-6">
               Tente ajustar os filtros ou buscar por outra localização
             </p>
-            <Button onClick={() => {
-              setSearchLocation("");
-              setSelectedCategory("all");
-              setSelectedBedrooms("all");
-              setCurrentPage(1);
-            }} data-testid="button-reset-search">
+            <Button onClick={clearAllFilters} data-testid="button-reset-search">
+              <X className="h-4 w-4 mr-2" />
               Limpar Busca
             </Button>
           </motion.div>
