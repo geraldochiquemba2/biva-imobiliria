@@ -148,7 +148,7 @@ export default function AdvertisementBanner() {
                       className="relative w-full h-full object-contain z-10"
                       loading="lazy"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                    <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-6">
                       <h3 className="text-white text-xl font-bold mb-2" data-testid={`ad-title-${currentIndex}`}>
                         {currentAd.title}
                       </h3>
