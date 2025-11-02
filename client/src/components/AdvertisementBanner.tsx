@@ -73,6 +73,7 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
 export default function AdvertisementBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const { data: advertisements, isLoading } = useQuery<Advertisement[]>({
     queryKey: ['/api/advertisements'],
@@ -92,12 +93,28 @@ export default function AdvertisementBanner() {
     }
   };
 
-  // Pré-carregar imagens
+  // Pré-carregar todas as imagens
   useEffect(() => {
     if (activeAds.length === 0) return;
 
+    setImagesLoaded(false);
+    let loadedCount = 0;
+    const totalImages = activeAds.length;
+
     activeAds.forEach(ad => {
       const img = new Image();
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          setImagesLoaded(true);
+        }
+      };
+      img.onerror = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          setImagesLoaded(true);
+        }
+      };
       img.src = ad.image;
     });
   }, [activeAds]);
@@ -113,7 +130,7 @@ export default function AdvertisementBanner() {
     return () => clearInterval(interval);
   }, [activeAds.length, currentIndex]);
 
-  if (isLoading) {
+  if (isLoading || !imagesLoaded) {
     return (
       <div className="w-full py-12 px-6">
         <div className="max-w-7xl mx-auto">
