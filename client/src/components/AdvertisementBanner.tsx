@@ -158,32 +158,42 @@ export default function AdvertisementBanner() {
             )}
 
             <Card className="overflow-hidden flex-1">
-              <div className="p-4 border-b min-h-[100px] bg-background">
-                <h3 className="text-lg font-bold mb-1 line-clamp-1" data-testid={`ad-title-${currentIndex}`}>
-                  {currentAd.title}
-                </h3>
-                {currentAd.description && (
-                  <p className="text-muted-foreground text-sm mb-2 line-clamp-2" data-testid={`ad-description-${currentIndex}`}>
-                    {currentAd.description}
-                  </p>
-                )}
-                {currentAd.link && (
-                  <a 
-                    href={currentAd.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    data-testid={`ad-visit-button-${currentIndex}`}
+              <div className="p-4 border-b min-h-[100px] bg-background relative">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentIndex}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    <Button 
-                      variant="default"
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Visitar
-                    </Button>
-                  </a>
-                )}
+                    <h3 className="text-lg font-bold mb-1 line-clamp-1" data-testid={`ad-title-${currentIndex}`}>
+                      {currentAd.title}
+                    </h3>
+                    {currentAd.description && (
+                      <p className="text-muted-foreground text-sm mb-2 line-clamp-2" data-testid={`ad-description-${currentIndex}`}>
+                        {currentAd.description}
+                      </p>
+                    )}
+                    {currentAd.link && (
+                      <a 
+                        href={currentAd.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        data-testid={`ad-visit-button-${currentIndex}`}
+                      >
+                        <Button 
+                          variant="default"
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Visitar
+                        </Button>
+                      </a>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
 
               <div className="relative w-full aspect-square overflow-hidden">
