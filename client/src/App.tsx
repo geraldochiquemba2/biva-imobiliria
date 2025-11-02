@@ -31,6 +31,7 @@ const AdminAprovarImoveis = lazy(() => import("@/pages/AdminAprovarImoveis"));
 const AdminUsuarios = lazy(() => import("@/pages/AdminUsuarios"));
 const AdminAnuncios = lazy(() => import("@/pages/AdminAnuncios"));
 const MeusImoveis = lazy(() => import("@/pages/MeusImoveis"));
+const MeusImoveisTemporarios = lazy(() => import("@/pages/MeusImoveisTemporarios"));
 const ImoveisPendentes = lazy(() => import("@/pages/ImoveisPendentes"));
 const EditarImovel = lazy(() => import("@/pages/EditarImovel"));
 const ImoveisDisponiveis = lazy(() => import("@/pages/ImoveisDisponiveis"));
@@ -90,6 +91,7 @@ function Router() {
             <Route path="/contratos/:id/assinar" component={ContractSign} />
             <Route path="/visitas-agendadas" component={VisitasAgendadas} />
             <Route path="/meus-imoveis" component={MeusImoveis} />
+            <Route path="/meus-imoveis-temporarios" component={MeusImoveisTemporarios} />
             <Route path="/imoveis-pendentes" component={ImoveisPendentes} />
             <Route path="/editar-imovel/:id" component={EditarImovel} />
             <Route path="/imoveis-disponiveis" component={ImoveisDisponiveis} />

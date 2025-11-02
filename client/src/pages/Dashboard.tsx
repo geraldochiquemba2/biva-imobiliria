@@ -144,8 +144,8 @@ export default function Dashboard() {
               </Link>
             )}
 
-            {(hasRole('proprietario') || hasRole('corretor')) && shortTermProperties.length > 0 && (
-              <Link href="/imoveis-curta-duracao">
+            {(hasRole('proprietario') || hasRole('corretor')) && (
+              <Link href="/meus-imoveis-temporarios">
                 <Card className="hover-elevate active-elevate-2 cursor-pointer relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -154,13 +154,13 @@ export default function Dashboard() {
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
                   <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 relative z-10">
                     <CardTitle className="text-sm font-medium">
-                      Imóveis de Curta Duração
+                      Meus Imóveis Temporários
                     </CardTitle>
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent className="relative z-10">
                     <div className="text-2xl font-bold" data-testid="text-short-term-count">
-                      {shortTermProperties.length}
+                      {myPropertiesLoading ? '...' : shortTermProperties.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Arrendamentos flexíveis
