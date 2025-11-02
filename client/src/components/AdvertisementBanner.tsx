@@ -18,19 +18,22 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
       icon: Phone,
       title: "Telefone",
       info: "+244 923 456 789",
-      description: "Seg - Sex, 8h às 18h"
+      description: "Seg - Sex, 8h às 18h",
+      gradient: "bg-gradient-to-br from-blue-500/10 to-blue-600/20"
     },
     {
       icon: Mail,
       title: "Email",
       info: "contacto@biva.ao",
-      description: "Respondemos em 24h"
+      description: "Respondemos em 24h",
+      gradient: "bg-gradient-to-br from-green-500/10 to-green-600/20"
     },
     {
       icon: MapPin,
       title: "Localização",
       info: "Luanda, Angola",
-      description: "Talatona, Rua Principal"
+      description: "Talatona, Rua Principal",
+      gradient: "bg-gradient-to-br from-purple-500/10 to-purple-600/20"
     }
   ];
 
@@ -46,9 +49,9 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
         
         <div className="grid md:grid-cols-3 gap-4 mt-6">
           {contacts.map((contact, index) => (
-            <Card key={contact.title} className="p-6 text-center" data-testid={`contact-card-${index}`}>
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <contact.icon className="h-6 w-6 text-primary" />
+            <Card key={contact.title} className={`p-6 text-center relative overflow-hidden ${contact.gradient}`} data-testid={`contact-card-${index}`}>
+              <div className="w-16 h-16 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <contact.icon className="h-8 w-8 text-primary" />
               </div>
               <h3 className="font-semibold mb-2">{contact.title}</h3>
               <p className="text-sm font-medium mb-1" data-testid={`contact-info-${index}`}>{contact.info}</p>
