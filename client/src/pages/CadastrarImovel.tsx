@@ -297,6 +297,7 @@ const propertyFormSchema = z.object({
   }),
   shortTerm: z.boolean().optional(),
   price: z.coerce.number().positive("Preço deve ser maior que zero"),
+  pricePerHour: z.coerce.number().optional(),
   bairro: z.string().min(2, "Bairro é obrigatório"),
   municipio: z.string().min(2, "Município é obrigatório"),
   provincia: z.string().min(2, "Província é obrigatória"),
@@ -306,6 +307,14 @@ const propertyFormSchema = z.object({
   kitchens: z.coerce.number().min(0, "Número inválido").optional(),
   area: z.coerce.number().positive("Área deve ser maior que zero"),
   amenities: z.array(z.string()).optional(),
+}).superRefine((data, ctx) => {
+  if (data.category === 'Coworking' && (!data.pricePerHour || data.pricePerHour <= 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Preço por hora é obrigatório para Coworking",
+      path: ['pricePerHour'],
+    });
+  }
 });
 
 type PropertyFormData = z.infer<typeof propertyFormSchema>;
@@ -370,8 +379,11 @@ export default function CadastrarImovel() {
   useEffect(() => {
     if (watchedCategory) {
       setCategory(watchedCategory);
+      if (watchedCategory !== 'Coworking') {
+        setValue('pricePerHour', undefined);
+      }
     }
-  }, [watchedCategory]);
+  }, [watchedCategory, setValue]);
 
   useEffect(() => {
     if (watchedProvince && watchedProvince !== selectedProvince) {
@@ -583,6 +595,10 @@ export default function CadastrarImovel() {
         status: 'disponivel',
         ownerId: currentUser!.id,
       };
+      
+      if (data.pricePerHour !== undefined && data.category === 'Coworking') {
+        propertyData.pricePerHour = data.pricePerHour.toString();
+      }
       
       if (imageUrls.length > 0) {
         propertyData.images = imageUrls;
@@ -844,6 +860,7 @@ export default function CadastrarImovel() {
                               <SelectItem value="Casa" data-testid="option-casa">Casa</SelectItem>
                               <SelectItem value="Comercial" data-testid="option-comercial">Comercial</SelectItem>
                               <SelectItem value="Terreno" data-testid="option-terreno">Terreno</SelectItem>
+                              <SelectItem value="Coworking" data-testid="option-coworking">Coworking</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -901,6 +918,41 @@ export default function CadastrarImovel() {
                       <p className="text-sm text-destructive">{errors.price.message}</p>
                     )}
                   </div>
+
+                  {watchedCategory === 'Coworking' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="pricePerHour">Preço por Hora (AOA)</Label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Controller
+                          name="pricePerHour"
+                          control={control}
+                          render={({ field: { value, onChange, ...rest } }) => (
+                            <Input
+                              {...rest}
+                              id="pricePerHour"
+                              type="text"
+                              placeholder="5 000"
+                              className="pl-10"
+                              value={value !== undefined && value !== null ? formatPriceInput(value.toString()) : ''}
+                              onChange={(e) => {
+                                const numericValue = e.target.value.replace(/\D/g, '');
+                                if (numericValue) {
+                                  onChange(parseInt(numericValue, 10));
+                                } else {
+                                  onChange(undefined);
+                                }
+                              }}
+                              data-testid="input-price-per-hour"
+                            />
+                          )}
+                        />
+                      </div>
+                      {errors.pricePerHour && (
+                        <p className="text-sm text-destructive">{errors.pricePerHour.message}</p>
+                      )}
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">

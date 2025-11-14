@@ -41,6 +41,7 @@ export const properties = pgTable("properties", {
   type: text("type").notNull(), // 'Arrendar' or 'Vender'
   category: text("category").notNull(), // 'Apartamento', 'Casa', 'Comercial', 'Terreno', 'Coworking'
   price: decimal("price", { precision: 15, scale: 2 }).notNull(),
+  pricePerHour: decimal("price_per_hour", { precision: 15, scale: 2 }), // Para Coworking
   bairro: text("bairro").notNull(),
   municipio: text("municipio").notNull(),
   provincia: text("provincia").notNull(),
@@ -380,6 +381,8 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
   approvalStatus: true,
   rejectionMessage: true,
   rejectionAcknowledged: true,
+}).extend({
+  pricePerHour: z.string().optional().nullable().transform(val => val ? val : null),
 });
 
 export const searchPropertySchema = z.object({
