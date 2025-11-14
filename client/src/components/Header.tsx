@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Menu, X, LogOut, LayoutDashboard, User, Share2, Mail } from "lucide-react";
-import { SiWhatsapp, SiFacebook } from "react-icons/si";
+import { Moon, Sun, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -88,39 +87,6 @@ export default function Header() {
     { label: 'Sobre', path: '/sobre', testId: 'sobre' },
   ];
 
-  const shareablePages = ['/', '/arrendar', '/comprar', '/imoveis', '/altos-padrao', '/coworking', '/imoveis-curta-duracao'];
-  const showShareButton = shareablePages.includes(location);
-
-  const getPageTitle = () => {
-    const pageTitles: { [key: string]: string } = {
-      '/': 'BIVA Imobiliária - Simplificando a gestão imobiliária em Angola',
-      '/arrendar': 'Imóveis para Arrendar - BIVA Imobiliária',
-      '/comprar': 'Imóveis para Comprar - BIVA Imobiliária',
-      '/imoveis': 'Todos os Imóveis - BIVA Imobiliária',
-      '/altos-padrao': 'Imóveis de Alto Padrão - BIVA Imobiliária',
-      '/coworking': 'Espaços de Coworking - BIVA Imobiliária',
-      '/imoveis-curta-duracao': 'Imóveis para Curta Duração - BIVA Imobiliária',
-    };
-    return pageTitles[location] || 'BIVA Imobiliária';
-  };
-
-  const handleShare = (platform: string) => {
-    const url = window.location.href;
-    const text = getPageTitle();
-    
-    switch (platform) {
-      case 'whatsapp':
-        window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
-        break;
-      case 'facebook':
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-        break;
-      case 'email':
-        window.location.href = `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(url)}`;
-        break;
-    }
-  };
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
       <div className="max-w-7xl mx-auto px-6" ref={mobileMenuRef}>
@@ -188,34 +154,6 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4">
-            {showShareButton && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    data-testid="button-share-page"
-                  >
-                    <Share2 className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleShare('whatsapp')} data-testid="button-share-page-whatsapp">
-                    <SiWhatsapp className="h-4 w-4" />
-                    <span>WhatsApp</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleShare('facebook')} data-testid="button-share-page-facebook">
-                    <SiFacebook className="h-4 w-4" />
-                    <span>Facebook</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleShare('email')} data-testid="button-share-page-email">
-                    <Mail className="h-4 w-4" />
-                    <span>Email</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-
             <Button
               variant="ghost"
               size="icon"
@@ -360,35 +298,6 @@ export default function Header() {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-2 border-t">
-                {showShareButton && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full gap-2"
-                        data-testid="button-mobile-share-page"
-                      >
-                        <Share2 className="h-4 w-4" />
-                        Partilhar Página
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="center" className="w-56">
-                      <DropdownMenuItem onClick={() => handleShare('whatsapp')} data-testid="button-mobile-share-page-whatsapp">
-                        <SiWhatsapp className="h-4 w-4" />
-                        <span>WhatsApp</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleShare('facebook')} data-testid="button-mobile-share-page-facebook">
-                        <SiFacebook className="h-4 w-4" />
-                        <span>Facebook</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleShare('email')} data-testid="button-mobile-share-page-email">
-                        <Mail className="h-4 w-4" />
-                        <span>Email</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
                 {currentUser ? (
                   <>
                     <Button
