@@ -296,7 +296,7 @@ const propertyFormSchema = z.object({
     required_error: "Selecione a categoria",
   }),
   shortTerm: z.boolean().optional(),
-  price: z.coerce.number().positive("Preço deve ser maior que zero"),
+  price: z.coerce.number().optional(),
   pricePerHour: z.coerce.number().optional(),
   bairro: z.string().min(2, "Bairro é obrigatório"),
   municipio: z.string().min(2, "Município é obrigatório"),
@@ -308,12 +308,22 @@ const propertyFormSchema = z.object({
   area: z.coerce.number().positive("Área deve ser maior que zero"),
   amenities: z.array(z.string()).optional(),
 }).superRefine((data, ctx) => {
-  if (data.category === 'Coworking' && (!data.pricePerHour || data.pricePerHour <= 0)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Preço por hora é obrigatório para Coworking",
-      path: ['pricePerHour'],
-    });
+  if (data.category === 'Coworking') {
+    if (!data.pricePerHour || data.pricePerHour <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Preço por hora é obrigatório para Coworking",
+        path: ['pricePerHour'],
+      });
+    }
+  } else {
+    if (!data.price || data.price <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Preço deve ser maior que zero",
+        path: ['price'],
+      });
+    }
   }
 });
 
@@ -332,7 +342,6 @@ export default function CadastrarImovel() {
   const [mapLongitude, setMapLongitude] = useState<number>(13.2344);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [formattedPrice, setFormattedPrice] = useState<string>('');
-  const [isShortTerm, setIsShortTerm] = useState<boolean>(false);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -375,11 +384,16 @@ export default function CadastrarImovel() {
   const watchedProvince = watch("provincia");
   const selectedMunicipio = watch("municipio");
   const bairro = watch("bairro");
+  const watchedShortTerm = watch("shortTerm");
 
   useEffect(() => {
     if (watchedCategory) {
       setCategory(watchedCategory);
-      if (watchedCategory !== 'Coworking') {
+      if (watchedCategory === 'Coworking') {
+        setValue('shortTerm', false);
+        setValue('price', undefined);
+        setFormattedPrice('');
+      } else {
         setValue('pricePerHour', undefined);
       }
     }
@@ -580,7 +594,6 @@ export default function CadastrarImovel() {
         type: data.type,
         category: data.category,
         shortTerm: data.shortTerm || false,
-        price: data.price.toString(),
         bairro: data.bairro,
         municipio: data.municipio,
         provincia: data.provincia,
@@ -596,8 +609,14 @@ export default function CadastrarImovel() {
         ownerId: currentUser!.id,
       };
       
-      if (data.pricePerHour !== undefined && data.category === 'Coworking') {
-        propertyData.pricePerHour = data.pricePerHour.toString();
+      if (data.category === 'Coworking') {
+        if (data.pricePerHour !== undefined) {
+          propertyData.pricePerHour = data.pricePerHour.toString();
+        }
+      } else {
+        if (data.price !== undefined) {
+          propertyData.price = data.price.toString();
+        }
       }
       
       if (imageUrls.length > 0) {
@@ -871,53 +890,56 @@ export default function CadastrarImovel() {
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="shortTerm"
-                        checked={isShortTerm}
-                        onCheckedChange={(checked) => {
-                          setIsShortTerm(checked as boolean);
-                          setValue("shortTerm", checked as boolean);
-                        }}
-                        data-testid="checkbox-short-term"
-                      />
-                      <label
-                        htmlFor="shortTerm"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        Imóvel de Curta Duração
-                      </label>
+                  {watchedCategory !== 'Coworking' && (
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="shortTerm"
+                          checked={watchedShortTerm || false}
+                          onCheckedChange={(checked) => {
+                            setValue("shortTerm", checked as boolean);
+                          }}
+                          data-testid="checkbox-short-term"
+                        />
+                        <label
+                          htmlFor="shortTerm"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          Imóvel de Curta Duração
+                        </label>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Marque esta opção se o imóvel é para arrendamento de curta duração (hospedagem temporária, férias, etc.). Imóveis de curta duração não permitem contratos formais.
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Marque esta opção se o imóvel é para arrendamento de curta duração (hospedagem temporária, férias, etc.). Imóveis de curta duração não permitem contratos formais.
-                    </p>
-                  </div>
+                  )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Preço (AOA)</Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Controller
-                        name="price"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            id="price"
-                            type="text"
-                            placeholder="350 000"
-                            className="pl-10"
-                            value={formattedPrice}
-                            onChange={(e) => handlePriceChange(e.target.value, field.onChange)}
-                            data-testid="input-price"
-                          />
-                        )}
-                      />
+                  {watchedCategory !== 'Coworking' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="price">Preço (AOA)</Label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Controller
+                          name="price"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              id="price"
+                              type="text"
+                              placeholder="350 000"
+                              className="pl-10"
+                              value={formattedPrice}
+                              onChange={(e) => handlePriceChange(e.target.value, field.onChange)}
+                              data-testid="input-price"
+                            />
+                          )}
+                        />
+                      </div>
+                      {errors.price && (
+                        <p className="text-sm text-destructive">{errors.price.message}</p>
+                      )}
                     </div>
-                    {errors.price && (
-                      <p className="text-sm text-destructive">{errors.price.message}</p>
-                    )}
-                  </div>
+                  )}
 
                   {watchedCategory === 'Coworking' && (
                     <div className="space-y-2">
