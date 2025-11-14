@@ -292,7 +292,7 @@ const propertyFormSchema = z.object({
   type: z.enum(['Arrendar', 'Vender'], {
     required_error: "Selecione o tipo de transação",
   }),
-  category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno'], {
+  category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno', 'Coworking'], {
     required_error: "Selecione a categoria",
   }),
   shortTerm: z.boolean().optional(),

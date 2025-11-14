@@ -77,12 +77,14 @@ export default function Header() {
   }, [mobileMenuOpen]);
 
   const navItems = [
-    { label: 'Início', path: '/' },
-    { label: 'Imóveis', path: '/imoveis' },
-    { label: 'Curta Duração', path: '/imoveis-curta-duracao' },
-    { label: 'Explorar Mapa', path: '/explorar-mapa' },
-    { label: 'Serviços', path: '/servicos' },
-    { label: 'Sobre', path: '/sobre' },
+    { label: 'Início', path: '/', testId: 'inicio' },
+    { label: 'Imóveis', path: '/imoveis', testId: 'imoveis' },
+    { label: 'Alto Padrão', path: '/altos-padrao', testId: 'alto-padrao' },
+    { label: 'Coworking', path: '/coworking', testId: 'coworking' },
+    { label: 'Curta Duração', path: '/imoveis-curta-duracao', testId: 'curta-duracao' },
+    { label: 'Explorar Mapa', path: '/explorar-mapa', testId: 'explorar-mapa' },
+    { label: 'Serviços', path: '/servicos', testId: 'servicos' },
+    { label: 'Sobre', path: '/sobre', testId: 'sobre' },
   ];
 
   return (
@@ -109,7 +111,7 @@ export default function Header() {
               className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 location === '/' ? 'text-primary' : 'text-muted-foreground'
               }`}
-              data-testid="link-início"
+              data-testid="link-inicio"
               {...prefetchOnHover('/')}
             >
               Início
@@ -143,7 +145,7 @@ export default function Header() {
                 className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                   location === item.path ? 'text-primary' : 'text-muted-foreground'
                 }`}
-                data-testid={`link-${item.label.toLowerCase()}`}
+                data-testid={`link-${item.testId}`}
                 {...prefetchOnHover(item.path)}
               >
                 {item.label}
@@ -257,7 +259,7 @@ export default function Header() {
                   location === '/' ? 'text-primary' : 'text-muted-foreground'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
-                data-testid="link-mobile-início"
+                data-testid="link-mobile-inicio"
               >
                 Início
               </Link>
@@ -291,7 +293,7 @@ export default function Header() {
                     location === item.path ? 'text-primary' : 'text-muted-foreground'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
-                  data-testid={`link-mobile-${item.label.toLowerCase()}`}
+                  data-testid={`link-mobile-${item.testId}`}
                 >
                   {item.label}
                 </Link>

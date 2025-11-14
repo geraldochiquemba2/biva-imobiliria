@@ -39,7 +39,7 @@ export const properties = pgTable("properties", {
   title: text("title").notNull(),
   description: text("description"),
   type: text("type").notNull(), // 'Arrendar' or 'Vender'
-  category: text("category").notNull(), // 'Apartamento', 'Casa', 'Comercial', 'Terreno'
+  category: text("category").notNull(), // 'Apartamento', 'Casa', 'Comercial', 'Terreno', 'Coworking'
   price: decimal("price", { precision: 15, scale: 2 }).notNull(),
   bairro: text("bairro").notNull(),
   municipio: text("municipio").notNull(),
@@ -384,7 +384,7 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
 
 export const searchPropertySchema = z.object({
   type: z.enum(['Arrendar', 'Vender']).optional(),
-  category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno']).optional(),
+  category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno', 'Coworking']).optional(),
   location: z.string().optional(),
   bairro: z.string().optional(),
   municipio: z.string().optional(),
