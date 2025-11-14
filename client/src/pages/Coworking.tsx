@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Home, MapPin, Maximize2, Users, Clock } from "lucide-react";
+import { Users } from "lucide-react";
 import type { PaginatedPropertiesResponse } from "@shared/schema";
+import PropertyCard from "@/components/PropertyCard";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 export default function Coworking() {
@@ -99,86 +98,9 @@ export default function Coworking() {
               ))}
             </div>
           ) : properties && properties.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {properties.map((property, index) => (
-                <motion.div
-                  key={property.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
-                >
-                  <Link href={`/imoveis/${property.id}`}>
-                    <Card 
-                      className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer h-full flex flex-col"
-                      data-testid={`card-property-${property.id}`}
-                    >
-                      <div className="relative w-full aspect-[4/3] sm:aspect-video overflow-hidden bg-muted">
-                        {property.images && property.images.length > 0 ? (
-                          <img 
-                            src={property.images[0]} 
-                            alt={property.title}
-                            className="w-full h-full object-contain"
-                            loading="lazy"
-                          />
-                        ) : (property as any).thumbnail ? (
-                          <img 
-                            src={(property as any).thumbnail} 
-                            alt={property.title}
-                            className="w-full h-full object-contain"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-muted flex items-center justify-center">
-                            <Users className="h-16 w-16 text-muted-foreground" />
-                          </div>
-                        )}
-                      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-wrap gap-1 sm:gap-2 max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)]">
-                        <Badge className="bg-primary text-primary-foreground text-xs whitespace-nowrap" data-testid={`badge-type-${property.id}`}>
-                          Coworking
-                        </Badge>
-                        {property.featured && (
-                          <Badge variant="secondary" className="text-xs whitespace-nowrap" data-testid={`badge-featured-${property.id}`}>
-                            Destaque
-                          </Badge>
-                        )}
-                        <Badge className="bg-blue-600 text-white text-xs whitespace-nowrap flex items-center gap-1" data-testid={`badge-temporary-${property.id}`}>
-                          <Clock className="h-3 w-3" />
-                          Temporário
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="p-3 sm:p-6 flex-1 flex flex-col">
-                      <div className="mb-2 sm:mb-4">
-                        <h3 className="font-semibold text-base sm:text-lg mb-1 sm:mb-2 line-clamp-2" data-testid={`text-title-${property.id}`}>
-                          {property.title}
-                        </h3>
-                        <p className="text-primary font-bold text-lg sm:text-2xl mb-1 sm:mb-2" data-testid={`text-price-${property.id}`}>
-                          {parseFloat(property.price).toLocaleString('pt-AO')} Kz
-                        </p>
-                        <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
-                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                          <span className="line-clamp-1" data-testid={`text-location-${property.id}`}>
-                            {property.bairro}, {property.municipio}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-1 sm:gap-4 text-xs sm:text-sm text-muted-foreground mt-auto">
-                        <div className="flex items-center gap-1">
-                          <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                          <span data-testid={`text-area-${property.id}`}>{property.area}m²</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                          <span data-testid={`text-capacity-${property.id}`}>Flexível</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </Link>
-              </motion.div>
+                <PropertyCard key={property.id} property={property} index={index} />
               ))}
             </div>
           ) : (
