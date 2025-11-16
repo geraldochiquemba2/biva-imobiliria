@@ -3,51 +3,42 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-// Construir a URL do Supabase usando a senha da variável de ambiente
-const SUPABASE_PASSWORD = process.env.SUPABASE_PASSWORD;
+// Use Replit's built-in PostgreSQL database
+const DATABASE_URL = process.env.DATABASE_URL;
 
-if (!SUPABASE_PASSWORD) {
+if (!DATABASE_URL) {
   throw new Error(
-    "SUPABASE_PASSWORD must be set. Please add it to your environment variables.",
+    "DATABASE_URL must be set. Please ensure the Replit PostgreSQL database is configured.",
   );
 }
 
-// Encode password para URL (lidar com caracteres especiais)
-const encodedPassword = encodeURIComponent(SUPABASE_PASSWORD);
-const DATABASE_URL = `postgresql://postgres.wxagguvpbkegwjeqthge:${encodedPassword}@aws-1-sa-east-1.pooler.supabase.com:5432/postgres`;
-
-// Configuração otimizada do Connection Pool para Supabase
+// Optimized Connection Pool configuration for Replit PostgreSQL
 export const pool = new Pool({ 
   connectionString: DATABASE_URL,
   
-  // SSL é obrigatório para Supabase
-  ssl: {
-    rejectUnauthorized: false
-  },
-  
-  // Limitar conexões simultâneas (Supabase free tier suporta até 15 conexões)
+  // Limit simultaneous connections
   max: 10,
   
-  // Conexões mínimas mantidas ativas (keep-alive)
+  // Minimum active connections (keep-alive)
   min: 2,
   
-  // Tempo máximo de espera para obter conexão do pool (10 segundos)
+  // Maximum wait time to get connection from pool (10 seconds)
   connectionTimeoutMillis: 10000,
   
-  // Tempo que uma conexão pode ficar idle antes de ser fechada (2 minutos)
+  // Time a connection can be idle before being closed (2 minutes)
   idleTimeoutMillis: 120000,
   
-  // Tempo máximo de vida de uma conexão (30 minutos)
+  // Maximum connection lifetime (30 minutes)
   maxLifetimeSeconds: 1800,
   
-  // Verificar conexão está viva antes de usar
+  // Check connection is alive before use
   allowExitOnIdle: true,
   
-  // Keep-alive configuration para manter conexões ativas
+  // Keep-alive configuration to maintain active connections
   keepAlive: true,
   keepAliveInitialDelayMillis: 10000,
   
-  // Statement timeout (evitar queries muito longas)
+  // Statement timeout (avoid very long queries)
   statement_timeout: 30000,
   
   // Query timeout
