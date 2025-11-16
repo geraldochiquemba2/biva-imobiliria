@@ -51,22 +51,28 @@ export default function AltosPadrao() {
     
     const price = Number(property.price);
     
+    // Apartamentos: a partir de 300.000 Kz
+    if (property.category === 'Apartamento' && price >= 300000) {
+      return true;
+    }
+    
     // Imóveis de arrendar: apenas a partir de 500.000 Kz
-    if (property.type === 'Arrendar' && price < 500000) {
-      return false;
+    if (property.type === 'Arrendar' && price >= 500000) {
+      return true;
     }
     
     // Terrenos: apenas a partir de 100.000.000 Kz
-    if (property.category === 'Terreno' && price < 100000000) {
-      return false;
+    if (property.category === 'Terreno' && price >= 100000000) {
+      return true;
     }
     
     // Casas: apenas a partir de 100.000.000 Kz
-    if (property.category === 'Casa' && price < 100000000) {
-      return false;
+    if (property.category === 'Casa' && price >= 100000000) {
+      return true;
     }
     
-    return true;
+    // Todos os outros tipos não devem aparecer
+    return false;
   });
 
   return (
