@@ -10,35 +10,35 @@ import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
 
 export default function AltosPadrao() {
   useEffect(() => {
-    document.title = "Imóveis de Alto Padrão - A partir de 300.000 Kz | BIVA";
+    document.title = "Propriedades Exclusivas - A partir de 300.000 Kz | BIVA";
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Descubra imóveis exclusivos de alto padrão em Angola a partir de 300.000 Kz. Apartamentos e casas de luxo para compra e arrendamento.');
+      metaDescription.setAttribute('content', 'Descubra propriedades exclusivas em Angola a partir de 300.000 Kz. Apartamentos e casas de luxo para compra e arrendamento.');
     } else {
       const meta = document.createElement('meta');
       meta.name = 'description';
-      meta.content = 'Descubra imóveis exclusivos de alto padrão em Angola a partir de 300.000 Kz. Apartamentos e casas de luxo para compra e arrendamento.';
+      meta.content = 'Descubra propriedades exclusivas em Angola a partir de 300.000 Kz. Apartamentos e casas de luxo para compra e arrendamento.';
       document.head.appendChild(meta);
     }
     
     const ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) {
-      ogTitle.setAttribute('content', 'Imóveis de Alto Padrão - A partir de 300.000 Kz | BIVA');
+      ogTitle.setAttribute('content', 'Propriedades Exclusivas - A partir de 300.000 Kz | BIVA');
     } else {
       const meta = document.createElement('meta');
       meta.setAttribute('property', 'og:title');
-      meta.content = 'Imóveis de Alto Padrão - A partir de 300.000 Kz | BIVA';
+      meta.content = 'Propriedades Exclusivas - A partir de 300.000 Kz | BIVA';
       document.head.appendChild(meta);
     }
     
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) {
-      ogDescription.setAttribute('content', 'Descubra imóveis exclusivos de alto padrão em Angola a partir de 300.000 Kz. Apartamentos e casas de luxo para compra e arrendamento.');
+      ogDescription.setAttribute('content', 'Descubra propriedades exclusivas em Angola a partir de 300.000 Kz. Apartamentos e casas de luxo para compra e arrendamento.');
     } else {
       const meta = document.createElement('meta');
       meta.setAttribute('property', 'og:description');
-      meta.content = 'Descubra imóveis exclusivos de alto padrão em Angola a partir de 300.000 Kz. Apartamentos e casas de luxo para compra e arrendamento.';
+      meta.content = 'Descubra propriedades exclusivas em Angola a partir de 300.000 Kz. Apartamentos e casas de luxo para compra e arrendamento.';
       document.head.appendChild(meta);
     }
   }, []);
@@ -46,7 +46,23 @@ export default function AltosPadrao() {
     queryKey: ['/api/properties?minPrice=300000'],
   });
 
-  const properties = (allProperties?.data || []).filter(property => property.status === 'disponivel');
+  const properties = (allProperties?.data || []).filter(property => {
+    if (property.status !== 'disponivel') return false;
+    
+    const price = Number(property.price);
+    
+    // Imóveis de arrendar: apenas a partir de 500.000 Kz
+    if (property.type === 'Arrendar' && price < 500000) {
+      return false;
+    }
+    
+    // Terrenos: apenas a partir de 100.000.000 Kz
+    if (property.category === 'Terreno' && price < 100000000) {
+      return false;
+    }
+    
+    return true;
+  });
 
   return (
     <div className="min-h-screen pt-24">
@@ -64,11 +80,11 @@ export default function AltosPadrao() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-              Imóveis de Alto Padrão
+              Propriedades Exclusivas
             </h1>
             
             <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
-              Propriedades exclusivas a partir de 300.000 Kz
+              A partir de 300.000 Kz
             </p>
           </motion.div>
         </div>
@@ -78,7 +94,7 @@ export default function AltosPadrao() {
         <div className="max-w-7xl mx-auto">
 
           <div className="mb-6">
-            <h2 className="text-3xl font-bold mb-2">Imóveis de Alto Padrão</h2>
+            <h2 className="text-3xl font-bold mb-2">Propriedades Exclusivas</h2>
             <p className="text-muted-foreground">
               {isLoading ? "Carregando..." : `${properties?.length || 0} ${properties?.length === 1 ? 'imóvel encontrado' : 'imóveis encontrados'}`}
             </p>
@@ -108,7 +124,7 @@ export default function AltosPadrao() {
               <Home className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold mb-2">Nenhum imóvel encontrado</h3>
               <p className="text-muted-foreground">
-                Não há imóveis de alto padrão disponíveis no momento.
+                Não há propriedades exclusivas disponíveis no momento.
               </p>
             </div>
           )}
