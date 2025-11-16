@@ -82,10 +82,6 @@ export default function AltosPadrao() {
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
               Propriedades Exclusivas
             </h1>
-            
-            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
-              A partir de 300.000 Kz
-            </p>
           </motion.div>
         </div>
       </section>
