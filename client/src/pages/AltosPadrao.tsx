@@ -61,6 +61,11 @@ export default function AltosPadrao() {
       return false;
     }
     
+    // Casas: apenas a partir de 100.000.000 Kz
+    if (property.category === 'Casa' && price < 100000000) {
+      return false;
+    }
+    
     return true;
   });
 
