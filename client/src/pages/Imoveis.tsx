@@ -71,7 +71,7 @@ export default function Imoveis() {
     return selectedProvince?.municipalities || [];
   }, [filters.provincia]);
 
-  const { data: allProperties, isLoading } = useQuery<PaginatedPropertiesResponse>({
+  const { data: allProperties, isLoading, error } = useQuery<PaginatedPropertiesResponse>({
     queryKey: ['/api/properties', filters],
     queryFn: async () => {
       const params = new URLSearchParams();
