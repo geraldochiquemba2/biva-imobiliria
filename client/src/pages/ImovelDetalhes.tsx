@@ -65,6 +65,7 @@ export default function ImovelDetalhes() {
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
 
   const { data: currentUser } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -98,6 +99,48 @@ export default function ImovelDetalhes() {
       });
     }
   }, [property]);
+
+  // Pré-carregar imagens para melhor performance em mobile
+  useEffect(() => {
+    if (!property?.images || property.images.length === 0) return;
+
+    const images = property.images;
+    
+    const preloadImage = (src: string, index: number, priority: boolean = false) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        if (priority) {
+          img.fetchPriority = 'high';
+        }
+        img.onload = () => {
+          setLoadedImages(prev => new Set(prev).add(index));
+          resolve();
+        };
+        img.onerror = () => {
+          setLoadedImages(prev => new Set(prev).add(index));
+          resolve();
+        };
+        img.src = src;
+      });
+    };
+
+    // Carregar primeira imagem com alta prioridade
+    preloadImage(images[0], 0, true).then(() => {
+      // Carregar próximas 2 imagens imediatamente
+      const immediateLoads = images.slice(1, 3).map((src, idx) => 
+        preloadImage(src, idx + 1, true)
+      );
+      
+      Promise.all(immediateLoads).then(() => {
+        // Carregar o resto com delay para não sobrecarregar
+        images.slice(3).forEach((src, idx) => {
+          setTimeout(() => {
+            preloadImage(src, idx + 3);
+          }, idx * 300);
+        });
+      });
+    });
+  }, [property?.images]);
 
   const { data: visitsResponse } = useQuery<{ data: Visit[] }>({
     queryKey: ['/api/properties', params?.id, 'visits'],
@@ -458,15 +501,21 @@ export default function ImovelDetalhes() {
                         <button
                           key={index}
                           onClick={() => setSelectedImageIndex(index)}
-                          className={`aspect-video rounded-md overflow-hidden hover-elevate ${
+                          className={`relative aspect-video rounded-md overflow-hidden hover-elevate ${
                             selectedImageIndex === index ? 'ring-2 ring-primary' : ''
                           }`}
                           data-testid={`button-thumbnail-${index}`}
                         >
+                          {!loadedImages.has(index) && (
+                            <div className="absolute inset-0 bg-muted animate-pulse" />
+                          )}
                           <img
                             src={index === 0 && (property as any).thumbnail ? (property as any).thumbnail : image}
                             alt={`${property.title} - ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            className={`w-full h-full object-cover transition-opacity duration-300 ${
+                              loadedImages.has(index) ? 'opacity-100' : 'opacity-0'
+                            }`}
+                            loading="lazy"
                           />
                         </button>
                       ))}
