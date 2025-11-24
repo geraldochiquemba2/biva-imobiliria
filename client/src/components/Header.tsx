@@ -218,7 +218,6 @@ export default function Header() {
                   variant="outline"
                   size="sm"
                   asChild
-                  className="hidden md:flex"
                   data-testid="button-login"
                 >
                   <Link to="/login" {...prefetchOnHover('/login')}>Entrar</Link>
@@ -227,7 +226,6 @@ export default function Header() {
                 <Button
                   size="sm"
                   asChild
-                  className="hidden md:flex"
                   data-testid="button-register"
                 >
                   <Link to="/cadastro" {...prefetchOnHover('/cadastro')}>Cadastro</Link>
