@@ -1,0 +1,148 @@
+2.DsFDlh9d.jpg  557.15 kB
+../dist/public/assets/property_management__eb571a95.CJrJcFDl.jpg  626.72 kB
+../dist/public/assets/ImovelDetalhes.CxcUYz3u.css                  10.66 kB
+../dist/public/assets/leaflet.Dgihpmma.css                         15.04 kB
+../dist/public/assets/index.O6VT-I8D.css                           99.14 kB
+../dist/public/assets/modern_apartment_bui_506260cd.B3SjDcNe.js     0.08 kB
+../dist/public/assets/luxury_modern_apartm_d0631b09.CFLUJstd.js     0.08 kB
+../dist/public/assets/team_business_profes_5f1b3f15.D62jAkow.js     0.08 kB
+../dist/public/assets/modern_apartment_bui_70397924.CRFMk7c8.js     0.08 kB
+../dist/public/assets/BIVA LOG300.300_1761652396256.BZ_uCBM_.js     0.08 kB
+../dist/public/assets/office_building_loca_47ac5ee4.DgVUZF6n.js     0.20 kB
+../dist/public/assets/currency.C7zGzb2F.js                          0.22 kB
+../dist/public/assets/chevron-left.CAZOnpQc.js                      0.30 kB
+../dist/public/assets/plus.CQrvvXlY.js                              0.32 kB
+../dist/public/assets/arrow-left.CsmxIP-l.js                        0.33 kB
+../dist/public/assets/search.DHQ7cgk0.js                            0.34 kB
+../dist/public/assets/clock.5RRzp5IX.js                             0.35 kB
+../dist/public/assets/circle-check-big.DdQKzsC3.js                  0.36 kB
+../dist/public/assets/circle-x.Dhvnn_x5.js                          0.37 kB
+../dist/public/assets/lock.DFFQIwuP.js                              0.38 kB
+../dist/public/assets/star.Bvsjmm3c.js                              0.38 kB
+../dist/public/assets/aerial_view_city_map_83390299.lpGKTtQ4.js     0.38 kB
+../dist/public/assets/mail.CXsiuORv.js                              0.39 kB
+../dist/public/assets/dollar-sign.2aJKGj9P.js                       0.39 kB
+../dist/public/assets/ellipsis-vertical.Dr6lsO-A.js                 0.40 kB
+../dist/public/assets/eye.CVUzdBU0.js                               0.42 kB
+../dist/public/assets/map-pin.CRKx67Qp.js                           0.42 kB
+../dist/public/assets/calendar.BiqVz6cu.js                          0.43 kB
+../dist/public/assets/upload.WPu-_aEo.js                            0.43 kB
+../dist/public/assets/image.B5J7INtL.js                             0.44 kB
+../dist/public/assets/shopping-cart.DExKIrCy.js                     0.46 kB
+../dist/public/assets/house.BUn0han3.js                             0.46 kB
+../dist/public/assets/users.qvCFdAPD.js                             0.47 kB
+../dist/public/assets/square-pen.CGSbsS4v.js                        0.49 kB
+../dist/public/assets/file-text.D8eaOgMC.js                         0.50 kB
+../dist/public/assets/share-2.CPNsD5ZE.js                           0.52 kB
+../dist/public/assets/trash-2.90NWKfTh.js                           0.53 kB
+../dist/public/assets/phone.C85fsOA9.js                             0.56 kB
+../dist/public/assets/hand-coins.NgMFWsud.js                        0.58 kB
+../dist/public/assets/building-2.nOedpGsb.js                        0.61 kB
+../dist/public/assets/message-square.l-swRHeR.js                    0.67 kB
+../dist/public/assets/not-found.BcMT-Sd_.js                         0.71 kB
+../dist/public/assets/zod.Ch0T01Ln.js                               1.05 kB
+../dist/public/assets/textarea.C4Enuf44.js                          1.08 kB
+../dist/public/assets/input.rZB9ucWZ.js                             1.17 kB
+../dist/public/assets/maximize.Zs58Nj8t.js                          1.18 kB
+../dist/public/assets/label.Dr4Y7x05.js                             1.23 kB
+../dist/public/assets/badge.CSV9PebL.js                             1.29 kB
+../dist/public/assets/dialog.RsyiRswc.js                            3.00 kB
+../dist/public/assets/avatar.BP5NoNIS.js                            3.20 kB
+../dist/public/assets/Comprar.DrQ6csXs.js                           3.34 kB
+../dist/public/assets/Arrendar.D3eI2NnI.js                          3.35 kB
+../dist/public/assets/PropertyImage.D53sg-_8.js                     3.72 kB
+../dist/public/assets/AltosPadrao.BIygFf6w.js                       4.29 kB
+../dist/public/assets/Coworking.BLOqgmyl.js                         4.29 kB
+../dist/public/assets/Contacto.DeyJ7CN9.js                          4.43 kB
+../dist/public/assets/select.BBlCuYne.js                            4.44 kB
+../dist/public/assets/Servicos.C_b5m3jj.js                          5.06 kB
+../dist/public/assets/Login.DmqsbzMA.js                             5.30 kB
+../dist/public/assets/pt-BR.BhD2sTs2.js                             5.75 kB
+../dist/public/assets/alert-dialog.D0BxgB24.js                      5.94 kB
+../dist/public/assets/Sobre.DcR8tlGN.js                             6.04 kB
+../dist/public/assets/Profile.DMaGIDvC.js                           6.18 kB
+../dist/public/assets/InteractiveLocationPicker.Cnlh8vSs.js         6.34 kB
+../dist/public/assets/AdminImoveis.Du7sPo4m.js                      6.78 kB
+../dist/public/assets/en-US.BOma38FQ.js                             7.61 kB
+../dist/public/assets/TourVirtualManager.DjwQTO80.js                8.10 kB
+../dist/public/assets/ImoveisCurtaDuracao.UlZU9qE8.js               8.18 kB
+../dist/public/assets/Cadastro.CkBNRV5A.js                          9.14 kB
+../dist/public/assets/ImoveisPendentes.BpF6BpQf.js                  9.50 kB
+../dist/public/assets/AdminAprovarImoveis.DNMnTQjj.js               9.97 kB
+../dist/public/assets/ImoveisArrendados.K_GE5fX9.js                10.50 kB
+../dist/public/assets/PropertyCard.Bako9-r3.js                     10.74 kB
+../dist/public/assets/angola-locations.DAHybhzE.js                 10.96 kB
+../dist/public/assets/MeusImoveisTemporarios.DAieKYy5.js           11.03 kB
+../dist/public/assets/ImoveisVendidos.CsLwluTO.js                  11.15 kB
+../dist/public/assets/ImoveisIndisponiveis._oXImdat.js             11.18 kB
+../dist/public/assets/ImoveisDisponiveis.pMrnsPP2.js               11.26 kB
+../dist/public/assets/AdminAnuncios.C7SfB52b.js                    11.53 kB
+../dist/public/assets/Imoveis.DRXAQZOf.js                          11.75 kB
+../dist/public/assets/format.srYe-WgW.js                           12.73 kB
+../dist/public/assets/ExplorarMapa.MDP6-b1d.js                     12.86 kB
+../dist/public/assets/AdminUsuarios.DVKuiKqZ.js                    15.56 kB
+../dist/public/assets/Dashboard.T7wLpbuz.js                        16.98 kB
+../dist/public/assets/ContratosAtivos.BqTUZ4aM.js                  20.82 kB
+../dist/public/assets/EditarImovel.Cwccquv7.js                     21.80 kB
+../dist/public/assets/purify.es.BLKhEpFv.js                        22.76 kB
+../dist/public/assets/VisitasAgendadas.CERNL--f.js                 22.90 kB
+../dist/public/assets/MeusImoveis.yF2fbgOh.js                      25.10 kB
+../dist/public/assets/CadastrarImovelCurtaDuracao.GuGqCvqO.js      26.05 kB
+../dist/public/assets/CadastrarImovel.DOU9k2m8.js                  28.82 kB
+../dist/public/assets/Home.Bj4tLUTq.js                             31.45 kB
+../dist/public/assets/query.Cbeak0wY.js                            40.30 kB
+../dist/public/assets/ContractSign.CNTXlfLG.js                     48.19 kB
+../dist/public/assets/index.DVmiOPTM.js                            85.51 kB
+../dist/public/assets/forms.CuGCjVzJ.js                            87.96 kB
+../dist/public/assets/ui.DteBM1xa.js                              104.66 kB
+../dist/public/assets/motion.DH_1fVFs.js                          115.46 kB
+../dist/public/assets/vendor.C6oTH5a1.js                          140.30 kB
+../dist/public/assets/maps.-5pRaASc.js                            149.20 kB
+../dist/public/assets/index.es.CM3fSaiZ.js                        149.25 kB
+../dist/public/assets/BIVA LOG300.300_1761489547620.BfDjrn7X.js   616.14 kB
+../dist/public/assets/ImovelDetalhes.DzyC1zdI.js                  659.62 kB
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 31.73s
+  dist/index.js  150.2kb
+⚡ Done in 37ms
+==> Uploading build...
+==> Uploaded in 8.6s. Compression took 9.2s
+==> Build successful 🎉
+==> Deploying...
+==> No open ports detected, continuing to scan...
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+2:02:26 PM [express] Setting up keep-alive for Render...
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://biva.pt + 2 more domains
+==> 
+==> ///////////////////////////////////////////////////////////
+2:03:06 PM [express] GET /api/auth/me 401 in 4ms :: {"error":"Autenticação necessária"}
+2:03:08 PM [express] GET /api/properties/featured 304 in 1820ms
+2:03:08 PM [express] GET /api/virtual-tours/property/7bce4467-6ecf-4a74-b219-96aabbc3f8e2 404 in 212…
+2:03:08 PM [express] GET /api/properties 304 in 2736ms
+2:03:09 PM [express] GET /api/advertisements 304 in 2909ms
+2:03:10 PM [express] GET /api/virtual-tours/property/5160b9d7-8985-480f-9b18-f6ff6c7c58c5 404 in 180…
+2:03:11 PM [express] GET /api/properties 304 in 895ms
+2:03:18 PM [express] GET /api/properties/7bce4467-6ecf-4a74-b219-96aabbc3f8e2 304 in 10802ms
+2:03:18 PM [express] GET /api/properties 304 in 8711ms
+2:03:18 PM [express] GET /api/virtual-tours/property/d4304832-cd72-45e0-bc61-3111d8d95d0c 404 in 591…
+2:03:19 PM [express] GET /api/properties/71375589-b8e9-4f18-9c7f-ed1f745c88ef 200 in 7755ms :: {"id"…
+2:03:19 PM [express] GET /api/virtual-tours/property/ec2e1b51-dfb7-4908-8170-3cee2bc7e328 404 in 854…
+2:03:20 PM [express] GET /api/properties/ec2e1b51-dfb7-4908-8170-3cee2bc7e328 304 in 10084ms
+2:03:21 PM [express] GET /api/virtual-tours/property/71375589-b8e9-4f18-9c7f-ed1f745c88ef 404 in 106…
+2:03:22 PM [express] GET /api/virtual-tours/property/47daff57-1f49-4dbd-a833-322fe588d0a6 404 in 107…
+2:03:22 PM [express] GET /api/properties 304 in 3118ms
+2:03:22 PM [express] GET /api/auth/me 401 in 98ms :: {"error":"Autenticação necessária"}
+2:03:22 PM [express] GET /api/properties/d4304832-cd72-45e0-bc61-3111d8d95d0c 200 in 3601ms :: {"id"…
+2:03:26 PM [express] GET /api/advertisements 304 in 3804ms
+2:03:26 PM [express] GET /api/auth/me 401 in 1ms :: {"error":"Autenticação necessária"}
+2:03:31 PM [express] GET /api/properties/5160b9d7-8985-480f-9b18-f6ff6c7c58c5 304 in 21180ms
+2:03:31 PM [express] GET /api/advertisements 304 in 5007ms
+2:03:48 PM [express] GET /api/auth/me 401 in 2ms :: {"error":"Autenticação necessária"}
+2:03:50 PM [express] GET /api/advertisements 304 in 873ms
