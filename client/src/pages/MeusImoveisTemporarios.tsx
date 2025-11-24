@@ -182,7 +182,7 @@ export default function MeusImoveisTemporarios() {
             </p>
 
             <Button asChild size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20" data-testid="button-add-short-term-property">
-              <Link href="/cadastrar-imovel-curta-duracao">
+              <Link to="/cadastrar-imovel-curta-duracao">
                 <Plus className="h-5 w-5 mr-2" />
                 Cadastrar Imóvel Temporário
               </Link>
@@ -203,7 +203,7 @@ export default function MeusImoveisTemporarios() {
             className="mb-6 md:text-white md:hover:text-white"
             data-testid="button-back"
           >
-            <Link href="/dashboard">
+            <Link to="/dashboard">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar ao Dashboard
             </Link>
@@ -284,7 +284,7 @@ export default function MeusImoveisTemporarios() {
                   Comece cadastrando seu primeiro imóvel de curta duração
                 </p>
                 <Button asChild data-testid="button-add-first-property">
-                  <Link href="/cadastrar-imovel-curta-duracao">
+                  <Link to="/cadastrar-imovel-curta-duracao">
                     <Plus className="h-4 w-4 mr-2" />
                     Cadastrar Imóvel Temporário
                   </Link>
@@ -342,7 +342,7 @@ export default function MeusImoveisTemporarios() {
                           asChild
                           data-testid={`button-view-${property.id}`}
                         >
-                          <Link href={`/imovel/${property.id}`}>
+                          <Link to={`/imovel/${property.id}`}>
                             <Eye className="h-4 w-4 mr-1" />
                             Ver
                           </Link>
@@ -355,7 +355,7 @@ export default function MeusImoveisTemporarios() {
                           disabled={property.canEdit === false}
                           data-testid={`button-edit-${property.id}`}
                         >
-                          <Link href={`/editar-imovel/${property.id}`}>
+                          <Link to={`/editar-imovel/${property.id}`}>
                             <Edit className="h-4 w-4 mr-1" />
                             Editar
                           </Link>

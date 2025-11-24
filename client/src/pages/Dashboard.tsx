@@ -119,7 +119,7 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {(hasRole('proprietario') || hasRole('corretor')) && (
-              <Link href="/meus-imoveis">
+              <Link to="/meus-imoveis">
                 <Card className="hover-elevate active-elevate-2 cursor-pointer relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -145,7 +145,7 @@ export default function Dashboard() {
             )}
 
             {(hasRole('proprietario') || hasRole('corretor')) && (
-              <Link href="/meus-imoveis-temporarios">
+              <Link to="/meus-imoveis-temporarios">
                 <Card className="hover-elevate active-elevate-2 cursor-pointer relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -171,7 +171,7 @@ export default function Dashboard() {
             )}
 
             {(hasRole('proprietario') || hasRole('cliente') || hasRole('corretor')) && (
-              <Link href="/contratos-ativos">
+              <Link to="/contratos-ativos">
                 <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -197,7 +197,7 @@ export default function Dashboard() {
             )}
 
             {(hasRole('proprietario') || hasRole('cliente') || hasRole('corretor')) && (
-              <Link href="/visitas-agendadas">
+              <Link to="/visitas-agendadas">
                 <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -223,7 +223,7 @@ export default function Dashboard() {
             )}
 
             {hasRole('cliente') && (
-              <Link href="/imoveis">
+              <Link to="/imoveis">
                 <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -249,7 +249,7 @@ export default function Dashboard() {
             )}
 
             {(hasRole('proprietario') || hasRole('corretor')) && (
-              <Link href="/imoveis-pendentes">
+              <Link to="/imoveis-pendentes">
                 <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -276,7 +276,7 @@ export default function Dashboard() {
 
             {hasRole('admin') && (
               <>
-                <Link href="/admin/imoveis">
+                <Link to="/admin/imoveis">
                   <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                     <div 
                       className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -300,7 +300,7 @@ export default function Dashboard() {
                   </Card>
                 </Link>
 
-                <Link href="/admin/aprovar-imoveis">
+                <Link to="/admin/aprovar-imoveis">
                   <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                     <div 
                       className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -324,7 +324,7 @@ export default function Dashboard() {
                   </Card>
                 </Link>
 
-                <Link href="/contratos-ativos">
+                <Link to="/contratos-ativos">
                   <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                     <div 
                       className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -348,7 +348,7 @@ export default function Dashboard() {
                   </Card>
                 </Link>
 
-                <Link href="/visitas-agendadas">
+                <Link to="/visitas-agendadas">
                   <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                     <div 
                       className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -372,7 +372,7 @@ export default function Dashboard() {
                   </Card>
                 </Link>
 
-                <Link href="/admin/usuarios">
+                <Link to="/admin/usuarios">
                   <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                     <div 
                       className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -396,7 +396,7 @@ export default function Dashboard() {
                   </Card>
                 </Link>
 
-                <Link href="/admin/anuncios">
+                <Link to="/admin/anuncios">
                   <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                     <div 
                       className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -427,7 +427,7 @@ export default function Dashboard() {
             <div className="my-8">
               <h2 className="text-2xl font-bold mb-4">Ações Rápidas</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Link href="/cadastrar-imovel">
+                <Link to="/cadastrar-imovel">
                   <Card className="hover-elevate active-elevate-2 cursor-pointer h-full">
                     <CardContent className="flex flex-col items-center justify-center text-center py-8">
                       <div className="rounded-full bg-primary/10 p-4 mb-4">
@@ -441,7 +441,7 @@ export default function Dashboard() {
                   </Card>
                 </Link>
 
-                <Link href="/cadastrar-imovel-curta-duracao">
+                <Link to="/cadastrar-imovel-curta-duracao">
                   <Card className="hover-elevate active-elevate-2 cursor-pointer h-full">
                     <CardContent className="flex flex-col items-center justify-center text-center py-8">
                       <div className="rounded-full bg-blue-500/10 p-4 mb-4">
@@ -460,7 +460,7 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {(hasRole('proprietario') || hasRole('corretor')) && (
-              <Link href="/meus-imoveis">
+              <Link to="/meus-imoveis">
                 <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer h-full">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
@@ -501,7 +501,7 @@ export default function Dashboard() {
             )}
 
             {hasRole('cliente') && (
-              <Link href="/imoveis">
+              <Link to="/imoveis">
                 <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer h-full">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"

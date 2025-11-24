@@ -54,7 +54,7 @@ export default function CTASection() {
                 </p>
 
                 <Button size="lg" className="w-full group bg-primary border-primary" data-testid="button-register-owner" asChild>
-                  <Link href="/cadastro">
+                  <Link to="/cadastro">
                     Cadastre-se Agora
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
@@ -90,7 +90,7 @@ export default function CTASection() {
                 </p>
 
                 <Button size="lg" variant="outline" className="w-full group bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20" data-testid="button-find-property" asChild>
-                  <Link href="/imoveis">
+                  <Link to="/imoveis">
                     Encontre seu Imóvel
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>

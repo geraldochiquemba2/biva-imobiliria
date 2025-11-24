@@ -187,7 +187,7 @@ export default function Login() {
 
                 <div className="text-center text-sm">
                   <span className="text-muted-foreground">Não tem uma conta? </span>
-                  <Link href="/cadastro" className="text-primary hover:underline font-semibold" data-testid="link-register">
+                  <Link to="/cadastro" className="text-primary hover:underline font-semibold" data-testid="link-register">
                     Cadastre-se
                   </Link>
                 </div>

@@ -612,7 +612,7 @@ export default function VisitasAgendadas() {
                                 asChild
                                 data-testid={`button-view-property-${visit.id}`}
                               >
-                                <Link href={`/imoveis/${visit.propertyId}`}>
+                                <Link to={`/imoveis/${visit.propertyId}`}>
                                   <Eye className="h-4 w-4 mr-2" />
                                   Ver Imóvel
                                 </Link>
@@ -837,7 +837,7 @@ export default function VisitasAgendadas() {
                           asChild
                           data-testid={`button-view-property-${visit.id}`}
                         >
-                          <Link href={`/imoveis/${visit.propertyId}`}>
+                          <Link to={`/imoveis/${visit.propertyId}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             Ver Imóvel
                           </Link>

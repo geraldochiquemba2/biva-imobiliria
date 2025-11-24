@@ -754,7 +754,7 @@ export default function CadastrarImovelCurtaDuracao() {
             asChild
             data-testid="button-back"
           >
-            <Link href="/dashboard">
+            <Link to="/dashboard">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar ao Dashboard
             </Link>
@@ -1129,7 +1129,7 @@ export default function CadastrarImovelCurtaDuracao() {
                     asChild
                     data-testid="button-cancel"
                   >
-                    <Link href="/dashboard">Cancelar</Link>
+                    <Link to="/dashboard">Cancelar</Link>
                   </Button>
                   <Button
                     type="submit"

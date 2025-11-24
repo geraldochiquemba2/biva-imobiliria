@@ -78,7 +78,7 @@ export default function AdminImoveis() {
                 className="mb-4"
                 data-testid="button-back"
               >
-                <Link href="/dashboard">
+                <Link to="/dashboard">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Voltar ao Dashboard
                 </Link>
@@ -93,7 +93,7 @@ export default function AdminImoveis() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-            <Link href="/admin/aprovar-imoveis">
+            <Link to="/admin/aprovar-imoveis">
               <Card className="hover-elevate active-elevate-2 cursor-pointer h-full">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -266,7 +266,7 @@ export default function AdminImoveis() {
                               asChild
                               data-testid={`button-view-${property.id}`}
                             >
-                              <Link href={`/imoveis/${property.id}`}>
+                              <Link to={`/imoveis/${property.id}`}>
                                 <Eye className="h-4 w-4 mr-2" />
                                 Ver
                               </Link>

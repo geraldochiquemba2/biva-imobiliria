@@ -330,7 +330,7 @@ export default function Cadastro() {
 
                 <div className="text-center text-sm">
                   <span className="text-muted-foreground">Já tem uma conta? </span>
-                  <Link href="/login" className="text-primary hover:underline font-semibold" data-testid="link-login">
+                  <Link to="/login" className="text-primary hover:underline font-semibold" data-testid="link-login">
                     Entrar
                   </Link>
                 </div>

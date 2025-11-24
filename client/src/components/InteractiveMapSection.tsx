@@ -62,7 +62,7 @@ export default function InteractiveMapSection() {
             </ul>
 
             <Button size="lg" className="bg-primary border-primary" asChild data-testid="button-explore-map">
-              <Link href="/explorar-mapa">
+              <Link to="/explorar-mapa">
                 <Navigation className="h-5 w-5 mr-2" />
                 Explorar Mapa
               </Link>

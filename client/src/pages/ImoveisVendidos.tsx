@@ -169,14 +169,14 @@ export default function ImoveisVendidos() {
             className="mb-6"
             data-testid="button-back"
           >
-            <Link href="/meus-imoveis">
+            <Link to="/meus-imoveis">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar
             </Link>
           </Button>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Link href="/imoveis-disponiveis">
+            <Link to="/imoveis-disponiveis">
               <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -194,7 +194,7 @@ export default function ImoveisVendidos() {
               </Card>
             </Link>
 
-            <Link href="/imoveis-arrendados">
+            <Link to="/imoveis-arrendados">
               <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -212,7 +212,7 @@ export default function ImoveisVendidos() {
               </Card>
             </Link>
 
-            <Link href="/imoveis-vendidos">
+            <Link to="/imoveis-vendidos">
               <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer border-2 border-purple-500">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -230,7 +230,7 @@ export default function ImoveisVendidos() {
               </Card>
             </Link>
 
-            <Link href="/imoveis-indisponiveis">
+            <Link to="/imoveis-indisponiveis">
               <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -330,7 +330,7 @@ export default function ImoveisVendidos() {
                             </p>
                           </div>
                           <Button variant="outline" size="icon" asChild data-testid={`button-view-${property.id}`}>
-                            <Link href={`/imoveis/${property.id}`}>
+                            <Link to={`/imoveis/${property.id}`}>
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
@@ -342,7 +342,7 @@ export default function ImoveisVendidos() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem asChild data-testid={`action-edit-${property.id}`}>
-                                <Link href={`/editar-imovel/${property.id}`}>
+                                <Link to={`/editar-imovel/${property.id}`}>
                                   <Edit className="h-4 w-4 mr-2" />
                                   Editar Imóvel
                                 </Link>

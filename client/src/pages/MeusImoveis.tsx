@@ -190,7 +190,7 @@ export default function MeusImoveis() {
             </p>
 
             <Button asChild size="lg" data-testid="button-add-property">
-              <Link href="/cadastrar-imovel">
+              <Link to="/cadastrar-imovel">
                 <Plus className="h-5 w-5 mr-2" />
                 Cadastrar Novo Imóvel
               </Link>
@@ -211,14 +211,14 @@ export default function MeusImoveis() {
             className="mb-6 md:text-white md:hover:text-white"
             data-testid="button-back"
           >
-            <Link href="/dashboard">
+            <Link to="/dashboard">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar ao Dashboard
             </Link>
           </Button>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Link href="/imoveis-disponiveis">
+            <Link to="/imoveis-disponiveis">
               <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -236,7 +236,7 @@ export default function MeusImoveis() {
               </Card>
             </Link>
 
-            <Link href="/imoveis-arrendados">
+            <Link to="/imoveis-arrendados">
               <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -254,7 +254,7 @@ export default function MeusImoveis() {
               </Card>
             </Link>
 
-            <Link href="/imoveis-vendidos">
+            <Link to="/imoveis-vendidos">
               <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -272,7 +272,7 @@ export default function MeusImoveis() {
               </Card>
             </Link>
 
-            <Link href="/imoveis-indisponiveis">
+            <Link to="/imoveis-indisponiveis">
               <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer">
                 <div 
                   className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -307,7 +307,7 @@ export default function MeusImoveis() {
                   Comece cadastrando seu primeiro imóvel para arrendar ou vender
                 </p>
                 <Button asChild data-testid="button-add-first-property">
-                  <Link href="/cadastrar-imovel">
+                  <Link to="/cadastrar-imovel">
                     <Plus className="h-4 w-4 mr-2" />
                     Cadastrar Imóvel
                   </Link>
@@ -398,7 +398,7 @@ export default function MeusImoveis() {
                                     <div className="flex gap-1 flex-shrink-0">
                                       {property.canEdit !== false ? (
                                         <Button variant="outline" size="icon" className="h-8 w-8" asChild data-testid={`button-edit-${property.id}`}>
-                                          <Link href={`/editar-imovel/${property.id}`}>
+                                          <Link to={`/editar-imovel/${property.id}`}>
                                             <Edit className="h-3 w-3" />
                                           </Link>
                                         </Button>
@@ -415,7 +415,7 @@ export default function MeusImoveis() {
                                         </Button>
                                       )}
                                       <Button variant="outline" size="icon" className="h-8 w-8" asChild data-testid={`button-view-${property.id}`}>
-                                        <Link href={`/imoveis/${property.id}`}>
+                                        <Link to={`/imoveis/${property.id}`}>
                                           <Eye className="h-3 w-3" />
                                         </Link>
                                       </Button>
@@ -428,7 +428,7 @@ export default function MeusImoveis() {
                                         <DropdownMenuContent align="end">
                                           {property.canEdit !== false ? (
                                             <DropdownMenuItem asChild data-testid={`action-edit-${property.id}`}>
-                                              <Link href={`/editar-imovel/${property.id}`}>
+                                              <Link to={`/editar-imovel/${property.id}`}>
                                                 <Edit className="h-4 w-4 mr-2" />
                                                 Editar Imóvel
                                               </Link>
@@ -618,7 +618,7 @@ export default function MeusImoveis() {
                                   </div>
                                   <div className="flex gap-1 flex-shrink-0">
                                     <Button variant="default" size="icon" className="h-8 w-8" asChild data-testid={`button-edit-${property.id}`}>
-                                      <Link href={`/editar-imovel/${property.id}`}>
+                                      <Link to={`/editar-imovel/${property.id}`}>
                                         <Edit className="h-3 w-3" />
                                       </Link>
                                     </Button>

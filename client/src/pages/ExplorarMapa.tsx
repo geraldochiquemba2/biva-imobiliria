@@ -721,7 +721,7 @@ export default function ExplorarMapa() {
                           asChild
                           data-testid="button-view-details"
                         >
-                          <Link href={`/imoveis/${selectedProperty.id}`}>
+                          <Link to={`/imoveis/${selectedProperty.id}`}>
                             <Home className="h-2.5 w-2.5 mr-1" />
                             Ver Detalhes
                           </Link>

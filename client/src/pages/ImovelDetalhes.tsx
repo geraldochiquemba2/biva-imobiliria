@@ -419,7 +419,7 @@ export default function ImovelDetalhes() {
           <h2 className="text-2xl font-bold mb-2">Imóvel não encontrado</h2>
           <p className="text-muted-foreground mb-6">O imóvel que você procura não existe ou foi removido</p>
           <Button asChild>
-            <Link href="/imoveis">
+            <Link to="/imoveis">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para Imóveis
             </Link>
@@ -462,7 +462,7 @@ export default function ImovelDetalhes() {
             asChild
             data-testid="button-back"
           >
-            <Link href="/imoveis">
+            <Link to="/imoveis">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para Imóveis
             </Link>
@@ -543,7 +543,7 @@ export default function ImovelDetalhes() {
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-2xl font-bold">Tour Virtual 360°</h2>
                       {currentUser && property.ownerId === currentUser.id && (
-                        <Link href={`/imoveis/${property.id}/tour-virtual`}>
+                        <Link to={`/imoveis/${property.id}/tour-virtual`}>
                           <Button variant="outline" size="sm" data-testid="button-manage-tour">
                             <Edit className="h-4 w-4 mr-2" />
                             Gerenciar Tour
@@ -565,7 +565,7 @@ export default function ImovelDetalhes() {
                     <p className="text-muted-foreground mb-4">
                       Mostre seu imóvel de forma interativa com fotos 360° e hotspots navegáveis
                     </p>
-                    <Link href={`/imoveis/${property.id}/tour-virtual`}>
+                    <Link to={`/imoveis/${property.id}/tour-virtual`}>
                       <Button data-testid="button-create-tour">
                         <Plus className="h-4 w-4 mr-2" />
                         Criar Tour Virtual
@@ -768,7 +768,7 @@ export default function ImovelDetalhes() {
                         asChild
                         data-testid="button-edit-property"
                       >
-                        <Link href={`/editar-imovel/${property.id}`}>
+                        <Link to={`/editar-imovel/${property.id}`}>
                           Editar Imóvel
                         </Link>
                       </Button>

@@ -104,7 +104,7 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
-      <Link href={`/imoveis/${property.id}`}>
+      <Link to={`/imoveis/${property.id}`}>
         <Card 
           className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer"
           data-testid={`card-property-${property.id}`}

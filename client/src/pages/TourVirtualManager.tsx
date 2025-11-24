@@ -155,7 +155,7 @@ export default function TourVirtualManager() {
   return (
     <div className="container mx-auto p-6 max-w-5xl">
       <div className="mb-6">
-        <Link href={`/imoveis/${propertyId}`}>
+        <Link to={`/imoveis/${propertyId}`}>
           <Button variant="ghost" size="sm" data-testid="button-back">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar para o imóvel
@@ -342,7 +342,7 @@ export default function TourVirtualManager() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href={`/imoveis/${propertyId}`}>
+                <Link to={`/imoveis/${propertyId}`}>
                   <Button variant="outline" data-testid="button-view-tour">
                     Ver Tour na Página do Imóvel
                   </Button>

@@ -367,7 +367,7 @@ export default function EditarImovel() {
             className="mb-6"
             data-testid="button-back"
           >
-            <Link href="/meus-imoveis">
+            <Link to="/meus-imoveis">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para Meus Imóveis
             </Link>
@@ -902,7 +902,7 @@ export default function EditarImovel() {
                         asChild
                         data-testid="button-cancel"
                       >
-                        <Link href="/meus-imoveis">Cancelar</Link>
+                        <Link to="/meus-imoveis">Cancelar</Link>
                       </Button>
                     </>
                   )}

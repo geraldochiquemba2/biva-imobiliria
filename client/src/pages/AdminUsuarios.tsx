@@ -174,7 +174,7 @@ export default function AdminUsuarios() {
               className="mb-4"
               data-testid="button-back"
             >
-              <Link href="/dashboard">
+              <Link to="/dashboard">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar ao Dashboard
               </Link>
@@ -527,7 +527,7 @@ export default function AdminUsuarios() {
                         size="sm"
                         asChild
                       >
-                        <Link href={`/imoveis/${property.id}`}>
+                        <Link to={`/imoveis/${property.id}`}>
                           <Eye className="h-4 w-4 mr-2" />
                           Ver
                         </Link>

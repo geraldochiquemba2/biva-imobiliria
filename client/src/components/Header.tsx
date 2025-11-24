@@ -91,7 +91,7 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
       <div className="max-w-7xl mx-auto px-6" ref={mobileMenuRef}>
         <div className="flex items-center justify-between h-24">
-          <Link href="/" data-testid="link-logo" className="flex-shrink-0">
+          <Link to="/" data-testid="link-logo" className="flex-shrink-0">
             <div 
               className="flex items-center cursor-pointer"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -176,7 +176,7 @@ export default function Header() {
                   className="hidden md:flex"
                   data-testid="button-dashboard"
                 >
-                  <Link href="/dashboard" {...prefetchOnHover('/dashboard')}>
+                  <Link to="/dashboard" {...prefetchOnHover('/dashboard')}>
                     <LayoutDashboard className="h-4 w-4 mr-2" />
                     Dashboard
                   </Link>
@@ -194,13 +194,13 @@ export default function Header() {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild className="md:hidden">
-                      <Link href="/dashboard" data-testid="link-mobile-dashboard">
+                      <Link to="/dashboard" data-testid="link-mobile-dashboard">
                         <LayoutDashboard className="h-4 w-4 mr-2" />
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/perfil" data-testid="link-profile">
+                      <Link to="/perfil" data-testid="link-profile">
                         <User className="h-4 w-4 mr-2" />
                         Perfil
                       </Link>
@@ -220,7 +220,7 @@ export default function Header() {
                   asChild
                   data-testid="button-login"
                 >
-                  <Link href="/login" {...prefetchOnHover('/login')}>Entrar</Link>
+                  <Link to="/login" {...prefetchOnHover('/login')}>Entrar</Link>
                 </Button>
 
                 <Button
@@ -228,7 +228,7 @@ export default function Header() {
                   asChild
                   data-testid="button-register"
                 >
-                  <Link href="/cadastro" {...prefetchOnHover('/cadastro')}>Cadastro</Link>
+                  <Link to="/cadastro" {...prefetchOnHover('/cadastro')}>Cadastro</Link>
                 </Button>
               </>
             )}
@@ -307,7 +307,7 @@ export default function Header() {
                       asChild
                       data-testid="button-mobile-dashboard-nav"
                     >
-                      <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                         <LayoutDashboard className="h-4 w-4 mr-2" />
                         Dashboard
                       </Link>
@@ -335,7 +335,7 @@ export default function Header() {
                       asChild
                       data-testid="button-mobile-login"
                     >
-                      <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                      <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                         Entrar
                       </Link>
                     </Button>
@@ -345,7 +345,7 @@ export default function Header() {
                       asChild
                       data-testid="button-mobile-register"
                     >
-                      <Link href="/cadastro" onClick={() => setMobileMenuOpen(false)}>
+                      <Link to="/cadastro" onClick={() => setMobileMenuOpen(false)}>
                         Cadastro
                       </Link>
                     </Button>
