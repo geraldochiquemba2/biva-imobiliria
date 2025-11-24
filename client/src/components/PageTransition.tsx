@@ -19,6 +19,7 @@ function PageTransition({ children }: PageTransitionProps) {
         ease: "easeOut"
       }}
       style={{ minHeight: "100vh" }}
+      className="bg-background"
     >
       {children}
     </motion.div>

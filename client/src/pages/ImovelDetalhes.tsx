@@ -406,7 +406,7 @@ export default function ImovelDetalhes() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
+      <div className="min-h-screen pt-24 flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -414,7 +414,7 @@ export default function ImovelDetalhes() {
 
   if (error || !property) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
+      <div className="min-h-screen pt-24 flex items-center justify-center bg-background">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Imóvel não encontrado</h2>
           <p className="text-muted-foreground mb-6">O imóvel que você procura não existe ou foi removido</p>
@@ -449,7 +449,7 @@ export default function ImovelDetalhes() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12">
+    <div className="min-h-screen pt-24 pb-12 bg-background">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
