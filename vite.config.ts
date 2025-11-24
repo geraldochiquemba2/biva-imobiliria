@@ -46,8 +46,8 @@ export default defineConfig({
       },
     },
     cssCodeSplit: true,
-    minify: 'esbuild',
-    target: 'es2020',
+    minify: 'terser',
+    target: 'es2015',
     reportCompressedSize: false,
   },
   server: {
