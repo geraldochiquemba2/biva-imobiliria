@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect } from "react";
 
 interface PropertyCardProps {
   property: Property;
@@ -25,8 +25,12 @@ interface PropertyCardProps {
 export default function PropertyCard({ property, index }: PropertyCardProps) {
   const { toast } = useToast();
   const prefetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasPrefetched = useRef(false);
 
   const prefetchPropertyDetails = useCallback(() => {
+    if (hasPrefetched.current) return;
+    hasPrefetched.current = true;
+
     queryClient.prefetchQuery({
       queryKey: ['/api/properties', property.id],
       queryFn: async () => {
@@ -44,6 +48,14 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
 
     import('@/pages/ImovelDetalhes').catch(() => {});
   }, [property.id]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      prefetchPropertyDetails();
+    }, 1000 + index * 200);
+
+    return () => clearTimeout(timer);
+  }, [prefetchPropertyDetails, index]);
 
   const handleMouseEnter = useCallback(() => {
     prefetchTimeoutRef.current = setTimeout(() => {
