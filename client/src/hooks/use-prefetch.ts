@@ -80,9 +80,22 @@ export function usePrefetch() {
   }, []);
 
   const prefetchOnHover = useCallback((path: string) => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    
     return {
-      onMouseEnter: () => prefetchRoute(path),
-      onTouchStart: () => prefetchRoute(path),
+      onMouseEnter: () => {
+        timeoutId = setTimeout(() => {
+          prefetchRoute(path);
+        }, 50);
+      },
+      onMouseLeave: () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      },
+      onTouchStart: () => {
+        prefetchRoute(path);
+      },
     };
   }, [prefetchRoute]);
 

@@ -30,11 +30,46 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
+          query: ['@tanstack/react-query'],
+          motion: ['framer-motion'],
+          forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
+          maps: ['leaflet'],
+        },
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]',
+      },
+    },
+    cssCodeSplit: true,
+    minify: 'esbuild',
+    target: 'es2020',
+    reportCompressedSize: false,
   },
   server: {
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
+    warmup: {
+      clientFiles: [
+        './src/App.tsx',
+        './src/pages/Home.tsx',
+        './src/pages/Imoveis.tsx',
+        './src/components/Header.tsx',
+      ],
+    },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'wouter',
+      '@tanstack/react-query',
+    ],
   },
 });
