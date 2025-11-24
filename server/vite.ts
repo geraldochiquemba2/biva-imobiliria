@@ -76,10 +76,29 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static files with proper caching headers
+  app.use(express.static(distPath, {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      // Cache control for different file types
+      if (filePath.endsWith('.html')) {
+        // HTML files should not be cached aggressively
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+      } else if (filePath.match(/\.(js|css|woff|woff2|ttf|otf)$/)) {
+        // JS, CSS and fonts can be cached for a long time (they have hashed names)
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (filePath.match(/\.(jpg|jpeg|png|gif|svg|ico|webp)$/)) {
+        // Images can be cached for a moderate time
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+      }
+    }
+  }));
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

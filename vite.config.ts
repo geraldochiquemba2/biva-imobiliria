@@ -30,6 +30,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -47,8 +48,15 @@ export default defineConfig({
     },
     cssCodeSplit: true,
     minify: 'terser',
-    target: 'es2015',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    target: ['es2020', 'chrome87', 'safari14', 'firefox78', 'edge88'],
     reportCompressedSize: false,
+    chunkSizeWarningLimit: 1000,
   },
   server: {
     fs: {
