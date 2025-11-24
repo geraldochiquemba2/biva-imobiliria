@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
+import { useCallback, useRef } from "react";
 
 interface PropertyCardProps {
   property: Property;
@@ -22,6 +24,39 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property, index }: PropertyCardProps) {
   const { toast } = useToast();
+  const prefetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const prefetchPropertyDetails = useCallback(() => {
+    queryClient.prefetchQuery({
+      queryKey: ['/api/properties', property.id],
+      queryFn: async () => {
+        const response = await fetch(`/api/properties/${property.id}`);
+        if (!response.ok) throw new Error('Erro ao carregar');
+        return response.json();
+      },
+      staleTime: 10 * 60 * 1000,
+    });
+
+    queryClient.prefetchQuery({
+      queryKey: ['/api/virtual-tours/property', property.id],
+      staleTime: 10 * 60 * 1000,
+    });
+
+    import('@/pages/ImovelDetalhes').catch(() => {});
+  }, [property.id]);
+
+  const handleMouseEnter = useCallback(() => {
+    prefetchTimeoutRef.current = setTimeout(() => {
+      prefetchPropertyDetails();
+    }, 100);
+  }, [prefetchPropertyDetails]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (prefetchTimeoutRef.current) {
+      clearTimeout(prefetchTimeoutRef.current);
+      prefetchTimeoutRef.current = null;
+    }
+  }, []);
 
   const getPropertyUrl = () => {
     if (typeof window !== 'undefined') {
@@ -61,6 +96,8 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
         <Card 
           className="overflow-hidden hover-elevate active-elevate-2 transition-all duration-300 cursor-pointer"
           data-testid={`card-property-${property.id}`}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
         <div className="relative aspect-square overflow-hidden">
           {property.images && property.images.length > 0 ? (
