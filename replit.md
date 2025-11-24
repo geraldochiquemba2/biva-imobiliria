@@ -56,6 +56,9 @@ Preferred communication style: Simple, everyday language.
 - **Visit Auto-Completion Optimization**: Moved heavy `getVisitsWithAutoComplete()` from per-request execution to background job (every 30 minutes). Previously called on every property listing request, causing significant delays. **Major performance improvement**.
 - **Lazy Image Loading**: Added `loading="lazy"` attribute to all property images, hero images, and logos. Reduces initial page load by deferring off-screen images, improving First Contentful Paint (FCP) by ~40%.
 - **Prefetching Strategy**: Implemented smart prefetching of similar properties (by location and type) when viewing property details, improving perceived navigation speed.
+- **Advanced Preloading & Prefetching (Nov 24, 2025)**: Implemented comprehensive preloading strategy - CSS/fonts preloaded asynchronously, DNS prefetch for external domains, hover-based route prefetching with 50ms debounce, Service Worker for offline asset caching.
+- **Optimized Code Splitting (Nov 24, 2025)**: Configured manual chunks in Vite build - separated vendor (React), UI (Radix), query (TanStack), motion (Framer), forms (React Hook Form/Zod), and maps (Leaflet) into independent bundles. Reduces initial load and enables parallel downloads.
+- **Vite Warmup Configuration (Nov 24, 2025)**: Added server warmup for critical routes (Home, Imoveis, Header, App) during development startup, reducing first-load delays by pre-compiling frequently accessed components.
 
 #### Core Optimizations
 
