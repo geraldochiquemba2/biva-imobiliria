@@ -38,9 +38,12 @@ export default function HeroSection() {
   ]);
 
   useEffect(() => {
-    const preloadImage = (src: string, index: number) => {
+    const preloadImage = (src: string, index: number, priority: boolean = false) => {
       return new Promise<void>((resolve) => {
         const img = new Image();
+        if (priority) {
+          img.fetchPriority = 'high';
+        }
         img.onload = () => {
           setLoadedImages(prev => new Set(prev).add(index));
           if (index === 0) {
@@ -59,11 +62,19 @@ export default function HeroSection() {
       });
     };
 
-    preloadImage(carouselImages[0], 0).then(() => {
-      carouselImages.forEach((src, index) => {
-        if (index !== 0) {
-          preloadImage(src, index);
-        }
+    // Carregar primeira imagem com máxima prioridade
+    preloadImage(carouselImages[0], 0, true).then(() => {
+      // Carregar próximas 2 imagens rapidamente
+      Promise.all([
+        preloadImage(carouselImages[1], 1, true),
+        preloadImage(carouselImages[2], 2, true)
+      ]).then(() => {
+        // Carregar o resto gradualmente para não sobrecarregar mobile
+        carouselImages.slice(3).forEach((src, idx) => {
+          setTimeout(() => {
+            preloadImage(src, idx + 3);
+          }, idx * 500);
+        });
       });
     });
   }, []);
@@ -81,7 +92,9 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {!isFirstImageLoaded && (
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-primary/10 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-gray-900 to-blue-950/40">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(59,130,246,0.1)_0%,_transparent_70%)]" />
+        </div>
       )}
       
       <AnimatePresence initial={false}>
