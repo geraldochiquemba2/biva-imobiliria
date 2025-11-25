@@ -15,7 +15,6 @@ const Imoveis = lazy(() => import("@/pages/Imoveis"));
 const Arrendar = lazy(() => import("@/pages/Arrendar"));
 const Comprar = lazy(() => import("@/pages/Comprar"));
 const AltosPadrao = lazy(() => import("@/pages/AltosPadrao"));
-const Coworking = lazy(() => import("@/pages/Coworking"));
 const ImoveisCurtaDuracao = lazy(() => import("@/pages/ImoveisCurtaDuracao"));
 const Servicos = lazy(() => import("@/pages/Servicos"));
 const Sobre = lazy(() => import("@/pages/Sobre"));
@@ -79,7 +78,6 @@ function Router() {
               <Route path="/arrendar" component={Arrendar} />
               <Route path="/comprar" component={Comprar} />
               <Route path="/altos-padrao" component={AltosPadrao} />
-              <Route path="/coworking" component={Coworking} />
               <Route path="/imoveis-curta-duracao" component={ImoveisCurtaDuracao} />
               <Route path="/imoveis/:id" component={ImovelDetalhes} />
               <Route path="/imoveis/:propertyId/tour-virtual" component={TourVirtualManager} />

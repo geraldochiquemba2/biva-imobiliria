@@ -80,7 +80,6 @@ export default function Header() {
     { label: 'Início', path: '/', testId: 'inicio' },
     { label: 'Imóveis', path: '/imoveis', testId: 'imoveis' },
     { label: 'Alto Padrão', path: '/altos-padrao', testId: 'alto-padrao' },
-    { label: 'Coworking', path: '/coworking', testId: 'coworking' },
     { label: 'Curta Duração', path: '/imoveis-curta-duracao', testId: 'curta-duracao' },
     { label: 'Explorar Mapa', path: '/explorar-mapa', testId: 'explorar-mapa' },
     { label: 'Serviços', path: '/servicos', testId: 'servicos' },

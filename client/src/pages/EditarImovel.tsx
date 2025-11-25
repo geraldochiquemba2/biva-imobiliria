@@ -51,7 +51,7 @@ const propertySchema = z.object({
   title: z.string().min(5, "Título deve ter no mínimo 5 caracteres"),
   description: z.string().min(20, "Descrição deve ter no mínimo 20 caracteres"),
   type: z.enum(["Arrendar", "Vender"]),
-  category: z.enum(["Apartamento", "Casa", "Comercial", "Terreno", "Coworking"]),
+  category: z.enum(["Apartamento", "Casa", "Comercial", "Terreno"]),
   shortTerm: z.boolean().optional(),
   price: z.string().min(1, "Preço é obrigatório"),
   provincia: z.string().min(1, "Província é obrigatória"),

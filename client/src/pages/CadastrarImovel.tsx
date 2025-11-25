@@ -292,7 +292,7 @@ const propertyFormSchema = z.object({
   type: z.enum(['Arrendar', 'Vender'], {
     required_error: "Selecione o tipo de transação",
   }),
-  category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno', 'Coworking'], {
+  category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno'], {
     required_error: "Selecione a categoria",
   }),
   shortTerm: z.boolean().optional(),
@@ -308,22 +308,12 @@ const propertyFormSchema = z.object({
   area: z.coerce.number().positive("Área deve ser maior que zero"),
   amenities: z.array(z.string()).optional(),
 }).superRefine((data, ctx) => {
-  if (data.category === 'Coworking') {
-    if (!data.pricePerHour || data.pricePerHour <= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Preço por hora é obrigatório para Coworking",
-        path: ['pricePerHour'],
-      });
-    }
-  } else {
-    if (!data.price || data.price <= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Preço deve ser maior que zero",
-        path: ['price'],
-      });
-    }
+  if (!data.price || data.price <= 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Preço deve ser maior que zero",
+      path: ['price'],
+    });
   }
 });
 
@@ -389,13 +379,7 @@ export default function CadastrarImovel() {
   useEffect(() => {
     if (watchedCategory) {
       setCategory(watchedCategory);
-      if (watchedCategory === 'Coworking') {
-        setValue('shortTerm', false);
-        setValue('price', undefined);
-        setFormattedPrice('');
-      } else {
-        setValue('pricePerHour', undefined);
-      }
+      setValue('pricePerHour', undefined);
     }
   }, [watchedCategory, setValue]);
 
@@ -609,14 +593,8 @@ export default function CadastrarImovel() {
         ownerId: currentUser!.id,
       };
       
-      if (data.category === 'Coworking') {
-        if (data.pricePerHour !== undefined) {
-          propertyData.pricePerHour = data.pricePerHour.toString();
-        }
-      } else {
-        if (data.price !== undefined) {
-          propertyData.price = data.price.toString();
-        }
+      if (data.price !== undefined) {
+        propertyData.price = data.price.toString();
       }
       
       if (imageUrls.length > 0) {
@@ -879,7 +857,6 @@ export default function CadastrarImovel() {
                               <SelectItem value="Casa" data-testid="option-casa">Casa</SelectItem>
                               <SelectItem value="Comercial" data-testid="option-comercial">Comercial</SelectItem>
                               <SelectItem value="Terreno" data-testid="option-terreno">Terreno</SelectItem>
-                              <SelectItem value="Coworking" data-testid="option-coworking">Coworking</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -890,33 +867,30 @@ export default function CadastrarImovel() {
                     </div>
                   </div>
 
-                  {watchedCategory !== 'Coworking' && (
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="shortTerm"
-                          checked={watchedShortTerm || false}
-                          onCheckedChange={(checked) => {
-                            setValue("shortTerm", checked as boolean);
-                          }}
-                          data-testid="checkbox-short-term"
-                        />
-                        <label
-                          htmlFor="shortTerm"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        >
-                          Imóvel de Curta Duração
-                        </label>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Marque esta opção se o imóvel é para arrendamento de curta duração (hospedagem temporária, férias, etc.). Imóveis de curta duração não permitem contratos formais.
-                      </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="shortTerm"
+                        checked={watchedShortTerm || false}
+                        onCheckedChange={(checked) => {
+                          setValue("shortTerm", checked as boolean);
+                        }}
+                        data-testid="checkbox-short-term"
+                      />
+                      <label
+                        htmlFor="shortTerm"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Imóvel de Curta Duração
+                      </label>
                     </div>
-                  )}
+                    <p className="text-xs text-muted-foreground">
+                      Marque esta opção se o imóvel é para arrendamento de curta duração (hospedagem temporária, férias, etc.). Imóveis de curta duração não permitem contratos formais.
+                    </p>
+                  </div>
 
-                  {watchedCategory !== 'Coworking' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="price">Preço (AOA)</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Preço (AOA)</Label>
                       <div className="relative">
                         <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Controller
@@ -939,42 +913,6 @@ export default function CadastrarImovel() {
                         <p className="text-sm text-destructive">{errors.price.message}</p>
                       )}
                     </div>
-                  )}
-
-                  {watchedCategory === 'Coworking' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="pricePerHour">Preço por Hora (AOA)</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Controller
-                          name="pricePerHour"
-                          control={control}
-                          render={({ field: { value, onChange, ...rest } }) => (
-                            <Input
-                              {...rest}
-                              id="pricePerHour"
-                              type="text"
-                              placeholder="5 000"
-                              className="pl-10"
-                              value={value !== undefined && value !== null ? formatPriceInput(value.toString()) : ''}
-                              onChange={(e) => {
-                                const numericValue = e.target.value.replace(/\D/g, '');
-                                if (numericValue) {
-                                  onChange(parseInt(numericValue, 10));
-                                } else {
-                                  onChange(undefined);
-                                }
-                              }}
-                              data-testid="input-price-per-hour"
-                            />
-                          )}
-                        />
-                      </div>
-                      {errors.pricePerHour && (
-                        <p className="text-sm text-destructive">{errors.pricePerHour.message}</p>
-                      )}
-                    </div>
-                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
