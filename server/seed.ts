@@ -7,13 +7,13 @@ export async function seedDatabase() {
     // Create admin with fixed credentials
     const adminUser: InsertUser = {
       username: "admin",
-      email: "admin@biva.ao",
+      email: "geral.biva@gmail.com",
       password: await bcrypt.hash("123456789", 10),
       fullName: "Administrador BIVA",
-      phone: "+244912345678",
+      phone: "+244929876560",
       userTypes: ["admin"],
       sms: null,
-      address: "Luanda, Angola",
+      address: "Camama, Condominio Pelicano, Rua C",
       bi: "000000000LA000",
       profileImage: null,
     };
@@ -23,8 +23,8 @@ export async function seedDatabase() {
 
     const admin = existingAdmin || await storage.createUser(adminUser);
 
-    console.log("✓ Admin user ready");
-    console.log(`  - Admin: ${admin.phone} / 123456789`);
+    console.log("Admin user ready");
+    console.log(`  - Admin: ${admin.phone}`);
 
     // Define demo properties with stable titles
     // Commented out to remove demo data from production

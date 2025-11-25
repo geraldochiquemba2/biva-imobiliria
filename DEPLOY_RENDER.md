@@ -123,7 +123,7 @@ Após o deploy:
 
 1. Acesse a URL fornecida pelo Render (ex: `https://biva-imobiliaria.onrender.com`)
 2. Faça login com o usuário admin:
-   - **Telefone:** +244912345678
+   - **Telefone:** +244929876560
    - **Senha:** 123456789
 
 ---

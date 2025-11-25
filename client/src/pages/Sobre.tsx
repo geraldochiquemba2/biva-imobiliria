@@ -123,22 +123,22 @@ export default function Sobre() {
                 {
                   icon: Phone,
                   title: "Telefone",
-                  info: "+244 923 456 789",
+                  info: "+244 929 876 560",
                   description: "Seg - Sex, 8h às 18h",
                   image: phoneImg
                 },
                 {
                   icon: Mail,
                   title: "Email",
-                  info: "contacto@biva.ao",
+                  info: "geral.biva@gmail.com",
                   description: "Respondemos em 24h",
                   image: emailImg
                 },
                 {
                   icon: MapPin,
                   title: "Localização",
-                  info: "Luanda, Angola",
-                  description: "Talatona, Rua Principal",
+                  info: "Camama, Luanda",
+                  description: "Condominio Pelicano, Rua C",
                   image: locationImg
                 }
               ].map((contact, index) => (
