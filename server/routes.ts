@@ -646,10 +646,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         limit: req.query.limit ? Number(req.query.limit) : undefined,
       });
       
-      // Generate cache key from search params
-      const cacheKey = `properties:${JSON.stringify(searchParams)}`;
+      const fieldsParam = req.query.fields as string | undefined;
+      const isCardProjection = fieldsParam === 'card';
       
-      // Check cache first
+      const cacheKey = isCardProjection 
+        ? `properties:card:${JSON.stringify(searchParams)}`
+        : `properties:${JSON.stringify(searchParams)}`;
+      
       const cachedResult = memoryCache.get(cacheKey);
       if (cachedResult) {
         return res.json(cachedResult);
@@ -657,12 +660,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const paginatedResult = await storage.listProperties(searchParams);
       
-      // Optimize: Only check active visits for the properties in this page
+      if (isCardProjection) {
+        const cardData = paginatedResult.data.map(property => ({
+          id: property.id,
+          title: property.title,
+          price: property.price,
+          type: property.type,
+          category: property.category,
+          status: property.status,
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          area: property.area,
+          featured: property.featured,
+          shortTerm: property.shortTerm,
+          bairro: property.bairro,
+          municipio: property.municipio,
+          provincia: property.provincia,
+          thumbnail: property.images && property.images.length > 0 ? property.images[0] : null,
+        }));
+        
+        const result = {
+          data: cardData,
+          total: paginatedResult.total,
+          page: paginatedResult.page,
+          limit: paginatedResult.limit,
+          totalPages: paginatedResult.totalPages,
+        };
+        
+        memoryCache.set(cacheKey, result, 300);
+        return res.json(result);
+      }
+      
       const propertyIds = paginatedResult.data.map(p => p.id);
       const activeVisitsByProperty = new Map();
       
       if (propertyIds.length > 0) {
-        // Batch query to check for active visits only for returned properties
         const activeVisitsQuery = await db
           .select({ propertyId: visits.propertyId })
           .from(visits)
@@ -678,7 +710,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Add edit information to each property
       const propertiesWithEditInfo = paginatedResult.data.map(property => {
         const hasActiveVisits = activeVisitsByProperty.get(property.id) || false;
         const isRented = property.status === 'arrendado';
@@ -700,7 +731,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPages: paginatedResult.totalPages,
       };
       
-      // Cache result for 5 minutes
       memoryCache.set(cacheKey, result, 300);
       
       res.json(result);

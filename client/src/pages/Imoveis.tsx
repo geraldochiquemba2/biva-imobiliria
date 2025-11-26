@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Home, MapPin, Search, Bed, RotateCcw, Sofa, UtensilsCrossed } from "lucide-react";
-import type { SearchPropertyParams, PaginatedPropertiesResponse } from "@shared/schema";
+import type { SearchPropertyParams, PaginatedPropertyCardsResponse, PropertyCardData } from "@shared/schema";
 import { angolaProvinces } from "@shared/angola-locations";
 import PropertyCard from "@/components/PropertyCard";
 import bgImage from '@assets/stock_images/modern_apartment_bui_506260cd.jpg';
@@ -19,7 +19,6 @@ export default function Imoveis() {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
-  // Load filters from URL on mount and when location changes
   useEffect(() => {
     const loadFiltersFromURL = () => {
       const params = new URLSearchParams(window.location.search);
@@ -44,7 +43,6 @@ export default function Imoveis() {
       if (Object.keys(urlFilters).length > 0) {
         setFilters(urlFilters);
       } else if (window.location.search === '') {
-        // Se não há query string na URL, limpar os filtros
         setFilters({});
         setMinPrice('');
         setMaxPrice('');
@@ -53,7 +51,6 @@ export default function Imoveis() {
 
     loadFiltersFromURL();
 
-    // Listen to custom event for filter changes
     const handleFilterChange = () => {
       loadFiltersFromURL();
     };
@@ -71,11 +68,12 @@ export default function Imoveis() {
     return selectedProvince?.municipalities || [];
   }, [filters.provincia]);
 
-  const { data: allProperties, isLoading, error } = useQuery<PaginatedPropertiesResponse>({
-    queryKey: ['/api/properties', filters],
+  const { data: allProperties, isLoading, error } = useQuery<PaginatedPropertyCardsResponse>({
+    queryKey: ['/api/properties', { ...filters, fields: 'card' }],
     queryFn: async () => {
       const params = new URLSearchParams();
       
+      params.append('fields', 'card');
       if (filters.type) params.append('type', filters.type);
       if (filters.category) params.append('category', filters.category);
       if (filters.location) params.append('location', filters.location);
@@ -88,7 +86,7 @@ export default function Imoveis() {
       if (filters.featured !== undefined) params.append('featured', filters.featured.toString());
       
       const queryString = params.toString();
-      const url = `/api/properties${queryString ? `?${queryString}` : ''}`;
+      const url = `/api/properties?${queryString}`;
       
       const res = await fetch(url, { credentials: 'include' });
       if (!res.ok) {
@@ -96,10 +94,11 @@ export default function Imoveis() {
       }
       return res.json();
     },
+    staleTime: 30 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
   });
 
-  // Filtrar apenas imóveis disponíveis para páginas públicas
-  const properties = (allProperties?.data || []).filter(property => property.status === 'disponivel');
+  const properties = (allProperties?.data || []).filter((property: PropertyCardData) => property.status === 'disponivel');
 
   const handleSearch = () => {
     const newFilters: SearchPropertyParams = {};

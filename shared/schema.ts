@@ -509,3 +509,31 @@ export interface PaginatedPropertiesResponse {
   limit: number;
   totalPages: number;
 }
+
+// Lightweight property data for card views (optimized for list pages)
+export interface PropertyCardData {
+  id: string;
+  title: string;
+  price: string;
+  type: string;
+  category: string;
+  status: string;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  featured: boolean | null;
+  shortTerm: boolean;
+  bairro: string;
+  municipio: string;
+  provincia: string;
+  thumbnail: string | null;
+}
+
+// Paginated response type for property cards (lightweight)
+export interface PaginatedPropertyCardsResponse {
+  data: PropertyCardData[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

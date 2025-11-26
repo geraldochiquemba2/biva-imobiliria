@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Bed, Bath, Maximize, Home, Share2, Mail } from "lucide-react";
 import { SiWhatsapp, SiFacebook } from "react-icons/si";
-import type { Property } from "@shared/schema";
+import type { Property, PropertyCardData } from "@shared/schema";
 import PropertyImage from "@/components/PropertyImage";
 import {
   DropdownMenu,
@@ -18,7 +18,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useCallback, useRef, useEffect } from "react";
 
 interface PropertyCardProps {
-  property: Property;
+  property: Property | PropertyCardData;
   index: number;
 }
 

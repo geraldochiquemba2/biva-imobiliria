@@ -10,7 +10,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import InteractiveMapSection from "@/components/InteractiveMapSection";
 import CTASection from "@/components/CTASection";
 import AdvertisementBanner from "@/components/AdvertisementBanner";
-import type { Property, PaginatedPropertiesResponse } from "@shared/schema";
+import type { PaginatedPropertyCardsResponse, PropertyCardData } from "@shared/schema";
 import logoImage from '@assets/BIVA LOG300.300_1761333109756.png';
 
 const userProfiles = [
@@ -41,14 +41,20 @@ export default function Home() {
   
   const [showAll, setShowAll] = useState(false);
 
-  const { data: allProperties, isLoading, error } = useQuery<PaginatedPropertiesResponse>({
-    queryKey: ['/api/properties'],
-    staleTime: 0,
-    refetchOnMount: 'always',
+  const { data: allProperties, isLoading, error } = useQuery<PaginatedPropertyCardsResponse>({
+    queryKey: ['/api/properties', { fields: 'card' }],
+    queryFn: async () => {
+      const res = await fetch('/api/properties?fields=card', { credentials: 'include' });
+      if (!res.ok) {
+        throw new Error(`${res.status}: ${res.statusText}`);
+      }
+      return res.json();
+    },
+    staleTime: 30 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
   });
 
-  // Filtrar apenas imóveis disponíveis para páginas públicas
-  const properties = (allProperties?.data || []).filter(property => property.status === 'disponivel');
+  const properties = (allProperties?.data || []).filter((property: PropertyCardData) => property.status === 'disponivel');
 
   // Limit to 10 properties initially
   const displayedProperties = showAll ? properties : properties.slice(0, 10);
