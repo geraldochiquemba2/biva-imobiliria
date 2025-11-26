@@ -28,24 +28,24 @@ export const pool = new Pool({
   // Limitar conexões simultâneas (Supabase free tier suporta até 15 conexões)
   max: 10,
   
-  // Conexões mínimas mantidas ativas (keep-alive)
-  min: 2,
+  // Conexões mínimas mantidas ativas (keep-alive) - AUMENTADO para reduzir cold start
+  min: 4,
   
   // Tempo máximo de espera para obter conexão do pool (10 segundos)
   connectionTimeoutMillis: 10000,
   
-  // Tempo que uma conexão pode ficar idle antes de ser fechada (2 minutos)
-  idleTimeoutMillis: 120000,
+  // Tempo que uma conexão pode ficar idle antes de ser fechada (5 minutos - AUMENTADO)
+  idleTimeoutMillis: 300000,
   
   // Tempo máximo de vida de uma conexão (30 minutos)
   maxLifetimeSeconds: 1800,
   
   // Verificar conexão está viva antes de usar
-  allowExitOnIdle: true,
+  allowExitOnIdle: false,
   
   // Keep-alive configuration para manter conexões ativas
   keepAlive: true,
-  keepAliveInitialDelayMillis: 10000,
+  keepAliveInitialDelayMillis: 5000,
   
   // Statement timeout (evitar queries muito longas)
   statement_timeout: 30000,
@@ -53,6 +53,31 @@ export const pool = new Pool({
   // Query timeout
   query_timeout: 30000,
 });
+
+// Função para pré-aquecer o pool de conexões no startup
+export async function warmupPool(): Promise<void> {
+  console.log('[DB Pool] Iniciando warm-up das conexões...');
+  const startTime = Date.now();
+  
+  try {
+    // Criar múltiplas conexões em paralelo para aquecer o pool
+    const warmupPromises = [];
+    for (let i = 0; i < 4; i++) {
+      warmupPromises.push(
+        pool.query('SELECT 1 as warmup').catch(err => {
+          console.error(`[DB Pool] Erro no warm-up ${i}:`, err.message);
+        })
+      );
+    }
+    
+    await Promise.all(warmupPromises);
+    
+    const duration = Date.now() - startTime;
+    console.log(`[DB Pool] Warm-up concluído em ${duration}ms - Pool pronto com ${pool.totalCount} conexões`);
+  } catch (error) {
+    console.error('[DB Pool] Erro durante warm-up:', error);
+  }
+}
 
 // Event listeners para monitoramento e debugging
 pool.on('connect', (client) => {

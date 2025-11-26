@@ -1,8 +1,9 @@
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
-import { registerRoutes } from "./routes";
+import { registerRoutes, warmupCache } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
+import { warmupPool } from "./db";
 
 const app = express();
 
@@ -86,9 +87,17 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Warm-up do pool de conexões primeiro (antes de qualquer operação de DB)
+  await warmupPool();
+  
   await seedDatabase();
 
   const server = await registerRoutes(app);
+  
+  // Warm-up do cache após as rotas estarem configuradas
+  warmupCache().catch(err => {
+    console.error('Erro no warm-up do cache:', err);
+  });
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

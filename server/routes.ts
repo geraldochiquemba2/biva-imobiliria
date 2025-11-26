@@ -274,6 +274,65 @@ class MemoryCache {
 
 const memoryCache = new MemoryCache();
 
+// Função de warm-up do cache - pré-carrega dados populares no cache
+export async function warmupCache(): Promise<void> {
+  console.log('[Cache] Iniciando warm-up do cache...');
+  const startTime = Date.now();
+  
+  try {
+    // Pré-carregar lista de propriedades aprovadas (primeira página)
+    const propertiesPromise = storage.listProperties({ 
+      page: 1, 
+      limit: 20,
+      status: 'disponivel'
+    }).then(async (properties) => {
+      memoryCache.set('properties:list:1', properties, 600);
+      
+      // Pré-carregar detalhes completos de cada propriedade em paralelo
+      if (properties.data && Array.isArray(properties.data)) {
+        const detailPromises = properties.data.slice(0, 10).map(async (prop: any) => {
+          try {
+            const fullProperty = await storage.getProperty(prop.id);
+            if (fullProperty) {
+              memoryCache.set(`property:${prop.id}`, fullProperty, 1800);
+            }
+          } catch (err: any) {
+            console.error(`[Cache] Erro ao pré-carregar propriedade ${prop.id}:`, err.message);
+          }
+        });
+        await Promise.all(detailPromises);
+      }
+      return properties;
+    }).catch(err => {
+      console.error('[Cache] Erro ao pré-carregar propriedades:', err.message);
+    });
+
+    // Pré-carregar propriedades em destaque
+    const featuredPromise = storage.listProperties({ featured: true }).then(featured => {
+      memoryCache.set('properties:featured', featured, 600);
+      return featured;
+    }).catch(err => {
+      console.error('[Cache] Erro ao pré-carregar destaques:', err.message);
+    });
+
+    // Pré-carregar anúncios ativos
+    const advertisementsPromise = storage.listActiveAdvertisements().then(ads => {
+      memoryCache.set('advertisements:active', ads, 600);
+      return ads;
+    }).catch(err => {
+      console.error('[Cache] Erro ao pré-carregar anúncios:', err.message);
+    });
+
+    // Aguardar todas as operações de warm-up
+    await Promise.all([propertiesPromise, featuredPromise, advertisementsPromise]);
+    
+    const duration = Date.now() - startTime;
+    console.log(`[Cache] Warm-up concluído em ${duration}ms - Cache com ${memoryCache.size()} entradas`);
+  } catch (error) {
+    console.error('[Cache] Erro durante warm-up:', error);
+  }
+}
+
 // Clear old cache entries every 5 minutes
 setInterval(() => {
   const now = Date.now();
@@ -2764,9 +2823,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Advertisement Routes
   
   // Get all active advertisements (public)
-  app.get("/api/advertisements", async (req, res) => {
+  app.get("/api/advertisements", cacheControl(600), async (req, res) => {
     try {
+      const cacheKey = 'advertisements:active';
+      
+      // Check cache first
+      const cached = memoryCache.get<any[]>(cacheKey);
+      if (cached) {
+        return res.json(cached);
+      }
+      
       const advertisements = await storage.listActiveAdvertisements();
+      
+      // Cache for 10 minutes
+      memoryCache.set(cacheKey, advertisements, 600);
+      
       res.json(advertisements);
     } catch (error) {
       console.error('Error getting advertisements:', error);
@@ -2811,6 +2882,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validated,
         expiresAt
       });
+      
+      // Invalidate advertisements cache
+      memoryCache.invalidateExact('advertisements:active');
+      
       res.status(201).json(advertisement);
     } catch (error) {
       console.error('Error creating advertisement:', error);
@@ -2853,6 +2928,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!advertisement) {
         return res.status(404).json({ error: "Anúncio não encontrado" });
       }
+      
+      // Invalidate advertisements cache
+      memoryCache.invalidateExact('advertisements:active');
+      
       res.json(advertisement);
     } catch (error) {
       console.error('Error updating advertisement:', error);
@@ -2867,6 +2946,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!success) {
         return res.status(404).json({ error: "Anúncio não encontrado" });
       }
+      
+      // Invalidate advertisements cache
+      memoryCache.invalidateExact('advertisements:active');
+      
       res.json({ success: true });
     } catch (error) {
       console.error('Error deleting advertisement:', error);
