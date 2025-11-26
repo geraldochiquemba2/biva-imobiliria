@@ -51,6 +51,9 @@ Preferred communication style: Simple, everyday language.
 
 #### Latest Improvements (November 2025)
 
+- **Property Detail Page Optimization (Nov 26, 2025)**: Reduced page load from 2-4 seconds to ~123ms through deferred loading strategy - virtual tours and visits now load after main property content, with smart caching for not-found entities using sentinel values.
+- **Extended Server-Side Cache (Nov 26, 2025)**: Property cache TTL increased to 30 minutes (1800s), virtual tours to 60 minutes (3600s). Sentinel caching for 404s prevents redundant database queries. Comprehensive cache invalidation on property/tour CRUD operations.
+- **Frontend Query Optimization (Nov 26, 2025)**: React Query staleTime increased to 30m for properties, 5m for visits, 60m for virtual tours. Removed unnecessary virtual tour prefetching from PropertyCard to prevent 404 errors.
 - **Aggressive Client-Side Caching**: React Query upgraded to `staleTime: 10m` (doubled from 5m), `gcTime: 30m` (tripled from 10m) for real estate data that changes infrequently. Dramatically reduces API calls for repeat visits and navigation.
 - **Backend Cache TTL Increases**: Extended cache durations for static data - properties listings (300s, up from 120s), property details & featured (600s, up from 180s), user data (900s, up from 300s). Reduces database load by ~60%.
 - **Visit Auto-Completion Optimization**: Moved heavy `getVisitsWithAutoComplete()` from per-request execution to background job (every 30 minutes). Previously called on every property listing request, causing significant delays. **Major performance improvement**.
