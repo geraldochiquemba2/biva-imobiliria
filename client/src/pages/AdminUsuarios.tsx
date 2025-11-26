@@ -17,6 +17,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { User, Property } from "@shared/schema";
+import { Label } from "@/components/ui/label";
 import { 
   Users, 
   ArrowLeft, 
@@ -27,8 +28,10 @@ import {
   Phone,
   MapPin,
   Eye,
+  EyeOff,
   Search,
-  Clock
+  Clock,
+  KeyRound
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -39,6 +42,12 @@ export default function AdminUsuarios() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userPropertiesDialogOpen, setUserPropertiesDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -80,6 +89,34 @@ export default function AdminUsuarios() {
     },
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ userId, newPassword }: { userId: string; newPassword: string }) => {
+      const res = await apiRequest('POST', `/api/users/${userId}/reset-password`, { newPassword });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Erro ao redefinir senha');
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Senha redefinida",
+        description: `A senha de ${resetPasswordUser?.fullName} foi redefinida com sucesso.`,
+      });
+      setResetPasswordDialogOpen(false);
+      setResetPasswordUser(null);
+      setNewPassword("");
+      setConfirmPassword("");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   useEffect(() => {
     if (!userLoading && !currentUser) {
       setLocation('/login');
@@ -108,6 +145,47 @@ export default function AdminUsuarios() {
   const handleViewProperties = (user: User) => {
     setSelectedUser(user);
     setUserPropertiesDialogOpen(true);
+  };
+
+  const handleResetPassword = (user: User) => {
+    setResetPasswordUser(user);
+    setResetPasswordDialogOpen(true);
+  };
+
+  const handleResetPasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Erro",
+        description: "As senhas não coincidem",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      toast({
+        title: "Erro",
+        description: "A nova senha deve ter no mínimo 6 caracteres",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (resetPasswordUser) {
+      resetPasswordMutation.mutate({
+        userId: resetPasswordUser.id,
+        newPassword,
+      });
+    }
+  };
+
+  const handleResetPasswordCancel = () => {
+    setResetPasswordDialogOpen(false);
+    setResetPasswordUser(null);
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   const usersByType = {
@@ -332,25 +410,36 @@ export default function AdminUsuarios() {
                                 )}
                                 
                                 {user.id !== currentUser.id && (
-                                  <Button
-                                    variant={user.status === 'ativo' ? 'destructive' : 'default'}
-                                    size="sm"
-                                    onClick={() => handleToggleStatus(user)}
-                                    disabled={toggleStatusMutation.isPending}
-                                    data-testid={`button-toggle-status-${user.id}`}
-                                  >
-                                    {user.status === 'ativo' ? (
-                                      <>
-                                        <Lock className="h-4 w-4 mr-2" />
-                                        Bloquear
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Unlock className="h-4 w-4 mr-2" />
-                                        Desbloquear
-                                      </>
-                                    )}
-                                  </Button>
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleResetPassword(user)}
+                                      data-testid={`button-reset-password-${user.id}`}
+                                    >
+                                      <KeyRound className="h-4 w-4 mr-2" />
+                                      Redefinir Senha
+                                    </Button>
+                                    <Button
+                                      variant={user.status === 'ativo' ? 'destructive' : 'default'}
+                                      size="sm"
+                                      onClick={() => handleToggleStatus(user)}
+                                      disabled={toggleStatusMutation.isPending}
+                                      data-testid={`button-toggle-status-${user.id}`}
+                                    >
+                                      {user.status === 'ativo' ? (
+                                        <>
+                                          <Lock className="h-4 w-4 mr-2" />
+                                          Bloquear
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Unlock className="h-4 w-4 mr-2" />
+                                          Desbloquear
+                                        </>
+                                      )}
+                                    </Button>
+                                  </>
                                 )}
                               </div>
                             </div>
@@ -453,16 +542,27 @@ export default function AdminUsuarios() {
                                 )}
                                 
                                 {user.id !== currentUser.id && (
-                                  <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => handleToggleStatus(user)}
-                                    disabled={toggleStatusMutation.isPending}
-                                    data-testid={`button-toggle-status-${user.id}`}
-                                  >
-                                    <Unlock className="h-4 w-4 mr-2" />
-                                    Desbloquear
-                                  </Button>
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleResetPassword(user)}
+                                      data-testid={`button-reset-password-blocked-${user.id}`}
+                                    >
+                                      <KeyRound className="h-4 w-4 mr-2" />
+                                      Redefinir Senha
+                                    </Button>
+                                    <Button
+                                      variant="default"
+                                      size="sm"
+                                      onClick={() => handleToggleStatus(user)}
+                                      disabled={toggleStatusMutation.isPending}
+                                      data-testid={`button-toggle-status-${user.id}`}
+                                    >
+                                      <Unlock className="h-4 w-4 mr-2" />
+                                      Desbloquear
+                                    </Button>
+                                  </>
                                 )}
                               </div>
                             </div>
@@ -538,6 +638,85 @@ export default function AdminUsuarios() {
               ))
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resetPasswordDialogOpen} onOpenChange={(open) => {
+        if (!open) handleResetPasswordCancel();
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Redefinir Senha</DialogTitle>
+            <DialogDescription>
+              Defina uma nova senha para {resetPasswordUser?.fullName}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleResetPasswordSubmit} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nova Senha</Label>
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Digite a nova senha (mínimo 6 caracteres)"
+                  data-testid="input-reset-new-password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirme a nova senha"
+                  data-testid="input-reset-confirm-password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleResetPasswordCancel}
+                data-testid="button-cancel-reset-password"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={resetPasswordMutation.isPending}
+                data-testid="button-submit-reset-password"
+              >
+                {resetPasswordMutation.isPending ? 'Redefinindo...' : 'Redefinir Senha'}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
