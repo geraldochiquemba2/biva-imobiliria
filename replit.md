@@ -51,6 +51,11 @@ Preferred communication style: Simple, everyday language.
 
 #### Latest Improvements (November 2025)
 
+- **Intersection Observer Lazy Loading (Nov 26, 2025)**: Map and Virtual Tour components now use Intersection Observer to defer loading until component enters viewport (200px margin). Preloads map tiles and first panorama image proactively.
+- **Immutable Image Cache Headers (Nov 26, 2025)**: Object Storage images now served with `Cache-Control: public, max-age=31536000, immutable` (1 year cache), significantly reducing repeat image requests.
+- **Smart Image Priority Loading (Nov 26, 2025)**: Main property image uses `loading="eager"` with `fetchPriority="high"`, thumbnails use `loading="lazy"` with `fetchPriority="low"` for optimal perceived performance.
+- **Resource Hints for Maps (Nov 26, 2025)**: Added `preconnect` and `dns-prefetch` for Esri ArcGIS CDN (server.arcgisonline.com) to reduce map tile latency.
+- **Virtual Tour Code Splitting (Nov 26, 2025)**: Photo Sphere Viewer libraries split into separate chunk in Vite config for reduced initial bundle size.
 - **Property Detail Page Optimization (Nov 26, 2025)**: Reduced page load from 2-4 seconds to ~123ms through deferred loading strategy - virtual tours and visits now load after main property content, with smart caching for not-found entities using sentinel values.
 - **Extended Server-Side Cache (Nov 26, 2025)**: Property cache TTL increased to 30 minutes (1800s), virtual tours to 60 minutes (3600s). Sentinel caching for 404s prevents redundant database queries. Comprehensive cache invalidation on property/tour CRUD operations.
 - **Frontend Query Optimization (Nov 26, 2025)**: React Query staleTime increased to 30m for properties, 5m for visits, 60m for virtual tours. Removed unnecessary virtual tour prefetching from PropertyCard to prevent 404 errors.
