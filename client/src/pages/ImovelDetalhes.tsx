@@ -81,6 +81,7 @@ export default function ImovelDetalhes() {
       return response.json();
     },
     enabled: !!params?.id,
+    staleTime: 30 * 60 * 1000,
   });
 
   // Prefetch similar properties for better navigation UX
@@ -149,14 +150,16 @@ export default function ImovelDetalhes() {
       if (!response.ok) return { data: [] };
       return response.json();
     },
-    enabled: !!currentUser && !!params?.id,
+    enabled: !!currentUser && !!params?.id && !!property,
+    staleTime: 5 * 60 * 1000,
   });
 
   const userVisits = visitsResponse?.data || [];
 
   const { data: virtualTour } = useQuery<VirtualTourWithRooms>({
     queryKey: ['/api/virtual-tours/property', params?.id],
-    enabled: !!params?.id,
+    enabled: !!params?.id && !!property,
+    staleTime: 60 * 60 * 1000,
   });
 
   // Verificar se usuário não autenticado está tentando ver imóvel indisponível

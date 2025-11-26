@@ -38,24 +38,9 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
         if (!response.ok) throw new Error('Erro ao carregar');
         return response.json();
       },
-      staleTime: 10 * 60 * 1000,
+      staleTime: 30 * 60 * 1000,
     });
-
-    queryClient.prefetchQuery({
-      queryKey: ['/api/virtual-tours/property', property.id],
-      staleTime: 10 * 60 * 1000,
-    });
-
-    import('@/pages/ImovelDetalhes').catch(() => {});
   }, [property.id]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      prefetchPropertyDetails();
-    }, 1000 + index * 200);
-
-    return () => clearTimeout(timer);
-  }, [prefetchPropertyDetails, index]);
 
   const handleMouseEnter = useCallback(() => {
     prefetchTimeoutRef.current = setTimeout(() => {

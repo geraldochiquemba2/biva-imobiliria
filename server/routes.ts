@@ -625,7 +625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Property Routes
   
   // Get all properties with optional filters
-  app.get("/api/properties", cacheControl(300), async (req, res) => {
+  app.get("/api/properties", cacheControl(600), async (req, res) => {
     try {
       const searchParams = searchPropertySchema.parse({
         type: req.query.type,
@@ -744,7 +744,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get single property
-  app.get("/api/properties/:id", cacheControl(600), async (req, res) => {
+  app.get("/api/properties/:id", cacheControl(1800), async (req, res) => {
     try {
       const cacheKey = `property:${req.params.id}`;
       
@@ -757,8 +757,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ error: "Imóvel não encontrado" });
         }
         
-        // Cache for 10 minutes
-        memoryCache.set(cacheKey, property, 600);
+        // Cache for 30 minutes
+        memoryCache.set(cacheKey, property, 1800);
       }
       
       if (property.owner) {
@@ -948,6 +948,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const property = await storage.updateProperty(req.params.id, updates);
+      
+      // Invalidate cache for this property
+      memoryCache.invalidateExact(`property:${req.params.id}`);
+      memoryCache.invalidate('properties');
+      
       res.json(property);
     } catch (error) {
       console.error('Error updating property:', error);
@@ -993,6 +998,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const success = await storage.deleteProperty(req.params.id);
+      
+      // Invalidate cache for this property
+      memoryCache.invalidateExact(`property:${req.params.id}`);
+      memoryCache.invalidate('properties');
+      memoryCache.invalidateExact(`virtual-tour-property:${req.params.id}`);
+      
       res.status(204).send();
     } catch (error) {
       console.error('Error deleting property:', error);
@@ -1068,6 +1079,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const updatedProperty = await storage.approveProperty(req.params.id);
       
+      // Invalidate cache for this property
+      memoryCache.invalidateExact(`property:${req.params.id}`);
+      memoryCache.invalidate('properties');
+      
       // Send notification to property owner
       await storage.createNotification({
         userId: property.ownerId,
@@ -1103,6 +1118,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedProperty = await storage.rejectProperty(req.params.id, message);
+      
+      // Invalidate cache for this property
+      memoryCache.invalidateExact(`property:${req.params.id}`);
+      memoryCache.invalidate('properties');
       
       // Send notification to property owner
       await storage.createNotification({
@@ -1174,6 +1193,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const tour = await storage.createVirtualTour(tourData);
+      
+      // Invalidate cache for this property's virtual tour (remove not-found cache)
+      memoryCache.invalidateExact(`virtual-tour-property:${tourData.propertyId}`);
+      
       res.json(tour);
     } catch (error) {
       console.error('Error creating virtual tour:', error);
@@ -1185,12 +1208,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get virtual tour by property ID
-  app.get("/api/virtual-tours/property/:propertyId", cacheControl(300), async (req, res) => {
+  app.get("/api/virtual-tours/property/:propertyId", cacheControl(3600), async (req, res) => {
     try {
-      const tour = await storage.getVirtualTourByProperty(req.params.propertyId);
-      if (!tour) {
+      const cacheKey = `virtual-tour-property:${req.params.propertyId}`;
+      const cachedData = memoryCache.get<any>(cacheKey);
+      
+      if (cachedData && cachedData.__notFound) {
         return res.status(404).json({ error: "Tour virtual não encontrado" });
       }
+      
+      if (cachedData) {
+        return res.json(cachedData);
+      }
+      
+      const tour = await storage.getVirtualTourByProperty(req.params.propertyId);
+      if (!tour) {
+        memoryCache.set(cacheKey, { __notFound: true }, 600);
+        return res.status(404).json({ error: "Tour virtual não encontrado" });
+      }
+      memoryCache.set(cacheKey, tour, 3600);
       res.json(tour);
     } catch (error) {
       console.error('Error getting virtual tour:', error);
@@ -1232,6 +1268,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const updatedTour = await storage.updateVirtualTour(req.params.id, req.body);
+      
+      // Invalidate cache for this virtual tour
+      memoryCache.invalidateExact(`virtual-tour-property:${tour.propertyId}`);
+      
       res.json(updatedTour);
     } catch (error) {
       console.error('Error updating virtual tour:', error);
@@ -1259,6 +1299,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       await storage.deleteVirtualTour(req.params.id);
+      
+      // Invalidate cache for this virtual tour
+      memoryCache.invalidateExact(`virtual-tour-property:${tour.propertyId}`);
+      
       res.json({ success: true });
     } catch (error) {
       console.error('Error deleting virtual tour:', error);
