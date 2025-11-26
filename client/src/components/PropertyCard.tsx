@@ -97,23 +97,27 @@ export default function PropertyCard({ property, index }: PropertyCardProps) {
           onMouseLeave={handleMouseLeave}
         >
         <div className="relative aspect-square overflow-hidden">
-          {property.images && property.images.length > 0 ? (
-            <PropertyImage
-              src={property.images[0]}
-              alt={property.title}
-              className="transition-transform duration-500 hover:scale-110"
-            />
-          ) : (property as any).thumbnail ? (
-            <PropertyImage
-              src={(property as any).thumbnail}
-              alt={property.title}
-              className="transition-transform duration-500 hover:scale-110"
-            />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <Home className="h-12 w-12 text-muted-foreground" />
-            </div>
-          )}
+          {(() => {
+            const thumbnail = 'thumbnail' in property ? property.thumbnail : null;
+            const images = 'images' in property ? property.images : null;
+            const imageSrc = thumbnail || (images && images.length > 0 ? images[0] : null);
+            
+            if (imageSrc) {
+              return (
+                <PropertyImage
+                  src={imageSrc}
+                  alt={property.title}
+                  className="transition-transform duration-500 hover:scale-110"
+                />
+              );
+            }
+            
+            return (
+              <div className="w-full h-full bg-muted flex items-center justify-center">
+                <Home className="h-12 w-12 text-muted-foreground" />
+              </div>
+            );
+          })()}
           <div className="absolute top-1.5 left-1.5">
             <Badge variant={property.type === 'Arrendar' ? 'default' : 'secondary'} className="text-[10px] px-1.5 py-0.5">
               {property.type === 'Arrendar' ? 'Disponível para arrendar' : property.type === 'Vender' ? 'Disponível para compra' : property.type}
