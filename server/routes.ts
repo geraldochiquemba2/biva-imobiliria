@@ -676,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           bairro: property.bairro,
           municipio: property.municipio,
           provincia: property.provincia,
-          thumbnail: property.images && property.images.length > 0 ? property.images[0] : null,
+          thumbnail: (property as any).thumbnail || null,
         }));
         
         const result = {
