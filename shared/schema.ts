@@ -381,13 +381,12 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
   approvalStatus: true,
   rejectionMessage: true,
   rejectionAcknowledged: true,
-}).extend({
-  pricePerHour: z.string().optional().nullable().transform(val => val ? val : null),
+  pricePerHour: true,
 });
 
 export const searchPropertySchema = z.object({
   type: z.enum(['Arrendar', 'Vender']).optional(),
-  category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno', 'Coworking']).optional(),
+  category: z.enum(['Apartamento', 'Casa', 'Comercial', 'Terreno']).optional(),
   location: z.string().optional(),
   bairro: z.string().optional(),
   municipio: z.string().optional(),
