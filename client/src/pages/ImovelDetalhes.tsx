@@ -13,8 +13,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { PropertyWithOwner, User, VirtualTourWithRooms } from "@shared/schema";
-import MapView from "@/components/MapView";
-import VirtualTourViewer from "@/components/VirtualTourViewer";
+import LazyMapView from "@/components/LazyMapView";
+import LazyVirtualTourViewer from "@/components/LazyVirtualTourViewer";
 import PropertyImage from "@/components/PropertyImage";
 import {
   ArrowLeft,
@@ -150,7 +150,7 @@ export default function ImovelDetalhes() {
       if (!response.ok) return { data: [] };
       return response.json();
     },
-    enabled: !!currentUser && !!params?.id && !!property,
+    enabled: !!currentUser && !!params?.id,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -158,7 +158,7 @@ export default function ImovelDetalhes() {
 
   const { data: virtualTour } = useQuery<VirtualTourWithRooms>({
     queryKey: ['/api/virtual-tours/property', params?.id],
-    enabled: !!params?.id && !!property,
+    enabled: !!params?.id,
     staleTime: 60 * 60 * 1000,
   });
 
