@@ -223,7 +223,7 @@ export default function Dashboard() {
             )}
 
             {hasRole('cliente') && (
-              <Link to="/imoveis">
+              <Link to="/explorar-mapa">
                 <Card className="hover-elevate cursor-pointer active-elevate-2 relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
