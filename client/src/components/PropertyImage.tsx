@@ -10,13 +10,15 @@ interface PropertyImageProps {
   alt: string;
   className?: string;
   variant?: 'cover' | 'contain';
+  priority?: boolean;
 }
 
 export default function PropertyImage({ 
   src, 
   alt, 
   className = '', 
-  variant = 'contain' 
+  variant = 'contain',
+  priority = false
 }: PropertyImageProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +60,8 @@ export default function PropertyImage({
               alt={alt}
               className={`w-full h-full object-${variant} transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
               style={{ objectPosition: 'center' }}
-              loading="lazy"
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "low"}
               decoding="async"
               onLoad={handleImageLoad}
               onError={handleImageError}

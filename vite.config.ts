@@ -40,6 +40,7 @@ export default defineConfig({
           motion: ['framer-motion'],
           forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
           maps: ['leaflet'],
+          tour: ['@photo-sphere-viewer/core', '@photo-sphere-viewer/markers-plugin'],
         },
         entryFileNames: 'assets/[name].[hash].js',
         chunkFileNames: 'assets/[name].[hash].js',

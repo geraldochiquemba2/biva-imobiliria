@@ -482,6 +482,7 @@ export default function ImovelDetalhes() {
                       src={selectedImageIndex === 0 && (property as any).thumbnail ? (property as any).thumbnail : images[selectedImageIndex]}
                       alt={property.title}
                       className="w-full h-full"
+                      priority={selectedImageIndex === 0}
                     />
 
                     {/* Botão de navegação */}
@@ -519,6 +520,7 @@ export default function ImovelDetalhes() {
                               loadedImages.has(index) ? 'opacity-100' : 'opacity-0'
                             }`}
                             loading="lazy"
+                            fetchPriority="low"
                           />
                         </button>
                       ))}
@@ -531,6 +533,7 @@ export default function ImovelDetalhes() {
                     src={(property as any).thumbnail}
                     alt={property.title}
                     className="w-full h-full"
+                    priority={true}
                   />
                 </div>
               ) : (
@@ -554,7 +557,7 @@ export default function ImovelDetalhes() {
                         </Link>
                       )}
                     </div>
-                    <VirtualTourViewer tour={virtualTour} />
+                    <LazyVirtualTourViewer tour={virtualTour} />
                   </CardContent>
                 </Card>
               )}
@@ -685,7 +688,7 @@ export default function ImovelDetalhes() {
 
                     {property.latitude && property.longitude && (
                       <div className="mt-4">
-                        <MapView
+                        <LazyMapView
                           latitude={parseFloat(property.latitude)}
                           longitude={parseFloat(property.longitude)}
                           title={property.title}

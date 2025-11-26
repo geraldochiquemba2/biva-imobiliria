@@ -774,7 +774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get single property
-  app.get("/api/properties/:id", cacheControl(1800), async (req, res) => {
+  app.get("/api/properties/:id", cacheControl(300), async (req, res) => {
     try {
       const cacheKey = `property:${req.params.id}`;
       
@@ -838,7 +838,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       else if (ext === 'gif') contentType = 'image/gif';
 
       res.set('Content-Type', contentType);
-      res.set('Cache-Control', 'public, max-age=86400'); // 1 day
+      res.set('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for immutable assets
       res.send(imageBuffer);
     } catch (error) {
       console.error('Error serving image:', error);
