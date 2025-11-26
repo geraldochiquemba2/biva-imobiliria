@@ -28,7 +28,7 @@ export default function IntroSection() {
               segura e totalmente digital.
             </p>
             <Button size="lg" className="group" data-testid="button-view-properties" asChild>
-              <Link to="/imoveis">
+              <Link to="/explorar-mapa">
                 Ver Imóveis
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>

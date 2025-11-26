@@ -419,7 +419,7 @@ export default function ImovelDetalhes() {
           <h2 className="text-2xl font-bold mb-2">Imóvel não encontrado</h2>
           <p className="text-muted-foreground mb-6">O imóvel que você procura não existe ou foi removido</p>
           <Button asChild>
-            <Link to="/imoveis">
+            <Link to="/explorar-mapa">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para Imóveis
             </Link>
@@ -462,7 +462,7 @@ export default function ImovelDetalhes() {
             asChild
             data-testid="button-back"
           >
-            <Link to="/imoveis">
+            <Link to="/explorar-mapa">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para Imóveis
             </Link>

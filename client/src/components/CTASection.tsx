@@ -90,7 +90,7 @@ export default function CTASection() {
                 </p>
 
                 <Button size="lg" variant="outline" className="w-full group bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20" data-testid="button-find-property" asChild>
-                  <Link to="/imoveis">
+                  <Link to="/explorar-mapa">
                     Encontre seu Imóvel
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>

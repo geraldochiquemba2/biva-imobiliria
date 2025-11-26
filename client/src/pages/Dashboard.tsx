@@ -501,7 +501,7 @@ export default function Dashboard() {
             )}
 
             {hasRole('cliente') && (
-              <Link to="/imoveis">
+              <Link to="/explorar-mapa">
                 <Card className="relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer h-full">
                   <div 
                     className="absolute inset-0 bg-cover bg-center opacity-20"
