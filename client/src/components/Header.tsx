@@ -78,7 +78,6 @@ export default function Header() {
 
   const navItems = [
     { label: 'Início', path: '/', testId: 'inicio' },
-    { label: 'Imóveis', path: '/imoveis', testId: 'imoveis' },
     { label: 'Alto Padrão', path: '/altos-padrao', testId: 'alto-padrao' },
     { label: 'Curta Duração', path: '/imoveis-curta-duracao', testId: 'curta-duracao' },
     { label: 'Explorar Mapa', path: '/explorar-mapa', testId: 'explorar-mapa' },
