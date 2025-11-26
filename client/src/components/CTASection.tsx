@@ -22,7 +22,7 @@ export default function CTASection() {
             Pronto para Começar?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Junte-se a milhares de usuários que confiam na BIVA para suas necessidades imobiliárias
+            Junte-se a milhares de usuários que confiam na Biva para suas necessidades imobiliárias
           </p>
         </motion.div>
 

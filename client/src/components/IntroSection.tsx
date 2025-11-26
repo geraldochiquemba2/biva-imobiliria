@@ -14,13 +14,13 @@ export default function IntroSection() {
             transition={{ duration: 0.8 }}
           >
             <p className="text-primary text-sm font-semibold mb-4 uppercase tracking-wide">
-              Bem-vindo à BIVA
+              Bem-vindo à Biva
             </p>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Sua Plataforma Imobiliária em Angola
             </h2>
             <p className="text-lg text-muted-foreground mb-6">
-              A BIVA conecta proprietários, inquilinos, compradores e corretores, 
+              A Biva conecta proprietários, inquilinos, compradores e corretores, 
               simplificando todo o processo de negociação imobiliária em Angola.
             </p>
             <p className="text-lg text-muted-foreground mb-8">

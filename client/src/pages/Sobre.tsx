@@ -54,7 +54,7 @@ export default function Sobre() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-              Sobre a BIVA
+              Sobre a Biva
             </h1>
             
             <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-3xl mx-auto">
@@ -74,7 +74,7 @@ export default function Sobre() {
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Quem Somos</h2>
             <p className="text-lg text-muted-foreground mb-4">
-              A BIVA é a plataforma imobiliária digital líder em Angola, conectando proprietários, 
+              A Biva é a plataforma imobiliária digital líder em Angola, conectando proprietários, 
               inquilinos, compradores e corretores em um único ecossistema integrado.
             </p>
             <p className="text-lg text-muted-foreground">

@@ -46,7 +46,7 @@ function ContactDialog({ open, onOpenChange }: ContactDialogProps) {
         <DialogHeader>
           <DialogTitle className="text-2xl">Entre em Contacto</DialogTitle>
           <DialogDescription>
-            Quer anunciar na BIVA? Entre em contacto connosco através dos seguintes meios:
+            Quer anunciar na Biva? Entre em contacto connosco através dos seguintes meios:
           </DialogDescription>
         </DialogHeader>
         

@@ -163,7 +163,7 @@ export default function Home() {
             <div>
               <img 
                 src={logoImage} 
-                alt="BIVA Imobiliária" 
+                alt="Biva Imobiliária" 
                 className="h-16 w-auto mb-4 dark:brightness-0 dark:invert transition-all"
                 loading="lazy"
               />
@@ -222,7 +222,7 @@ export default function Home() {
           </div>
           
           <div className="border-t pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 BIVA. Todos os direitos reservados.</p>
+            <p>&copy; 2024 Biva. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
