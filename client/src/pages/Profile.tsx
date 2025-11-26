@@ -9,13 +9,17 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { User } from "@shared/schema";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User as UserIcon, Mail, Phone, MessageSquare, MapPin, CreditCard } from "lucide-react";
+import { User as UserIcon, Mail, Phone, MessageSquare, MapPin, CreditCard, Lock, Eye, EyeOff } from "lucide-react";
 import usersImg from '@assets/stock_images/team_business_profes_5f1b3f15.jpg';
 
 export default function Profile() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { data: currentUser, isLoading: userLoading } = useQuery<User>({
     queryKey: ['/api/auth/me'],
@@ -28,6 +32,12 @@ export default function Profile() {
     sms: "",
     address: "",
     bi: "",
+  });
+
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   useEffect(() => {
@@ -61,6 +71,32 @@ export default function Profile() {
     onError: () => {
       toast({
         title: "Erro ao atualizar perfil",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      const res = await apiRequest('POST', '/api/auth/change-password', data);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Erro ao alterar senha');
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Senha alterada",
+        description: "Sua senha foi alterada com sucesso.",
+      });
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setShowPasswordSection(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao alterar senha",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -103,6 +139,38 @@ export default function Profile() {
       bi: currentUser?.bi || "",
     });
     setIsEditing(false);
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Erro",
+        description: "As senhas não coincidem",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (passwordData.newPassword.length < 6) {
+      toast({
+        title: "Erro",
+        description: "A nova senha deve ter no mínimo 6 caracteres",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    changePasswordMutation.mutate({
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword,
+    });
+  };
+
+  const handlePasswordCancel = () => {
+    setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    setShowPasswordSection(false);
   };
 
   const getInitials = (name: string) => {
@@ -270,6 +338,118 @@ export default function Profile() {
               )}
             </form>
           </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Lock className="h-5 w-5 text-muted-foreground" />
+                <CardTitle className="text-xl">Segurança</CardTitle>
+              </div>
+              {!showPasswordSection && (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowPasswordSection(true)}
+                  data-testid="button-change-password"
+                >
+                  Alterar Senha
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          {showPasswordSection && (
+            <CardContent>
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Senha Atual</Label>
+                  <div className="relative">
+                    <Input
+                      id="currentPassword"
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                      placeholder="Digite sua senha atual"
+                      data-testid="input-current-password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">Nova Senha</Label>
+                  <div className="relative">
+                    <Input
+                      id="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                      placeholder="Digite a nova senha (mínimo 6 caracteres)"
+                      data-testid="input-new-password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                      placeholder="Confirme a nova senha"
+                      data-testid="input-confirm-password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 justify-end pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePasswordCancel}
+                    data-testid="button-cancel-password"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={changePasswordMutation.isPending}
+                    data-testid="button-save-password"
+                  >
+                    {changePasswordMutation.isPending ? 'Alterando...' : 'Alterar Senha'}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          )}
         </Card>
       </div>
     </div>

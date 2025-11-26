@@ -500,6 +500,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Change user password
+  app.post("/api/auth/change-password", requireAuth, async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Senha atual e nova senha são obrigatórias" });
+      }
+      
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "Nova senha deve ter no mínimo 6 caracteres" });
+      }
+      
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      const validPassword = await bcrypt.compare(currentPassword, user.password);
+      if (!validPassword) {
+        return res.status(401).json({ error: "Senha atual incorreta" });
+      }
+      
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(req.session.userId!, { password: hashedPassword } as any);
+      
+      memoryCache.invalidateExact(`user:${req.session.userId}`);
+      
+      res.json({ message: "Senha alterada com sucesso" });
+    } catch (error) {
+      console.error('Error changing password:', error);
+      res.status(500).json({ error: "Falha ao alterar senha" });
+    }
+  });
+
+  // Admin reset user password
+  app.post("/api/users/:id/reset-password", requireRole('admin'), async (req, res) => {
+    try {
+      const { newPassword } = req.body;
+      const userId = req.params.id;
+      
+      if (!newPassword) {
+        return res.status(400).json({ error: "Nova senha é obrigatória" });
+      }
+      
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "Nova senha deve ter no mínimo 6 caracteres" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+      
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(userId, { password: hashedPassword } as any);
+      
+      memoryCache.invalidateExact(`user:${userId}`);
+      
+      res.json({ message: "Senha redefinida com sucesso" });
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ error: "Falha ao redefinir senha" });
+    }
+  });
+
   // Get all users (admin only)
   app.get("/api/users", requireRole('admin'), async (req, res) => {
     try {
