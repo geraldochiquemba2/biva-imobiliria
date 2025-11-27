@@ -218,7 +218,7 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9 }}
           >
-            <Link to="/explorar-mapa" className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center min-w-[200px] touch-manipulation" data-testid="button-explore-properties">
+            <Link to="/imoveis" className="px-8 py-3 bg-primary text-primary-foreground rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center min-w-[200px] touch-manipulation" data-testid="button-explore-properties">
               Explorar Imóveis
             </Link>
             <Link to="/cadastrar-imovel" className="px-8 py-3 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-md font-semibold hover-elevate active-elevate-2 transition-all inline-block text-center min-w-[200px] touch-manipulation" data-testid="button-advertise-property">
