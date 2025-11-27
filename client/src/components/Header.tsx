@@ -116,6 +116,17 @@ export default function Header() {
             </Link>
             
             <Link
+              href="/imoveis"
+              className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                location === '/imoveis' ? 'text-primary' : 'text-muted-foreground'
+              }`}
+              data-testid="link-imoveis"
+              {...prefetchOnHover('/imoveis')}
+            >
+              Imóveis
+            </Link>
+            
+            <Link
               href="/arrendar"
               className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                 location === '/arrendar' ? 'text-primary' : 'text-muted-foreground'
@@ -259,6 +270,17 @@ export default function Header() {
                 data-testid="link-mobile-inicio"
               >
                 Início
+              </Link>
+              
+              <Link
+                href="/imoveis"
+                className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                  location === '/imoveis' ? 'text-primary' : 'text-muted-foreground'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+                data-testid="link-mobile-imoveis"
+              >
+                Imóveis
               </Link>
               
               <Link

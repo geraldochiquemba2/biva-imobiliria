@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { usePrefetchData } from "@/hooks/usePrefetchData";
 
 const Home = lazy(() => import("@/pages/Home"));
+const Imoveis = lazy(() => import("@/pages/Imoveis"));
 const Arrendar = lazy(() => import("@/pages/Arrendar"));
 const Comprar = lazy(() => import("@/pages/Comprar"));
 const AltosPadrao = lazy(() => import("@/pages/AltosPadrao"));
@@ -73,6 +74,7 @@ function Router() {
           <PageTransition>
             <Switch>
               <Route path="/" component={Home} />
+              <Route path="/imoveis" component={Imoveis} />
               <Route path="/arrendar" component={Arrendar} />
               <Route path="/comprar" component={Comprar} />
               <Route path="/altos-padrao" component={AltosPadrao} />
