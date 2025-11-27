@@ -3,16 +3,23 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const SUPABASE_PASSWORD = process.env.SUPABASE_PASSWORD;
 
-if (!DATABASE_URL) {
+if (!SUPABASE_PASSWORD) {
   throw new Error(
-    "DATABASE_URL must be set. Please add it to your environment variables.",
+    "SUPABASE_PASSWORD must be set. Please add it to your environment variables.",
   );
 }
 
+const encodedPassword = encodeURIComponent(SUPABASE_PASSWORD);
+const DATABASE_URL = `postgresql://postgres.wxagguvpbkegwjeqthge:${encodedPassword}@aws-1-sa-east-1.pooler.supabase.com:5432/postgres`;
+
 export const pool = new Pool({ 
   connectionString: DATABASE_URL,
+  
+  ssl: {
+    rejectUnauthorized: false
+  },
   
   max: 10,
   min: 4,
