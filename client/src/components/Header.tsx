@@ -98,7 +98,13 @@ export default function Header() {
                 src={logoImage} 
                 alt="BIVA Imobiliária" 
                 className="h-14 sm:h-16 md:h-20 w-auto object-contain dark:brightness-0 dark:invert transition-all"
-                style={{ aspectRatio: 'auto' }}
+                style={{ 
+                  aspectRatio: 'auto',
+                  imageRendering: 'auto',
+                  WebkitFontSmoothing: 'antialiased'
+                }}
+                fetchPriority="high"
+                decoding="async"
               />
             </div>
           </Link>

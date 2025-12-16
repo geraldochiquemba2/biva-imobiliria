@@ -68,7 +68,10 @@ export default function Home() {
           alt="" 
           className="w-1/3 max-w-md object-contain dark:brightness-0 dark:invert opacity-40"
           aria-hidden="true"
-          loading="lazy"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          style={{ imageRendering: 'auto' }}
         />
       </div>
       
@@ -166,6 +169,8 @@ export default function Home() {
                 alt="Biva Imobiliária" 
                 className="h-16 w-auto mb-4 dark:brightness-0 dark:invert transition-all"
                 loading="lazy"
+                decoding="async"
+                style={{ imageRendering: 'auto' }}
               />
               <p className="text-muted-foreground">
                 Simplificando a gestão imobiliária em Angola
