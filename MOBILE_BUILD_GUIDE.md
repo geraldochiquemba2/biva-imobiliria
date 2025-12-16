@@ -190,6 +190,46 @@ npm run cap:sync
 
 ---
 
+---
+
+## Build Automatico com GitHub Actions (Recomendado)
+
+Se voce nao tem Android Studio, pode gerar o APK automaticamente usando GitHub:
+
+### Passo 1: Criar repositorio no GitHub
+1. Acesse https://github.com/new
+2. Crie um novo repositorio (pode ser privado)
+3. Nao inicialize com README
+
+### Passo 2: Subir o projeto
+No terminal do Replit ou local:
+```bash
+git remote add origin https://github.com/SEU-USUARIO/SEU-REPO.git
+git branch -M main
+git push -u origin main
+```
+
+### Passo 3: Aguardar o build
+1. Va na aba **Actions** do seu repositorio
+2. O workflow "Build Android APK" vai executar automaticamente
+3. Aguarde ~5-10 minutos
+
+### Passo 4: Baixar o APK
+1. Clique no workflow concluido (check verde)
+2. Role ate **Artifacts**
+3. Clique em **biva-app-debug** para baixar
+4. Extraia o ZIP e voce tera o arquivo `.apk`
+
+### Passo 5: Instalar no Android
+1. Envie o APK para seu celular (WhatsApp, email, Drive)
+2. Abra o arquivo no celular
+3. Permita "Instalar de fontes desconhecidas" se solicitado
+4. Toque em **Instalar**
+
+**Pronto!** O app estara instalado no seu celular.
+
+---
+
 ## Suporte
 
 Para duvidas sobre:
