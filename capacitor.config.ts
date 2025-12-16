@@ -5,11 +5,9 @@ const config: CapacitorConfig = {
   appName: 'BIVA Imobiliária',
   webDir: 'dist/public',
   server: {
+    url: 'https://biva.pt',
     androidScheme: 'https',
     iosScheme: 'https',
-    // For development, you can enable this to load from your dev server:
-    // url: 'https://your-replit-url.replit.dev',
-    // cleartext: true
   },
   plugins: {
     SplashScreen: {
